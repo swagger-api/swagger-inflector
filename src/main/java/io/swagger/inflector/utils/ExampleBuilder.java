@@ -1,10 +1,6 @@
 package io.swagger.inflector.utils;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import io.swagger.models.Model;
 import io.swagger.models.properties.*;

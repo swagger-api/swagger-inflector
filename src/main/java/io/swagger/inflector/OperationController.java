@@ -13,8 +13,9 @@ import io.swagger.models.Model;
 import io.swagger.models.Operation;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.SerializableParameter;
-import io.swagger.models.properties.Property;
-import io.swagger.models.properties.RefProperty;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.Null;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -24,24 +25,26 @@ import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.process.Inflector;
 
-public class SwaggerController implements Inflector<ContainerRequestContext, Response> {
+public class OperationController implements Inflector<ContainerRequestContext, Response> {
+  private static final Logger LOGGER = LoggerFactory.getLogger(OperationController.class);
+
   private Operation operation;
   private Object controller = null;
   private Method method = null;
   private Class<?>[] parameterClasses = null;
   Map<String, Model> definitions;
 
-  public SwaggerController(Operation operation, Map<String, Model> definitions) {
+  public OperationController(Operation operation, Map<String, Model> definitions) {
     this.operation = operation;
     this.definitions = definitions;
 
     this.method = detectMethod(operation);
     if(method == null) {
-      System.out.println("no method to map to, using mock response");
+      LOGGER.debug("no method to map to, using mock response");
     }
     else {
-      System.out.println("found method! Signature is:");
-      System.out.println(getMethodSignature());
+      LOGGER.debug("found method! Signature is:");
+      LOGGER.debug(getMethodSignature());
     }
   }
   
@@ -62,7 +65,7 @@ public class SwaggerController implements Inflector<ContainerRequestContext, Res
                 int i = 0;
                 boolean matched = true;
                 if(!args[i].equals(methodArgs[i])) {
-                  System.out.println("failed to match " + args[i] + ", " + methodArgs[i]);
+                  LOGGER.info("failed to match " + args[i] + ", " + methodArgs[i]);
                   matched = false;
                 }
                 if(matched) {
@@ -142,10 +145,10 @@ public class SwaggerController implements Inflector<ContainerRequestContext, Res
       case "boolean":
         return Boolean.class;
       }
-      System.out.println("oops! Couldn't match " + type + ", " + format);
+      LOGGER.error("oops! Couldn't match " + type + ", " + format);
     }
     else {
-      System.out.println("oops! Not implemented");
+      LOGGER.error("oops! Not implemented");
     }
     return Null.class;
   }
@@ -208,7 +211,7 @@ public class SwaggerController implements Inflector<ContainerRequestContext, Res
         }
         return Response.status(Status.BAD_REQUEST).entity(new ApiError(Status.BAD_REQUEST.getStatusCode(), builder.toString())).build();
       }
-      System.out.println("calling method " + method + " on controller " + this.controller + " with args " + args);
+      LOGGER.info("calling method " + method + " on controller " + this.controller + " with args " + args);
       try {
         return Response.ok().entity(method.invoke(controller, args)).build();
       } catch (IllegalArgumentException | IllegalAccessException
