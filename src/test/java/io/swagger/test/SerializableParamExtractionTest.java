@@ -20,7 +20,7 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.testng.annotations.Test;
 
-public class NonArraySerializableParamExtractionTest {
+public class SerializableParamExtractionTest {
   ReflectionUtils utils = new ReflectionUtils();
 
   @Test
