@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -26,11 +27,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.process.Inflector;
 
-public class OperationController extends ReflectionUtils implements Inflector<ContainerRequestContext, Response> {
-  private static final Logger LOGGER = LoggerFactory.getLogger(OperationController.class);
+public class JSONOperationController extends ReflectionUtils implements Inflector<ContainerRequestContext, Response> {
+  private static final Logger LOGGER = LoggerFactory.getLogger(JSONOperationController.class);
 
   private String path;
   private String httpMethod;
@@ -40,7 +42,7 @@ public class OperationController extends ReflectionUtils implements Inflector<Co
   private Class<?>[] parameterClasses = null;
   private Map<String, Model> definitions;
 
-  public OperationController(String path, String httpMethod, Operation operation, Map<String, Model> definitions) {
+  public JSONOperationController(String path, String httpMethod, Operation operation, Map<String, Model> definitions) {
     this.setConfiguration(new Configuration());
     this.path = path;
     this.httpMethod = httpMethod;
@@ -66,17 +68,13 @@ public class OperationController extends ReflectionUtils implements Inflector<Co
     if(method == null) {
       LOGGER.debug("no method to map to, using mock response");
     }
-    else {
-      LOGGER.debug("found method!");
-    }
   }
   
   public Method detectMethod(Operation operation) {
-    String methodName = getMethodName(path, httpMethod, operation);
     String controller = getControllerName(operation);
+    String methodName = getMethodName(path, httpMethod, operation);
 
     if(controller != null && methodName != null) {
-      // find the controller!
       try {
         Class<?> cls = Class.forName(controller);
         if(cls != null) {
@@ -89,7 +87,7 @@ public class OperationController extends ReflectionUtils implements Inflector<Co
                 int i = 0;
                 boolean matched = true;
                 if(!args[i].equals(methodArgs[i])) {
-                  LOGGER.info("failed to match " + args[i] + ", " + methodArgs[i]);
+                  LOGGER.debug("failed to match " + args[i] + ", " + methodArgs[i]);
                   matched = false;
                 }
                 if(matched) {
@@ -111,30 +109,9 @@ public class OperationController extends ReflectionUtils implements Inflector<Co
     }
     return null;
   }
-  
-  // not sure if this is needed
-  public String getMethodSignature() {
-    if(method != null && parameterClasses != null) {
-      StringBuilder builder = new StringBuilder();
-      builder.append("public void ")
-        .append(method.getName())
-        .append("(");
-      for(int i = 0; i < parameterClasses.length; i++) {
-        if(i > 0)
-          builder.append(", ");
-        builder.append(parameterClasses[i].getName());
-        builder.append(" ").append(operation.getParameters().get(i).getName());
-      }
-      builder.append(")");
-      
-      return builder.toString();
-    }
-    else return "unknown!";
-  }
 
   @Override
   public Response apply(ContainerRequestContext ctx) {
-    ctx.getMethod();
     List<Parameter> parameters = operation.getParameters();
     Object[] args = new Object[parameters.size()];
     if(method != null && parameters != null) {
@@ -142,6 +119,7 @@ public class OperationController extends ReflectionUtils implements Inflector<Co
 
       List<Parameter> missingParams = new ArrayList<Parameter>();
       UriInfo uri = ctx.getUriInfo();
+      String formDataString = null;
       
       for(Parameter parameter : parameters) {
         String in = parameter.getIn();
@@ -149,21 +127,37 @@ public class OperationController extends ReflectionUtils implements Inflector<Co
         
         try {
           if("query".equals(in)) {
-            o = cast(uri.getQueryParameters().get(parameter.getName()), parameter, parameterClasses[i]);
+            o = coerceValue(uri.getQueryParameters().get(parameter.getName()), parameter, parameterClasses[i]);
           }
           else if("path".equals(in)) {
-            o = cast(uri.getPathParameters().get(parameter.getName()), parameter, parameterClasses[i]);
+            o = coerceValue(uri.getPathParameters().get(parameter.getName()), parameter, parameterClasses[i]);
           }
           else if("header".equals(in)) {
-            o = cast(ctx.getHeaders().get(parameter.getName()), parameter, parameterClasses[i]);
+            o = coerceValue(ctx.getHeaders().get(parameter.getName()), parameter, parameterClasses[i]);
           }
           else if("formData".equals(in)) {
-            throw new RuntimeException("not implemented yet!");
+            if(formDataString == null) {
+              // can only read stream once
+              formDataString = IOUtils.toString(ctx.getEntityStream(), "UTF-8");
+            }
+            if(formDataString != null) {
+              String[] parts = formDataString.split("&");
+              for(String part : parts) {
+                String[]kv = part.split("=");
+                if(kv != null && kv.length == 2) {
+                  // TODO how to handle arrays here?
+                  String key = kv[0];
+                  String value = kv[1];
+                  if(parameter.getName().equals(key)) {
+                    o = coerceValue(Arrays.asList(value), parameter, parameterClasses[i]);
+                  }
+                }
+              }
+            }
           }
           else if("body".equals(in)) {
             if(ctx.hasEntity()) {
               try {
-                // TODO JSON only!
                 o = Json.mapper().readValue(ctx.getEntityStream(), parameterClasses[i]);
               } catch (JsonParseException e) {
                 e.printStackTrace();
@@ -176,7 +170,9 @@ public class OperationController extends ReflectionUtils implements Inflector<Co
           }
         }
         catch (NumberFormatException e) {
-          System.out.println("oops! Couldn't find " + parameter.getName() + " (" + in + ") to " + parameterClasses[i]);
+          System.out.println("Couldn't find " + parameter.getName() + " (" + in + ") to " + parameterClasses[i]);
+        } catch (IOException e) {
+          e.printStackTrace();
         }
         if(o == null && parameter.getRequired()) {
           missingParams.add(parameter);
@@ -211,15 +207,18 @@ public class OperationController extends ReflectionUtils implements Inflector<Co
     }
     Map<String, io.swagger.models.Response> responses = operation.getResponses();
     if(responses != null) {
+      // TODO: return 2xx first, then `default`, if it exists
       for(String code : responses.keySet()) {
         io.swagger.models.Response response = responses.get(code);
         return Response.status(Integer.parseInt(code)).entity(ExampleBuilder.fromProperty(response.getSchema(), definitions)).build();
       }
     }
-    return Response.ok().entity("fun!").build();
+
+    // TODO: might need to check possible response types
+    return Response.ok().build();
   }
 
-  public Object cast(List<String> o, Parameter parameter, Class<?> cls) {
+  public Object coerceValue(List<String> o, Parameter parameter, Class<?> cls) {
     if(o == null || o.size() == 0)
       return null;
 
@@ -236,7 +235,6 @@ public class OperationController extends ReflectionUtils implements Inflector<Co
           Class<?> innerClass = getParameterSignature(innerParam, definitions);
           for(String obj : o) {
             String[] parts = new String[0];
-            // TODO: make much smarter
             if("csv".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
               parts = obj.split(",");
             }
