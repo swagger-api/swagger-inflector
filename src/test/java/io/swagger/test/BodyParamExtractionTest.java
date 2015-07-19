@@ -1,19 +1,23 @@
 package io.swagger.test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import io.swagger.inflector.config.Configuration;
+import io.swagger.inflector.utils.ReflectionUtils;
+import io.swagger.models.ArrayModel;
+import io.swagger.models.Model;
+import io.swagger.models.RefModel;
+import io.swagger.models.parameters.BodyParameter;
+import io.swagger.models.parameters.Parameter;
+import io.swagger.models.properties.RefProperty;
+import io.swagger.sample.models.User;
+import io.swagger.test.models.Person;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import io.swagger.inflector.config.Configuration;
-import io.swagger.inflector.utils.ReflectionUtils;
-import io.swagger.models.*;
-import io.swagger.models.parameters.*;
-import io.swagger.models.properties.RefProperty;
-import io.swagger.sample.User;
-import io.swagger.test.models.Person;
 
 public class BodyParamExtractionTest {
   ReflectionUtils utils = new ReflectionUtils();

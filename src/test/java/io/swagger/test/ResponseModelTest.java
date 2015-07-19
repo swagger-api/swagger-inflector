@@ -1,11 +1,13 @@
 package io.swagger.test;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 import io.swagger.inflector.utils.ExampleBuilder;
-import io.swagger.models.properties.*;
+import io.swagger.models.properties.IntegerProperty;
+import io.swagger.models.properties.StringProperty;
 
-import org.testng.annotations.*;
-
-import static org.testng.Assert.*;
+import org.testng.annotations.Test;
 
 public class ResponseModelTest {
   @Test

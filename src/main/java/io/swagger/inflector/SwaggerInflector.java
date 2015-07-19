@@ -2,6 +2,7 @@ package io.swagger.inflector;
 
 import java.util.Map;
 
+import io.swagger.inflector.config.Configuration;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import io.swagger.models.Model;
 import io.swagger.models.Operation;
@@ -23,9 +24,11 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
 public class SwaggerInflector extends ResourceConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerInflector.class);
+  private Configuration config;
+
   public SwaggerInflector() {
-    String swaggerLocation = System.getProperty("swagger", "swagger.yaml");
-    Swagger swagger = new SwaggerParser().read(swaggerLocation);
+    config = Configuration.read();
+    Swagger swagger = new SwaggerParser().read(config.getSwaggerUrl());
 
     if(swagger != null) {
       Map<String, Path> paths = swagger.getPaths();
@@ -112,7 +115,7 @@ public class SwaggerInflector extends ResourceConfig {
     final ResourceMethod.Builder methodBuilder = builder.addMethod(method);
 
     // TODO: handle other content types
-    methodBuilder.handledBy(new JSONOperationController(pathString, method, operation, definitions))
+    methodBuilder.handledBy(new JSONOperationController(config, pathString, method, operation, definitions))
       .produces(MediaType.APPLICATION_JSON);
 
     final Resource resource = builder.build();

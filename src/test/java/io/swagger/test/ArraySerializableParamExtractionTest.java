@@ -1,9 +1,14 @@
 package io.swagger.test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 import io.swagger.inflector.utils.ReflectionUtils;
-import io.swagger.models.parameters.*;
-import io.swagger.models.properties.*;
+import io.swagger.models.parameters.Parameter;
+import io.swagger.models.parameters.QueryParameter;
+import io.swagger.models.properties.ArrayProperty;
+import io.swagger.models.properties.BooleanProperty;
+import io.swagger.models.properties.IntegerProperty;
+import io.swagger.models.properties.StringProperty;
 
 import java.util.Arrays;
 import java.util.List;

@@ -1,6 +1,6 @@
 package io.swagger.test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 import io.swagger.inflector.utils.ReflectionUtils;
 import io.swagger.models.Operation;
 import io.swagger.models.parameters.QueryParameter;

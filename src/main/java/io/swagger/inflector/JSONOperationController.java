@@ -42,8 +42,8 @@ public class JSONOperationController extends ReflectionUtils implements Inflecto
   private Class<?>[] parameterClasses = null;
   private Map<String, Model> definitions;
 
-  public JSONOperationController(String path, String httpMethod, Operation operation, Map<String, Model> definitions) {
-    this.setConfiguration(new Configuration());
+  public JSONOperationController(Configuration config, String path, String httpMethod, Operation operation, Map<String, Model> definitions) {
+    this.setConfiguration(config);
     this.path = path;
     this.httpMethod = httpMethod;
     this.operation = operation;

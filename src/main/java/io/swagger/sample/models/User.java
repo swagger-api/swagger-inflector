@@ -1,4 +1,4 @@
-package io.swagger.sample;
+package io.swagger.sample.models;
 
 public class User {
   private Long id;

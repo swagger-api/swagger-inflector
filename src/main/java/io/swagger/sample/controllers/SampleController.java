@@ -1,4 +1,4 @@
-package io.swagger.sample;
+package io.swagger.sample.controllers;
 
 import io.swagger.util.Json;
 

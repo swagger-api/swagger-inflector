@@ -1,0 +1,5 @@
+controllerPackage: "io.swagger.sample.controllers"
+modelPackage: "io.swagger.sample.modelszzz"
+swaggerUrl: swagger.yaml
+modelMappings:
+  User: io.swagger.sample.models.User

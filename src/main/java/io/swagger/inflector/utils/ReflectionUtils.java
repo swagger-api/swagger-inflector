@@ -125,7 +125,6 @@ public class ReflectionUtils {
     }
     catch (ClassNotFoundException e) {
       // continue
-      LOGGER.debug("model `" + name + "` not found in classloader");
     }
     // try with config prefix
     if(config.getModelPackage() != null && name.indexOf(".") == -1) {
@@ -135,9 +134,9 @@ public class ReflectionUtils {
       }
       catch (ClassNotFoundException e) {
         // continue
-        LOGGER.debug("model `" + fqModel + "` not found in classloader");
       }
     }
+    LOGGER.debug("model `" + name + "` not found in classloader");
 
     return JsonNode.class;
   }
