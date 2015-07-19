@@ -16,15 +16,40 @@ info:
 basePath: /api
 
 paths:
+  /biggie:
+    post:
+      x-swagger-router-controller: io.swagger.sample.SampleController
+      operationId: postMe
+      tags:
+        - test2
+      consumes:
+        - application/json
+        - application/xml
+      parameters:
+        - name: user
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            $ref: '#/definitions/User'
   /goodbye:
     get:
+      x-swagger-router-controller: io.swagger.sample.SampleController
+      operationId: goodbye
       tags:
         - test2
       parameters:
         - name: happy
           in: query
           required: true
-          type: boolean
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
       responses:
         '200':
           description: 'success!'
@@ -87,7 +112,10 @@ definitions:
       name:
         type: string
     description: 'the name!'
-    example: '{"foo":"bar"}'
+    example: |
+      {
+        "foo":"bar"
+      }
   Address:
     properties:
       street:

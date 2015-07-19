@@ -1,62 +1,86 @@
 package io.swagger.inflector;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import io.swagger.inflector.config.*;
 import io.swagger.inflector.models.ApiError;
-import io.swagger.inflector.utils.ExampleBuilder;
-import io.swagger.models.Model;
-import io.swagger.models.Operation;
-import io.swagger.models.parameters.Parameter;
-import io.swagger.models.parameters.SerializableParameter;
+import io.swagger.inflector.utils.*;
+import io.swagger.models.*;
+import io.swagger.models.parameters.*;
+import io.swagger.models.properties.*;
+import io.swagger.util.Json;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.Null;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.process.Inflector;
 
-public class OperationController implements Inflector<ContainerRequestContext, Response> {
+public class OperationController extends ReflectionUtils implements Inflector<ContainerRequestContext, Response> {
   private static final Logger LOGGER = LoggerFactory.getLogger(OperationController.class);
 
+  private String path;
+  private String httpMethod;
   private Operation operation;
   private Object controller = null;
   private Method method = null;
   private Class<?>[] parameterClasses = null;
-  Map<String, Model> definitions;
+  private Map<String, Model> definitions;
 
-  public OperationController(Operation operation, Map<String, Model> definitions) {
+  public OperationController(String path, String httpMethod, Operation operation, Map<String, Model> definitions) {
+    this.setConfiguration(new Configuration());
+    this.path = path;
+    this.httpMethod = httpMethod;
     this.operation = operation;
     this.definitions = definitions;
+
+    Class<?>[] args = getOperationParameterClasses(operation, definitions);
+    StringBuilder builder = new StringBuilder();
+
+    builder.append(getMethodName(path, httpMethod, operation))
+      .append("(");
+    for(int i = 0; i < args.length; i++) {
+      if(i > 0)
+        builder.append(", ");
+      builder.append(args[i].getName());
+      builder.append(" ").append(operation.getParameters().get(i).getName());
+    }
+    builder.append(")");
+
+    LOGGER.debug("looking for operation: " + builder.toString());
 
     this.method = detectMethod(operation);
     if(method == null) {
       LOGGER.debug("no method to map to, using mock response");
     }
     else {
-      LOGGER.debug("found method! Signature is:");
-      LOGGER.debug(getMethodSignature());
+      LOGGER.debug("found method!");
     }
   }
   
   public Method detectMethod(Operation operation) {
-    String methodName = operation.getOperationId();
-    String controller = (String)operation.getVendorExtensions().get("x-swagger-router-controller");
+    String methodName = getMethodName(path, httpMethod, operation);
+    String controller = getControllerName(operation);
+
     if(controller != null && methodName != null) {
       // find the controller!
       try {
         Class<?> cls = Class.forName(controller);
         if(cls != null) {
-          Class<?>[] args = getOperationSignature(operation);
+          Class<?>[] args = getOperationParameterClasses(operation, this.definitions);
           Method [] methods = cls.getMethods();
           for(Method method : methods) {
             if(methodName.equals(method.getName())) {
@@ -78,7 +102,7 @@ public class OperationController implements Inflector<ContainerRequestContext, R
           }
         }
       } catch (ClassNotFoundException e) {
-        e.printStackTrace();
+        LOGGER.debug("didn't find class " + controller);
       } catch (IllegalAccessException e) {
         e.printStackTrace();
       } catch (InstantiationException e) {
@@ -88,6 +112,7 @@ public class OperationController implements Inflector<ContainerRequestContext, R
     return null;
   }
   
+  // not sure if this is needed
   public String getMethodSignature() {
     if(method != null && parameterClasses != null) {
       StringBuilder builder = new StringBuilder();
@@ -105,52 +130,6 @@ public class OperationController implements Inflector<ContainerRequestContext, R
       return builder.toString();
     }
     else return "unknown!";
-  }
-  
-  public Class<?>[] getOperationSignature(Operation operation) {
-    Class<?>[] classes = new Class<?>[operation.getParameters().size()];
-    int i = 0;
-    for(Parameter parameter : operation.getParameters()) {
-      Class<?> argumentClass = getParameterSignature(parameter);
-      classes[i] = argumentClass;
-      i += 1;
-    }
-    return classes;
-  }
-  
-  public Class<?> getParameterSignature(Parameter parameter) {
-    if(parameter instanceof SerializableParameter) {
-      SerializableParameter sp = (SerializableParameter) parameter;
-      String type = sp.getType();
-      String format = sp.getFormat();
-      switch (type) {
-      case "string":
-        return String.class;
-      case "integer":
-        if("int32".equals(format)) {
-          return Integer.class;
-        }
-        if("int64".equals(format)) {
-          return Long.class;
-        }
-        break;
-      case "number":
-        if("double".equals(format)) {
-          return Double.class;
-        }
-        if("float".equals(format)) {
-          return Float.class;
-        }
-        return BigDecimal.class;
-      case "boolean":
-        return Boolean.class;
-      }
-      LOGGER.error("oops! Couldn't match " + type + ", " + format);
-    }
-    else {
-      LOGGER.error("oops! Not implemented");
-    }
-    return Null.class;
   }
 
   @Override
@@ -182,7 +161,18 @@ public class OperationController implements Inflector<ContainerRequestContext, R
             throw new RuntimeException("not implemented yet!");
           }
           else if("body".equals(in)) {
-            throw new RuntimeException("not implemented yet!");
+            if(ctx.hasEntity()) {
+              try {
+                // TODO JSON only!
+                o = Json.mapper().readValue(ctx.getEntityStream(), parameterClasses[i]);
+              } catch (JsonParseException e) {
+                e.printStackTrace();
+              } catch (JsonMappingException e) {
+                e.printStackTrace();
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+            }
           }
         }
         catch (NumberFormatException e) {
@@ -233,24 +223,45 @@ public class OperationController implements Inflector<ContainerRequestContext, R
     if(o == null || o.size() == 0)
       return null;
 
-    if(Integer.class.equals(cls)) {
-      return Integer.parseInt(o.get(0));
+    LOGGER.debug("casting `" + o + "` to " + cls);
+    if(List.class.equals(cls)) {
+      if(parameter instanceof SerializableParameter) {
+        List<Object> output = new ArrayList<Object>();
+        SerializableParameter sp = (SerializableParameter) parameter;
+        if(sp.getItems() != null) {
+          Property inner = sp.getItems();
+
+          // TODO: this does not need to be done this way, update the helper method
+          Parameter innerParam = new QueryParameter().property(inner);
+          Class<?> innerClass = getParameterSignature(innerParam, definitions);
+          for(String obj : o) {
+            String[] parts = new String[0];
+            // TODO: make much smarter
+            if("csv".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
+              parts = obj.split(",");
+            }
+            if("pipes".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
+              parts = obj.split("|");
+            }
+            if("ssv".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
+              parts = obj.split(" ");
+            }
+            for(String p : parts) {
+              Object ob = cast(p, inner, innerClass);
+              if(ob != null) {
+                output.add(ob);
+              }
+            }
+          }
+        }
+        return output;
+      }
     }
-    if(Long.class.equals(cls)) {
-      return Long.parseLong(o.get(0));
-    }
-    if(Float.class.equals(cls)) {
-      return Float.parseFloat(o.get(0));
-    }
-    if(Double.class.equals(cls)) {
-      return Double.parseDouble(o.get(0));
-    }
-    if(String.class.equals(cls)) {
-      return o.get(0);
-    }
-    if(Boolean.class.equals(cls)) {
-      return Boolean.parseBoolean(o.get(0));
+    else if(parameter instanceof SerializableParameter) {
+      SerializableParameter sp = (SerializableParameter) parameter;
+      return cast(o.get(0), sp.getItems(), cls);
     }
     return null;
   }
+
 }

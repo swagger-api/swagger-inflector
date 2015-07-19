@@ -49,4 +49,4 @@ public class ResponseModelTest {
     assertTrue(o instanceof Integer);
     assertEquals((Integer) o, new Integer(3));
   }
- }
+}

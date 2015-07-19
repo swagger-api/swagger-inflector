@@ -9,7 +9,7 @@
   <artifactId>swagger-inflector</artifactId>
   <packaging>jar</packaging>
   <name>swagger-inflector</name>
-  <version>1.5.0</version>
+  <version>1.0.0-SNAPSHOT</version>
   <url>https://github.com/swagger-api/swagger-inflector</url>
   <scm>
     <connection>scm:git:git@github.com:swagger-api/swagger-inflector.git</connection>
@@ -299,22 +299,31 @@
     
     <!-- Logging -->
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>${slf4j-version}</version>
-      <scope>provided</scope>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+      <version>${logback-version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-ext</artifactId>
       <version>${slf4j-version}</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j-version}</version>
-      <scope>compile</scope>
+    </dependency>
+
+    <!-- Utils -->
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>${commons-lang-version}</version>
     </dependency>
 
     <!-- Test -->
@@ -344,6 +353,11 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+	    <groupId>org.apache.commons</groupId>
+	    <artifactId>commons-csv</artifactId>
+	    <version>${commons-csv-version}</version>
+	</dependency>
   </dependencies>
   <properties>
     <maven-plugin-version>1.0.0</maven-plugin-version>
@@ -358,6 +372,9 @@
     <jetty-version>9.2.9.v20150224</jetty-version>
     <jersey2-version>2.6</jersey2-version>
     <servlet-api-version>2.5</servlet-api-version>
+
+    <commons-lang-version>2.4</commons-lang-version>
+    <commons-csv-version>1.1</commons-csv-version>
 
     <logback-version>1.0.1</logback-version>
     <junit-version>4.8.2</junit-version>
