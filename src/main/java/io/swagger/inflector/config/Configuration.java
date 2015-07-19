@@ -1,29 +1,23 @@
 package io.swagger.inflector.config;
 
-import io.swagger.util.Json;
-
-import io.swagger.models.*;
-
-import io.swagger.sample.User;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public class Configuration {
   final Map<String, Class<?>> modelMap = new HashMap<String, Class<?>>();
-  private String controllerPackage;
+  private String controllerPackage = "io.swagger.sample";
   private String modelPackage;
 
-  public Configuration() {
-    controllerPackage = "io.swagger.sample.controllers";
-    modelPackage = "io.swagger.sample.models";
-    modelMap.put("User", User.class);
+  public void setControllerPackage(String controllerPackage) {
+    this.controllerPackage = controllerPackage;
   }
-
   public String getControllerPackage() {
     return controllerPackage;
   }
 
+  public void setModelPackage(String modelPackage) {
+    this.modelPackage = modelPackage;
+  }
   public String getModelPackage() {
     return modelPackage;
   }

@@ -37,6 +37,16 @@ public class ValueCoercionTest {
   }
 
   @Test
+  public void testConvertInvalidIntegerValue() throws Exception {
+    List<String> values = Arrays.asList("1abczdf");
+
+    Parameter parameter = new QueryParameter().items(new IntegerProperty());
+    Object o = utils.cast(values, parameter, Integer.class, null);
+    
+    assertNull(o);
+  }
+
+  @Test
   public void testConvertLongValue() throws Exception {
     List<String> values = Arrays.asList("1");
 
@@ -47,13 +57,33 @@ public class ValueCoercionTest {
   }
 
   @Test
-  public void testConvertFLoatValue() throws Exception {
+  public void testConvertInvalidLongValue() throws Exception {
+    List<String> values = Arrays.asList("1zzzzz");
+
+    Parameter parameter = new QueryParameter().items(new LongProperty());
+    Object o = utils.cast(values, parameter, Long.class, null);
+    
+    assertNull(o);
+  }
+  
+  @Test
+  public void testConvertFloatValue() throws Exception {
     List<String> values = Arrays.asList("1");
 
     Parameter parameter = new QueryParameter().items(new FloatProperty());
     Object o = utils.cast(values, parameter, Float.class, null);
     
     assertTrue(o instanceof Float);
+  }
+  
+  @Test
+  public void testConvertInvalidFloatValue() throws Exception {
+    List<String> values = Arrays.asList("1;;lkaj;lasjkdfs");
+
+    Parameter parameter = new QueryParameter().items(new FloatProperty());
+    Object o = utils.cast(values, parameter, Float.class, null);
+    
+    assertNull(o);
   }
   
   @Test
@@ -67,6 +97,16 @@ public class ValueCoercionTest {
   }
   
   @Test
+  public void testConvertInvalidDoubleValue() throws Exception {
+    List<String> values = Arrays.asList("abcdefg");
+
+    Parameter parameter = new QueryParameter().items(new DoubleProperty());
+    Object o = utils.cast(values, parameter, Double.class, null);
+    
+    assertNull(o);
+  }
+
+  @Test
   public void testConvertBooleanValue() throws Exception {
     List<String> values = Arrays.asList("true");
 
@@ -75,7 +115,29 @@ public class ValueCoercionTest {
     
     assertTrue(o instanceof Boolean);
   }
-  
+
+  @Test
+  public void testConvertBooleanValue1() throws Exception {
+    List<String> values = Arrays.asList("1");
+
+    Parameter parameter = new QueryParameter().items(new BooleanProperty());
+    Object o = utils.cast(values, parameter, Boolean.class, null);
+    
+    assertTrue(o instanceof Boolean);
+    assertTrue((Boolean)o);
+  }
+
+  @Test
+  public void testConvertBooleanValue2() throws Exception {
+    List<String> values = Arrays.asList("0");
+
+    Parameter parameter = new QueryParameter().items(new BooleanProperty());
+    Object o = utils.cast(values, parameter, Boolean.class, null);
+    
+    assertTrue(o instanceof Boolean);
+    assertFalse((Boolean)o);
+  }
+
   @Test
   public void testConvertUUIDValue() throws Exception {
     List<String> values = Arrays.asList("163e1000-2a5a-4be2-b271-3470b63dff00");
@@ -84,6 +146,16 @@ public class ValueCoercionTest {
     Object o = utils.cast(values, parameter, UUID.class, null);
     
     assertTrue(o instanceof UUID);
+  }
+
+  @Test
+  public void testConvertInvalidUUIDValue() throws Exception {
+    List<String> values = Arrays.asList("bleh");
+
+    Parameter parameter = new QueryParameter().items(new UUIDProperty());
+    Object o = utils.cast(values, parameter, UUID.class, null);
+    
+    assertNull(o);
   }
   
   @Test

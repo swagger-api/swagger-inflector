@@ -60,10 +60,10 @@ public class ReflectionUtils {
         if("date".equals(format)) {
           return LocalDate.class;
         }
-        if("date-time".equals(format)) {
+        else if("date-time".equals(format)) {
           return DateTime.class;
         }
-        if("uuid".equals(format)) {
+        else if("uuid".equals(format)) {
           return UUID.class;
         }
         return String.class;
@@ -71,22 +71,24 @@ public class ReflectionUtils {
         if("int32".equals(format)) {
           return Integer.class;
         }
-        if("int64".equals(format)) {
+        else if("int64".equals(format)) {
           return Long.class;
         }
         break;
       case "number":
-        if("double".equals(format)) {
-          return Double.class;
-        }
         if("float".equals(format)) {
           return Float.class;
+        }
+        else if("double".equals(format)) {
+          return Double.class;
         }
         return BigDecimal.class;
       case "boolean":
         return Boolean.class;
       case "array":
         return List.class;
+      case "file":
+        throw new RuntimeException("not implemented");
       }
       LOGGER.error("oops! Couldn't match " + type + ", " + format);
     }
@@ -98,11 +100,12 @@ public class ReflectionUtils {
         Model referencedModel = definitions.get(ref.getSimpleRef());
         return detectModel(ref.getSimpleRef(), referencedModel);
       }
-      else 
-        LOGGER.error("oops! Not implemented");
+      else if(model instanceof ArrayModel) {
+        return List.class;
+      }
     }
     else {
-      System.out.println(parameter);
+      throw new RuntimeException("not implemented! " + parameter);
     }
     return Null.class;
   }
@@ -110,17 +113,36 @@ public class ReflectionUtils {
   public Class<?> detectModel(String name, Model model) {
     // TODO reference github issue for this
     // there are no vendor extensions in the Model!  This makes it hard...
-
     Class<?> output = config.getModelMapping(name);
     if(output != null) {
-      System.out.println(output);
       // found a mapping in the configuration
+      LOGGER.debug("found model in config mapping: " + output);
       return output;
+    }
+    // try to look up by name
+    try {
+      return Class.forName(name);
+    }
+    catch (ClassNotFoundException e) {
+      // continue
+      LOGGER.debug("model `" + name + "` not found in classloader");
+    }
+    // try with config prefix
+    if(config.getModelPackage() != null && name.indexOf(".") == -1) {
+      String fqModel = config.getModelPackage() + "." + name;
+      try {
+        return Class.forName(fqModel);
+      }
+      catch (ClassNotFoundException e) {
+        // continue
+        LOGGER.debug("model `" + fqModel + "` not found in classloader");
+      }
     }
 
     return JsonNode.class;
   }
   
+  // TODO move to core
   public String getMethodName(String path, String httpMethod, Operation operation) {
     String output = operation.getOperationId();
     if(output != null) {
@@ -154,7 +176,7 @@ public class ReflectionUtils {
   public String getControllerName(Operation operation) {
     String name = (String)operation.getVendorExtensions().get("x-swagger-router-controller");
     if(name != null) {
-      if(name.indexOf(".") == 0) {
+      if(name.indexOf(".") == -1 && config.getControllerPackage() != null) {
         return config.getControllerPackage() + "." + name;
       }
       else {
@@ -167,12 +189,11 @@ public class ReflectionUtils {
     return null;
   }
 
-
   public Object cast(List<String> o, Parameter parameter, Class<?> cls, Map<String, Model> definitions) {
     if(o == null || o.size() == 0)
       return null;
 
-    LOGGER.debug("casting `" + o + "` to `" + cls + "`");
+    LOGGER.debug("coercing array `" + o + "` to `" + cls + "`");
     if(List.class.equals(cls)) {
       if(parameter instanceof SerializableParameter) {
         List<Object> output = new ArrayList<Object>();
@@ -230,33 +251,44 @@ public class ReflectionUtils {
     return null;
   }
 
-  public static Object cast(String o, Property property, Class<?> cls) {
+  public Object cast(String o, Property property, Class<?> cls) {
     if(o == null)
       return null;
 
-    LOGGER.debug("casting `" + o + "` to `" + cls + "`");
-    if(Integer.class.equals(cls)) {
-      return Integer.parseInt(o);
+    LOGGER.debug("coercing `" + o + "` to `" + cls + "`");
+    try {
+      if(Integer.class.equals(cls)) {
+        return Integer.parseInt(o);
+      }
+      if(Long.class.equals(cls)) {
+        return Long.parseLong(o);
+      }
+      if(Float.class.equals(cls)) {
+        return Float.parseFloat(o);
+      }
+      if(Double.class.equals(cls)) {
+        return Double.parseDouble(o);
+      }
+      if(String.class.equals(cls)) {
+        return o;
+      }
+      if(Boolean.class.equals(cls)) {
+        if("1".equals(o))
+          return Boolean.TRUE;
+        if("0".equals(o))
+          return Boolean.FALSE;
+        return Boolean.parseBoolean(o);
+      }
+      if(UUID.class.equals(cls)) {
+        return UUID.fromString(o);
+      }
     }
-    if(Long.class.equals(cls)) {
-      return Long.parseLong(o);
+    catch (NumberFormatException e) {
+      LOGGER.debug("couldn't coerce `" + o + "` to type " + cls);
     }
-    if(Float.class.equals(cls)) {
-      return Float.parseFloat(o);
+    catch (IllegalArgumentException e) {
+      LOGGER.debug("couldn't coerce `" + o + "` to type " + cls);
     }
-    if(Double.class.equals(cls)) {
-      return Double.parseDouble(o);
-    }
-    if(String.class.equals(cls)) {
-      return o;
-    }
-    if(Boolean.class.equals(cls)) {
-      return Boolean.parseBoolean(o);
-    }
-    if(UUID.class.equals(cls)) {
-      return UUID.fromString(o);
-    }
-
     return null;
   }
 }

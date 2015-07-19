@@ -111,7 +111,9 @@ public class SwaggerInflector extends ResourceConfig {
   private void addOperation(String pathString, Resource.Builder builder, String method, Operation operation, Map<String, Model> definitions) {
     final ResourceMethod.Builder methodBuilder = builder.addMethod(method);
 
-    methodBuilder.handledBy(new OperationController(pathString, method, operation, definitions)).produces(MediaType.APPLICATION_JSON);
+    // TODO: handle other content types
+    methodBuilder.handledBy(new JSONOperationController(pathString, method, operation, definitions))
+      .produces(MediaType.APPLICATION_JSON);
 
     final Resource resource = builder.build();
     registerResources(resource);      

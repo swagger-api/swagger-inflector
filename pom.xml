@@ -357,7 +357,12 @@
 	    <groupId>org.apache.commons</groupId>
 	    <artifactId>commons-csv</artifactId>
 	    <version>${commons-csv-version}</version>
-	</dependency>
+	  </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>${commons-io-version}</version>
+    </dependency>
   </dependencies>
   <properties>
     <maven-plugin-version>1.0.0</maven-plugin-version>
@@ -373,6 +378,7 @@
     <jersey2-version>2.6</jersey2-version>
     <servlet-api-version>2.5</servlet-api-version>
 
+    <commons-io-version>2.4</commons-io-version>
     <commons-lang-version>2.4</commons-lang-version>
     <commons-csv-version>1.1</commons-csv-version>
 

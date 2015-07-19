@@ -18,7 +18,7 @@ basePath: /api
 paths:
   /biggie:
     post:
-      x-swagger-router-controller: io.swagger.sample.SampleController
+      x-swagger-router-controller: SampleController
       operationId: postMe
       tags:
         - test2
@@ -36,9 +36,26 @@ paths:
           description: 'success!'
           schema:
             $ref: '#/definitions/User'
+  /form:
+    post:
+      operationId: postFormData
+      x-swagger-router-controller: SampleController
+      tags:
+        - test2
+      parameters:
+        - name: id
+          in: formData
+          type: integer
+          format: int64
+        - name: name
+          in: formData
+          type: string
+      responses:
+        200:
+          description: 'ok'
   /goodbye:
     get:
-      x-swagger-router-controller: io.swagger.sample.SampleController
+      x-swagger-router-controller: SampleController
       operationId: goodbye
       tags:
         - test2
@@ -71,7 +88,7 @@ paths:
           description: 'fun!'
           schema:
             type: string
-      x-swagger-router-controller: io.swagger.sample.SampleController
+      x-swagger-router-controller: SampleController
   '/withModel/{id}':
     get:
       tags:
@@ -102,7 +119,7 @@ paths:
           description: 'success!'
           schema:
             $ref: '#/definitions/User'
-      x-swagger-router-controller: io.swagger.sample.SampleController
+      x-swagger-router-controller: SampleController
 definitions:
   User:
     properties:
