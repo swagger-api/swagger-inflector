@@ -3,11 +3,14 @@ package io.swagger.inflector.models;
 public class ApiError {
   private int code;
   private String message;
-  
-  public ApiError(){}
-  public ApiError(int code, String message) {
+
+  public ApiError code(int code) {
     this.code = code;
+    return this;
+  }
+  public ApiError message(String message) {
     this.message = message;
+    return this;
   }
 
   public int getCode() {
