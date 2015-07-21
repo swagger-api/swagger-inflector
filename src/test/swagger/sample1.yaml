@@ -1,0 +1,367 @@
+swagger: '2.0'
+
+info:
+  version: 0.0.0
+  title: Test Service
+  description: description
+  termsOfService: terms
+  contact:
+    name: API Team 
+    url: http://swagger.io
+    email: apiteam@swagger.io
+  license:
+    name: MIT
+    url: http://opensource.org/licenses/MIT
+
+basePath: /api
+
+paths:
+  /mockResponses:
+    get:
+      tags:
+        - mockResponses
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: query
+          required: true
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+  /mockResponses/primitiveFloatResponse:
+    get:
+      tags:
+        - mockResponses
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            type: number
+            format: float
+  /mockResponses/primitiveDoubleResponse:
+    get:
+      tags:
+        - mockResponses
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            type: number
+            format: double
+  /mockResponses/primitiveStringResponse:
+    get:
+      tags:
+        - mockResponses
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            type: string
+  /mockResponses/primitiveStringResponseWithExample:
+    get:
+      tags:
+        - mockResponses
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            type: string
+            example: fun
+  /mockResponses/primitiveDateResponse:
+    get:
+      tags:
+        - mockResponses
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            type: string
+            format: date
+  /mockResponses/primitiveDateTimeResponse:
+    get:
+      tags:
+        - mockResponses
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            type: string
+            format: date-time
+  /mockResponses/primitiveBigDecimalResponse:
+    get:
+      tags:
+        - mockResponses
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            type: number
+  /mockResponses/primitiveEmailResponse:
+    get:
+      tags:
+        - mockResponses
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            type: string
+            format: email
+  /mockResponses/primitiveUUIDResponse:
+    get:
+      tags:
+        - mockResponses
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            type: string
+            format: uuid
+  /mockResponses/complexResponse:
+    get:
+      tags:
+        - mockResponses
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            $ref: '#/definitions/Address'
+  /mockResponses/complexResponseWithExample:
+    get:
+      tags:
+        - mockResponses
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            $ref: '#/definitions/User'
+  /mockResponses/complexArrayResponse:
+    get:
+      tags:
+        - mockResponses
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Address'
+  /mockResponses/complexArrayResponseWithExample:
+    get:
+      tags:
+        - mockResponses
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+  /form:
+    post:
+      operationId: postFormData
+      x-swagger-router-controller: SampleController
+      tags:
+        - test2
+      parameters:
+        - name: id
+          in: formData
+          type: integer
+          format: int64
+        - name: name
+          in: formData
+          type: string
+      responses:
+        200:
+          description: 'ok'
+  /goodbye:
+    get:
+      x-swagger-router-controller: SampleController
+      operationId: goodbye
+      tags:
+        - test2
+      parameters:
+        - name: happy
+          in: query
+          required: true
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            $ref: '#/definitions/User'
+  /hello:
+    get:
+      tags:
+        - test1
+      operationId: testMe
+      parameters:
+        - name: limit
+          in: query
+          required: true
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: 'fun!'
+          schema:
+            type: string
+      x-swagger-router-controller: SampleController
+  '/withModel/{id}':
+    get:
+      tags:
+        - test2
+      operationId: withModel
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            $ref: '#/definitions/Animal'
+  '/withPath/{id}':
+    get:
+      tags:
+        - test1
+      operationId: withPath
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            $ref: '#/definitions/User'
+      x-swagger-router-controller: SampleController
+definitions:
+  User:
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+    description: 'the name!'
+    example: |
+      {
+        "foo":"bar"
+      }
+  Address:
+    properties:
+      street:
+        type: string
+        example: 12345 El Monte Road
+      city:
+        type: string
+        example: Los Altos Hills
+      state:
+        type: string
+        example: CA
+      zip:
+        type: string
+        example: '94022'
+  Animal:
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+      address:
+        $ref: '#/definitions/Address'
+    description: 'the name!'

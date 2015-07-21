@@ -78,6 +78,25 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.18</version>
+        <executions>
+          <execution>
+            <id>integration-test</id>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>verify</id>
+            <goals>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>2.7</version>
         <configuration>
@@ -149,6 +168,12 @@
         <artifactId>jetty-maven-plugin</artifactId>
         <version>${jetty-version}</version>
         <configuration>
+          <systemProperties>
+            <systemProperty>
+              <name>config</name>
+              <value>src/test/config/config1.yaml</value>
+            </systemProperty>
+          </systemProperties>
           <webApp>
             <contextPath>/</contextPath>
           </webApp>
@@ -159,7 +184,26 @@
             <idleTimeout>60000</idleTimeout>
           </httpConnector>
         </configuration>
-        <!--executions><execution><id>start-jetty</id><phase>pre-integration-test</phase><goals><goal>start</goal></goals><configuration><scanIntervalSeconds>0</scanIntervalSeconds><daemon>true</daemon></configuration></execution><execution><id>stop-jetty</id><phase>post-integration-test</phase><goals><goal>stop</goal></goals></execution></executions-->
+        <executions>
+          <execution>
+            <id>start-jetty</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>start</goal>
+            </goals>
+            <configuration>
+              <scanIntervalSeconds>0</scanIntervalSeconds>
+              <daemon>true</daemon>
+            </configuration>
+          </execution>
+          <execution>
+            <id>stop-jetty</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
@@ -172,34 +216,6 @@
       </plugin>
     </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>release-sign-artifacts</id>
-      <activation>
-        <property>
-          <name>performRelease</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
   <reporting>
     <outputDirectory>target/site</outputDirectory>
     <plugins>
@@ -240,7 +256,7 @@
     </plugins>
   </reporting>
   <dependencies>
-  	<!-- Swagger -->
+    <!-- Swagger -->
     <dependency>
       <groupId>io.swagger</groupId>
       <artifactId>swagger-jersey2-jaxrs</artifactId>
@@ -251,7 +267,6 @@
       <artifactId>swagger-parser</artifactId>
       <version>${swagger-parser-version}</version>
     </dependency>
-    
     <!-- JSON -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -273,7 +288,6 @@
       <artifactId>jackson-datatype-joda</artifactId>
       <version>${jackson-version}</version>
     </dependency>
-    
     <!-- Jersey -->
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
@@ -296,7 +310,6 @@
       <version>${servlet-api-version}</version>
       <scope>provided</scope>
     </dependency>
-    
     <!-- Logging -->
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -318,7 +331,6 @@
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j-version}</version>
     </dependency>
-
     <!-- Utils -->
     <dependency>
       <groupId>commons-lang</groupId>
@@ -354,37 +366,35 @@
       </exclusions>
     </dependency>
     <dependency>
-	    <groupId>org.apache.commons</groupId>
-	    <artifactId>commons-csv</artifactId>
-	    <version>${commons-csv-version}</version>
-	  </dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-csv</artifactId>
+      <version>${commons-csv-version}</version>
+    </dependency>
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>${commons-io-version}</version>
     </dependency>
+
+    <!-- http client -->
+    
+
   </dependencies>
   <properties>
     <maven-plugin-version>1.0.0</maven-plugin-version>
-
     <swagger-core-version>1.5.0</swagger-core-version>
     <swagger-parser-version>1.0.8</swagger-parser-version>
-
     <jackson-version>2.4.2</jackson-version>
     <joda-time-version>2.2</joda-time-version>
     <joda-version>1.2</joda-version>
-
     <jetty-version>9.2.9.v20150224</jetty-version>
     <jersey2-version>2.6</jersey2-version>
     <servlet-api-version>2.5</servlet-api-version>
-
     <commons-io-version>2.4</commons-io-version>
     <commons-lang-version>2.4</commons-lang-version>
     <commons-csv-version>1.1</commons-csv-version>
-
     <logback-version>1.0.1</logback-version>
     <junit-version>4.8.2</junit-version>
-
     <slf4j-version>1.6.3</slf4j-version>
   </properties>
 </project>

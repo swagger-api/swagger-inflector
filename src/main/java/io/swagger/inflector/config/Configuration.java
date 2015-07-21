@@ -21,6 +21,7 @@ public class Configuration {
 
   public static Configuration read() {
     String configLocation = System.getProperty("config", "inflector.yaml");
+    System.out.println("loading config from " + configLocation);
     if(configLocation == null) {
       LOGGER.warn("Returning default configuration!");
       return defaultConfiguration();

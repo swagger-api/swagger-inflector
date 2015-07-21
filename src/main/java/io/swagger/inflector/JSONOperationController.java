@@ -203,9 +203,8 @@ public class JSONOperationController extends ReflectionUtils implements Inflecto
       LOGGER.info("calling method " + method + " on controller " + this.controller + " with args " + args);
       try {
         return Response.ok().entity(method.invoke(controller, args)).build();
-      } catch (IllegalArgumentException | IllegalAccessException
-          | InvocationTargetException e) {
-        e.printStackTrace();
+      } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+        LOGGER.error("failed to invoke method " + method, e);
       }
     }
     Map<String, io.swagger.models.Response> responses = operation.getResponses();

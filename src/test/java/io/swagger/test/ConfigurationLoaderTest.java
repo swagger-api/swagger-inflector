@@ -9,8 +9,8 @@ import static org.testng.Assert.*;
 public class ConfigurationLoaderTest {
   @Test
   public void testLoadSampleConfiguration() throws Exception {
-    System.setProperty("config", "src/test/config/sample1.yaml");
+    System.setProperty("config", "src/test/config/config1.yaml");
     io.swagger.inflector.config.Configuration config = io.swagger.inflector.config.Configuration.read();
-    Yaml.prettyPrint(config);
+    assertNotNull(config);
   }
 }

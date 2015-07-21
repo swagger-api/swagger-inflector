@@ -1,6 +1,8 @@
 package io.swagger.inflector.utils;
 
 import java.util.*;
+import java.util.UUID;
+import java.math.BigDecimal;
 
 import io.swagger.models.Model;
 import io.swagger.models.properties.*;
@@ -10,6 +12,11 @@ public class ExampleBuilder {
     return fromProperty(property, definitions, new HashSet<String>());
   }
   public static Object fromProperty(Property property, Map<String, Model> definitions, Set<String> processedModels) {
+    if(property == null) {
+      return null;
+    }
+
+    Object example = property.getExample();
     if(property instanceof RefProperty) {
       RefProperty ref = (RefProperty) property;
       Model model = definitions.get(ref.getSimpleRef());
@@ -19,44 +26,89 @@ public class ExampleBuilder {
         }
       }
     }
+    if(property instanceof EmailProperty) {
+      if(example !=  null) {
+        return example;
+      }
+      return "apiteam@swagger.io";
+    }
+    if(property instanceof UUIDProperty) {
+      if(example != null) {
+        return example.toString();
+      }
+      return "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+    }
     if(property instanceof StringProperty) {
-      if(property.getExample() != null) {
-        return property.getExample();
+      if(example != null) {
+        return example;
       }
       return "string";
     }
     if(property instanceof IntegerProperty) {
-      if(property.getExample() != null) {
-        return Integer.parseInt(property.getExample());
+      if(example != null) {
+        return Integer.parseInt(example.toString());
       }
       return new Integer(0);
     }
     if(property instanceof LongProperty) {
-      if(property.getExample() != null) {
-        return Long.parseLong(property.getExample());
+      if(example != null) {
+        return Long.parseLong(example.toString());
       }
       return new Long(0);
     }
     if(property instanceof FloatProperty) {
-      if(property.getExample() != null) {
-        return Float.parseFloat(property.getExample());
+      if(example != null) {
+        return Float.parseFloat(example.toString());
       }
       return new Float(1.1);
     }
     if(property instanceof DoubleProperty) {
-      if(property.getExample() != null) {
-        return Double.parseDouble(property.getExample());
+      if(example != null) {
+        return Double.parseDouble(example.toString());
       }
       return new Double(1.23);
     }
     if(property instanceof BooleanProperty) {
-      if(property.getExample() != null) {
-        return Boolean.parseBoolean(property.getExample());
+      if(example != null) {
+        return Boolean.parseBoolean(example.toString());
       }
       return Boolean.TRUE;
     }
+    if(property instanceof DateProperty) {
+      if(example != null) {
+        return example;
+      }
+      return "2015-07-20";
+    }
+    if(property instanceof DateTimeProperty) {
+      if(example != null) {
+        return example;
+      }
+      return "2015-07-20T15:49:04-07:00";
+    }
+    if(property instanceof DecimalProperty) {
+      if(example != null) {
+        return new BigDecimal(example.toString());
+      }
+      return new BigDecimal(1.5);
+    }
+    if(property instanceof ArrayProperty) {
+      ArrayProperty ap = (ArrayProperty) property;
+      Property inner = ap.getItems();
+      if(inner != null) {
+        Object[] o = new Object[1];
+        Object innerExample = fromProperty(inner, definitions, processedModels);
+        if(innerExample != null) {
+          if(innerExample instanceof String) {
+            return "[" + innerExample + "]";
+          }
+          o[0] = innerExample;
+          return o;
+        }
+      }
+    }
 
-    // TODO: Array, Date, DateTime, Decimal, Email, File, Float, Map, Object, UUID
+    // TODO: File, Map, Object, UUID
     
     if(property instanceof RefProperty) {
       RefProperty ref = (RefProperty) property;

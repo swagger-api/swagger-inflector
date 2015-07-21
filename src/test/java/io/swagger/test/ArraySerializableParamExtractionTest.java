@@ -29,7 +29,6 @@ public class ArraySerializableParamExtractionTest {
     
     @SuppressWarnings("unchecked")
     List<String> objs = (List<String>)o;
-    System.out.println(objs);
     assertTrue(objs.size() == 2);
     assertEquals(objs.get(0), "a");
     assertEquals(objs.get(1), "b");
