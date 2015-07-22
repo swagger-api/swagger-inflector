@@ -92,6 +92,12 @@ public class ExampleBuilder {
       }
       return new BigDecimal(1.5);
     }
+    if(property instanceof ObjectProperty) {
+      if(example != null) {
+        return example;
+      }
+      return "{}";
+    }
     if(property instanceof ArrayProperty) {
       ArrayProperty ap = (ArrayProperty) property;
       Property inner = ap.getItems();
@@ -107,8 +113,23 @@ public class ExampleBuilder {
         }
       }
     }
+    if(property instanceof MapProperty) {
+      MapProperty mp = (MapProperty) property;
+      Property inner = mp.getAdditionalProperties();
+      if(inner != null) {
+        Object innerExample = fromProperty(inner, definitions, processedModels);
+        if(innerExample != null) {
+          if(innerExample instanceof String) {
+            return "{\"key\" : " + innerExample + "}";
+          }
+          Map<String, Object> outputMap = new HashMap<String, Object>();
+          outputMap.put("key", innerExample);
+          return outputMap;
+        }
+      }
+    }
 
-    // TODO: File, Map, Object, UUID
+    // TODO: File, Map
     
     if(property instanceof RefProperty) {
       RefProperty ref = (RefProperty) property;

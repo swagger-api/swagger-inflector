@@ -181,6 +181,24 @@ paths:
           schema:
             type: string
             format: uuid
+  /mockResponses/primitiaveMapResponse:
+    get:
+      tags:
+        - mockResponses
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            type: object
+            additionalProperties:
+              type: string
   /mockResponses/complexResponse:
     get:
       tags:
@@ -296,7 +314,6 @@ paths:
           description: 'fun!'
           schema:
             type: string
-      x-swagger-router-controller: SampleController
   '/withModel/{id}':
     get:
       tags:
@@ -355,6 +372,20 @@ definitions:
       zip:
         type: string
         example: '94022'
+  Water:
+    properties:
+      clear:
+        type: boolean
+      name:
+        type: string
+      prices:
+        type: array
+        items:
+          type: number
+          format: float
+      id:
+        type: string
+        format: uuid
   Animal:
     properties:
       id:
