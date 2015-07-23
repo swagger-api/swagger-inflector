@@ -186,9 +186,10 @@ public class JSONOperationController extends ReflectionUtils implements Inflecto
           builder.append(parameter.getName() + " (" + parameter.getIn() + ")");
           count += 1;
         }
-        return Response.status(Status.BAD_REQUEST)
+        int statusCode = config.getInvalidRequestStatusCode();
+        return Response.status(statusCode)
           .entity(new ApiError()
-            .code(Status.BAD_REQUEST.getStatusCode())
+            .code(statusCode)
             .message(builder.toString())).build();
       }
       LOGGER.info("calling method " + method + " on controller " + this.controller + " with args " + args);
