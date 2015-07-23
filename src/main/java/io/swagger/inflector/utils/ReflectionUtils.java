@@ -1,5 +1,6 @@
 package io.swagger.inflector.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -88,7 +89,7 @@ public class ReflectionUtils {
       case "array":
         return List.class;
       case "file":
-        throw new RuntimeException("not implemented");
+        return File.class;
       }
       LOGGER.error("oops! Couldn't match " + type + ", " + format);
     }
@@ -105,7 +106,7 @@ public class ReflectionUtils {
       }
     }
     else {
-      throw new RuntimeException("not implemented! " + parameter);
+      throw new RuntimeException("not implemented! " + parameter.getClass());
     }
     return Null.class;
   }

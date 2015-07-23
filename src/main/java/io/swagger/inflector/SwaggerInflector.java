@@ -34,8 +34,8 @@ public class SwaggerInflector extends ResourceConfig {
       Map<String, Path> paths = swagger.getPaths();
       Map<String, Model> definitions = swagger.getDefinitions();
       for(String pathString : paths.keySet()) {
-        final Resource.Builder builder = Resource.builder();
         Path path = paths.get(pathString);
+        final Resource.Builder builder = Resource.builder();
         builder.path(basePath(swagger.getBasePath(), pathString));
         Operation operation;
 
@@ -63,6 +63,7 @@ public class SwaggerInflector extends ResourceConfig {
         if(operation != null) {
           addOperation(pathString, builder, "PATCH", operation, definitions);
         }
+        registerResources(builder.build());
       }
 
       // enable swagger JSON
@@ -112,13 +113,8 @@ public class SwaggerInflector extends ResourceConfig {
   }
 
   private void addOperation(String pathString, Resource.Builder builder, String method, Operation operation, Map<String, Model> definitions) {
-    final ResourceMethod.Builder methodBuilder = builder.addMethod(method);
-
     // TODO: handle other content types
-    methodBuilder.handledBy(new JSONOperationController(config, pathString, method, operation, definitions))
-      .produces(MediaType.APPLICATION_JSON);
-
-    final Resource resource = builder.build();
-    registerResources(resource);      
+    LOGGER.debug("adding operation `" + pathString + "` " + method);
+    builder.addMethod(method).handledBy(new JSONOperationController(config, pathString, method, operation, definitions));
   }
 }

@@ -93,12 +93,14 @@ public class JSONOperationController extends ReflectionUtils implements Inflecto
                 if(matched) {
                   this.parameterClasses = args;
                   this.controller = cls.newInstance();
+                  LOGGER.debug("matched " + method);
                   return method;
                 }
               }
             }
           }
         }
+        LOGGER.debug("no match in " + controller);
       } catch (ClassNotFoundException e) {
         LOGGER.debug("didn't find class " + controller);
       } catch (IllegalAccessException e) {
