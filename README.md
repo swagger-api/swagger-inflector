@@ -1,6 +1,6 @@
 # Swagger Inflector
 
-This project uses the Swagger Specification to drive an API implementation.  Rather than a typical top-down or bottom-up swagger integration, the Inflector uses the swagger specification as a DSL for the REST API.  The spec drives the creation of routes and controllers automatically, matching methods and method signatures for the implementation.  This brings a similar integration approach to the JVM as [swagger-node](https://github.com/swagger-api/swagger-node) brings to the javascript world.
+This project uses the Swagger Specification to drive an API implementation.  Rather than a typical top-down or bottom-up swagger integration, the Inflector uses the swagger specification as a DSL for the REST API.  The spec drives the creation of routes and controllers automatically, matching methods and method signatures from the implementation.  This brings a similar integration approach to the JVM as [swagger-node](https://github.com/swagger-api/swagger-node) brings to the javascript world.
 
 To allow for an iterative development, the framework will mock responses for any unimplemented methods, based on the specification.  That means you can ship your API to your consumers for review immediately as you build it out.
 
@@ -84,6 +84,9 @@ paths:
         - name: name
           in: formData
           type: string
+      responses:
+        200:
+          description: Success!
 ```
 
 From the configuration example above, this will look for the following class:
@@ -116,6 +119,9 @@ paths:
         - name: name
           in: query
           type: string
+      responses:
+        200:
+          description: Success!
 ```
 
 the Inflector will do the following:
