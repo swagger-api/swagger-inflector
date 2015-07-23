@@ -18,6 +18,7 @@ public class Configuration {
   private String controllerPackage;
   private String modelPackage;
   private String swaggerUrl;
+  private int invalidRequestCode;
 
   public static Configuration read() {
     String configLocation = System.getProperty("config", "inflector.yaml");
@@ -110,5 +111,12 @@ public class Configuration {
   }
   public void setSwaggerUrl(String swaggerUrl) {
     this.swaggerUrl = swaggerUrl;
+  }
+
+  public void setInvalidRequestStatusCode(int code) {
+    this.invalidRequestCode = code;
+  }
+  public int getInvalidRequestStatusCode() {
+    return invalidRequestCode;
   }
 }

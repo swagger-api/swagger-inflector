@@ -61,6 +61,9 @@ swaggerUrl: swagger.yaml
 # specific mappings for models, used to locate models in the `#/definitions/${model}`
 modelMappings:
   User: io.swagger.sample.models.User
+  
+# HTTP response code when required parameters are missing
+invalidRequestCode: 400
 ```
 
 When locating methods, the `operationId` is used as the method name for lookup via reflection.  If not specified, there is logic for generation of a method name.
@@ -153,6 +156,15 @@ the Inflector will do the following:
 #### Outputs
 
 TBD
+
+#### Content type negotiation
+
+There is a pluggable framework for handling different content types.  You can register any processor by the following:
+
+```java
+EntityProcessor myProcessor = new MyEntityProcessor();  // implements EntityProcessor
+EntityProcessorFactory.addProcessor(myProcessor);
+```
 
 #### Samples
 
