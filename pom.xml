@@ -381,6 +381,11 @@
 	  <artifactId>jackson-module-jaxb-annotations</artifactId>
 	  <version>2.4.0</version>
 	</dependency>
+	<dependency>
+	  <groupId>com.fasterxml.jackson.jaxrs</groupId>
+	  <artifactId>jackson-jaxrs-xml-provider</artifactId>
+	  <version>2.1.1</version>
+	</dependency>
   </dependencies>
   <properties>
     <maven-plugin-version>1.0.0</maven-plugin-version>

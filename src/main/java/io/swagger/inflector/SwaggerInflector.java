@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider;
 
 public class SwaggerInflector extends ResourceConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerInflector.class);
@@ -78,6 +79,9 @@ public class SwaggerInflector extends ResourceConfig {
     // JSON
     register(JacksonJsonProvider.class);
 
+    // XML
+    register(JacksonJaxbXMLProvider.class);
+
     // Swagger serializers
     register(SwaggerSerializers.class);
   }
@@ -114,6 +118,6 @@ public class SwaggerInflector extends ResourceConfig {
   private void addOperation(String pathString, Resource.Builder builder, String method, Operation operation, Map<String, Model> definitions) {
     // TODO: handle other content types
     LOGGER.debug("adding operation `" + pathString + "` " + method);
-    builder.addMethod(method).handledBy(new JSONOperationController(config, pathString, method, operation, definitions));
+    builder.addMethod(method).handledBy(new SwaggerOperationController(config, pathString, method, operation, definitions));
   }
 }
