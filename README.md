@@ -148,3 +148,26 @@ the Inflector will do the following:
 
 TBD
 
+#### Samples
+
+There is a samples directory to show how to integrate with Inflector.  Before running any examples, you'll need to build the project and install it locally:
+
+```
+mvn install
+```
+
+##### jetty war with web.xml
+
+This example uses a traditional web.xml file.  To run:
+
+```
+cd samples/jetty-webxml
+mvn package jetty:run
+```
+
+This will load the configuration file `inflector.yaml` which points to a swagger configuration at `src/main/swagger/swagger.yaml`.  You can modify these files and the project will reload.
+
+The swagger URL, as defined in the `swagger.yaml`, is hosted at `http://localhost:8080/v2/swagger.json` or `http://localhost:8080/v2/swagger.yaml`.
+
+There is one controller implemented that maps the `addPet` operation.
+
