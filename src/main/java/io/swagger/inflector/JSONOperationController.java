@@ -10,17 +10,14 @@ import java.util.Map;
 
 import io.swagger.inflector.config.*;
 import io.swagger.inflector.models.ApiError;
+import io.swagger.inflector.processors.EntityProcessorFactory;
 import io.swagger.inflector.utils.*;
 import io.swagger.models.*;
 import io.swagger.models.parameters.*;
 import io.swagger.models.properties.*;
-import io.swagger.util.Json;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
@@ -159,15 +156,7 @@ public class JSONOperationController extends ReflectionUtils implements Inflecto
           }
           else if("body".equals(in)) {
             if(ctx.hasEntity()) {
-              try {
-                o = Json.mapper().readValue(ctx.getEntityStream(), parameterClasses[i]);
-              } catch (JsonParseException e) {
-                e.printStackTrace();
-              } catch (JsonMappingException e) {
-                e.printStackTrace();
-              } catch (IOException e) {
-                e.printStackTrace();
-              }
+              o = EntityProcessorFactory.readValue(ctx.getMediaType(), ctx.getEntityStream(), parameterClasses[i]);
             }
           }
         }
@@ -183,7 +172,7 @@ public class JSONOperationController extends ReflectionUtils implements Inflecto
         args[i] = o;
         i += 1;
       }
-      
+
       if(missingParams.size() > 0) {
         StringBuilder builder = new StringBuilder();
         builder.append("Missing required Parameter");

@@ -1,5 +1,13 @@
 package io.swagger.test.models;
 
-public class Person {
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
+@XmlRootElement
+public class Person {
+  @XmlElement
+  public Long id;
+  
+  @XmlElement
+  public String name;
 }

@@ -184,7 +184,11 @@ public class ReflectionUtils {
       }
     }
     if(operation.getTags() != null && operation.getTags().size() > 0) {
-      return operation.getTags().get(0);
+      String className = StringUtils.capitalize(operation.getTags().get(0));
+      if(config.getControllerPackage() != null) {
+        return config.getControllerPackage() + "." + className;
+      }
+      return className;
     }
     return null;
   }
