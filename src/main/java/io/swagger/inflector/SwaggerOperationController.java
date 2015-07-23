@@ -10,26 +10,32 @@ import java.util.Map;
 
 import io.swagger.inflector.config.*;
 import io.swagger.inflector.models.ApiError;
+import io.swagger.inflector.models.RequestWrapper;
+import io.swagger.inflector.models.ResponseWrapper;
 import io.swagger.inflector.processors.EntityProcessorFactory;
 import io.swagger.inflector.utils.*;
 import io.swagger.models.*;
 import io.swagger.models.parameters.*;
 import io.swagger.models.properties.*;
+import io.swagger.util.Json;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.process.Inflector;
 
-public class JSONOperationController extends ReflectionUtils implements Inflector<ContainerRequestContext, Response> {
-  private static final Logger LOGGER = LoggerFactory.getLogger(JSONOperationController.class);
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+public class SwaggerOperationController extends ReflectionUtils implements Inflector<ContainerRequestContext, Response> {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerOperationController.class);
 
   private String path;
   private String httpMethod;
@@ -39,7 +45,7 @@ public class JSONOperationController extends ReflectionUtils implements Inflecto
   private Class<?>[] parameterClasses = null;
   private Map<String, Model> definitions;
 
-  public JSONOperationController(Configuration config, String path, String httpMethod, Operation operation, Map<String, Model> definitions) {
+  public SwaggerOperationController(Configuration config, String path, String httpMethod, Operation operation, Map<String, Model> definitions) {
     this.setConfiguration(config);
     this.path = path;
     this.httpMethod = httpMethod;
@@ -51,11 +57,16 @@ public class JSONOperationController extends ReflectionUtils implements Inflecto
 
     builder.append(getMethodName(path, httpMethod, operation))
       .append("(");
+
     for(int i = 0; i < args.length; i++) {
-      if(i > 0)
+      if(i == 0) {
+        builder.append("request");
+      }
+      else {
         builder.append(", ");
-      builder.append(args[i].getName());
-      builder.append(" ").append(operation.getParameters().get(i).getName());
+        builder.append(args[i - 1].getName());
+        builder.append(" ").append(operation.getParameters().get(i - 1).getName());
+      }
     }
     builder.append(")");
 
@@ -112,9 +123,14 @@ public class JSONOperationController extends ReflectionUtils implements Inflecto
   @Override
   public Response apply(ContainerRequestContext ctx) {
     List<Parameter> parameters = operation.getParameters();
-    Object[] args = new Object[parameters.size()];
+    Object[] args = new Object[parameters.size() + 1];
     if(method != null && parameters != null) {
       int i = 0;
+      
+      args[i] = new RequestWrapper()
+        .headers(ctx.getHeaders())
+        .mediaType(ctx.getMediaType())
+        .acceptableMediaTypes(ctx.getAcceptableMediaTypes());
 
       List<Parameter> missingParams = new ArrayList<Parameter>();
       UriInfo uri = ctx.getUriInfo();
@@ -194,7 +210,27 @@ public class JSONOperationController extends ReflectionUtils implements Inflecto
       }
       LOGGER.info("calling method " + method + " on controller " + this.controller + " with args " + args);
       try {
-        return Response.ok().entity(method.invoke(controller, args)).build();
+        Object response = method.invoke(controller, args);
+        if(response instanceof ResponseWrapper) {
+          ResponseWrapper wrapper = (ResponseWrapper) response;
+          ResponseBuilder builder = Response.status(wrapper.getStatus());
+
+          // response headers
+          for(String key : wrapper.getHeaders().keySet()) {
+            builder.header(key, wrapper.getHeaders().get(key));
+          }
+
+          // content type
+          if(wrapper.getContentType() != null) {
+            builder.type(wrapper.getContentType());
+          }
+          
+          if(wrapper.getEntity() != null) {
+            builder.entity(wrapper.getEntity());
+          }
+          return builder.build();
+        }
+        return Response.ok().entity(response).build();
       } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
         LOGGER.error("failed to invoke method " + method, e);
       }
@@ -204,7 +240,17 @@ public class JSONOperationController extends ReflectionUtils implements Inflecto
       // TODO: return 2xx first, then `default`, if it exists
       for(String code : responses.keySet()) {
         io.swagger.models.Response response = responses.get(code);
-        return Response.status(Integer.parseInt(code)).entity(ExampleBuilder.fromProperty(response.getSchema(), definitions)).build();
+        Object output = ExampleBuilder.fromProperty(response.getSchema(), definitions);
+        if(output != null) {
+          JsonNode node = Json.mapper().convertValue(output, JsonNode.class);
+          if(node != null) {
+            if(node instanceof ObjectNode) {
+              return Response.status(Integer.parseInt(code)).entity(node).build();
+            }
+            return Response.status(Integer.parseInt(code)).entity(output).build();
+          }
+        }
+        return Response.status(Integer.parseInt(code)).build();
       }
     }
 
@@ -255,5 +301,4 @@ public class JSONOperationController extends ReflectionUtils implements Inflecto
     }
     return null;
   }
-
 }
