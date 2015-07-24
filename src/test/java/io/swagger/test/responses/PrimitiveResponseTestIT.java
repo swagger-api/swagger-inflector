@@ -60,7 +60,7 @@ public class PrimitiveResponseTestIT {
     Map<String, String> queryParams = new HashMap<String, String>();
 
     String str = client.invokeAPI("/mockResponses/primitiveUUIDResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-    assertEquals(str, "3fa85f64-5717-4562-b3fc-2c963f66afa6");
+    assertEquals(str, "\"3fa85f64-5717-4562-b3fc-2c963f66afa6\"");
   }
 
   /**
@@ -71,7 +71,7 @@ public class PrimitiveResponseTestIT {
     Map<String, String> queryParams = new HashMap<String, String>();
 
     String str = client.invokeAPI("/mockResponses/primitiveStringResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-    assertEquals(str, "string");
+    assertEquals(str, "\"string\"");
   }
 
   /**
@@ -82,7 +82,7 @@ public class PrimitiveResponseTestIT {
     Map<String, String> queryParams = new HashMap<String, String>();
 
     String str = client.invokeAPI("/mockResponses/primitiveStringResponseWithExample", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-    assertEquals(str, "fun");
+    assertEquals(str, "\"fun\"");
   }
 
   /**
@@ -93,7 +93,7 @@ public class PrimitiveResponseTestIT {
     Map<String, String> queryParams = new HashMap<String, String>();
 
     String str = client.invokeAPI("/mockResponses/primitiveDateResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-    assertEquals(str, "2015-07-20");
+    assertEquals(str, "\"2015-07-20\"");
   }
 
   /**
@@ -104,7 +104,7 @@ public class PrimitiveResponseTestIT {
     Map<String, String> queryParams = new HashMap<String, String>();
 
     String str = client.invokeAPI("/mockResponses/primitiveDateTimeResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-    assertEquals(str, "2015-07-20T15:49:04-07:00");
+    assertEquals(str, "\"2015-07-20T15:49:04-07:00\"");
   }
 
   /**
@@ -126,7 +126,7 @@ public class PrimitiveResponseTestIT {
     Map<String, String> queryParams = new HashMap<String, String>();
 
     String str = client.invokeAPI("/mockResponses/primitiveEmailResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-    assertEquals(str, "apiteam@swagger.io");
+    assertEquals(str, "\"apiteam@swagger.io\"");
   }
 
   /**
@@ -137,6 +137,6 @@ public class PrimitiveResponseTestIT {
     Map<String, String> queryParams = new HashMap<String, String>();
 
     String str = client.invokeAPI("/mockResponses/primitiaveMapResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-    assertEquals(str, "{\"key\" : string}");
+    assertEquals(str, "{\"key\":\"string\"}");
   }
 }

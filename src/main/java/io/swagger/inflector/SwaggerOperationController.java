@@ -131,7 +131,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
         .headers(ctx.getHeaders())
         .mediaType(ctx.getMediaType())
         .acceptableMediaTypes(ctx.getAcceptableMediaTypes());
-
+      i += 1;
       List<Parameter> missingParams = new ArrayList<Parameter>();
       UriInfo uri = ctx.getUriInfo();
       String formDataString = null;
@@ -164,7 +164,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                   String key = kv[0];
                   String value = kv[1];
                   if(parameter.getName().equals(key)) {
-                    o = coerceValue(Arrays.asList(value), parameter, parameterClasses[i]);
+                    o = coerceValue(Arrays.asList(value), parameter, parameterClasses[i + 1]);
                   }
                 }
               }
@@ -177,7 +177,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
           }
         }
         catch (NumberFormatException e) {
-          System.out.println("Couldn't find " + parameter.getName() + " (" + in + ") to " + parameterClasses[i]);
+          LOGGER.error("Couldn't find " + parameter.getName() + " (" + in + ") to " + parameterClasses[i], e);
         } catch (IOException e) {
           e.printStackTrace();
         }

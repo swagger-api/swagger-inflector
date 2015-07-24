@@ -18,6 +18,7 @@ import io.swagger.util.Json;
 import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.*;
 
 public class ResponseModelTest {
   @Test
@@ -26,8 +27,8 @@ public class ResponseModelTest {
     
     Object o = ExampleBuilder.fromProperty(p, null);
     assertNotNull(o);
-    assertTrue(o instanceof String);
-    assertEquals((String) o, "string");
+    assertTrue(o instanceof TextNode);
+    assertEquals(((TextNode) o).asText(), "string");
   }
 
   @Test
@@ -37,8 +38,8 @@ public class ResponseModelTest {
     
     Object o = ExampleBuilder.fromProperty(p, null);
     assertNotNull(o);
-    assertTrue(o instanceof String);
-    assertEquals((String) o, "fun");
+    assertTrue(o instanceof TextNode);
+    assertEquals(((TextNode) o).textValue(), "fun");
   }
 
   @Test
@@ -47,8 +48,8 @@ public class ResponseModelTest {
     
     Object o = ExampleBuilder.fromProperty(p, null);
     assertNotNull(o);
-    assertTrue(o instanceof Integer);
-    assertEquals((Integer) o, new Integer(0));
+    assertTrue(o instanceof IntNode);
+    assertEquals(((IntNode) o).asInt(), 0);
   }
 
   @Test
@@ -58,10 +59,10 @@ public class ResponseModelTest {
     
     Object o = ExampleBuilder.fromProperty(p, null);
     assertNotNull(o);
-    assertTrue(o instanceof Integer);
-    assertEquals((Integer) o, new Integer(3));
+    assertTrue(o instanceof IntNode);
+    assertEquals(((IntNode) o).asInt(), 3);
   }
-  
+
   @Test
   public void testComplexModel() throws Exception {
     RefProperty p = new RefProperty("User");
