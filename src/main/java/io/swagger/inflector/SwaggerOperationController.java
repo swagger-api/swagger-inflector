@@ -10,8 +10,8 @@ import java.util.Map;
 
 import io.swagger.inflector.config.*;
 import io.swagger.inflector.models.ApiError;
-import io.swagger.inflector.models.RequestWrapper;
-import io.swagger.inflector.models.ResponseWrapper;
+import io.swagger.inflector.models.RequestContext;
+import io.swagger.inflector.models.ResponseContext;
 import io.swagger.inflector.processors.EntityProcessorFactory;
 import io.swagger.inflector.utils.*;
 import io.swagger.models.*;
@@ -65,7 +65,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
 
     for(int i = 0; i < args.length; i++) {
       if(i == 0) {
-        builder.append(RequestWrapper.class.getCanonicalName() + " request");
+        builder.append(RequestContext.class.getCanonicalName() + " request");
       }
       else {
         builder.append(", ");
@@ -132,7 +132,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     if(method != null && parameters != null) {
       int i = 0;
       
-      args[i] = new RequestWrapper()
+      args[i] = new RequestContext()
         .headers(ctx.getHeaders())
         .mediaType(ctx.getMediaType())
         .acceptableMediaTypes(ctx.getAcceptableMediaTypes());
@@ -237,8 +237,8 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
       System.out.println(args);
       try {
         Object response = method.invoke(controller, args);
-        if(response instanceof ResponseWrapper) {
-          ResponseWrapper wrapper = (ResponseWrapper) response;
+        if(response instanceof ResponseContext) {
+          ResponseContext wrapper = (ResponseContext) response;
           ResponseBuilder builder = Response.status(wrapper.getStatus());
 
           // response headers

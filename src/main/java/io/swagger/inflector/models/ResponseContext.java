@@ -5,25 +5,25 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.Response.Status;
 
-public class ResponseWrapper {
+public class ResponseContext {
   MultivaluedMap<String, String> headers = new MultivaluedHashMap<String, String>();
   MediaType contentType;
   Status status;
   Object entity;
 
-  public ResponseWrapper header(String key, String value) {
+  public ResponseContext header(String key, String value) {
     this.headers.add(key, value);
     return this;
   }
-  public ResponseWrapper contentType(MediaType contentType) {
+  public ResponseContext contentType(MediaType contentType) {
     this.contentType = contentType;
     return this;
   }
-  public ResponseWrapper status(Status status) {
+  public ResponseContext status(Status status) {
     this.status = status;
     return this;
   }
-  public ResponseWrapper entity(Object entity) {
+  public ResponseContext entity(Object entity) {
     this.entity = entity;
     return this;
   }

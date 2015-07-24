@@ -12,7 +12,7 @@ import java.util.UUID;
 import javax.validation.constraints.Null;
 
 import io.swagger.inflector.config.*;
-import io.swagger.inflector.models.RequestWrapper;
+import io.swagger.inflector.models.RequestContext;
 import io.swagger.models.*;
 import io.swagger.models.parameters.BodyParameter;
 import io.swagger.models.parameters.Parameter;
@@ -44,7 +44,7 @@ public class ReflectionUtils {
   public Class<?>[] getOperationParameterClasses(Operation operation, Map<String, Model> definitions) {
     Class<?>[] classes = new Class<?>[operation.getParameters().size() + 1];
     int i = 0;    
-    classes[i] = RequestWrapper.class;
+    classes[i] = RequestContext.class;
     
     i += 1;
 

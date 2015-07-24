@@ -132,7 +132,7 @@ the Inflector will do the following:
  - Look in the configuration for a mapping between `User` and a concrete class definition.  If the definition exists AND the class can be loaded, the method will look like such:
 
  ```
- public ResponseWrapper addUser(RequestWrapper context, io.swagger.sample.models.User user, java.lang.String name)
+ public ResponseContext addUser(RequestContext context, io.swagger.sample.models.User user, java.lang.String name)
  ```
 
  - If the definition does not exist, the `modelPackage` from the configuration will be used to attempt to load the class:
@@ -148,13 +148,13 @@ the Inflector will do the following:
  - If no model can be loaded, it is the developer's job to unwrap the input and parse it on their own.  This requires `Content-Type`-specific processing.  Inflector will then look for the following method:
 
  ```
- public ResponseWrapper addUser(RequestWrapper context, JsonNode user, java.lang.String name)
+ public ResponseContext addUser(RequestContext context, JsonNode user, java.lang.String name)
  ```
 
  - If no method can be found, a mock response will be returned based on the swagger definition.  For complex objects, if an `example` exists, we will use that.  Otherwise, it will be constructed.
 
 
-The RequestWrapper and ResponseWrapper contain information about headers (in and outbound), content-type and acceptable response types.
+The RequestWrapper and ResponseContext contain information about headers (in and outbound), content-type and acceptable response types.
 
 #### Outputs
 
