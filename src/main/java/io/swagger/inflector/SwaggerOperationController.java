@@ -23,12 +23,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.glassfish.jersey.media.multipart.BodyPart;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.MultiPart;
+import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 import org.glassfish.jersey.process.Inflector;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -60,11 +65,11 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
 
     for(int i = 0; i < args.length; i++) {
       if(i == 0) {
-        builder.append("request");
+        builder.append(RequestWrapper.class.getCanonicalName() + " request");
       }
       else {
         builder.append(", ");
-        builder.append(args[i - 1].getName());
+        builder.append(args[i].getName());
         builder.append(" ").append(operation.getParameters().get(i - 1).getName());
       }
     }
@@ -135,7 +140,19 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
       List<Parameter> missingParams = new ArrayList<Parameter>();
       UriInfo uri = ctx.getUriInfo();
       String formDataString = null;
-      
+      /*
+      // TODO handling for multipart
+      if(ctx.getMediaType().isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {
+        MultiPart mp = new MultiPart();
+        mp.bodyPart(ctx.getEntityStream(), MediaType.MULTIPART_FORM_DATA_TYPE);
+
+        for(BodyPart bp : mp.getBodyParts()) {
+          StreamDataBodyPart sd = new StreamDataBodyPart();
+          sd.setStreamEntity(ctx.getEntityStream(), MediaType.TEXT_PLAIN_TYPE);
+        }
+        System.out.println("bp: " + mp.getBodyParts());
+      }
+      */
       for(Parameter parameter : parameters) {
         String in = parameter.getIn();
         Object o = null;
@@ -150,21 +167,28 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
           else if("header".equals(in)) {
             o = coerceValue(ctx.getHeaders().get(parameter.getName()), parameter, parameterClasses[i]);
           }
+          
           else if("formData".equals(in)) {
-            if(formDataString == null) {
-              // can only read stream once
-              formDataString = IOUtils.toString(ctx.getEntityStream(), "UTF-8");
+            SerializableParameter sp = (SerializableParameter) parameter;
+            if("file".equals(sp.getType())) {
+              o = ctx.getEntityStream();
             }
-            if(formDataString != null) {
-              String[] parts = formDataString.split("&");
-              for(String part : parts) {
-                String[]kv = part.split("=");
-                if(kv != null && kv.length == 2) {
-                  // TODO how to handle arrays here?
-                  String key = kv[0];
-                  String value = kv[1];
-                  if(parameter.getName().equals(key)) {
-                    o = coerceValue(Arrays.asList(value), parameter, parameterClasses[i + 1]);
+            else {
+              if(formDataString == null) {
+                // can only read stream once
+                formDataString = IOUtils.toString(ctx.getEntityStream(), "UTF-8");
+              }
+              if(formDataString != null) {
+                String[] parts = formDataString.split("&");
+                for(String part : parts) {
+                  String[]kv = part.split("=");
+                  if(kv != null && kv.length == 2) {
+                    // TODO how to handle arrays here?
+                    String key = kv[0];
+                    String value = kv[1];
+                    if(parameter.getName().equals(key)) {
+                      o = coerceValue(Arrays.asList(value), parameter, parameterClasses[i + 1]);
+                    }
                   }
                 }
               }
@@ -209,6 +233,8 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             .message(builder.toString())).build();
       }
       LOGGER.info("calling method " + method + " on controller " + this.controller + " with args " + args);
+      System.out.println(controller);
+      System.out.println(args);
       try {
         Object response = method.invoke(controller, args);
         if(response instanceof ResponseWrapper) {

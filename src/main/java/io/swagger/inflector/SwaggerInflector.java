@@ -14,6 +14,7 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.StringUtils;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.model.Resource;
 import org.slf4j.Logger;
@@ -81,6 +82,8 @@ public class SwaggerInflector extends ResourceConfig {
 
     // XML
     register(JacksonJaxbXMLProvider.class);
+    
+    register(new MultiPartFeature());
 
     // Swagger serializers
     register(SwaggerSerializers.class);

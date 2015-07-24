@@ -261,6 +261,7 @@ paths:
       tags:
         - pet
       summary: uploads an image
+      x-swagger-router-controller: SampleController
       description: ""
       operationId: uploadFile
       consumes:

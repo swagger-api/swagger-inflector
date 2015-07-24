@@ -1,7 +1,7 @@
 package io.swagger.inflector.utils;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -61,6 +61,7 @@ public class ReflectionUtils {
       SerializableParameter sp = (SerializableParameter) parameter;
       String type = sp.getType();
       String format = sp.getFormat();
+
       switch (type) {
       case "string":
         if("date".equals(format)) {
@@ -94,7 +95,7 @@ public class ReflectionUtils {
       case "array":
         return List.class;
       case "file":
-        return File.class;
+        return InputStream.class;
       }
       LOGGER.error("oops! Couldn't match " + type + ", " + format);
     }
