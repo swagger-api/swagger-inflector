@@ -9,8 +9,8 @@ import io.swagger.models.RefModel;
 import io.swagger.models.parameters.BodyParameter;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.properties.RefProperty;
-import io.swagger.sample.models.User;
 import io.swagger.test.models.Person;
+import io.swagger.test.models.User;
 
 import java.util.HashMap;
 import java.util.List;

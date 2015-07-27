@@ -1,14 +1,15 @@
 package io.swagger.inflector;
 
-import java.util.Map;
-
 import io.swagger.inflector.config.Configuration;
+import io.swagger.inflector.processors.ExampleSerializer;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import io.swagger.models.Model;
 import io.swagger.models.Operation;
 import io.swagger.models.Path;
 import io.swagger.models.Swagger;
 import io.swagger.parser.SwaggerParser;
+
+import java.util.Map;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
@@ -87,6 +88,9 @@ public class SwaggerInflector extends ResourceConfig {
 
     // Swagger serializers
     register(SwaggerSerializers.class);
+    
+    // Example serializer
+    register(ExampleSerializer.class);
   }
 
   private String basePath(String basePath, String path) {

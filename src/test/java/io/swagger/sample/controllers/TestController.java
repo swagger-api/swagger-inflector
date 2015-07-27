@@ -1,11 +1,11 @@
 package io.swagger.sample.controllers;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response.Status;
-
 import io.swagger.inflector.models.RequestContext;
 import io.swagger.inflector.models.ResponseContext;
-import io.swagger.sample.models.User;
+import io.swagger.test.models.User;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response.Status;
 
 public class TestController {
   public ResponseContext postFormData(RequestContext request, Long id, String name) {

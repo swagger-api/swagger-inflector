@@ -2,4 +2,4 @@ controllerPackage: io.swagger.sample.controllers
 modelPackage: io.swagger.sample.models
 swaggerUrl: ./src/test/swagger/sample1.yaml
 modelMappings:
-  User: io.swagger.sample.models.User
+  User: io.swagger.test.models.User

@@ -1,17 +1,10 @@
-package io.swagger.sample.integration.responses;
-
-import io.swagger.models.*;
-import io.swagger.sample.client.ApiClient;
-
-import io.swagger.util.Json;
-import io.swagger.util.Yaml;
+package io.swagger.test.integration.responses;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
+import io.swagger.test.client.ApiClient;
 
-import java.util.*;
-import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
@@ -77,7 +70,7 @@ public class PrimitiveResponseTestIT {
   /**
    * verifies that the return value uses the schema example
    */
-  @Test
+  @org.junit.Test
   public void verifyGetStringResponseWithExample() throws Exception {
     Map<String, String> queryParams = new HashMap<String, String>();
 

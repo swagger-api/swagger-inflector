@@ -1,13 +1,12 @@
 package io.swagger.test.processors;
 
+import static org.testng.Assert.assertEquals;
 import io.swagger.inflector.processors.EntityProcessorFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import javax.ws.rs.core.MediaType;
-
-import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.swagger.inflector.config.*;
+import io.swagger.inflector.examples.ExampleBuilder;
 import io.swagger.inflector.models.ApiError;
 import io.swagger.inflector.models.RequestContext;
 import io.swagger.inflector.models.ResponseContext;
@@ -268,13 +269,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
         io.swagger.models.Response response = responses.get(code);
         Object output = ExampleBuilder.fromProperty(response.getSchema(), definitions);
         if(output != null) {
-          JsonNode node = Json.mapper().convertValue(output, JsonNode.class);
-          if(node != null) {
-            if(node instanceof ObjectNode) {
-              return Response.status(Integer.parseInt(code)).entity(node).build();
-            }
-            return Response.status(Integer.parseInt(code)).entity(output).build();
-          }
+          return Response.status(Integer.parseInt(code)).entity(output).build();
         }
         return Response.status(Integer.parseInt(code)).build();
       }

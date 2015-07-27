@@ -1,10 +1,8 @@
 package io.swagger.test;
 
-import io.swagger.util.Yaml;
+import static org.testng.Assert.assertNotNull;
 
-import org.testng.annotations.*;
-
-import static org.testng.Assert.*;
+import org.testng.annotations.Test;
 
 public class ConfigurationLoaderTest {
   @Test

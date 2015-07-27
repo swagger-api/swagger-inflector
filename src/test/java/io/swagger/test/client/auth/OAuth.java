@@ -1,4 +1,4 @@
-package io.swagger.sample.client.auth;
+package io.swagger.test.client.auth;
 
 import java.util.Map;
 

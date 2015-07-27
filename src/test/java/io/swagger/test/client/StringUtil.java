@@ -1,4 +1,4 @@
-package io.swagger.sample.client;
+package io.swagger.test.client;
 
 public class StringUtil {
   /**

@@ -1,6 +1,24 @@
-package io.swagger.sample.client;
+package io.swagger.test.client;
 
-import com.fasterxml.jackson.databind.*;
+import io.swagger.test.client.auth.ApiKeyAuth;
+import io.swagger.test.client.auth.Authentication;
+import io.swagger.test.client.auth.HttpBasicAuth;
+import io.swagger.test.client.auth.OAuth;
+import io.swagger.util.Json;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -14,26 +32,7 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Date;
-import java.util.TimeZone;
-import java.net.URLEncoder;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
-import io.swagger.util.Json;
-
-import io.swagger.sample.client.auth.Authentication;
-import io.swagger.sample.client.auth.HttpBasicAuth;
-import io.swagger.sample.client.auth.ApiKeyAuth;
-import io.swagger.sample.client.auth.OAuth;
+import com.fasterxml.jackson.databind.JavaType;
 
 public class ApiClient {
   private Map<String, String> defaultHeaderMap = new HashMap<String, String>();

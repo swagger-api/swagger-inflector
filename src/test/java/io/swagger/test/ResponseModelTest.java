@@ -3,22 +3,21 @@ package io.swagger.test;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
-
-import java.util.Map;
-
 import io.swagger.converter.ModelConverters;
-import io.swagger.inflector.utils.ExampleBuilder;
+import io.swagger.inflector.examples.ExampleBuilder;
+import io.swagger.inflector.examples.models.IntegerExample;
+import io.swagger.inflector.examples.models.ObjectExample;
+import io.swagger.inflector.examples.models.StringExample;
 import io.swagger.models.Model;
 import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.RefProperty;
 import io.swagger.models.properties.StringProperty;
-import io.swagger.sample.models.User;
+import io.swagger.test.models.User;
 import io.swagger.util.Json;
 
-import org.testng.annotations.Test;
+import java.util.Map;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.*;
+import org.testng.annotations.Test;
 
 public class ResponseModelTest {
   @Test
@@ -27,8 +26,8 @@ public class ResponseModelTest {
     
     Object o = ExampleBuilder.fromProperty(p, null);
     assertNotNull(o);
-    assertTrue(o instanceof TextNode);
-    assertEquals(((TextNode) o).asText(), "string");
+    assertTrue(o instanceof StringExample);
+    assertEquals(((StringExample) o).textValue(), "string");
   }
 
   @Test
@@ -38,8 +37,8 @@ public class ResponseModelTest {
     
     Object o = ExampleBuilder.fromProperty(p, null);
     assertNotNull(o);
-    assertTrue(o instanceof TextNode);
-    assertEquals(((TextNode) o).textValue(), "fun");
+    assertTrue(o instanceof StringExample);
+    assertEquals(((StringExample) o).textValue(), "fun");
   }
 
   @Test
@@ -48,19 +47,19 @@ public class ResponseModelTest {
     
     Object o = ExampleBuilder.fromProperty(p, null);
     assertNotNull(o);
-    assertTrue(o instanceof IntNode);
-    assertEquals(((IntNode) o).asInt(), 0);
+    assertTrue(o instanceof IntegerExample);
+    assertEquals(((IntegerExample) o).asInt(), new Integer(0));
   }
 
-  @Test
+  @org.junit.Test
   public void testConvertIntegerPropertyWithExample() throws Exception {
     IntegerProperty p = new IntegerProperty()
       .example(3);
-    
+
     Object o = ExampleBuilder.fromProperty(p, null);
     assertNotNull(o);
-    assertTrue(o instanceof IntNode);
-    assertEquals(((IntNode) o).asInt(), 3);
+    assertTrue(o instanceof IntegerExample);
+    assertEquals(((IntegerExample) o).asInt(), new Integer(3));
   }
 
   @Test
@@ -68,8 +67,8 @@ public class ResponseModelTest {
     RefProperty p = new RefProperty("User");
     Map<String, Model> definitions = ModelConverters.getInstance().readAll(User.class);
     Object o = ExampleBuilder.fromProperty(p, definitions);
-    
-    JsonNode n = Json.mapper().convertValue(o, JsonNode.class);
+
+    ObjectExample n = Json.mapper().convertValue(o, ObjectExample.class);
     assertNotNull(n);
   }
 }

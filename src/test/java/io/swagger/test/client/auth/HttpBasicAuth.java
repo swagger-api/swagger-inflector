@@ -1,8 +1,8 @@
-package io.swagger.sample.client.auth;
-
-import java.util.Map;
+package io.swagger.test.client.auth;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
+
 import javax.xml.bind.DatatypeConverter;
 
 public class HttpBasicAuth implements Authentication {
