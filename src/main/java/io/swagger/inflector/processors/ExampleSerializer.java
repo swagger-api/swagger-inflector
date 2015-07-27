@@ -1,5 +1,6 @@
 package io.swagger.inflector.processors;
 
+import io.swagger.inflector.examples.XmlExampleSerializer;
 import io.swagger.inflector.examples.models.Example;
 import io.swagger.inflector.examples.models.ObjectExample;
 import io.swagger.models.Swagger;
@@ -71,7 +72,7 @@ public class ExampleSerializer implements MessageBodyWriter<Example> {
         } else if (mediaType.isCompatible(MediaType.APPLICATION_XML_TYPE)) {
             headers.remove("Content-Type");
             headers.add("Content-Type", "application/json");
-            out.write(Json.mapper().writeValueAsString(data).getBytes("utf-8"));
+            out.write(new XmlExampleSerializer().serialize(data).getBytes("utf-8"));
         }
     }
 }

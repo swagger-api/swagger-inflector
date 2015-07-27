@@ -33,6 +33,13 @@ public class SwaggerInflector extends ResourceConfig {
   }
 
   public SwaggerInflector( Configuration configuration ) {
+    // JSON
+    register(JacksonJsonProvider.class);
+
+    // XML
+    register(JacksonJaxbXMLProvider.class);
+
+    
     config = configuration;
     Swagger swagger = new SwaggerParser().read(config.getSwaggerUrl());
 
@@ -81,12 +88,6 @@ public class SwaggerInflector extends ResourceConfig {
     else {
       LOGGER.error("No swagger definition detected!  Not much to do...");
     }
-
-    // JSON
-    register(JacksonJsonProvider.class);
-
-    // XML
-    register(JacksonJaxbXMLProvider.class);
     
     register(new MultiPartFeature());
 
