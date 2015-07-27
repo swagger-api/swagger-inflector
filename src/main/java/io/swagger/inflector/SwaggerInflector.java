@@ -28,7 +28,11 @@ public class SwaggerInflector extends ResourceConfig {
   private Configuration config;
 
   public SwaggerInflector() {
-    config = Configuration.read();
+    this( Configuration.read() );
+  }
+
+  public SwaggerInflector( Configuration configuration ) {
+    config = configuration;
     Swagger swagger = new SwaggerParser().read(config.getSwaggerUrl());
 
     if(swagger != null) {

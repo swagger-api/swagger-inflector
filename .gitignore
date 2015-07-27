@@ -1,0 +1,6 @@
+*.iml
+.idea/
+*.class
+hs_err_pid*
+target/
+dependency-reduced-pom.xml
