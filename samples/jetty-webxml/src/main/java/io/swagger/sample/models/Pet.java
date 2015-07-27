@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import javax.xml.bind.annotation.*;
 
-@XmlRootElement(name = "Pet")
+@XmlRootElement(name = "pet")
 public class Pet {
   private long id;
   private Category category;

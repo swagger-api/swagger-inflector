@@ -2,7 +2,7 @@ package io.swagger.sample.models;
 
 import javax.xml.bind.annotation.*;
 
-@XmlRootElement(name = "Category")
+@XmlRootElement(name = "category")
 public class Category {
   private long id;
   private String name;
