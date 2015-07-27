@@ -28,12 +28,16 @@ public class Configuration {
       return defaultConfiguration();
     }
     else {
-      try {
-        return Yaml.mapper().readValue(new File(configLocation), Configuration.class);
-      } catch (Exception e) {
-        LOGGER.error("Failed to read configuration", e);
-        return defaultConfiguration();
-      }
+      return read(configLocation);
+    }
+  }
+
+  public static Configuration read(String configLocation) {
+    try {
+      return Yaml.mapper().readValue(new File(configLocation), Configuration.class);
+    } catch (Exception e) {
+      LOGGER.error("Failed to read configuration", e);
+      return defaultConfiguration();
     }
   }
 
@@ -60,7 +64,7 @@ public class Configuration {
     this.swaggerUrl = swaggerUrl;
     return this;
   }
-  
+
   public Configuration(){}
 
   public void setControllerPackage(String controllerPackage) {
