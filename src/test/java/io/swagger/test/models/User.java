@@ -1,8 +1,15 @@
 package io.swagger.test.models;
 
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name="user")
 public class User {
   private Long id;
   private String user;
+  private List<String> names;
 
   public User id(Long id) {
     this.id = id;
@@ -25,5 +32,13 @@ public class User {
   }
   public void setUser(String user) {
     this.user = user;
-  } 
+  }
+  
+  @XmlElementWrapper(name = "children")
+  public List<String> getChildNames() {
+    return names;
+  }
+  public void setChildNames(List<String> names) {
+    this.names = names;
+  }
 }
