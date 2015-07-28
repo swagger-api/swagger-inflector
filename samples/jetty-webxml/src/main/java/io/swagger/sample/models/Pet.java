@@ -1,13 +1,8 @@
 package io.swagger.sample.models;
 
-import io.swagger.annotations.*;
-
 import java.util.List;
 import java.util.ArrayList;
 
-import javax.xml.bind.annotation.*;
-
-@XmlRootElement(name = "pet")
 public class Pet {
   private long id;
   private Category category;
@@ -16,7 +11,6 @@ public class Pet {
   private List<Tag> tags = new ArrayList<Tag>();
   private String status;
 
-  @XmlElement(name = "id")
   public long getId() {
     return id;
   }
@@ -25,7 +19,6 @@ public class Pet {
     this.id = id;
   }
 
-  @XmlElement(name = "category")
   public Category getCategory() {
     return category;
   }
@@ -34,7 +27,6 @@ public class Pet {
     this.category = category;
   }
 
-  @XmlElement(name = "name")
   public String getName() {
     return name;
   }
@@ -43,8 +35,6 @@ public class Pet {
     this.name = name;
   }
 
-  @XmlElementWrapper(name = "photoUrls")
-  @XmlElement(name = "photoUrl")
   public List<String> getPhotoUrls() {
     return photoUrls;
   }
@@ -53,8 +43,6 @@ public class Pet {
     this.photoUrls = photoUrls;
   }
 
-  @XmlElementWrapper(name = "tags")
-  @XmlElement(name = "tag")
   public List<Tag> getTags() {
     return tags;
   }
@@ -63,8 +51,6 @@ public class Pet {
     this.tags = tags;
   }
 
-  @XmlElement(name = "status")
-  @ApiModelProperty(value = "pet status in the store", allowableValues = "available,pending,sold")
   public String getStatus() {
     return status;
   }

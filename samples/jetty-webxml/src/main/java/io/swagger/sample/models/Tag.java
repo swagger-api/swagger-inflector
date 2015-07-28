@@ -1,13 +1,9 @@
 package io.swagger.sample.models;
 
-import javax.xml.bind.annotation.*;
-
-@XmlRootElement(name = "tag")
 public class Tag {
   private long id;
   private String name;
 
-  @XmlElement(name = "id")
   public long getId() {
     return id;
   }
@@ -16,7 +12,6 @@ public class Tag {
     this.id = id;
   }
 
-  @XmlElement(name = "name")
   public String getName() {
     return name;
   }

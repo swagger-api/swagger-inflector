@@ -606,7 +606,7 @@ definitions:
       complete:
         type: boolean
     xml:
-      name: Order
+      name: order
   Category:
     properties:
       id:
@@ -615,7 +615,7 @@ definitions:
       name:
         type: string
     xml:
-      name: Category
+      name: category
   User:
     properties:
       id:
@@ -638,7 +638,7 @@ definitions:
         format: int32
         description: User Status
     xml:
-      name: User
+      name: user
   Tag:
     properties:
       id:
@@ -647,7 +647,7 @@ definitions:
       name:
         type: string
     xml:
-      name: Tag
+      name: tag
   Pet:
     required:
       - name
@@ -683,7 +683,7 @@ definitions:
           - pending
           - sold
     xml:
-      name: Pet
+      name: pet
   ApiResponse:
     properties:
       code:
