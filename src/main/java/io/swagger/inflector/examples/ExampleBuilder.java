@@ -239,11 +239,13 @@ public class ExampleBuilder {
           for(String key : properties.keySet()) {
             Property innerProp = properties.get(key);
               Example p = (Example)fromProperty(innerProp, definitions, processedModels);
-              if(p.getName() == null) {
-                p.setName(key);
+              if(p != null) {
+                if(p.getName() == null) {
+                  p.setName(key);
+                }
+                values.put(key, p);
+                processedModels.add(key);
               }
-              values.put(key, p);
-              processedModels.add(key);
           }
           output = values;
         }

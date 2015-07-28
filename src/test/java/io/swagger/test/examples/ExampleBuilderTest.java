@@ -1,10 +1,10 @@
 package io.swagger.test.examples;
 
 import static org.junit.Assert.*;
+import io.swagger.converter.ModelConverters;
 import io.swagger.inflector.examples.ExampleBuilder;
 import io.swagger.inflector.examples.XmlExampleSerializer;
 import io.swagger.inflector.examples.models.Example;
-import io.swagger.inflector.examples.models.ObjectExample;
 import io.swagger.inflector.processors.JsonExampleDeserializer;
 import io.swagger.inflector.processors.JsonExampleSerializer;
 import io.swagger.models.Model;
@@ -15,6 +15,7 @@ import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.MapProperty;
 import io.swagger.models.properties.RefProperty;
 import io.swagger.models.properties.StringProperty;
+import io.swagger.test.models.User;
 import io.swagger.util.Json;
 
 import java.util.HashMap;
@@ -25,6 +26,24 @@ import org.testng.annotations.Test;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 public class ExampleBuilderTest {
+  static {
+    // register the JSON serializer
+    SimpleModule simpleModule = new SimpleModule();
+    simpleModule.addSerializer(new JsonExampleSerializer());
+    Json.mapper().registerModule(simpleModule);
+  }
+
+  @org.junit.Test
+  public void testReadModel() throws Exception {
+    Map<String, Model> definitions = ModelConverters.getInstance().readAll(User.class);
+//    Json.prettyPrint(definitions);
+    Object o = ExampleBuilder.fromProperty(new RefProperty("User"), definitions);
+    Json.prettyPrint(o);
+    
+    String str = new XmlExampleSerializer().serialize((Example)o);
+    System.out.println(str);
+  }
+  
   @Test
   public void testXmlJackson() throws Exception {
     Model model = new ModelImpl()
@@ -100,16 +119,12 @@ public class ExampleBuilderTest {
 
     Example rep = (Example) ExampleBuilder.fromProperty(new ArrayProperty(new RefProperty("Address")), definitions);
     
-    // register the JSON serializer
-    SimpleModule simpleModule = new SimpleModule();
-    simpleModule.addSerializer(new JsonExampleSerializer());
-    Json.mapper().registerModule(simpleModule);
     String json = Json.pretty(rep);
     
     assertEquals("[ {\n  \"street\" : \"12345 El Monte Blvd\",\n  \"city\" : \"Los Altos Hills\",\n  \"state\" : \"CA\",\n  \"zip\" : \"94022\"\n} ]", json);
   }
 
-  @org.junit.Test
+  @Test
   public void testComplexArrayWithExample() throws Exception {
     Map<String, Model> definitions = new HashMap<String, Model>();
     

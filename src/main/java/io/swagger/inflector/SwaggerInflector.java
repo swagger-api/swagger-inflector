@@ -2,12 +2,14 @@ package io.swagger.inflector;
 
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.processors.ExampleSerializer;
+import io.swagger.inflector.processors.JsonExampleSerializer;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import io.swagger.models.Model;
 import io.swagger.models.Operation;
 import io.swagger.models.Path;
 import io.swagger.models.Swagger;
 import io.swagger.parser.SwaggerParser;
+import io.swagger.util.Json;
 
 import java.util.Map;
 
@@ -21,6 +23,7 @@ import org.glassfish.jersey.server.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider;
 
@@ -32,14 +35,7 @@ public class SwaggerInflector extends ResourceConfig {
     this( Configuration.read() );
   }
 
-  public SwaggerInflector( Configuration configuration ) {
-    // JSON
-    register(JacksonJsonProvider.class);
-
-    // XML
-    register(JacksonJaxbXMLProvider.class);
-
-    
+  public SwaggerInflector( Configuration configuration ) {    
     config = configuration;
     Swagger swagger = new SwaggerParser().read(config.getSwaggerUrl());
 
@@ -88,11 +84,21 @@ public class SwaggerInflector extends ResourceConfig {
     else {
       LOGGER.error("No swagger definition detected!  Not much to do...");
     }
-    
+    // JSON
+    register(JacksonJsonProvider.class);
+
+    // XML
+    register(JacksonJaxbXMLProvider.class);
+
     register(new MultiPartFeature());
 
     // Swagger serializers
     register(SwaggerSerializers.class);
+    
+    // XML mapper
+    SimpleModule simpleModule = new SimpleModule();
+    simpleModule.addSerializer(new JsonExampleSerializer());
+    Json.mapper().registerModule(simpleModule);
     
     // Example serializer
     register(ExampleSerializer.class);

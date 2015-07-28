@@ -44,7 +44,7 @@ public class JsonExampleSerializer extends JsonSerializer<Example> {
         writeTo(jgen, value);
       }
     }
-    
+
     public void writeTo(JsonGenerator jgen, Example o) throws IOException {
       if(o instanceof ObjectExample) {
         ObjectExample obj = (ObjectExample) o;

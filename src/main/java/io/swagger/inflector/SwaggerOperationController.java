@@ -234,8 +234,6 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             .message(builder.toString())).build();
       }
       LOGGER.info("calling method " + method + " on controller " + this.controller + " with args " + args);
-      System.out.println(controller);
-      System.out.println(args);
       try {
         Object response = method.invoke(controller, args);
         if(response instanceof ResponseContext) {
