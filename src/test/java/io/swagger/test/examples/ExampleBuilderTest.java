@@ -33,12 +33,13 @@ import io.swagger.models.properties.RefProperty;
 import io.swagger.models.properties.StringProperty;
 import io.swagger.test.models.User;
 import io.swagger.util.Json;
+import io.swagger.util.Yaml;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
 
 public class ExampleBuilderTest {
     static {
@@ -46,9 +47,10 @@ public class ExampleBuilderTest {
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(new JsonExampleSerializer());
         Json.mapper().registerModule(simpleModule);
+        Yaml.mapper().registerModule(simpleModule);
     }
 
-    @org.junit.Test
+    @Test
     public void testReadModel() throws Exception {
         Map<String, Model> definitions = ModelConverters.getInstance().readAll(User.class);
         Object o = ExampleBuilder.fromProperty(new RefProperty("User"), definitions);
@@ -104,7 +106,7 @@ public class ExampleBuilderTest {
 
         String xmlString = new XmlExampleSerializer().serialize(rep);
         System.out.println(xmlString);
-        Json.prettyPrint(rep);
+        Yaml.prettyPrint(rep);
     }
 
     @Test

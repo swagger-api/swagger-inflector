@@ -6,6 +6,8 @@ To allow for an iterative development, the framework will mock responses for any
 
 You have full control over the mapping of controllers to classes and methods as well as models.
 
+**This project is in preview status!**
+
 ### Components
 
 Inflector uses the following libraries:
@@ -101,7 +103,10 @@ class: io.swagger.sample.controllers.SampleController
 with the following method:
 
 ```
-method: public Object getTest1(java.lang.Integer id, java.lang.String name)
+method: public Object getTest1(
+    io.swagger.inflector.models.RequestContext,
+    java.lang.Integer id,
+    java.lang.String name)
 ```
 
 #### Complex inputs
@@ -132,7 +137,10 @@ the Inflector will do the following:
  - Look in the configuration for a mapping between `User` and a concrete class definition.  If the definition exists AND the class can be loaded, the method will look like such:
 
  ```
- public ResponseContext addUser(RequestContext context, io.swagger.sample.models.User user, java.lang.String name)
+ public ResponseContext addUser (
+    RequestContext context,             // request context
+    io.swagger.sample.models.User user, // user being added
+    java.lang.String name)              // the `name` query param
  ```
 
  - If the definition does not exist, the `modelPackage` from the configuration will be used to attempt to load the class:
@@ -148,7 +156,10 @@ the Inflector will do the following:
  - If no model can be loaded, it is the developer's job to unwrap the input and parse it on their own.  This requires `Content-Type`-specific processing.  Inflector will then look for the following method:
 
  ```
- public ResponseContext addUser(RequestContext context, JsonNode user, java.lang.String name)
+ public ResponseContext addUser (
+    RequestContext context,             // request context
+    JsonNode user,                      // a Json tree representing the user
+    java.lang.String name)              // the `name` query param
  ```
 
  - If no method can be found, a mock response will be returned based on the swagger definition.  For complex objects, if an `example` exists, we will use that.  Otherwise, it will be constructed.
@@ -158,7 +169,75 @@ The RequestWrapper and ResponseContext contain information about headers (in and
 
 #### Outputs
 
+Your controllers can return null (void response), an object (entity), or a `io.swagger.inflector.models.ResponseContext`, which allows you to send specific error codes, headers, and an optional entity.
 
+For example, if you want to return a `Pet` from a controller:
+
+```java
+    public ResponseContext getPet(RequestContext request, java.lang.Integer petId) {
+        // do your magic to fetch a pet...
+        Pet pet = complexBusinessLogic.getPetById(petId);
+
+        return new ResponseContext()
+                .status(Status.OK)
+                .entity(pet);
+    }
+```
+
+and the Inflector will return a `200` response code, marshalling the `Pet` object into the appropriate content type.
+
+If you do not implement your controller, the Inflector will generate sample data based on your model definitions.  It will honor any examples that you have in the definitions, assuming they are compatible with the schema you declared.  For example, this definition:
+
+```yaml
+properties:
+  street:
+    type: "string"
+    example: "12345 El Monte Blvd"
+  city:
+    type: "string"
+    example: "Los Altos Hills"
+  state:
+    type: "string"
+    example: "CA"
+    minLength: 2
+    maxLength: 2
+  zip:
+    type: "string"
+    example: "94022"
+xml:
+  name: "address"
+```
+
+Will produce this example for a `Accept:application/json`:
+
+```json
+{
+  "street" : "12345 El Monte Blvd",
+  "city" : "Los Altos Hills",
+  "state" : "CA",
+  "zip" : "94022"
+}
+```
+
+and `application/yaml`:
+
+```yaml
+street: "12345 El Monte Blvd"
+city: "Los Altos Hills"
+state: "CA"
+zip: "94022"
+```
+
+and `application/xml`:
+
+```xml
+<address>
+  <street>12345 El Monte Blvd</street>
+  <city>Los Altos Hills</city>
+  <state>CA</state>
+  <zip>94022</zip>
+</address>
+```
 
 #### Content type negotiation
 

@@ -29,6 +29,7 @@ import io.swagger.models.Path;
 import io.swagger.models.Swagger;
 import io.swagger.parser.SwaggerParser;
 import io.swagger.util.Json;
+import io.swagger.util.Yaml;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -111,6 +112,7 @@ public class SwaggerInflector extends ResourceConfig {
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(new JsonExampleSerializer());
         Json.mapper().registerModule(simpleModule);
+        Yaml.mapper().registerModule(simpleModule);
 
         // Example serializer
         register(ExampleSerializer.class);
