@@ -1,5 +1,7 @@
 # Swagger Inflector
 
+[![Build Status](https://travis-ci.org/swagger-api/swagger-inflector.svg?branch=master)](https://travis-ci.org/swagger-api/swagger-inflector)
+
 This project uses the Swagger Specification to drive an API implementation.  Rather than a typical top-down or bottom-up swagger integration, the Inflector uses the swagger specification as a DSL for the REST API.  The spec drives the creation of routes and controllers automatically, matching methods and method signatures from the implementation.  This brings a similar integration approach to the JVM as [swagger-node](https://github.com/swagger-api/swagger-node) brings to the javascript world.
 
 To allow for an iterative development, the framework will mock responses for any unimplemented methods, based on the specification.  That means you can ship your API to your consumers for review immediately as you build it out.
@@ -255,6 +257,18 @@ There is a samples directory to show how to integrate with Inflector.  Before ru
 ```
 mvn install
 ```
+
+##### dropwizard
+
+This example uses the popular dropwizard framework, which is programmatically configured without any xml nonsense.
+
+```
+cd samples/dropwizard
+mvn package
+java -jar target/inflector-dropwizard-sample-1.0-SNAPSHOT.jar server server.yml 
+```
+
+You can now access the server at `http://localhost:8080/v2/swagger.json`
 
 ##### jetty war with web.xml
 
