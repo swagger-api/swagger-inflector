@@ -90,30 +90,37 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
 
     if(controller != null && methodName != null) {
       try {
-        Class<?> cls = Class.forName(controller);
-        if(cls != null) {
-          Class<?>[] args = getOperationParameterClasses(operation, this.definitions);
-          Method [] methods = cls.getMethods();
-          for(Method method : methods) {
-            if(methodName.equals(method.getName())) {
-              Class<?>[] methodArgs = method.getParameterTypes();
-              if(methodArgs.length == args.length) {
-                int i = 0;
-                boolean matched = true;
-                if(!args[i].equals(methodArgs[i])) {
-                  LOGGER.debug("failed to match " + args[i] + ", " + methodArgs[i]);
-                  matched = false;
-                }
-                if(matched) {
-                  this.parameterClasses = args;
-                  this.controller = cls.newInstance();
-                  LOGGER.debug("matched " + method);
-                  return method;
-                }
+        Class<?> cls;
+        try {
+          cls = Class.forName(controller);
+        }
+        catch( ClassNotFoundException e ){
+          controller = controller + "Controller";
+          cls = Class.forName(controller);
+        }
+
+        Class<?>[] args = getOperationParameterClasses(operation, this.definitions);
+        Method [] methods = cls.getMethods();
+        for(Method method : methods) {
+          if(methodName.equals(method.getName())) {
+            Class<?>[] methodArgs = method.getParameterTypes();
+            if(methodArgs.length == args.length) {
+              int i = 0;
+              boolean matched = true;
+              if(!args[i].equals(methodArgs[i])) {
+                LOGGER.debug("failed to match " + args[i] + ", " + methodArgs[i]);
+                matched = false;
+              }
+              if(matched) {
+                this.parameterClasses = args;
+                this.controller = cls.newInstance();
+                LOGGER.debug("matched " + method);
+                return method;
               }
             }
           }
         }
+
         LOGGER.debug("no match in " + controller);
       } catch (ClassNotFoundException e) {
         LOGGER.debug("didn't find class " + controller);

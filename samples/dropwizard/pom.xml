@@ -30,10 +30,22 @@
                   <groupId>ch.qos.logback</groupId>
                   <artifactId>logback-core</artifactId>
               </exclusion>
+              <exclusion>
+                  <groupId>com.fasterxml.jackson.core</groupId>
+                  <artifactId>jackson-annotations</artifactId>
+              </exclusion>
+              <exclusion>
+                  <groupId>com.fasterxml.jackson.core</groupId>
+                  <artifactId>jackson-databind</artifactId>
+              </exclusion>
+              <exclusion>
+                  <groupId>com.fasterxml.jackson.core</groupId>
+                  <artifactId>jackson-core</artifactId>
+              </exclusion>
           </exclusions>
       </dependency>
 
-      <!--dependency>
+      <dependency>
           <groupId>com.fasterxml.jackson.core</groupId>
           <artifactId>jackson-annotations</artifactId>
           <version>${jackson.version}</version>
@@ -43,20 +55,25 @@
           <groupId>com.fasterxml.jackson.core</groupId>
           <artifactId>jackson-core</artifactId>
           <version>${jackson.version}</version>
-      </dependency-->
+      </dependency>
 
 
       <dependency>
-      <groupId>io.dropwizard</groupId>
-      <artifactId>dropwizard-core</artifactId>
-      <version>${dropwizard.version}</version>
-    </dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+          <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+          <groupId>io.dropwizard</groupId>
+          <artifactId>dropwizard-core</artifactId>
+          <version>${dropwizard.version}</version>
+      </dependency>
 
   </dependencies>
 
   <build>
     <plugins>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
