@@ -38,7 +38,7 @@ public class SwaggerInflector extends ResourceConfig {
   public SwaggerInflector( Configuration configuration ) {    
     config = configuration;
     Swagger swagger = new SwaggerParser().read(config.getSwaggerUrl());
-
+io.swagger.util.Json.prettyPrint(swagger);
     if(swagger != null) {
       Map<String, Path> paths = swagger.getPaths();
       Map<String, Model> definitions = swagger.getDefinitions();

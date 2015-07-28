@@ -20,5 +20,8 @@ public interface Example {
   Boolean getWrapped();
   void setWrapped(Boolean wrapped);
 
+  String getWrappedName();
+  void setWrappedName(String name);
+
   String asString();
 }

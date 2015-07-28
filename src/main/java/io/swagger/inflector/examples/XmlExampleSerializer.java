@@ -46,7 +46,12 @@ public class XmlExampleSerializer {
     else if(o instanceof ArrayExample) {
       ArrayExample ar = (ArrayExample) o;
       if(o.getWrapped() != null && o.getWrapped()) {
-        writer.writeStartElement(o.getPrefix(), o.getName(), o.getNamespace());
+        if(o.getWrappedName() != null) {
+          writer.writeStartElement(o.getPrefix(), o.getWrappedName(), o.getNamespace());
+        }
+        else {
+          writer.writeStartElement(o.getPrefix(), o.getName() + "s", o.getNamespace());
+        }
       }
       for (Example item : ar.getItems()) {
         if(item.getName() == null) {

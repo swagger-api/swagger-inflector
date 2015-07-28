@@ -257,7 +257,11 @@ public class ExampleBuilder {
     if(output != null) {
       if(attribute != null)
         output.setAttribute(attribute);
-      if(name != null)
+      if(wrapped != null && wrapped) {
+        if(name != null)
+          output.setWrappedName(name);
+      }
+      else if(name != null)
         output.setName(name);
       output.setNamespace(namespace);
       output.setPrefix(prefix);

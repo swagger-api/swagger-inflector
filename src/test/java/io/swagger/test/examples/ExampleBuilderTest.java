@@ -36,7 +36,6 @@ public class ExampleBuilderTest {
   @org.junit.Test
   public void testReadModel() throws Exception {
     Map<String, Model> definitions = ModelConverters.getInstance().readAll(User.class);
-//    Json.prettyPrint(definitions);
     Object o = ExampleBuilder.fromProperty(new RefProperty("User"), definitions);
     Json.prettyPrint(o);
     

@@ -1,13 +1,12 @@
 package io.swagger.inflector.examples.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public abstract class AbstractExample implements Example {
   private String name = null;
   private String namespace = null;
   private String prefix = null;
   private Boolean attribute = false;
   private Boolean wrapped = false;
+  private String wrappedName = null;
 
   public String getName() {
     return name;
@@ -16,7 +15,6 @@ public abstract class AbstractExample implements Example {
     this.name = name;
   }
 
-  @JsonIgnore
   public String getNamespace() {
     return namespace;
   }
@@ -24,7 +22,6 @@ public abstract class AbstractExample implements Example {
     this.namespace = namespace;
   }
 
-  @JsonIgnore
   public String getPrefix() {
     return prefix;
   }
@@ -32,7 +29,6 @@ public abstract class AbstractExample implements Example {
     this.prefix = prefix;
   }
 
-  @JsonIgnore
   public Boolean getAttribute() {
     return attribute;
   }
@@ -40,11 +36,17 @@ public abstract class AbstractExample implements Example {
     this.attribute = attribute;
   }
 
-  @JsonIgnore
   public Boolean getWrapped() {
     return wrapped;
   }
   public void setWrapped(Boolean wrapped) {
     this.wrapped = wrapped;
+  }
+
+  public String getWrappedName() {
+    return wrappedName;
+  }
+  public void setWrappedName(String wrappedName) {
+    this.wrappedName = wrappedName;
   }
 }
