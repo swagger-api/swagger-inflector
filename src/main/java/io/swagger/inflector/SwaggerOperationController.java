@@ -269,15 +269,28 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     }
     Map<String, io.swagger.models.Response> responses = operation.getResponses();
     if(responses != null) {
-      // TODO: return 2xx first, then `default`, if it exists
-      for(String code : responses.keySet()) {
-        io.swagger.models.Response response = responses.get(code);
-        Object output = ExampleBuilder.fromProperty(response.getSchema(), definitions);
-        if(output != null) {
-          return Response.status(Integer.parseInt(code)).entity(output).build();
+      String[] keys = new String[responses.keySet().size()];
+      Arrays.sort(responses.keySet().toArray(keys));
+      int code = 0;
+      String defaultKey = null;
+      for(String key : keys) {
+        if(key.startsWith("2")) {
+          defaultKey = key;
+          code = Integer.parseInt(key);
+          break;
         }
-        return Response.status(Integer.parseInt(code)).build();
+        if("default".equals(key)) {
+          defaultKey = key;
+          code = 200;
+        }
       }
+
+      io.swagger.models.Response response = responses.get(defaultKey);
+      Object output = ExampleBuilder.fromProperty(response.getSchema(), definitions);
+      if(output != null) {
+        return Response.status(code).entity(output).build();
+      }
+      return Response.status(code).build();
     }
 
     // TODO: might need to check possible response types
