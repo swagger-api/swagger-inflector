@@ -1,7 +1,21 @@
+/*
+ *  Copyright 2015 SmartBear Software
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package io.swagger.test;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 import io.swagger.inflector.utils.ReflectionUtils;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.QueryParameter;
@@ -9,156 +23,158 @@ import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.BooleanProperty;
 import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.StringProperty;
+import org.testng.annotations.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class ArraySerializableParamExtractionTest {
-  ReflectionUtils utils = new ReflectionUtils();
+    ReflectionUtils utils = new ReflectionUtils();
 
-  @Test
-  public void testConvertStringArray() throws Exception {
-    List<String> values = Arrays.asList("a", "b");
-    
-    Parameter parameter = new QueryParameter().items(new ArrayProperty().items(new StringProperty()));
-    Object o = utils.cast(values, parameter, List.class, null);
+    @Test
+    public void testConvertStringArray() throws Exception {
+        List<String> values = Arrays.asList("a", "b");
 
-    assertTrue(o instanceof List);
-    
-    @SuppressWarnings("unchecked")
-    List<String> objs = (List<String>)o;
-    assertTrue(objs.size() == 2);
-    assertEquals(objs.get(0), "a");
-    assertEquals(objs.get(1), "b");
-  }
+        Parameter parameter = new QueryParameter().items(new ArrayProperty().items(new StringProperty()));
+        Object o = utils.cast(values, parameter, List.class, null);
 
-  @Test
-  public void testConvertStringArrayCSV() throws Exception {
-    List<String> values = Arrays.asList("a,b");
-    
-    Parameter parameter = new QueryParameter()
-      .collectionFormat("csv")
-      .items(new ArrayProperty()
-        .items(new StringProperty()));
+        assertTrue(o instanceof List);
 
-    Object o = utils.cast(values, parameter, List.class, null);
+        @SuppressWarnings("unchecked")
+        List<String> objs = (List<String>) o;
+        assertTrue(objs.size() == 2);
+        assertEquals(objs.get(0), "a");
+        assertEquals(objs.get(1), "b");
+    }
 
-    assertTrue(o instanceof List);
-    
-    @SuppressWarnings("unchecked")
-    List<String> objs = (List<String>)o;
+    @Test
+    public void testConvertStringArrayCSV() throws Exception {
+        List<String> values = Arrays.asList("a,b");
 
-    assertTrue(objs.size() == 2);
-    assertEquals(objs.get(0), "a");
-    assertEquals(objs.get(1), "b");
-  }
+        Parameter parameter = new QueryParameter()
+                .collectionFormat("csv")
+                .items(new ArrayProperty()
+                        .items(new StringProperty()));
 
-  @Test
-  public void testConvertStringArrayCSVWithEscapedValue() throws Exception {
-    List<String> values = Arrays.asList("\"good, bad\",bad");
-    
-    Parameter parameter = new QueryParameter()
-      .collectionFormat("csv")
-      .items(new ArrayProperty()
-        .items(new StringProperty()));
+        Object o = utils.cast(values, parameter, List.class, null);
 
-    Object o = utils.cast(values, parameter, List.class, null);
+        assertTrue(o instanceof List);
 
-    assertTrue(o instanceof List);
-    
-    @SuppressWarnings("unchecked")
-    List<String> objs = (List<String>)o;
+        @SuppressWarnings("unchecked")
+        List<String> objs = (List<String>) o;
 
-    assertTrue(objs.size() == 2);
-    assertEquals(objs.get(0), "good, bad");
-    assertEquals(objs.get(1), "bad");
-  }
+        assertTrue(objs.size() == 2);
+        assertEquals(objs.get(0), "a");
+        assertEquals(objs.get(1), "b");
+    }
 
-  @Test
-  public void testConvertStringArrayPipesWithEscapedValue() throws Exception {
-    List<String> values = Arrays.asList("\"good | bad\"|bad");
-    
-    Parameter parameter = new QueryParameter()
-      .collectionFormat("pipes")
-      .items(new ArrayProperty()
-        .items(new StringProperty()));
+    @Test
+    public void testConvertStringArrayCSVWithEscapedValue() throws Exception {
+        List<String> values = Arrays.asList("\"good, bad\",bad");
 
-    Object o = utils.cast(values, parameter, List.class, null);
+        Parameter parameter = new QueryParameter()
+                .collectionFormat("csv")
+                .items(new ArrayProperty()
+                        .items(new StringProperty()));
 
-    assertTrue(o instanceof List);
-    
-    @SuppressWarnings("unchecked")
-    List<String> objs = (List<String>)o;
+        Object o = utils.cast(values, parameter, List.class, null);
 
-    assertTrue(objs.size() == 2);
-    assertEquals(objs.get(0), "good | bad");
-    assertEquals(objs.get(1), "bad");
-  }
+        assertTrue(o instanceof List);
 
-  @Test
-  public void testConvertStringArraySSVWithEscapedValue() throws Exception {
-    List<String> values = Arrays.asList("\"good bad\" bad");
-    
-    Parameter parameter = new QueryParameter()
-      .collectionFormat("ssv")
-      .items(new ArrayProperty()
-        .items(new StringProperty()));
+        @SuppressWarnings("unchecked")
+        List<String> objs = (List<String>) o;
 
-    Object o = utils.cast(values, parameter, List.class, null);
+        assertTrue(objs.size() == 2);
+        assertEquals(objs.get(0), "good, bad");
+        assertEquals(objs.get(1), "bad");
+    }
 
-    assertTrue(o instanceof List);
-    
-    @SuppressWarnings("unchecked")
-    List<String> objs = (List<String>)o;
+    @Test
+    public void testConvertStringArrayPipesWithEscapedValue() throws Exception {
+        List<String> values = Arrays.asList("\"good | bad\"|bad");
 
-    assertTrue(objs.size() == 2);
-    assertEquals(objs.get(0), "good bad");
-    assertEquals(objs.get(1), "bad");
-  }
+        Parameter parameter = new QueryParameter()
+                .collectionFormat("pipes")
+                .items(new ArrayProperty()
+                        .items(new StringProperty()));
 
-  @Test
-  public void testConvertIntegerArraySSVValue() throws Exception {
-    List<String> values = Arrays.asList("1 2 3");
-    
-    Parameter parameter = new QueryParameter()
-      .collectionFormat("ssv")
-      .items(new ArrayProperty()
-        .items(new IntegerProperty()));
+        Object o = utils.cast(values, parameter, List.class, null);
 
-    Object o = utils.cast(values, parameter, List.class, null);
+        assertTrue(o instanceof List);
 
-    assertTrue(o instanceof List);
-    
-    @SuppressWarnings("unchecked")
-    List<Integer> objs = (List<Integer>)o;
+        @SuppressWarnings("unchecked")
+        List<String> objs = (List<String>) o;
 
-    assertTrue(objs.size() == 3);
-    assertEquals(objs.get(0), new Integer(1));
-    assertEquals(objs.get(1), new Integer(2));
-    assertEquals(objs.get(2), new Integer(3));
-  }
+        assertTrue(objs.size() == 2);
+        assertEquals(objs.get(0), "good | bad");
+        assertEquals(objs.get(1), "bad");
+    }
 
-  @Test
-  public void testConvertBooleanArrayCSVValue() throws Exception {
-    List<String> values = Arrays.asList("true false true");
-    
-    Parameter parameter = new QueryParameter()
-      .collectionFormat("ssv")
-      .items(new ArrayProperty()
-        .items(new BooleanProperty()));
+    @Test
+    public void testConvertStringArraySSVWithEscapedValue() throws Exception {
+        List<String> values = Arrays.asList("\"good bad\" bad");
 
-    Object o = utils.cast(values, parameter, List.class, null);
+        Parameter parameter = new QueryParameter()
+                .collectionFormat("ssv")
+                .items(new ArrayProperty()
+                        .items(new StringProperty()));
 
-    assertTrue(o instanceof List);
-    
-    @SuppressWarnings("unchecked")
-    List<Boolean> objs = (List<Boolean>)o;
+        Object o = utils.cast(values, parameter, List.class, null);
 
-    assertTrue(objs.size() == 3);
-    assertEquals(objs.get(0), Boolean.TRUE);
-    assertEquals(objs.get(1), Boolean.FALSE);
-    assertEquals(objs.get(2), Boolean.TRUE);
-  }
+        assertTrue(o instanceof List);
+
+        @SuppressWarnings("unchecked")
+        List<String> objs = (List<String>) o;
+
+        assertTrue(objs.size() == 2);
+        assertEquals(objs.get(0), "good bad");
+        assertEquals(objs.get(1), "bad");
+    }
+
+    @Test
+    public void testConvertIntegerArraySSVValue() throws Exception {
+        List<String> values = Arrays.asList("1 2 3");
+
+        Parameter parameter = new QueryParameter()
+                .collectionFormat("ssv")
+                .items(new ArrayProperty()
+                        .items(new IntegerProperty()));
+
+        Object o = utils.cast(values, parameter, List.class, null);
+
+        assertTrue(o instanceof List);
+
+        @SuppressWarnings("unchecked")
+        List<Integer> objs = (List<Integer>) o;
+
+        assertTrue(objs.size() == 3);
+        assertEquals(objs.get(0), new Integer(1));
+        assertEquals(objs.get(1), new Integer(2));
+        assertEquals(objs.get(2), new Integer(3));
+    }
+
+    @Test
+    public void testConvertBooleanArrayCSVValue() throws Exception {
+        List<String> values = Arrays.asList("true false true");
+
+        Parameter parameter = new QueryParameter()
+                .collectionFormat("ssv")
+                .items(new ArrayProperty()
+                        .items(new BooleanProperty()));
+
+        Object o = utils.cast(values, parameter, List.class, null);
+
+        assertTrue(o instanceof List);
+
+        @SuppressWarnings("unchecked")
+        List<Boolean> objs = (List<Boolean>) o;
+
+        assertTrue(objs.size() == 3);
+        assertEquals(objs.get(0), Boolean.TRUE);
+        assertEquals(objs.get(1), Boolean.FALSE);
+        assertEquals(objs.get(2), Boolean.TRUE);
+    }
 }

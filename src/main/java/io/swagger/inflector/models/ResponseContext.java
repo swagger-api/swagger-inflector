@@ -1,58 +1,81 @@
+/*
+ *  Copyright 2015 SmartBear Software
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package io.swagger.inflector.models;
 
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response.Status;
 
 public class ResponseContext {
-  MultivaluedMap<String, String> headers = new MultivaluedHashMap<String, String>();
-  MediaType contentType;
-  Status status;
-  Object entity;
+    MultivaluedMap<String, String> headers = new MultivaluedHashMap<String, String>();
+    MediaType contentType;
+    Status status;
+    Object entity;
 
-  public ResponseContext header(String key, String value) {
-    this.headers.add(key, value);
-    return this;
-  }
-  public ResponseContext contentType(MediaType contentType) {
-    this.contentType = contentType;
-    return this;
-  }
-  public ResponseContext status(Status status) {
-    this.status = status;
-    return this;
-  }
-  public ResponseContext entity(Object entity) {
-    this.entity = entity;
-    return this;
-  }
+    public ResponseContext header(String key, String value) {
+        this.headers.add(key, value);
+        return this;
+    }
 
-  public MultivaluedMap<String, String> getHeaders() {
-    return headers;
-  }
-  public void setHeaders(MultivaluedMap<String, String> headers) {
-    this.headers = headers;
-  }
+    public ResponseContext contentType(MediaType contentType) {
+        this.contentType = contentType;
+        return this;
+    }
 
-  public MediaType getContentType() {
-    return contentType;
-  }
-  public void setContentType(MediaType contentType) {
-    this.contentType = contentType;
-  }
+    public ResponseContext status(Status status) {
+        this.status = status;
+        return this;
+    }
 
-  public Status getStatus() {
-    return status;
-  }
-  public void setStatus(Status status) {
-    this.status = status;
-  }
+    public ResponseContext entity(Object entity) {
+        this.entity = entity;
+        return this;
+    }
 
-  public Object getEntity() {
-    return entity;
-  }
-  public void setEntity(Object entity) {
-    this.entity = entity;
-  }
+    public MultivaluedMap<String, String> getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(MultivaluedMap<String, String> headers) {
+        this.headers = headers;
+    }
+
+    public MediaType getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(MediaType contentType) {
+        this.contentType = contentType;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public Object getEntity() {
+        return entity;
+    }
+
+    public void setEntity(Object entity) {
+        this.entity = entity;
+    }
 }

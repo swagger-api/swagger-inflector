@@ -1,5 +1,22 @@
+/*
+ *  Copyright 2015 SmartBear Software
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package io.swagger.inflector.examples.models;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.inflector.processors.JsonExampleDeserializer;
 
 import java.util.HashSet;
@@ -7,44 +24,43 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-@JsonDeserialize(using=JsonExampleDeserializer.class)
+@JsonDeserialize(using = JsonExampleDeserializer.class)
 public class ObjectExample extends AbstractExample {
-  private Map<String, Example> values;
+    private Map<String, Example> values;
 
-  public void put(String key, Example value) {
-    if(values == null) {
-      values = new LinkedHashMap<String, Example>();
+    public void put(String key, Example value) {
+        if (values == null) {
+            values = new LinkedHashMap<String, Example>();
+        }
+        values.put(key, value);
     }
-    values.put(key,  value);
-  }
-  
-  public Set<String> keySet() {
-    if(values == null) {
-      return new HashSet<String>();
+
+    public Set<String> keySet() {
+        if (values == null) {
+            return new HashSet<String>();
+        }
+        return values.keySet();
     }
-    return values.keySet();
-  }
-  
-  public Object get(String key) {
-    if(values != null) {
-      return values.get(key);
+
+    public Object get(String key) {
+        if (values != null) {
+            return values.get(key);
+        }
+        return null;
     }
-    return null;
-  }
-  
-  public String asString() {
-    if(values == null) {
-      return null;
+
+    public String asString() {
+        if (values == null) {
+            return null;
+        }
+        return "NOT IMPLEMENTED";
     }
-    return "NOT IMPLEMENTED";
-  }
-  
-  public Map<String, Example> getValues() {
-    return values;
-  }
-  public void setValues(Map<String, Example> values) {
-    this.values = values;
-  }
+
+    public Map<String, Example> getValues() {
+        return values;
+    }
+
+    public void setValues(Map<String, Example> values) {
+        this.values = values;
+    }
 }
