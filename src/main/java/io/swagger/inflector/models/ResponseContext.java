@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response.Status;
 public class ResponseContext {
     MultivaluedMap<String, String> headers = new MultivaluedHashMap<String, String>();
     MediaType contentType;
-    Status status;
+    Status status = Status.OK;
     Object entity;
 
     public ResponseContext header(String key, String value) {
