@@ -11,22 +11,10 @@ import java.io.IOException;
 
 public class SampleController {
     public ResponseContext addPet(RequestContext request, Pet body) {
+
+      
         return new ResponseContext()
                 .status(Status.OK)
                 .entity(body);
-    }
-
-    public ResponseContext uploadFile(io.swagger.inflector.models.RequestContext request, java.lang.Long petId, java.lang.String additionalMetadata, java.io.InputStream file) {
-        ByteArrayOutputStream outputStream;
-        try {
-            outputStream = new ByteArrayOutputStream();
-            IOUtils.copy(file, outputStream);
-            outputStream.close();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        return null;
     }
 }
