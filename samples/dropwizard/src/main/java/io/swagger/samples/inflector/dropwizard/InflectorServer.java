@@ -21,11 +21,20 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.swagger.inflector.SwaggerInflector;
 import io.swagger.inflector.config.Configuration;
+import io.swagger.inflector.processors.ExampleSerializer;
+import io.swagger.inflector.processors.JsonExampleSerializer;
+import io.swagger.jaxrs.listing.SwaggerSerializers;
+import io.swagger.util.Json;
+import io.swagger.util.Yaml;
+
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.module.SimpleModule;
+
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
+
 import java.util.EnumSet;
 
 public class InflectorServer extends Application<InflectorServerConfiguration> {
@@ -51,5 +60,17 @@ public class InflectorServer extends Application<InflectorServerConfiguration> {
 
         SwaggerInflector inflector = new SwaggerInflector(Configuration.read(configuration.getConfig()));
         environment.jersey().getResourceConfig().registerResources(inflector.getResources());
+        
+        // add serializers for swagger
+        environment.jersey().register(SwaggerSerializers.class);
+
+        // example serializers
+        environment.jersey().register(ExampleSerializer.class);
+        
+        // mappers
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addSerializer(new JsonExampleSerializer());
+        Json.mapper().registerModule(simpleModule);
+        Yaml.mapper().registerModule(simpleModule);
     }
 }
