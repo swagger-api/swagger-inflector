@@ -20,6 +20,8 @@ import io.swagger.inflector.utils.ReflectionUtils;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.properties.BooleanProperty;
+import io.swagger.models.properties.DateProperty;
+import io.swagger.models.properties.DateTimeProperty;
 import io.swagger.models.properties.DoubleProperty;
 import io.swagger.models.properties.EmailProperty;
 import io.swagger.models.properties.FloatProperty;
@@ -29,10 +31,14 @@ import io.swagger.models.properties.StringProperty;
 import io.swagger.models.properties.UUIDProperty;
 import org.testng.annotations.Test;
 
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -190,5 +196,47 @@ public class ValueCoercionTest {
         Object o = utils.cast(values, parameter, String.class, null);
 
         assertTrue(o instanceof String);
+    }
+
+    @Test
+    public void testConvertDateValue() throws Exception {
+        List<String> values = Arrays.asList("2005-12-31");
+
+        Parameter parameter = new QueryParameter().items(new DateProperty());
+        Object o = utils.cast(values, parameter, LocalDate.class, null);
+
+        assertEquals(o.toString(), "2005-12-31");
+        assertTrue(o instanceof LocalDate);
+    }
+
+    @Test
+    public void testConvertInvalidDateValue() throws Exception {
+        List<String> values = Arrays.asList("Booyah!");
+
+        Parameter parameter = new QueryParameter().items(new DateProperty());
+        Object o = utils.cast(values, parameter, LocalDate.class, null);
+
+        assertNull(o);
+    }
+
+    @Test
+    public void testConvertDateTimeValue() throws Exception {
+        List<String> values = Arrays.asList("2005-12-31T01:23:45.600-08:00");
+
+        Parameter parameter = new QueryParameter().items(new DateTimeProperty());
+        Object o = utils.cast(values, parameter, DateTime.class, null);
+
+        assertEquals(o.toString(), "2005-12-31T01:23:45.600-08:00");
+        assertTrue(o instanceof DateTime);
+    }
+
+    @Test
+    public void testConvertInvalidDateTimeValue() throws Exception {
+        List<String> values = Arrays.asList("Booyah!");
+
+        Parameter parameter = new QueryParameter().items(new DateTimeProperty());
+        Object o = utils.cast(values, parameter, DateTime.class, null);
+
+        assertNull(o);
     }
 }

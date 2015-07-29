@@ -28,6 +28,7 @@ import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.parameters.SerializableParameter;
 import io.swagger.models.properties.ArrayProperty;
+import io.swagger.models.properties.DateProperty;
 import io.swagger.models.properties.Property;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -298,6 +299,12 @@ public class ReflectionUtils {
             }
             if (UUID.class.equals(cls)) {
                 return UUID.fromString(o);
+            }
+            if(LocalDate.class.equals(cls)) {
+                return LocalDate.parse(o);
+            }
+            if(DateTime.class.equals(cls)) {
+                return DateTime.parse(o);
             }
         } catch (NumberFormatException e) {
             LOGGER.debug("couldn't coerce `" + o + "` to type " + cls);

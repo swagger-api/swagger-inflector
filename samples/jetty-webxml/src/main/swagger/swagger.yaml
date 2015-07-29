@@ -587,12 +587,15 @@ definitions:
       id:
         type: integer
         format: int64
+        example: 10
       petId:
         type: integer
         format: int64
+        example: 198772
       quantity:
         type: integer
         format: int32
+        example: 7
       shipDate:
         type: string
         format: date-time
@@ -603,10 +606,47 @@ definitions:
           - placed
           - approved
           - delivered
+        example: approved
       complete:
         type: boolean
+      customer:
+        $ref: Customer
     xml:
       name: order
+  Customer:
+    properties:
+      id:
+        type: integer
+        format: int64
+        example: 100000
+      username:
+        type: string
+        example: fehguy
+      address:
+        type: array
+        items:
+          $ref: '#/definitions/Address'
+        xml:
+          wrapped: true
+          name: addresses
+    xml:
+      name: customer
+  Address:
+    properties:
+      street:
+        type: string
+        example: 437 Lytton
+      city:
+        type: string
+        example: Palo Alto
+      state:
+        type: string
+        example: CA
+      zip:
+        type: string
+        example: 94301
+    xml:
+      name: address
   Category:
     properties:
       id:
