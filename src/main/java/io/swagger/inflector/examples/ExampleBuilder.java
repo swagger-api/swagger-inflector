@@ -58,11 +58,11 @@ import java.util.Set;
 public class ExampleBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExampleBuilder.class);
 
-    public static Object fromProperty(Property property, Map<String, Model> definitions) {
+    public static Example fromProperty(Property property, Map<String, Model> definitions) {
         return fromProperty(property, definitions, new HashSet<String>());
     }
 
-    public static Object fromProperty(Property property, Map<String, Model> definitions, Set<String> processedModels) {
+    public static Example fromProperty(Property property, Map<String, Model> definitions, Set<String> processedModels) {
         if (property == null) {
             return null;
         }
@@ -101,7 +101,7 @@ public class ExampleBuilder {
             }
         } else if (property instanceof EmailProperty) {
             if (example != null) {
-                return example;
+                return new StringExample(example.toString());
             }
             output = new StringExample("apiteam@swagger.io");
         } else if (property instanceof UUIDProperty) {
