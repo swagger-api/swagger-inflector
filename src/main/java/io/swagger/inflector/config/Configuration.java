@@ -57,7 +57,6 @@ public class Configuration {
             // try to load from resources
             
             InputStream is = Configuration.class.getClassLoader().getResourceAsStream("/WEB-INF/inflector.yaml");
-            System.out.println(is);
             if(is != null) {
                 try {
                   return Yaml.mapper().readValue(is, Configuration.class);
