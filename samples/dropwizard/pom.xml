@@ -26,8 +26,8 @@
 
     <properties>
         <dropwizard.version>0.8.2</dropwizard.version>
-        <swagger-core.version>1.5.1-SNAPSHOT</swagger-core.version>
-        <swagger-parser.version>1.0.9-SNAPSHOT</swagger-parser.version>
+        <swagger-core.version>1.5.1</swagger-core.version>
+        <swagger-parser.version>1.0.9</swagger-parser.version>
         <jackson.version>2.5.1</jackson.version>
     </properties>
 

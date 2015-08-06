@@ -192,7 +192,7 @@
     </dependencies>
     <properties>
         <maven-plugin-version>1.0.0</maven-plugin-version>
-        <swagger-core-version>1.5.0</swagger-core-version>
+        <swagger-core-version>1.5.1</swagger-core-version>
         <swagger-parser-version>1.0.8</swagger-parser-version>
         <jackson-version>2.4.2</jackson-version>
         <joda-time-version>2.2</joda-time-version>

@@ -17,11 +17,17 @@
 package io.swagger.inflector.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
 import io.swagger.util.Yaml;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,25 +39,40 @@ public class Configuration {
     private String modelPackage;
     private String swaggerUrl;
     private int invalidRequestCode;
+    private String rootPath = "";
 
     public static Configuration read() {
         String configLocation = System.getProperty("config", "inflector.yaml");
         System.out.println("loading config from " + configLocation);
-        if (configLocation == null) {
-            LOGGER.warn("Returning default configuration!");
-            return defaultConfiguration();
-        } else {
+        if(configLocation != null) {
+          try {
             return read(configLocation);
+          }
+          catch (Exception e) {
+            // continue
+            LOGGER.warn("couldn't read inflector config from system property");
+          }
         }
+        try {
+            // try to load from resources
+            
+            InputStream is = Configuration.class.getClassLoader().getResourceAsStream("/WEB-INF/inflector.yaml");
+            if(is != null) {
+                try {
+                  return Yaml.mapper().readValue(is, Configuration.class);
+                } catch (Exception e) {
+                  LOGGER.warn("couldn't read inflector config from resource stream");
+                  // continue
+                }
+            }
+        } catch (Exception e) {
+          LOGGER.warn("Returning default configuration!");
+        }
+        return defaultConfiguration();
     }
 
-    public static Configuration read(String configLocation) {
-        try {
-            return Yaml.mapper().readValue(new File(configLocation), Configuration.class);
-        } catch (Exception e) {
-            LOGGER.error("Failed to read configuration", e);
-            return defaultConfiguration();
-        }
+    public static Configuration read(String configLocation) throws Exception {
+        return Yaml.mapper().readValue(new File(configLocation), Configuration.class);
     }
 
     private static Configuration defaultConfiguration() {
@@ -126,7 +147,6 @@ public class Configuration {
     public void addModelMapping(String name, Class<?> cls) {
         modelMap.put(name, cls);
     }
-
     public Class<?> getModelMapping(String name) {
         return modelMap.get(name);
     }
@@ -134,7 +154,6 @@ public class Configuration {
     public String getSwaggerUrl() {
         return swaggerUrl;
     }
-
     public void setSwaggerUrl(String swaggerUrl) {
         this.swaggerUrl = swaggerUrl;
     }
@@ -142,8 +161,15 @@ public class Configuration {
     public void setInvalidRequestStatusCode(int code) {
         this.invalidRequestCode = code;
     }
-
     public int getInvalidRequestStatusCode() {
         return invalidRequestCode;
     }
+
+    public void setRootPath(String rootPath) {
+        this.rootPath = rootPath;
+    }
+    public String getRootPath() {
+        return rootPath;
+    }
+
 }

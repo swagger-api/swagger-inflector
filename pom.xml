@@ -399,11 +399,10 @@
             <artifactId>jackson-jaxrs-xml-provider</artifactId>
             <version>2.4.6</version>
         </dependency>
-
     </dependencies>
     <properties>
         <maven-plugin-version>1.0.0</maven-plugin-version>
-        <swagger-core-version>1.5.1-SNAPSHOT</swagger-core-version>
+        <swagger-core-version>1.5.1</swagger-core-version>
         <swagger-parser-version>1.0.9-SNAPSHOT</swagger-parser-version>
         <joda-time-version>2.2</joda-time-version>
         <joda-version>1.2</joda-version>
