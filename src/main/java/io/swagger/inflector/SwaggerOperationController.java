@@ -153,19 +153,19 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             List<Parameter> missingParams = new ArrayList<Parameter>();
             UriInfo uri = ctx.getUriInfo();
             String formDataString = null;
-      /*
-      // TODO handling for multipart
-      if(ctx.getMediaType().isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {
-        MultiPart mp = new MultiPart();
-        mp.bodyPart(ctx.getEntityStream(), MediaType.MULTIPART_FORM_DATA_TYPE);
+/*
+            // TODO handling for multipart
+            if(ctx.getMediaType().isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {
+              MultiPart mp = new MultiPart();
+              mp.bodyPart(ctx.getEntityStream(), MediaType.MULTIPART_FORM_DATA_TYPE);
 
-        for(BodyPart bp : mp.getBodyParts()) {
-          StreamDataBodyPart sd = new StreamDataBodyPart();
-          sd.setStreamEntity(ctx.getEntityStream(), MediaType.TEXT_PLAIN_TYPE);
-        }
-        System.out.println("bp: " + mp.getBodyParts());
-      }
-      */
+              for(BodyPart bp : mp.getBodyParts()) {
+                StreamDataBodyPart sd = new StreamDataBodyPart();
+                sd.setStreamEntity(ctx.getEntityStream(), MediaType.TEXT_PLAIN_TYPE);
+              }
+              System.out.println("bp: " + mp.getBodyParts());
+            }
+*/
             for (Parameter parameter : parameters) {
                 String in = parameter.getIn();
                 Object o = null;
