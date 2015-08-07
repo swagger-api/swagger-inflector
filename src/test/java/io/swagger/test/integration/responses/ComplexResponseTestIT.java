@@ -39,7 +39,7 @@ public class ComplexResponseTestIT {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/complexResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        ObjectMapper mapper = Json.create().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+        ObjectMapper mapper = Json.mapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
         assertEquals(mapper.readValue(str, JsonNode.class),
                 mapper.readValue("{\"street\":\"12345 El Monte Road\",\"city\":\"Los Altos Hills\",\"state\":\"CA\",\"zip\":\"94022\"}", JsonNode.class));
     }
@@ -52,7 +52,7 @@ public class ComplexResponseTestIT {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/complexResponseWithExample", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        ObjectMapper mapper = Json.create().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+        ObjectMapper mapper = Json.mapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
         assertEquals(mapper.readValue(str, JsonNode.class), mapper.readValue("{\n  \"foo\":\"bar\"\n}\n", JsonNode.class));
     }
 
@@ -64,7 +64,7 @@ public class ComplexResponseTestIT {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/complexArrayResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        ObjectMapper mapper = Json.create().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+        ObjectMapper mapper = Json.mapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
 
         assertEquals(mapper.readValue(str, JsonNode.class),
                 mapper.readValue("[{\"city\":\"Los Altos Hills\",\"state\":\"CA\",\"street\":\"12345 El Monte Road\",\"zip\":\"94022\"}]", JsonNode.class));
@@ -78,7 +78,7 @@ public class ComplexResponseTestIT {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/complexArrayResponseWithExample", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        ObjectMapper mapper = Json.create().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+        ObjectMapper mapper = Json.mapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
 
         assertEquals(mapper.readValue(str, JsonNode.class),
                 mapper.readValue("[{\"foo\":\"bar\"}]", JsonNode.class));
