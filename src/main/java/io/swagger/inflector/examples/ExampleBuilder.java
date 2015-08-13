@@ -87,6 +87,10 @@ public class ExampleBuilder {
         Object example = property.getExample();
         if (property instanceof RefProperty) {
             RefProperty ref = (RefProperty) property;
+            if(processedModels.contains(ref.getSimpleRef())) {
+                return null;
+            }
+            processedModels.add(ref.getSimpleRef());
             Model model = definitions.get(ref.getSimpleRef());
             if (model != null) {
                 if (model.getExample() != null) {

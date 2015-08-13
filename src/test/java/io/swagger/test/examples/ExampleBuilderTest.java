@@ -119,22 +119,22 @@ public class ExampleBuilderTest {
         Map<String, Model> definitions = new HashMap<String, Model>();
 
         Model address = new ModelImpl()
-                .xml(new Xml()
-                        .name("address"))
-                .property(
-                        "street",
-                        new StringProperty()
-                                .example("12345 El Monte Blvd"))
-                .property(
-                        "city",
-                        new StringProperty()
-                                .example("Los Altos Hills"))
-                .property("state", new StringProperty()
-                        .example("CA")
-                        .minLength(2)
-                        .maxLength(2))
-                .property("zip", new StringProperty()
-                        .example("94022"));
+          .xml(new Xml()
+            .name("address"))
+          .property(
+            "street",
+            new StringProperty()
+            .example("12345 El Monte Blvd"))
+          .property(
+            "city",
+            new StringProperty()
+            .example("Los Altos Hills"))
+          .property("state", new StringProperty()
+            .example("CA")
+            .minLength(2)
+            .maxLength(2))
+          .property("zip", new StringProperty()
+            .example("94022"));
 
         definitions.put("Address", address);
 
@@ -150,23 +150,23 @@ public class ExampleBuilderTest {
         Map<String, Model> definitions = new HashMap<String, Model>();
 
         Model address = new ModelImpl()
-                .example("{\"foo\":\"bar\"}")
-                .xml(new Xml()
-                        .name("address"))
-                .property(
-                        "street",
-                        new StringProperty()
-                                .example("12345 El Monte Blvd"))
-                .property(
-                        "city",
-                        new StringProperty()
-                                .example("Los Altos Hills"))
-                .property("state", new StringProperty()
-                        .example("CA")
-                        .minLength(2)
-                        .maxLength(2))
-                .property("zip", new StringProperty()
-                        .example("94022"));
+          .example("{\"foo\":\"bar\"}")
+          .xml(new Xml()
+            .name("address"))
+          .property(
+            "street",
+            new StringProperty()
+              .example("12345 El Monte Blvd"))
+          .property(
+            "city",
+            new StringProperty()
+              .example("Los Altos Hills"))
+          .property("state", new StringProperty()
+            .example("CA")
+            .minLength(2)
+            .maxLength(2))
+          .property("zip", new StringProperty()
+            .example("94022"));
 
         definitions.put("Address", address);
 
@@ -238,5 +238,25 @@ public class ExampleBuilderTest {
         Example ex = ExampleBuilder.fromProperty(sp, null);
         String xmlString = new XmlExampleSerializer().serialize(ex);
         assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><string>string</string>");
+    }
+
+    @Test
+    public void testRecursiveModel() throws Exception {
+        Model person = new ModelImpl()
+          .property(
+            "age",
+            new IntegerProperty()
+            .example(42))
+          .property(
+            "spouse",
+            new RefProperty("Person"));
+
+        Map<String, Model> definitions = new HashMap<String, Model>();
+        definitions.put("Person", person);
+
+        Example rep = (Example) ExampleBuilder.fromProperty(new RefProperty("Person"), definitions);
+        assertEquals(Json.pretty(rep), "{\n  \"age\" : 42\n}");
+        String xmlString = new XmlExampleSerializer().serialize(rep);
+        assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><Person><age>42</age></Person>");
     }
 }
