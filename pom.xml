@@ -116,7 +116,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.18</version>
+                <version>2.18.1</version>
                 <executions>
                     <execution>
                         <id>integration-test</id>
@@ -361,7 +361,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.8.7</version>
+            <version>6.8.8</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -402,8 +402,8 @@
     </dependencies>
     <properties>
         <maven-plugin-version>1.0.0</maven-plugin-version>
-        <swagger-core-version>1.5.3-SNAPSHOT</swagger-core-version>
-        <swagger-parser-version>1.0.10-SNAPSHOT</swagger-parser-version>
+        <swagger-core-version>1.5.3</swagger-core-version>
+        <swagger-parser-version>1.0.10</swagger-parser-version>
         <joda-time-version>2.2</joda-time-version>
         <joda-version>1.2</joda-version>
         <jetty-version>9.2.9.v20150224</jetty-version>
