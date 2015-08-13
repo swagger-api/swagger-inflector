@@ -28,6 +28,10 @@ import java.util.Set;
 public class ObjectExample extends AbstractExample {
     private Map<String, Example> values;
 
+    public ObjectExample() {
+        super.setTypeName("object");
+    }
+
     public void put(String key, Example value) {
         if (values == null) {
             values = new LinkedHashMap<String, Example>();

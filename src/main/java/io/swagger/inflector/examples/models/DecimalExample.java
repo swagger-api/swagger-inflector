@@ -21,7 +21,11 @@ import java.math.BigDecimal;
 public class DecimalExample extends AbstractExample {
     private BigDecimal value;
 
+    public DecimalExample() {
+        super.setTypeName("decimal");
+    }
     public DecimalExample(BigDecimal value) {
+        this();
         this.value = value;
     }
 

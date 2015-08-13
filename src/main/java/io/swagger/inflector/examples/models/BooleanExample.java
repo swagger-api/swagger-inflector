@@ -19,7 +19,12 @@ package io.swagger.inflector.examples.models;
 public class BooleanExample extends AbstractExample {
     private Boolean value;
 
+    public BooleanExample() {
+        super.setTypeName("boolean");
+    }
+
     public BooleanExample(boolean value) {
+        this();
         this.value = value;
     }
 

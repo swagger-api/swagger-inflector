@@ -19,7 +19,11 @@ package io.swagger.inflector.examples.models;
 public class IntegerExample extends AbstractExample {
     private Integer value;
 
+    public IntegerExample() {
+        super.setTypeName("integer");
+    }
     public IntegerExample(int value) {
+        this();
         this.value = value;
     }
 

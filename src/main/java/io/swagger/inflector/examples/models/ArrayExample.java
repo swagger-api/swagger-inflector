@@ -21,6 +21,10 @@ import java.util.List;
 
 public class ArrayExample extends AbstractExample {
     List<Example> values = null;
+    
+    public ArrayExample() {
+        super.setTypeName("array");
+    }
 
     public void add(Example value) {
         if (values == null) {

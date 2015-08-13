@@ -19,7 +19,11 @@ package io.swagger.inflector.examples.models;
 public class DoubleExample extends AbstractExample {
     private Double value;
 
+    public DoubleExample() {
+        super.setTypeName("double");
+    }
     public DoubleExample(double value) {
+        this();
         this.value = value;
     }
 

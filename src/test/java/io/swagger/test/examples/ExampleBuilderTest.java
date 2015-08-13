@@ -17,6 +17,7 @@
 package io.swagger.test.examples;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
+
 import io.swagger.converter.ModelConverters;
 import io.swagger.inflector.examples.ExampleBuilder;
 import io.swagger.inflector.examples.XmlExampleSerializer;
@@ -27,13 +28,18 @@ import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
 import io.swagger.models.Xml;
 import io.swagger.models.properties.ArrayProperty;
+import io.swagger.models.properties.BooleanProperty;
+import io.swagger.models.properties.DecimalProperty;
+import io.swagger.models.properties.FloatProperty;
 import io.swagger.models.properties.IntegerProperty;
+import io.swagger.models.properties.LongProperty;
 import io.swagger.models.properties.MapProperty;
 import io.swagger.models.properties.RefProperty;
 import io.swagger.models.properties.StringProperty;
 import io.swagger.test.models.User;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
+
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -54,10 +60,9 @@ public class ExampleBuilderTest {
     public void testReadModel() throws Exception {
         Map<String, Model> definitions = ModelConverters.getInstance().readAll(User.class);
         Object o = ExampleBuilder.fromProperty(new RefProperty("User"), definitions);
-        Json.prettyPrint(o);
 
         String str = new XmlExampleSerializer().serialize((Example) o);
-        System.out.println(str);
+        assertEquals(str, "<?xml version='1.1' encoding='UTF-8'?><user><id>0</id><user>string</user><child><childNames>string</childNames></child></user>");
     }
 
     @Test
@@ -105,8 +110,8 @@ public class ExampleBuilderTest {
         Example rep = (Example) ExampleBuilder.fromProperty(new RefProperty("User"), definitions);
 
         String xmlString = new XmlExampleSerializer().serialize(rep);
-        System.out.println(xmlString);
-        Yaml.prettyPrint(rep);
+        assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><user><userName>fehguy</userName><addressess><address><street>12345 El Monte Blvd</street><city>Los Altos Hills</city><state>CA</state><zip>94022</zip></address></addressess><managers><key>key</key><value>SVP Engineering</value></managers><kidsAges>9</kidsAges></user>");
+        assertEquals(Yaml.pretty().writeValueAsString(rep), "---\nusername: \"fehguy\"\naddresses:\n- street: \"12345 El Monte Blvd\"\n  city: \"Los Altos Hills\"\n  state: \"CA\"\n  zip: \"94022\"\nmanagers:\n  key: \"key\"\n  value: \"SVP Engineering\"\nkidsAges:\n- 9\n");
     }
 
     @Test
@@ -171,27 +176,67 @@ public class ExampleBuilderTest {
         simpleModule.addDeserializer(Example.class, new JsonExampleDeserializer());
         Json.mapper().registerModule(simpleModule);
 
-//    Example rep = (Example) ExampleBuilder.fromProperty(new ArrayProperty(new RefProperty("Address")), definitions);
-
-//    Json.prettyPrint(rep);
-
         Example rep = (Example) ExampleBuilder.fromProperty(new StringProperty("hello").example("fun"), definitions);
-        Json.prettyPrint(rep);
-
-//    assertEquals("[{\"street\":\"12345 El Monte Road\",\"city\":\"Los Altos Hills\",\"state\":\"CA\",\"zip\":\"94022\"}]", json);
+        assertEquals(Json.pretty(rep), "\"fun\"");
     }
 
     @Test
     public void testXmlExample() throws Exception {
         Model model = new ModelImpl()
-                .property(
-                        "id",
-                        new StringProperty()
-                                .xml(new Xml()
-                                        .name("fred")));
+          .property("id", new StringProperty()
+            .xml(new Xml()
+              .name("fred")));
 
         Map<String, Model> definitions = new HashMap<String, Model>();
         definitions.put("User", model);
-        Json.prettyPrint(ExampleBuilder.fromProperty(new RefProperty("User"), definitions));
+        assertEquals(Json.pretty(ExampleBuilder.fromProperty(new RefProperty("User"), definitions)), "{\n  \"id\" : \"string\"\n}");
+    }
+
+    @Test
+    public void testXmlBoolean() throws Exception {
+        BooleanProperty sp = new BooleanProperty();
+        Example ex = ExampleBuilder.fromProperty(sp, null);
+        String xmlString = new XmlExampleSerializer().serialize(ex);
+        assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><boolean>true</boolean>");
+    }
+
+    @Test
+    public void testXmlDecimal() throws Exception {
+        DecimalProperty sp = new DecimalProperty();
+        Example ex = ExampleBuilder.fromProperty(sp, null);
+        String xmlString = new XmlExampleSerializer().serialize(ex);
+        assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><decimal>1.5</decimal>");
+    }
+
+    @Test
+    public void testXmlFloat() throws Exception {
+        FloatProperty sp = new FloatProperty();
+        Example ex = ExampleBuilder.fromProperty(sp, null);
+        String xmlString = new XmlExampleSerializer().serialize(ex);
+        assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><float>1.1</float>");
+    }
+
+    @Test
+    public void testXmlInteger() throws Exception {
+        IntegerProperty sp = new IntegerProperty();
+        Example ex = ExampleBuilder.fromProperty(sp, null);
+        String xmlString = new XmlExampleSerializer().serialize(ex);
+        assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><integer>0</integer>");
+    }
+
+    @Test
+    public void testXmlLong() throws Exception {
+        LongProperty sp = new LongProperty();
+        Example ex = ExampleBuilder.fromProperty(sp, null);
+        String xmlString = new XmlExampleSerializer().serialize(ex);
+        assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><long>0</long>");
+    }
+
+    @Test
+    public void testXmlString() throws Exception {
+        StringProperty sp = new StringProperty();
+        Example ex = ExampleBuilder.fromProperty(sp, null);
+        String xmlString = new XmlExampleSerializer().serialize(ex);
+        assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><string>string</string>");
     }
 }

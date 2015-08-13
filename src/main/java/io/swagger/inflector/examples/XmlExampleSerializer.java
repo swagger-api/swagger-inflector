@@ -23,9 +23,11 @@ import io.swagger.inflector.examples.models.ObjectExample;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+
 import java.io.ByteArrayOutputStream;
 
 public class XmlExampleSerializer {
+    int depth = 0;
     public String serialize(Example o) {
         XMLStreamWriter writer = null;
         try {
@@ -45,6 +47,7 @@ public class XmlExampleSerializer {
     }
 
     public void writeTo(XMLStreamWriter writer, Example o) throws XMLStreamException {
+        depth += 1;
         if (o instanceof ObjectExample) {
             ObjectExample or = (ObjectExample) o;
 
@@ -77,14 +80,25 @@ public class XmlExampleSerializer {
             if (o.getWrapped() != null && o.getWrapped()) {
                 writer.writeEndElement();
             }
-        } else if (o.getAttribute() != null && o.getAttribute()) {
-            writer.writeAttribute(o.getPrefix(), o.getName(), o.getNamespace(), o.asString());
-        } else if (o.getName() == null) {
-            writer.writeCharacters(o.asString());
         } else {
-            writer.writeStartElement(o.getPrefix(), o.getName(), o.getNamespace());
-            writer.writeCharacters(o.asString());
-            writer.writeEndElement();
+            String name = o.getName();
+            if (depth == 1 && name == null) {
+                // write primitive type container
+                name = getTypeName(o);
+            }
+            if (o.getAttribute() != null && o.getAttribute()) {
+                writer.writeAttribute(o.getPrefix(), name, o.getNamespace(), o.asString());
+            } else if (name == null) {
+                writer.writeCharacters(o.asString());
+            } else {
+                writer.writeStartElement(o.getPrefix(), name, o.getNamespace());
+                writer.writeCharacters(o.asString());
+                writer.writeEndElement();
+            }
         }
+    }
+
+    public String getTypeName(Example o) {
+        return o.getTypeName();
     }
 }

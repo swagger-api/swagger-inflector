@@ -19,7 +19,11 @@ package io.swagger.inflector.examples.models;
 public class LongExample extends AbstractExample {
     private Long value;
 
+    public LongExample() {
+        super.setTypeName("long");
+    }
     public LongExample(long value) {
+        this();
         this.value = value;
     }
 

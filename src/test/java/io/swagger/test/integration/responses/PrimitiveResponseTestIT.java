@@ -17,12 +17,13 @@
 package io.swagger.test.integration.responses;
 
 import io.swagger.test.client.ApiClient;
+
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.*;
 
 public class PrimitiveResponseTestIT {
     ApiClient client = new ApiClient();
@@ -30,7 +31,7 @@ public class PrimitiveResponseTestIT {
     /**
      * empty response
      */
-    @Test
+    @org.junit.Test
     public void verifyGetEmptyResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
         queryParams.put("name", "tony");
@@ -42,7 +43,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the return value is automatically created
      */
-    @Test
+    @org.junit.Test
     public void verifyGetFloatResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -53,7 +54,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the return value is automatically created
      */
-    @Test
+    @org.junit.Test
     public void verifyGetDoubleResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -64,7 +65,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the return value is automatically created
      */
-    @Test
+    @org.junit.Test
     public void verifyGetUUIDResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -75,7 +76,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the return value is automatically created
      */
-    @Test
+    @org.junit.Test
     public void verifyGetStringResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -97,7 +98,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the date return value is automatically created
      */
-    @Test
+    @org.junit.Test
     public void verifyGetDateResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -108,7 +109,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the date-time return value is automatically created
      */
-    @Test
+    @org.junit.Test
     public void verifyGetDateTimeResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -119,7 +120,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the BigDecimal return value is automatically created
      */
-    @Test
+    @org.junit.Test
     public void verifyGetBigDecimalResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -130,7 +131,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the email return value is automatically created
      */
-    @Test
+    @org.junit.Test
     public void verifyGetEmailResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -141,11 +142,11 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the email return value is automatically created
      */
-    @Test
+    @org.junit.Test
     public void verifyGetMapResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/primitiaveMapResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        assertEquals(str, "{\"key\":\"string\"}");
+        assertEquals(str, "{\"key\":\"key\",\"value\":\"string\"}");
     }
 }

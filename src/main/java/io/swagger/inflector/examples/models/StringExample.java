@@ -23,7 +23,11 @@ import io.swagger.inflector.processors.JsonExampleDeserializer;
 public class StringExample extends AbstractExample {
     private String value;
 
+    public StringExample() {
+        super.setTypeName("string");
+    }
     public StringExample(String value) {
+        this();
         this.value = value;
     }
 

@@ -23,6 +23,14 @@ public abstract class AbstractExample implements Example {
     private Boolean attribute = false;
     private Boolean wrapped = false;
     private String wrappedName = null;
+    private String typeName;
+    
+    public String getTypeName() {
+      return typeName;
+    }
+    public void setTypeName(String typeName) {
+      this.typeName = typeName;
+    }
 
     public String getName() {
         return name;

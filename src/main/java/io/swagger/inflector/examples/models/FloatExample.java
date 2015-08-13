@@ -19,7 +19,11 @@ package io.swagger.inflector.examples.models;
 public class FloatExample extends AbstractExample {
     private Float value;
 
+    public FloatExample() {
+        super.setTypeName("float");
+    }
     public FloatExample(float value) {
+        this();
         this.value = value;
     }
 
