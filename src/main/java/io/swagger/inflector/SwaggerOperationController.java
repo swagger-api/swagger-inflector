@@ -17,6 +17,8 @@
 package io.swagger.inflector;
 
 import io.swagger.inflector.config.Configuration;
+import io.swagger.inflector.converters.ConversionException;
+import io.swagger.inflector.converters.InputConverter;
 import io.swagger.inflector.examples.ExampleBuilder;
 import io.swagger.inflector.models.ApiError;
 import io.swagger.inflector.models.RequestContext;
@@ -29,17 +31,27 @@ import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.parameters.SerializableParameter;
 import io.swagger.models.properties.Property;
+import io.swagger.inflector.validators.*;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.process.Inflector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
+
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -57,6 +69,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     private Method method = null;
     private Class<?>[] parameterClasses = null;
     private Map<String, Model> definitions;
+    private InputConverter validator;
 
     public SwaggerOperationController(Configuration config, String path, String httpMethod, Operation operation, Map<String, Model> definitions) {
         this.setConfiguration(config);
@@ -64,6 +77,8 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
         this.httpMethod = httpMethod;
         this.operation = operation;
         this.definitions = definitions;
+
+        this.validator = InputConverter.getInstance();
 
         Class<?>[] args = getOperationParameterClasses(operation, definitions);
         StringBuilder builder = new StringBuilder();
@@ -146,11 +161,11 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             int i = 0;
 
             args[i] = new RequestContext()
-                    .headers(ctx.getHeaders())
-                    .mediaType(ctx.getMediaType())
-                    .acceptableMediaTypes(ctx.getAcceptableMediaTypes());
+                .headers(ctx.getHeaders())
+                .mediaType(ctx.getMediaType())
+                .acceptableMediaTypes(ctx.getAcceptableMediaTypes());
             i += 1;
-            List<Parameter> missingParams = new ArrayList<Parameter>();
+            List<ValidationMessage> missingParams = new ArrayList<ValidationMessage>();
             UriInfo uri = ctx.getUriInfo();
             String formDataString = null;
 /*
@@ -171,13 +186,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                 Object o = null;
 
                 try {
-                    if ("query".equals(in)) {
-                        o = coerceValue(uri.getQueryParameters().get(parameter.getName()), parameter, parameterClasses[i]);
-                    } else if ("path".equals(in)) {
-                        o = coerceValue(uri.getPathParameters().get(parameter.getName()), parameter, parameterClasses[i]);
-                    } else if ("header".equals(in)) {
-                        o = coerceValue(ctx.getHeaders().get(parameter.getName()), parameter, parameterClasses[i]);
-                    } else if ("formData".equals(in)) {
+                    if ("formData".equals(in)) {
                         SerializableParameter sp = (SerializableParameter) parameter;
                         if ("file".equals(sp.getType())) {
                             o = ctx.getEntityStream();
@@ -187,6 +196,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                                 formDataString = IOUtils.toString(ctx.getEntityStream(), "UTF-8");
                             }
                             if (formDataString != null) {
+                                // TODO need to decode
                                 String[] parts = formDataString.split("&");
                                 for (String part : parts) {
                                     String[] kv = part.split("=");
@@ -195,15 +205,41 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                                         String key = kv[0];
                                         String value = kv[1];
                                         if (parameter.getName().equals(key)) {
-                                            o = coerceValue(Arrays.asList(value), parameter, parameterClasses[i + 1]);
+                                            try {
+                                                o = validator.convertAndValidate(Arrays.asList(value), parameter, parameterClasses[i+1], definitions);
+                                            }
+                                            catch (ConversionException e) {
+                                                missingParams.add(e.getError());
+                                            }
+                                            catch (ValidationException e) {
+                                                missingParams.add(e.getValidationMessage());
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    } else if ("body".equals(in)) {
-                        if (ctx.hasEntity()) {
-                            o = EntityProcessorFactory.readValue(ctx.getMediaType(), ctx.getEntityStream(), parameterClasses[i]);
+                    }
+                    else {
+                        try {
+                            if ("body".equals(in)) {
+                                if (ctx.hasEntity()) {
+                                    o = EntityProcessorFactory.readValue(ctx.getMediaType(), ctx.getEntityStream(), parameterClasses[i]);
+                                }
+                            }
+                            if ("query".equals(in)) {
+                                o = validator.convertAndValidate(uri.getQueryParameters().get(parameter.getName()), parameter, parameterClasses[i], definitions);
+                            } else if ("path".equals(in)) {
+                                o = validator.convertAndValidate(uri.getPathParameters().get(parameter.getName()), parameter, parameterClasses[i], definitions);
+                            } else if ("header".equals(in)) {
+                                o = validator.convertAndValidate(ctx.getHeaders().get(parameter.getName()), parameter, parameterClasses[i], definitions);
+                            }
+                        }
+                        catch (ConversionException e) {
+                            missingParams.add(e.getError());
+                        }
+                        catch (ValidationException e) {
+                            missingParams.add(e.getValidationMessage());
                         }
                     }
                 } catch (NumberFormatException e) {
@@ -211,9 +247,10 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                if (o == null && parameter.getRequired()) {
-                    missingParams.add(parameter);
-                }
+                // ValidationMessage validationResponse = validator.checkParameter(o, parameter);
+                // if(validationResponse != null) {
+                //     missingParams.add(validationResponse);
+                // }
 
                 args[i] = o;
                 i += 1;
@@ -227,18 +264,18 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                 }
                 builder.append(" ");
                 int count = 0;
-                for (Parameter parameter : missingParams) {
+                for (ValidationMessage message : missingParams) {
                     if (count > 0) {
                         builder.append(", ");
                     }
-                    builder.append(parameter.getName() + " (" + parameter.getIn() + ")");
+                    builder.append(message.getMessage());
                     count += 1;
                 }
                 int statusCode = config.getInvalidRequestStatusCode();
                 return Response.status(statusCode)
-                        .entity(new ApiError()
-                                .code(statusCode)
-                                .message(builder.toString())).build();
+                    .entity(new ApiError()
+                        .code(statusCode)
+                        .message(builder.toString())).build();
             }
             LOGGER.info("calling method " + method + " on controller " + this.controller + " with args " + args);
             try {
@@ -257,6 +294,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                         builder.type(wrapper.getContentType());
                     }
 
+                    // entity
                     if (wrapper.getEntity() != null) {
                         builder.entity(wrapper.getEntity());
                     }
@@ -295,49 +333,5 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
 
         // TODO: might need to check possible response types
         return Response.ok().build();
-    }
-
-    public Object coerceValue(List<String> o, Parameter parameter, Class<?> cls) {
-        if (o == null || o.size() == 0) {
-            return null;
-        }
-
-        LOGGER.debug("casting `" + o + "` to " + cls);
-        if (List.class.equals(cls)) {
-            if (parameter instanceof SerializableParameter) {
-                List<Object> output = new ArrayList<Object>();
-                SerializableParameter sp = (SerializableParameter) parameter;
-                if (sp.getItems() != null) {
-                    Property inner = sp.getItems();
-
-                    // TODO: this does not need to be done this way, update the helper method
-                    Parameter innerParam = new QueryParameter().property(inner);
-                    Class<?> innerClass = getParameterSignature(innerParam, definitions);
-                    for (String obj : o) {
-                        String[] parts = new String[0];
-                        if ("csv".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
-                            parts = obj.split(",");
-                        }
-                        if ("pipes".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
-                            parts = obj.split("|");
-                        }
-                        if ("ssv".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
-                            parts = obj.split(" ");
-                        }
-                        for (String p : parts) {
-                            Object ob = cast(p, inner, innerClass);
-                            if (ob != null) {
-                                output.add(ob);
-                            }
-                        }
-                    }
-                }
-                return output;
-            }
-        } else if (parameter instanceof SerializableParameter) {
-            SerializableParameter sp = (SerializableParameter) parameter;
-            return cast(o.get(0), sp.getItems(), cls);
-        }
-        return null;
     }
 }

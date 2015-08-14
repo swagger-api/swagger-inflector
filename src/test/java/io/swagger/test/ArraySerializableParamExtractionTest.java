@@ -16,13 +16,14 @@
 
 package io.swagger.test;
 
-import io.swagger.inflector.utils.ReflectionUtils;
+import io.swagger.inflector.converters.DefaultConverter;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.BooleanProperty;
 import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.StringProperty;
+
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
@@ -32,7 +33,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 public class ArraySerializableParamExtractionTest {
-    ReflectionUtils utils = new ReflectionUtils();
+    DefaultConverter utils = new DefaultConverter();
 
     @Test
     public void testConvertStringArray() throws Exception {
