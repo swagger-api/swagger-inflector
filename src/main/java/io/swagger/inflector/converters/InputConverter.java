@@ -1,6 +1,7 @@
 package io.swagger.inflector.converters;
 
 import io.swagger.inflector.validators.DefaultValidator;
+import io.swagger.inflector.validators.NumericValidator;
 import io.swagger.inflector.validators.ValidationException;
 import io.swagger.inflector.validators.Validator;
 import io.swagger.models.Model;
@@ -18,6 +19,7 @@ public class InputConverter {
 
     static {
         INSTANCE.addValidator(new DefaultValidator());
+        INSTANCE.addValidator(new NumericValidator());
         INSTANCE.addConverter(new DefaultConverter());
     }
 
@@ -29,8 +31,16 @@ public class InputConverter {
         converterChain.add(converter);
     }
 
+    public void addConverter(Converter converter, boolean first) {
+        converterChain.add(0, converter);
+    }
+
     public void addValidator(Validator validator) {
         validationChain.add(validator);
+    }
+
+    public void addValidator(Validator validator, boolean first) {
+        validationChain.add(0, validator);
     }
 
     public Object convertAndValidate(List<String> value, Parameter parameter, Class<?> cls, Map<String, Model> definitions) throws ConversionException, ValidationException {
