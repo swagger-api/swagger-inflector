@@ -16,7 +16,7 @@ public class NumericValidator implements Validator {
                         throw new ValidationException()
                           .message(new ValidationMessage()
                               .code(ValidationError.VALUE_OVER_MAXIMUM)
-                              .message("`" + o + "` is greater than maximum allowed value `" + max + "`"));
+                              .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + o + "` is greater than maximum allowed value `" + max + "`"));
                     }
                 }
                 else {
@@ -24,7 +24,7 @@ public class NumericValidator implements Validator {
                         throw new ValidationException()
                           .message(new ValidationMessage()
                               .code(ValidationError.VALUE_OVER_MAXIMUM)
-                              .message("`" + o + "` is greater or equal to maximum allowed value `" + max + "`"));
+                              .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + o + "` is greater or equal to maximum allowed value `" + max + "`"));
                     }
                 }
             }
@@ -35,7 +35,7 @@ public class NumericValidator implements Validator {
                         throw new ValidationException()
                           .message(new ValidationMessage()
                               .code(ValidationError.VALUE_UNDER_MINIMUM)
-                              .message("`" + o + "` is less than minimum allowed value `" + min + "`"));
+                              .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + o + "` is less than minimum allowed value `" + min + "`"));
                     }
                 }
                 else {
@@ -43,7 +43,7 @@ public class NumericValidator implements Validator {
                         throw new ValidationException()
                           .message(new ValidationMessage()
                               .code(ValidationError.VALUE_UNDER_MINIMUM)
-                              .message("`" + o + "` is less or equal to the minimum allowed value `" + min + "`"));
+                              .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + o + "` is less or equal to the minimum allowed value `" + min + "`"));
                     }
                 }
             }

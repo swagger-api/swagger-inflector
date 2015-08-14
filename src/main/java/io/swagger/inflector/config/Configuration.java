@@ -16,20 +16,17 @@
 
 package io.swagger.inflector.config;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 import io.swagger.util.Yaml;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Configuration {
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
@@ -38,7 +35,7 @@ public class Configuration {
     private String controllerPackage;
     private String modelPackage;
     private String swaggerUrl;
-    private int invalidRequestCode;
+    private int invalidRequestCode = 400;
     private String rootPath = "";
 
     public static Configuration read() {

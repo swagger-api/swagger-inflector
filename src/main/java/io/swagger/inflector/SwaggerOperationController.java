@@ -25,39 +25,30 @@ import io.swagger.inflector.models.RequestContext;
 import io.swagger.inflector.models.ResponseContext;
 import io.swagger.inflector.processors.EntityProcessorFactory;
 import io.swagger.inflector.utils.ReflectionUtils;
+import io.swagger.inflector.validators.ValidationException;
+import io.swagger.inflector.validators.ValidationMessage;
 import io.swagger.models.Model;
 import io.swagger.models.Operation;
 import io.swagger.models.parameters.Parameter;
-import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.parameters.SerializableParameter;
-import io.swagger.models.properties.Property;
-import io.swagger.inflector.validators.*;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.glassfish.jersey.process.Inflector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.UriInfo;
-
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.UriInfo;
+
+import org.apache.commons.io.IOUtils;
+import org.glassfish.jersey.process.Inflector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SwaggerOperationController extends ReflectionUtils implements Inflector<ContainerRequestContext, Response> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerOperationController.class);
@@ -101,6 +92,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
 
         this.method = detectMethod(operation);
         if (method == null) {
+            this.parameterClasses = args;
             LOGGER.debug("no method to map to, using mock response");
         }
     }
@@ -157,7 +149,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     public Response apply(ContainerRequestContext ctx) {
         List<Parameter> parameters = operation.getParameters();
         Object[] args = new Object[parameters.size() + 1];
-        if (method != null && parameters != null) {
+        if (parameters != null) {
             int i = 0;
 
             args[i] = new RequestContext()
@@ -247,10 +239,6 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                // ValidationMessage validationResponse = validator.checkParameter(o, parameter);
-                // if(validationResponse != null) {
-                //     missingParams.add(validationResponse);
-                // }
 
                 args[i] = o;
                 i += 1;
@@ -258,11 +246,11 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
 
             if (missingParams.size() > 0) {
                 StringBuilder builder = new StringBuilder();
-                builder.append("Missing required Parameter");
+                builder.append("Input error");
                 if (missingParams.size() > 1) {
                     builder.append("s");
                 }
-                builder.append(" ");
+                builder.append(": ");
                 int count = 0;
                 for (ValidationMessage message : missingParams) {
                     if (count > 0) {
@@ -277,33 +265,35 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                         .code(statusCode)
                         .message(builder.toString())).build();
             }
-            LOGGER.info("calling method " + method + " on controller " + this.controller + " with args " + args);
-            try {
-                Object response = method.invoke(controller, args);
-                if (response instanceof ResponseContext) {
-                    ResponseContext wrapper = (ResponseContext) response;
-                    ResponseBuilder builder = Response.status(wrapper.getStatus());
-
-                    // response headers
-                    for (String key : wrapper.getHeaders().keySet()) {
-                        builder.header(key, wrapper.getHeaders().get(key));
-                    }
-
-                    // content type
-                    if (wrapper.getContentType() != null) {
-                        builder.type(wrapper.getContentType());
-                    }
-
-                    // entity
-                    if (wrapper.getEntity() != null) {
-                        builder.entity(wrapper.getEntity());
-                    }
-                    return builder.build();
-                }
-                return Response.ok().entity(response).build();
-            } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-                LOGGER.error("failed to invoke method " + method, e);
-            }
+        }
+        if(method != null) {
+          LOGGER.info("calling method " + method + " on controller " + this.controller + " with args " + args);
+          try {
+              Object response = method.invoke(controller, args);
+              if (response instanceof ResponseContext) {
+                  ResponseContext wrapper = (ResponseContext) response;
+                  ResponseBuilder builder = Response.status(wrapper.getStatus());
+  
+                  // response headers
+                  for (String key : wrapper.getHeaders().keySet()) {
+                      builder.header(key, wrapper.getHeaders().get(key));
+                  }
+  
+                  // content type
+                  if (wrapper.getContentType() != null) {
+                      builder.type(wrapper.getContentType());
+                  }
+  
+                  // entity
+                  if (wrapper.getEntity() != null) {
+                      builder.entity(wrapper.getEntity());
+                  }
+                  return builder.build();
+              }
+              return Response.ok().entity(response).build();
+          } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+              LOGGER.error("failed to invoke method " + method, e);
+          }
         }
         Map<String, io.swagger.models.Response> responses = operation.getResponses();
         if (responses != null) {

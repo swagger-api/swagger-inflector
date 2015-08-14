@@ -309,6 +309,7 @@ paths:
           required: true
           type: integer
           format: int32
+          minimum: 0.0
       responses:
         '200':
           description: 'fun!'
