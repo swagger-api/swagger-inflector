@@ -75,11 +75,11 @@ public class Configuration {
         return Yaml.mapper().readValue(new File(configLocation), Configuration.class);
     }
 
-    private static Configuration defaultConfiguration() {
+    public static Configuration defaultConfiguration() {
         return new Configuration()
-                .controllerPackage("io.swagger.sample.controllers")
-                .modelPackage("io.swagger.sample.models")
-                .swaggerUrl("swagger.yaml");
+            .controllerPackage("io.swagger.sample.controllers")
+            .modelPackage("io.swagger.sample.models")
+            .swaggerUrl("swagger.yaml");
     }
 
     public Configuration modelPackage(String modelPackage) {
@@ -126,10 +126,11 @@ public class Configuration {
             String className = mappings.get(key);
             Class<?> cls;
             try {
-                cls = Class.forName(className);
+                ClassLoader classLoader = Configuration.class.getClassLoader();
+                cls = classLoader.loadClass(className);
                 modelMap.put(key, cls);
             } catch (ClassNotFoundException e) {
-                LOGGER.error("unable to add mapping for `" + key + "` : `" + className + "`");
+                LOGGER.error("unable to add mapping for `" + key + "` : `" + className + "`, " + e.getMessage());
             }
         }
     }
