@@ -156,11 +156,20 @@ public class ReflectionUtils {
         return JsonNode.class;
     }
 
+    public String sanitizeOperationId(String operationId) {
+        String op = operationId.trim();
+        op = op.replaceAll("[^a-zA-Z]", "_");
+        if(op.length() == 0) {
+            return "nullId";
+        }
+        return op;
+    }
+
     // TODO move to core
     public String getMethodName(String path, String httpMethod, Operation operation) {
         String output = operation.getOperationId();
         if (output != null) {
-            return output;
+            return sanitizeOperationId(output);
         }
         String tmpPath = path;
         tmpPath = tmpPath.replaceAll("\\{", "");
