@@ -34,7 +34,7 @@ public class PrimitiveResponseTestIT {
     @org.junit.Test
     public void verifyGetEmptyResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
-        queryParams.put("name", "tony");
+        queryParams.put("user", "tony");
 
         String str = client.invokeAPI("/mockResponses", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
         assertEquals(str, "");
