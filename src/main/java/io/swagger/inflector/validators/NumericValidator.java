@@ -24,7 +24,6 @@ public class NumericValidator implements Validator {
                         .message(new ValidationMessage()
                             .code(ValidationError.UNACCEPTABLE_VALUE)
                             .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + o + "` is not in the allowable values `" + allowable + "`"));
-                            
                 }
             };
             if(ap.getMaximum() != null) {

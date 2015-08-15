@@ -34,7 +34,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 
-import java.util.Arrays;
+import java.util.*;
 
 public class DateTimeValidatorTest {
     @Test
@@ -62,5 +62,39 @@ public class DateTimeValidatorTest {
             .property(new DateTimeProperty());
 
         InputConverter.getInstance().validate(new LocalDate(), parameter);
+    }
+
+    @Test
+    public void testLocalDateConversionEnum() throws Exception {
+        List<String> values = new ArrayList<String>();
+        for(int i = 1; i <= 3; i++) {
+            String str = "2015-01-0" + i;
+            values.add(str);
+        }
+
+        QueryParameter parameter = new QueryParameter()
+            .name("test")
+            .property(new DateProperty());
+        
+        parameter._enum(values);
+
+        InputConverter.getInstance().validate(new LocalDate("2015-01-02"), parameter);
+    }
+
+    @Test(expectedExceptions = ValidationException.class)
+    public void testInvalidLocalDateConversionEnum() throws Exception {
+        List<String> values = new ArrayList<String>();
+        for(int i = 1; i <= 3; i++) {
+            String str = "2015-01-0" + i;
+            values.add(str);
+        }
+
+        QueryParameter parameter = new QueryParameter()
+            .name("test")
+            .property(new DateProperty());
+        
+        parameter._enum(values);
+
+        InputConverter.getInstance().validate(new LocalDate("2015-01-04"), parameter);
     }
 }
