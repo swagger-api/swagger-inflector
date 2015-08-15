@@ -7,12 +7,14 @@ public class ConversionException extends Exception {
 
   public ConversionException() {}
 
-  public ConversionException(String message) {
-    super(message);
-  }
+  private ValidationMessage message;
 
+  public ConversionException message(ValidationMessage message) {
+      this.message = message;
+      return this;
+  }
+  
   public ValidationMessage getError() {
-    // TODO Auto-generated method stub
-    return null;
-  }  
+      return message;
+  }
 }

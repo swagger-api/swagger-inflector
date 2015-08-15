@@ -47,6 +47,7 @@ public class NumericValidator implements Validator {
                     }
                 }
             }
+            
         }
         if(chain.hasNext()) {
             chain.next().validate(o, parameter, chain);

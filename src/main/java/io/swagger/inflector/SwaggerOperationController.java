@@ -256,7 +256,12 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                     if (count > 0) {
                         builder.append(", ");
                     }
-                    builder.append(message.getMessage());
+                    if(message != null && message.getMessage() != null) {
+                        builder.append(message.getMessage());
+                    }
+                    else {
+                        builder.append("no additional input");
+                    }
                     count += 1;
                 }
                 int statusCode = config.getInvalidRequestStatusCode();

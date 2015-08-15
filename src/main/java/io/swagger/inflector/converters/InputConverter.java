@@ -1,7 +1,7 @@
 package io.swagger.inflector.converters;
 
 import io.swagger.inflector.validators.DefaultValidator;
-import io.swagger.inflector.validators.NumericValidator;
+import io.swagger.inflector.validators.*;
 import io.swagger.inflector.validators.ValidationException;
 import io.swagger.inflector.validators.Validator;
 import io.swagger.models.Model;
@@ -20,6 +20,7 @@ public class InputConverter {
     static {
         INSTANCE.addValidator(new DefaultValidator());
         INSTANCE.addValidator(new NumericValidator());
+        INSTANCE.addValidator(new DateTimeValidator());
         INSTANCE.addConverter(new DefaultConverter());
     }
 

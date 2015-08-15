@@ -346,6 +346,23 @@ paths:
           description: 'success!'
           schema:
             $ref: '#/definitions/User'
+  '/withDate/{date}':
+    get:
+      tags:
+        - test1
+      operationId: withDateTime
+      x-swagger-router-controller: SampleController
+      parameters:
+        - name: date
+          in: path
+          required: true
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            $ref: '#/definitions/User'
   '/overloaded':
     get:
       tags:

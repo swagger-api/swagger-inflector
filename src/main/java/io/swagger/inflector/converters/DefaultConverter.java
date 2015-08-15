@@ -1,6 +1,8 @@
 package io.swagger.inflector.converters;
 
 import io.swagger.inflector.utils.ReflectionUtils;
+import io.swagger.inflector.validators.ValidationError;
+import io.swagger.inflector.validators.ValidationMessage;
 import io.swagger.models.Model;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.QueryParameter;
@@ -182,10 +184,16 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
             }
         } catch (NumberFormatException e) {
             LOGGER.debug("couldn't coerce `" + o + "` to type " + cls);
-            throw new ConversionException("couldn't convert `" + o + "` to type `" + cls + "`");
+            throw new ConversionException()
+              .message(new ValidationMessage()
+                .code(ValidationError.INVALID_FORMAT)
+                .message("couldn't convert `" + o + "` to type `" + cls + "`"));
         } catch (IllegalArgumentException e) {
             LOGGER.debug("couldn't coerce `" + o + "` to type " + cls);
-            throw new ConversionException("couldn't convert `" + o + "` to type `" + cls + "`");
+            throw new ConversionException()
+              .message(new ValidationMessage()
+                .code(ValidationError.INVALID_FORMAT)
+                .message("couldn't convert `" + o + "` to type `" + cls + "`"));
         }
         return null;
     }
