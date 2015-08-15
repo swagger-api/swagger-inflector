@@ -309,6 +309,7 @@ paths:
           required: true
           type: integer
           format: int32
+          minimum: 0.0
       responses:
         '200':
           description: 'fun!'
@@ -334,6 +335,7 @@ paths:
       tags:
         - test1
       operationId: withPath
+      x-swagger-router-controller: SampleController
       parameters:
         - name: id
           in: path
@@ -344,7 +346,38 @@ paths:
           description: 'success!'
           schema:
             $ref: '#/definitions/User'
+  '/withDate/{date}':
+    get:
+      tags:
+        - test1
+      operationId: withDateTime
       x-swagger-router-controller: SampleController
+      parameters:
+        - name: date
+          in: path
+          required: true
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            $ref: '#/definitions/User'
+  '/overloaded':
+    get:
+      tags:
+        - overloaded
+      operationId: overloadedResponse
+      x-swagger-router-controller: SampleController
+      parameters:
+        - name: arg1
+          in: query
+          type: string
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            $ref: '#/definitions/User'
 definitions:
   User:
     properties:

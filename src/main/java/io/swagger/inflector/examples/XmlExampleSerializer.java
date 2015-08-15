@@ -50,8 +50,12 @@ public class XmlExampleSerializer {
         depth += 1;
         if (o instanceof ObjectExample) {
             ObjectExample or = (ObjectExample) o;
-
-            writer.writeStartElement(o.getPrefix(), or.getName(), o.getNamespace());
+            String name = o.getName();
+            if (depth == 1 && name == null) {
+                // write primitive type container
+                name = getTypeName(o);
+            }
+            writer.writeStartElement(o.getPrefix(), name, o.getNamespace());
             for (String key : or.keySet()) {
                 Object obj = or.get(key);
                 if (obj instanceof Example) {

@@ -16,7 +16,7 @@
 
 package io.swagger.test;
 
-import io.swagger.inflector.utils.ReflectionUtils;
+import io.swagger.inflector.converters.DefaultConverter;
 import io.swagger.models.Operation;
 import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.properties.ArrayProperty;
@@ -28,6 +28,7 @@ import io.swagger.models.properties.FloatProperty;
 import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.LongProperty;
 import io.swagger.models.properties.StringProperty;
+
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.testng.annotations.Test;
@@ -37,7 +38,7 @@ import java.util.List;
 import static org.testng.Assert.assertEquals;
 
 public class SerializableParamExtractionTest {
-    ReflectionUtils utils = new ReflectionUtils();
+    DefaultConverter utils = new DefaultConverter();
 
     @Test
     public void getMethodGenerationNameTest() throws Exception {

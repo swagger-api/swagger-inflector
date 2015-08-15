@@ -16,7 +16,8 @@
 
 package io.swagger.test;
 
-import io.swagger.inflector.utils.ReflectionUtils;
+import io.swagger.inflector.converters.ConversionException;
+import io.swagger.inflector.converters.DefaultConverter;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.properties.BooleanProperty;
@@ -29,8 +30,8 @@ import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.LongProperty;
 import io.swagger.models.properties.StringProperty;
 import io.swagger.models.properties.UUIDProperty;
-import org.testng.annotations.Test;
 
+import org.testng.annotations.Test;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
@@ -44,7 +45,7 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 public class ValueCoercionTest {
-    ReflectionUtils utils = new ReflectionUtils();
+    DefaultConverter utils = new DefaultConverter();
 
     @Test
     public void testConvertStringValue() throws Exception {
@@ -66,7 +67,7 @@ public class ValueCoercionTest {
         assertTrue(o instanceof Integer);
     }
 
-    @Test
+    @Test(expectedExceptions = ConversionException.class)
     public void testConvertInvalidIntegerValue() throws Exception {
         List<String> values = Arrays.asList("1abczdf");
 
@@ -86,7 +87,7 @@ public class ValueCoercionTest {
         assertTrue(o instanceof Long);
     }
 
-    @Test
+    @Test(expectedExceptions = ConversionException.class)
     public void testConvertInvalidLongValue() throws Exception {
         List<String> values = Arrays.asList("1zzzzz");
 
@@ -106,7 +107,7 @@ public class ValueCoercionTest {
         assertTrue(o instanceof Float);
     }
 
-    @Test
+    @Test(expectedExceptions = ConversionException.class)
     public void testConvertInvalidFloatValue() throws Exception {
         List<String> values = Arrays.asList("1;;lkaj;lasjkdfs");
 
@@ -126,7 +127,7 @@ public class ValueCoercionTest {
         assertTrue(o instanceof Double);
     }
 
-    @Test
+    @Test(expectedExceptions = ConversionException.class)
     public void testConvertInvalidDoubleValue() throws Exception {
         List<String> values = Arrays.asList("abcdefg");
 
@@ -178,7 +179,7 @@ public class ValueCoercionTest {
         assertTrue(o instanceof UUID);
     }
 
-    @Test
+    @Test(expectedExceptions = ConversionException.class)
     public void testConvertInvalidUUIDValue() throws Exception {
         List<String> values = Arrays.asList("bleh");
 
@@ -209,7 +210,7 @@ public class ValueCoercionTest {
         assertTrue(o instanceof LocalDate);
     }
 
-    @Test
+    @Test(expectedExceptions = ConversionException.class)
     public void testConvertInvalidDateValue() throws Exception {
         List<String> values = Arrays.asList("Booyah!");
 
@@ -230,7 +231,7 @@ public class ValueCoercionTest {
         assertTrue(o instanceof DateTime);
     }
 
-    @Test
+    @Test(expectedExceptions = ConversionException.class)
     public void testConvertInvalidDateTimeValue() throws Exception {
         List<String> values = Arrays.asList("Booyah!");
 

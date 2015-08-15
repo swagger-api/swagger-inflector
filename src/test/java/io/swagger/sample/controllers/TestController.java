@@ -25,13 +25,20 @@ import javax.ws.rs.core.Response.Status;
 
 public class TestController {
     public ResponseContext postFormData(RequestContext request, Long id, String name) {
-        // just showing a sample response
-
+        // show a sample response
         return new ResponseContext()
-                .status(Status.OK)
-                .contentType(MediaType.APPLICATION_JSON_TYPE)
-                .entity(new User()
-                        .id(id)
-                        .user(name));
+            .status(Status.OK)
+            .contentType(MediaType.APPLICATION_JSON_TYPE)
+            .entity(new User()
+                .id(id)
+                .user(name));
+    }
+
+    public ResponseContext overloadedResponse(RequestContext request, String arg1) {
+        return new ResponseContext()
+            .status(Status.OK)
+            .contentType(MediaType.TEXT_PLAIN_TYPE)
+            .entity("ok");
+
     }
 }
