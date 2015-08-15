@@ -363,6 +363,27 @@ paths:
           description: 'success!'
           schema:
             $ref: '#/definitions/User'
+  '/withIntegerEnum/{stage}':
+    get:
+      tags:
+        - test1
+      operationId: withDateTime
+      x-swagger-router-controller: SampleController
+      parameters:
+        - name: stage
+          in: path
+          required: true
+          type: integer
+          format: int32
+          enum:
+            - 1
+            - 2
+            - 3
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            $ref: '#/definitions/User'
   '/overloaded':
     get:
       tags:
