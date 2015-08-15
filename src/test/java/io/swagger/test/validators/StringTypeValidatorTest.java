@@ -21,6 +21,7 @@ import io.swagger.inflector.validators.ValidationException;
 import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.properties.DateProperty;
 import io.swagger.models.properties.DateTimeProperty;
+import io.swagger.models.properties.StringProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,5 +90,39 @@ public class StringTypeValidatorTest {
         parameter._enum(values);
 
         InputConverter.getInstance().validate(new LocalDate("2015-01-04"), parameter);
+    }
+
+    @Test
+    public void testStringValueEnum() throws Exception {
+        List<String> values = new ArrayList<String>();
+        for(int i = 1; i <= 3; i++) {
+            String str = "allowable_" + i;
+            values.add(str);
+        }
+
+        QueryParameter parameter = new QueryParameter()
+            .name("test")
+            .property(new StringProperty());
+        
+        parameter._enum(values);
+
+        InputConverter.getInstance().validate("allowable_1", parameter);
+    }
+
+    @Test(expectedExceptions = ValidationException.class)
+    public void testInvalidStringValueEnum() throws Exception {
+        List<String> values = new ArrayList<String>();
+        for(int i = 1; i <= 3; i++) {
+            String str = "allowable_" + i;
+            values.add(str);
+        }
+
+        QueryParameter parameter = new QueryParameter()
+            .name("test")
+            .property(new StringProperty());
+        
+        parameter._enum(values);
+
+        InputConverter.getInstance().validate("allowable_4", parameter);
     }
 }
