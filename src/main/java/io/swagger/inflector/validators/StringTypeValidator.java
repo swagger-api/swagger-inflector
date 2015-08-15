@@ -1,14 +1,17 @@
 package io.swagger.inflector.validators;
 
-import io.swagger.models.parameters.*;
-import io.swagger.models.properties.*;
+import io.swagger.models.parameters.AbstractSerializableParameter;
+import io.swagger.models.parameters.Parameter;
+
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
-import java.util.*;
-
-public class DateTimeValidator implements Validator {
+public class StringTypeValidator implements Validator {
     public void validate(Object o, Parameter parameter, Iterator<Validator> chain) throws ValidationException {
         if(o != null && parameter instanceof AbstractSerializableParameter) {
             AbstractSerializableParameter<?> ap = (AbstractSerializableParameter<?>) parameter;

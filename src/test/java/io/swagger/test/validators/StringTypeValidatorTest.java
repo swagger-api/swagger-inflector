@@ -16,27 +16,20 @@
 
 package io.swagger.test.validators;
 
-import io.swagger.inflector.converters.ConversionException;
 import io.swagger.inflector.converters.InputConverter;
-import io.swagger.inflector.validators.*;
-import io.swagger.models.parameters.*;
-import io.swagger.models.properties.*;
+import io.swagger.inflector.validators.ValidationException;
+import io.swagger.models.parameters.QueryParameter;
+import io.swagger.models.properties.DateProperty;
+import io.swagger.models.properties.DateTimeProperty;
 
-import io.swagger.util.Json;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-
-import java.util.*;
-
-public class DateTimeValidatorTest {
+public class StringTypeValidatorTest {
     @Test
     public void testDateTimeConversion() throws Exception {
         QueryParameter parameter = new QueryParameter()
