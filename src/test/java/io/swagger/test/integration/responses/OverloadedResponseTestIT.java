@@ -32,7 +32,6 @@ public class OverloadedResponseTestIT {
     @Test
     public void verifyOverloadedMethod() throws Exception {
         ApiClient client = new ApiClient();
-        client.setDebugging(true);
 
         Map<String, String> queryParams = new HashMap<String, String>();
         queryParams.put("arg1", "test1");
