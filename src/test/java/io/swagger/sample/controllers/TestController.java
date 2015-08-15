@@ -18,6 +18,7 @@ package io.swagger.sample.controllers;
 
 import io.swagger.inflector.models.RequestContext;
 import io.swagger.inflector.models.ResponseContext;
+import io.swagger.test.models.Address;
 import io.swagger.test.models.User;
 
 import javax.ws.rs.core.MediaType;
@@ -37,8 +38,13 @@ public class TestController {
     public ResponseContext overloadedResponse(RequestContext request, String arg1) {
         return new ResponseContext()
             .status(Status.OK)
-            .contentType(MediaType.TEXT_PLAIN_TYPE)
-            .entity("ok");
+            .entity(new User());
 
+    }
+
+    public ResponseContext withModel(RequestContext request, String id, Address animal) {
+        return new ResponseContext()
+            .status(Status.OK)
+            .entity("ok");
     }
 }

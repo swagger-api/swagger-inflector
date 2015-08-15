@@ -3,12 +3,29 @@ package io.swagger.inflector.validators;
 import io.swagger.models.parameters.*;
 import io.swagger.models.properties.*;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 public class NumericValidator implements Validator {
     public void validate(Object o, Parameter parameter, Iterator<Validator> chain) throws ValidationException {
         if(o != null && parameter instanceof AbstractSerializableParameter) {
-            AbstractSerializableParameter ap = (AbstractSerializableParameter) parameter;
+            AbstractSerializableParameter<?> ap = (AbstractSerializableParameter<?>) parameter;
+            if(ap.getEnum() != null && ap.getEnum().size() > 0) {
+                List<?> values = ap.getEnum();
+                Set<String> allowable = new LinkedHashSet<String>();
+                for(Object obj : values) {
+                    allowable.add(obj.toString());
+                }
+                if(!allowable.contains(o.toString())) {
+                    throw new ValidationException()
+                        .message(new ValidationMessage()
+                            .code(ValidationError.UNACCEPTABLE_VALUE)
+                            .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + o + "` is not in the allowable values `" + allowable + "`"));
+                }
+            };
             if(ap.getMaximum() != null) {
                 double max = ap.getMaximum();
                 if(ap.isExclusiveMaximum() != null && ap.isExclusiveMaximum()) {

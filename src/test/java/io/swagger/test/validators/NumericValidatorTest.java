@@ -117,4 +117,68 @@ public class NumericValidatorTest {
 
         InputConverter.getInstance().validate(new Integer(10), parameter);
     }
+
+    @Test
+    public void testValidIntegerEnum() throws Exception {
+        QueryParameter parameter = new QueryParameter()
+            .name("test")
+            ._enum(Arrays.asList("1", "2", "3"));
+
+        InputConverter.getInstance().validate(new Integer(3), parameter);
+    }
+
+    @Test(expectedExceptions = ValidationException.class)
+    public void testInvalidIntegerEnum() throws Exception {
+        QueryParameter parameter = new QueryParameter()
+            .name("test")
+            ._enum(Arrays.asList("1", "2", "3"));
+
+        InputConverter.getInstance().validate(new Integer(4), parameter);
+    }
+
+    @Test
+    public void testValidLongEnum() throws Exception {
+        QueryParameter parameter = new QueryParameter()
+            .name("test")
+            ._enum(Arrays.asList("1", "2", "3"))
+            .property(new LongProperty());
+
+        InputConverter.getInstance().validate(new Long(3), parameter);
+    }
+
+    @Test(expectedExceptions = ValidationException.class)
+    public void testInvalidLongEnum() throws Exception {
+        QueryParameter parameter = new QueryParameter()
+            .name("test")
+            ._enum(Arrays.asList("1", "2", "3"))
+            .property(new LongProperty());
+
+        InputConverter.getInstance().validate(new Long(4), parameter);
+    }
+
+    @Test
+    public void testValidDoubleEnum() throws Exception {
+        QueryParameter parameter = new QueryParameter()
+            .name("test")
+            ._enum(Arrays.asList(
+                new Double(1).toString(),
+                new Double(2).toString(),
+                new Double(3).toString()))
+            .property(new DoubleProperty());
+
+        InputConverter.getInstance().validate(new Double(3), parameter);
+    }
+
+    @Test(expectedExceptions = ValidationException.class)
+    public void testInvalidDoubleEnum() throws Exception {
+        QueryParameter parameter = new QueryParameter()
+            .name("test")
+            ._enum(Arrays.asList(
+                new Double(1).toString(),
+                new Double(2).toString(),
+                new Double(3).toString()))
+            .property(new DoubleProperty());
+
+        InputConverter.getInstance().validate(new Double(4), parameter);
+    }
 }

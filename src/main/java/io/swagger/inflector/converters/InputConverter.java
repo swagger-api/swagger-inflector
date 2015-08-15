@@ -20,7 +20,7 @@ public class InputConverter {
     static {
         INSTANCE.addValidator(new DefaultValidator());
         INSTANCE.addValidator(new NumericValidator());
-        INSTANCE.addValidator(new DateTimeValidator());
+        INSTANCE.addValidator(new StringTypeValidator());
         INSTANCE.addConverter(new DefaultConverter());
     }
 

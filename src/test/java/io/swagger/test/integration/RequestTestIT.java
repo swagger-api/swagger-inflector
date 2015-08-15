@@ -44,4 +44,11 @@ public class RequestTestIT {
         String str = client.invokeAPI(path, "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
         assertNotNull(str);
     }
+
+    @Test
+    public void verifyModelMappingFromExtensions() throws Exception {
+        String path = "/withModel/3";
+        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertEquals(str, "ok");
+    }
 }

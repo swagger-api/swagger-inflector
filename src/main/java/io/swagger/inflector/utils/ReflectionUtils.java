@@ -121,13 +121,19 @@ public class ReflectionUtils {
     }
 
     public Class<?> detectModel(String name, Model model) {
-        // TODO reference github issue for this
-        // there are no vendor extensions in the Model!  This makes it hard...
         Class<?> output = config.getModelMapping(name);
         if (output != null) {
             // found a mapping in the configuration
             LOGGER.debug("found model in config mapping: " + output);
             return output;
+        }
+        // look for extension
+        if(model != null && model.getVendorExtensions() != null) {
+            String fqModel = (String) model.getVendorExtensions().get("x-swagger-router-model");
+            if(fqModel != null) {
+                LOGGER.debug("model `" + name + "` found in extension as `" + fqModel + "`");
+                name = fqModel;
+            }
         }
         // try to look up by name
         try {
@@ -151,7 +157,7 @@ public class ReflectionUtils {
 
     public String sanitizeToJava(String operationId) {
         String op = operationId.trim();
-        op = op.replaceAll("[^a-zA-Z]", "_");
+        op = op.replaceAll("[^a-zA-Z0-9]", "_");
         if(op.length() == 0) {
             return "nullId";
         }
