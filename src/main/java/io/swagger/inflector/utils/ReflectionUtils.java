@@ -133,11 +133,6 @@ public class ReflectionUtils {
         if(("integer".equals(type) && "int64".equals(format)) || property instanceof LongProperty) {
             return tf.constructType(Long.class);
         }
-//        if("array".equals(type)) {
-//            // the property is the *inner* type
-//          JavaType innerType = getTypeFromProperty(null, null, property, definitions);
-//          return tf.constructArrayType(innerType);
-//        }
         if(property instanceof StringProperty) {
             return tf.constructType(String.class);
         }
