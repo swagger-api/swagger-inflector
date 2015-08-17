@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package io.swagger.sample.integration;
+package io.swagger.test.integration.responses;
 
 import io.swagger.test.models.User;
 import io.swagger.test.client.ApiClient;

@@ -15,7 +15,7 @@
  */
 
 package io.swagger.test.client;
-
+ 
 public class StringUtil {
     /**
      * Check if the given array contains the given value (with case-insensitive comparison).

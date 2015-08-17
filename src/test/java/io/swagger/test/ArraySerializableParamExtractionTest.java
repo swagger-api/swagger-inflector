@@ -23,8 +23,11 @@ import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.BooleanProperty;
 import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.StringProperty;
+import io.swagger.util.Json;
 
 import org.testng.annotations.Test;
+
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,13 +37,14 @@ import static org.testng.Assert.assertTrue;
 
 public class ArraySerializableParamExtractionTest {
     DefaultConverter utils = new DefaultConverter();
+    TypeFactory tf = Json.mapper().getTypeFactory();
 
-    @Test
+    @org.junit.Test
     public void testConvertStringArray() throws Exception {
         List<String> values = Arrays.asList("a", "b");
 
         Parameter parameter = new QueryParameter().items(new ArrayProperty().items(new StringProperty()));
-        Object o = utils.cast(values, parameter, List.class, null);
+        Object o = utils.cast(values, parameter, tf.constructArrayType(String.class), null);
 
         assertTrue(o instanceof List);
 
@@ -60,7 +64,7 @@ public class ArraySerializableParamExtractionTest {
                 .items(new ArrayProperty()
                         .items(new StringProperty()));
 
-        Object o = utils.cast(values, parameter, List.class, null);
+        Object o = utils.cast(values, parameter, tf.constructArrayType(String.class), null);
 
         assertTrue(o instanceof List);
 
@@ -81,7 +85,7 @@ public class ArraySerializableParamExtractionTest {
                 .items(new ArrayProperty()
                         .items(new StringProperty()));
 
-        Object o = utils.cast(values, parameter, List.class, null);
+        Object o = utils.cast(values, parameter, tf.constructArrayType(String.class), null);
 
         assertTrue(o instanceof List);
 
@@ -102,7 +106,7 @@ public class ArraySerializableParamExtractionTest {
                 .items(new ArrayProperty()
                         .items(new StringProperty()));
 
-        Object o = utils.cast(values, parameter, List.class, null);
+        Object o = utils.cast(values, parameter, tf.constructArrayType(String.class), null);
 
         assertTrue(o instanceof List);
 
@@ -123,7 +127,7 @@ public class ArraySerializableParamExtractionTest {
                 .items(new ArrayProperty()
                         .items(new StringProperty()));
 
-        Object o = utils.cast(values, parameter, List.class, null);
+        Object o = utils.cast(values, parameter, tf.constructArrayType(String.class), null);
 
         assertTrue(o instanceof List);
 
@@ -144,7 +148,7 @@ public class ArraySerializableParamExtractionTest {
                 .items(new ArrayProperty()
                         .items(new IntegerProperty()));
 
-        Object o = utils.cast(values, parameter, List.class, null);
+        Object o = utils.cast(values, parameter, tf.constructArrayType(Integer.class), null);
 
         assertTrue(o instanceof List);
 
@@ -166,7 +170,7 @@ public class ArraySerializableParamExtractionTest {
                 .items(new ArrayProperty()
                         .items(new BooleanProperty()));
 
-        Object o = utils.cast(values, parameter, List.class, null);
+        Object o = utils.cast(values, parameter, tf.constructArrayType(Boolean.class), null);
 
         assertTrue(o instanceof List);
 

@@ -315,6 +315,29 @@ paths:
           description: 'fun!'
           schema:
             type: string
+  '/withModelArray/{id}':
+    post:
+      tags:
+        - test2
+      operationId: withModelArray
+      x-swagger-router-controller: TestController
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: modelArray
+          in: body
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Animal'
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            $ref: '#/definitions/Animal'
   '/withModel/{id}':
     get:
       tags:

@@ -16,13 +16,17 @@
 
 package io.swagger.inflector.processors;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -45,6 +49,26 @@ public class JacksonProcessor implements EntityProcessor {
         return false;
     }
 
+    @Override
+    public Object process(MediaType mediaType, InputStream entityStream,
+        JavaType javaType) {
+      try {
+        if (MediaType.APPLICATION_JSON_TYPE.isCompatible(mediaType)) {
+            return Json.mapper().readValue(entityStream, javaType);
+        }
+        if (MediaType.APPLICATION_XML_TYPE.isCompatible(mediaType)) {
+            return XML.readValue(entityStream, javaType);
+        }
+        if (mediaType.toString().equalsIgnoreCase("application/yaml")) {
+            return Yaml.mapper().readValue(entityStream, javaType);
+        }
+    } catch (IOException e) {
+        LOGGER.error("unable to extract entity from content-type `" + mediaType + "` to " + javaType.toCanonical(), e);
+    }
+
+    return null;
+    }
+    
     @Override
     public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls) {
         try {

@@ -16,6 +16,8 @@
 
 package io.swagger.sample.controllers;
 
+import java.util.List;
+
 import io.swagger.inflector.models.RequestContext;
 import io.swagger.inflector.models.ResponseContext;
 import io.swagger.test.models.Address;
@@ -43,6 +45,12 @@ public class TestController {
     }
 
     public ResponseContext withModel(RequestContext request, String id, Address animal) {
+        return new ResponseContext()
+            .status(Status.OK)
+            .entity("ok");
+    }
+
+    public ResponseContext withModelArray(RequestContext request, String id, List<?> modelArray) {
         return new ResponseContext()
             .status(Status.OK)
             .entity("ok");

@@ -16,6 +16,7 @@
 
 package io.swagger.test;
 
+import io.swagger.converter.ModelConverters;
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.utils.ReflectionUtils;
 import io.swagger.models.ArrayModel;
@@ -23,14 +24,19 @@ import io.swagger.models.Model;
 import io.swagger.models.RefModel;
 import io.swagger.models.parameters.BodyParameter;
 import io.swagger.models.parameters.Parameter;
+import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.RefProperty;
+import io.swagger.models.properties.StringProperty;
 import io.swagger.test.models.Person;
 import io.swagger.test.models.User;
+
+import org.junit.Before;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.fasterxml.jackson.databind.JavaType;
+
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
@@ -39,6 +45,7 @@ public class BodyParamExtractionTest {
     ReflectionUtils utils = new ReflectionUtils();
 
     @BeforeClass
+    @Before
     public void setup() {
         Configuration config = new Configuration();
         config.setModelPackage("io.swagger.test.models");
@@ -52,9 +59,9 @@ public class BodyParamExtractionTest {
         Map<String, Model> definitions = new HashMap<String, Model>();
 
         Parameter parameter = new BodyParameter().schema(new RefModel("#/definitions/User"));
-        Class<?> cls = utils.getParameterSignature(parameter, definitions);
+        JavaType jt = utils.getTypeFromParameter(parameter, definitions);
 
-        assertEquals(cls, User.class);
+        assertEquals(jt.getRawClass(), User.class);
     }
 
     @Test
@@ -62,23 +69,45 @@ public class BodyParamExtractionTest {
         Map<String, Model> definitions = new HashMap<String, Model>();
 
         Parameter parameter = new BodyParameter().schema(new RefModel("#/definitions/Person"));
-        Class<?> cls = utils.getParameterSignature(parameter, definitions);
+        JavaType jt = utils.getTypeFromParameter(parameter, definitions);
 
         // will look up from the config model package and ref.simpleName of Person
-        assertEquals(cls, Person.class);
+        assertEquals(jt.getRawClass(), Person.class);
     }
 
     @Test
-    public void testConvertArrayBodyParam() throws Exception {
-        Map<String, Model> definitions = new HashMap<String, Model>();
+    public void testConvertComplexArrayBodyParam() throws Exception {
+        Map<String, Model> definitions = ModelConverters.getInstance().read(Person.class);
 
         Parameter parameter = new BodyParameter()
-                .schema(new ArrayModel()
-                        .items(new RefProperty("#/definitions/Person")));
+            .schema(new ArrayModel()
+                .items(new RefProperty("#/definitions/Person")));
+    
+        JavaType jt = utils.getTypeFromParameter(parameter, definitions);
+        assertEquals(jt.getRawClass(), Person[].class);
+    }
 
-        Class<?> cls = utils.getParameterSignature(parameter, definitions);
+    @Test
+    public void testConvertPrimitiveArrayBodyParam() throws Exception {
+        Map<String, Model> definitions = ModelConverters.getInstance().read(Person.class);
 
-        // will look up from the config model package and ref.simpleName of Person
-        assertEquals(cls, List.class);
+        Parameter parameter = new BodyParameter()
+            .schema(new ArrayModel()
+                .items(new StringProperty()));
+
+        JavaType jt = utils.getTypeFromParameter(parameter, definitions);
+        assertEquals(jt.getRawClass(), String[].class);
+    }
+
+    @org.junit.Test
+    public void testConvertDoubleArrayBodyParam() throws Exception {
+        Map<String, Model> definitions = ModelConverters.getInstance().read(Person.class);
+
+        Parameter parameter = new BodyParameter()
+            .schema(new ArrayModel()
+                .items(new ArrayProperty(new StringProperty())));
+
+        JavaType jt = utils.getTypeFromParameter(parameter, definitions);
+        assertEquals(jt.getRawClass(), String[][].class);
     }
 }
