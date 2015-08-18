@@ -15,7 +15,7 @@
  */
 
 package io.swagger.test.client.auth;
-
+ 
 import java.util.Map;
 
 public class ApiKeyAuth implements Authentication {

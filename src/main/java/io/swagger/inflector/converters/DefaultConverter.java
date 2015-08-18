@@ -9,6 +9,7 @@ import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.parameters.SerializableParameter;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.Property;
+import io.swagger.util.Json;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,6 +26,9 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class DefaultConverter extends ReflectionUtils implements Converter {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultConverter.class);
@@ -52,7 +56,7 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
 
                     // TODO: this does not need to be done this way, update the helper method
                     Parameter innerParam = new QueryParameter().property(inner);
-                    Class<?> innerClass = getParameterSignature(innerParam, definitions);
+                    JavaType innerClass = getTypeFromParameter(innerParam, definitions);
                     for (String obj : o) {
                         String[] parts = new String[0];
                         if ("csv".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
@@ -75,20 +79,21 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
                 return output;
             }
         } else if (parameter instanceof SerializableParameter) {
+            TypeFactory tf = Json.mapper().getTypeFactory();
             SerializableParameter sp = (SerializableParameter) parameter;
-            return cast(o.get(0), sp.getItems(), cls);
+            return cast(o.get(0), sp.getItems(), tf.constructType(cls));
         }
         return null;
     }
 
-
-    public Object cast(List<String> o, Parameter parameter, Class<?> cls, Map<String, Model> definitions) throws ConversionException {
+    public Object cast(List<String> o, Parameter parameter, JavaType javaType, Map<String, Model> definitions) throws ConversionException {
         if (o == null || o.size() == 0) {
             return null;
         }
+        Class<?> cls = javaType.getRawClass();
 
         LOGGER.debug("converting array `" + o + "` to `" + cls + "`");
-        if (List.class.equals(cls)) {
+        if (javaType.isArrayType()) {
             if (parameter instanceof SerializableParameter) {
                 List<Object> output = new ArrayList<Object>();
                 SerializableParameter sp = (SerializableParameter) parameter;
@@ -98,7 +103,7 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
 
                         // TODO: this does not need to be done this way, update the helper method
                         Parameter innerParam = new QueryParameter().property(inner);
-                        Class<?> innerClass = getParameterSignature(innerParam, definitions);
+                        JavaType innerClass = getTypeFromParameter(innerParam, definitions);
                         for (String obj : o) {
                             String[] parts = new String[0];
                             CSVFormat format = null;
@@ -137,16 +142,16 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
             }
         } else if (parameter instanceof SerializableParameter) {
             SerializableParameter sp = (SerializableParameter) parameter;
-            return cast(o.get(0), sp.getItems(), cls);
+            return cast(o.get(0), sp.getItems(), javaType);
         }
         return null;
     }
 
-    public Object cast(String o, Property property, Class<?> cls) throws ConversionException {
-        if (o == null) {
+    public Object cast(String o, Property property, JavaType javaType) throws ConversionException {
+        if (o == null || javaType == null) {
             return null;
         }
-
+        Class<?> cls = javaType.getRawClass();
         LOGGER.debug("coercing `" + o + "` to `" + cls + "`");
         try {
             if (Integer.class.equals(cls)) {

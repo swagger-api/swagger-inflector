@@ -50,6 +50,8 @@ import org.glassfish.jersey.process.Inflector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JavaType;
+
 public class SwaggerOperationController extends ReflectionUtils implements Inflector<ContainerRequestContext, Response> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerOperationController.class);
 
@@ -58,7 +60,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     private Operation operation;
     private Object controller = null;
     private Method method = null;
-    private Class<?>[] parameterClasses = null;
+    private JavaType[] parameterClasses = null;
     private Map<String, Model> definitions;
     private InputConverter validator;
 
@@ -71,7 +73,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
 
         this.validator = InputConverter.getInstance();
 
-        Class<?>[] args = getOperationParameterClasses(operation, definitions);
+        JavaType[] args = getOperationParameterClasses(operation, definitions);
         StringBuilder builder = new StringBuilder();
 
         builder.append(getMethodName(path, httpMethod, operation))
@@ -82,7 +84,10 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                 builder.append(RequestContext.class.getCanonicalName() + " request");
             } else {
                 builder.append(", ");
-                builder.append(args[i].getName());
+                if(args[i] == null) {
+                  System.out.println("broken!");
+                }
+                builder.append(args[i].toString());
                 builder.append(" ").append(operation.getParameters().get(i - 1).getName());
             }
         }
@@ -111,7 +116,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                     cls = Class.forName(controller);
                 }
 
-                Class<?>[] args = getOperationParameterClasses(operation, this.definitions);
+                JavaType[] args = getOperationParameterClasses(operation, this.definitions);
                 Method[] methods = cls.getMethods();
                 for (Method method : methods) {
                     if (methodName.equals(method.getName())) {
@@ -119,7 +124,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                         if (methodArgs.length == args.length) {
                             int i = 0;
                             boolean matched = true;
-                            if (!args[i].equals(methodArgs[i])) {
+                            if (!args[i].getRawClass().equals(methodArgs[i])) {
                                 LOGGER.debug("failed to match " + args[i] + ", " + methodArgs[i]);
                                 matched = false;
                             }
@@ -197,8 +202,10 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                                         String key = kv[0];
                                         String value = kv[1];
                                         if (parameter.getName().equals(key)) {
+                                            JavaType jt = parameterClasses[i + 1];
+                                            Class<?> cls = jt.getRawClass();
                                             try {
-                                                o = validator.convertAndValidate(Arrays.asList(value), parameter, parameterClasses[i+1], definitions);
+                                                o = validator.convertAndValidate(Arrays.asList(value), parameter, cls, definitions);
                                             }
                                             catch (ConversionException e) {
                                                 missingParams.add(e.getError());
@@ -214,17 +221,19 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                     }
                     else {
                         try {
+                            JavaType jt = parameterClasses[i];
+                            Class<?> cls = jt.getRawClass();
                             if ("body".equals(in)) {
                                 if (ctx.hasEntity()) {
-                                    o = EntityProcessorFactory.readValue(ctx.getMediaType(), ctx.getEntityStream(), parameterClasses[i]);
+                                    o = EntityProcessorFactory.readValue(ctx.getMediaType(), ctx.getEntityStream(), cls);
                                 }
                             }
                             if ("query".equals(in)) {
-                                o = validator.convertAndValidate(uri.getQueryParameters().get(parameter.getName()), parameter, parameterClasses[i], definitions);
+                                o = validator.convertAndValidate(uri.getQueryParameters().get(parameter.getName()), parameter, cls, definitions);
                             } else if ("path".equals(in)) {
-                                o = validator.convertAndValidate(uri.getPathParameters().get(parameter.getName()), parameter, parameterClasses[i], definitions);
+                                o = validator.convertAndValidate(uri.getPathParameters().get(parameter.getName()), parameter, cls, definitions);
                             } else if ("header".equals(in)) {
-                                o = validator.convertAndValidate(ctx.getHeaders().get(parameter.getName()), parameter, parameterClasses[i], definitions);
+                                o = validator.convertAndValidate(ctx.getHeaders().get(parameter.getName()), parameter, cls, definitions);
                             }
                         }
                         catch (ConversionException e) {

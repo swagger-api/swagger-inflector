@@ -33,7 +33,7 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.testng.annotations.Test;
 
-import java.util.List;
+import com.fasterxml.jackson.databind.JavaType;
 
 import static org.testng.Assert.assertEquals;
 
@@ -58,56 +58,56 @@ public class SerializableParamExtractionTest {
 
     @Test
     public void getStringParameterClassTest() throws Exception {
-        Class<?> cls = utils.getParameterSignature(new QueryParameter().property(new StringProperty()), null);
-        assertEquals(cls, String.class);
+        JavaType jt = utils.getTypeFromParameter(new QueryParameter().property(new StringProperty()), null);
+        assertEquals(jt.getRawClass(), String.class);
     }
 
     @Test
     public void getIntegerParameterClassTest() throws Exception {
-        Class<?> cls = utils.getParameterSignature(new QueryParameter().property(new IntegerProperty()), null);
-        assertEquals(cls, Integer.class);
+        JavaType jt = utils.getTypeFromParameter(new QueryParameter().property(new IntegerProperty()), null);
+        assertEquals(jt.getRawClass(), Integer.class);
     }
 
     @Test
     public void getLongParameterClassTest() throws Exception {
-        Class<?> cls = utils.getParameterSignature(new QueryParameter().property(new LongProperty()), null);
-        assertEquals(cls, Long.class);
+        JavaType jt = utils.getTypeFromParameter(new QueryParameter().property(new LongProperty()), null);
+        assertEquals(jt.getRawClass(), Long.class);
     }
 
     @Test
     public void getFloatParameterClassTest() throws Exception {
-        Class<?> cls = utils.getParameterSignature(new QueryParameter().property(new FloatProperty()), null);
-        assertEquals(cls, Float.class);
+        JavaType jt = utils.getTypeFromParameter(new QueryParameter().property(new FloatProperty()), null);
+        assertEquals(jt.getRawClass(), Float.class);
     }
 
     @Test
     public void getDoubleParameterClassTest() throws Exception {
-        Class<?> cls = utils.getParameterSignature(new QueryParameter().property(new DoubleProperty()), null);
-        assertEquals(cls, Double.class);
+        JavaType jt = utils.getTypeFromParameter(new QueryParameter().property(new DoubleProperty()), null);
+        assertEquals(jt.getRawClass(), Double.class);
     }
 
     @Test
     public void getBooleanParameterClassTest() throws Exception {
-        Class<?> cls = utils.getParameterSignature(new QueryParameter().property(new BooleanProperty()), null);
-        assertEquals(cls, Boolean.class);
+        JavaType jt = utils.getTypeFromParameter(new QueryParameter().property(new BooleanProperty()), null);
+        assertEquals(jt.getRawClass(), Boolean.class);
     }
 
     @Test
     public void getDateParameterClassTest() throws Exception {
-        Class<?> cls = utils.getParameterSignature(new QueryParameter().property(new DateProperty()), null);
-        assertEquals(cls, LocalDate.class);
+        JavaType jt = utils.getTypeFromParameter(new QueryParameter().property(new DateProperty()), null);
+        assertEquals(jt.getRawClass(), LocalDate.class);
     }
 
     @Test
     public void getDateTimeParameterClassTest() throws Exception {
-        Class<?> cls = utils.getParameterSignature(new QueryParameter().property(new DateTimeProperty()), null);
-        assertEquals(cls, DateTime.class);
+        JavaType jt = utils.getTypeFromParameter(new QueryParameter().property(new DateTimeProperty()), null);
+        assertEquals(jt.getRawClass(), DateTime.class);
     }
 
-    @Test
+    @org.junit.Test
     public void getStringArrayParameterClassTest() throws Exception {
-        Class<?> cls = utils.getParameterSignature(new QueryParameter()
+        JavaType jt = utils.getTypeFromParameter(new QueryParameter()
                 .property(new ArrayProperty(new StringProperty())), null);
-        assertEquals(cls, List.class);
+        assertEquals(jt.getRawClass(), String[].class);
     }
 }

@@ -24,3 +24,4 @@ public interface Authentication {
      */
     void applyToParams(Map<String, String> queryParams, Map<String, String> headerParams);
 }
+ 

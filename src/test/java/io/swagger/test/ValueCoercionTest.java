@@ -30,10 +30,13 @@ import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.LongProperty;
 import io.swagger.models.properties.StringProperty;
 import io.swagger.models.properties.UUIDProperty;
+import io.swagger.util.Json;
 
 import org.testng.annotations.Test;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,13 +49,14 @@ import static org.testng.Assert.assertTrue;
 
 public class ValueCoercionTest {
     DefaultConverter utils = new DefaultConverter();
+    TypeFactory tf = Json.mapper().getTypeFactory();
 
     @Test
     public void testConvertStringValue() throws Exception {
         List<String> values = Arrays.asList("a");
 
         Parameter parameter = new QueryParameter().items(new StringProperty());
-        Object o = utils.cast(values, parameter, String.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(String.class), null);
 
         assertTrue(o instanceof String);
     }
@@ -62,7 +66,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("1");
 
         Parameter parameter = new QueryParameter().items(new IntegerProperty());
-        Object o = utils.cast(values, parameter, Integer.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(Integer.class), null);
 
         assertTrue(o instanceof Integer);
     }
@@ -72,7 +76,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("1abczdf");
 
         Parameter parameter = new QueryParameter().items(new IntegerProperty());
-        Object o = utils.cast(values, parameter, Integer.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(Integer.class), null);
 
         assertNull(o);
     }
@@ -82,7 +86,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("1");
 
         Parameter parameter = new QueryParameter().items(new LongProperty());
-        Object o = utils.cast(values, parameter, Long.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(Long.class), null);
 
         assertTrue(o instanceof Long);
     }
@@ -92,7 +96,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("1zzzzz");
 
         Parameter parameter = new QueryParameter().items(new LongProperty());
-        Object o = utils.cast(values, parameter, Long.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(Long.class), null);
 
         assertNull(o);
     }
@@ -102,7 +106,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("1");
 
         Parameter parameter = new QueryParameter().items(new FloatProperty());
-        Object o = utils.cast(values, parameter, Float.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(Float.class), null);
 
         assertTrue(o instanceof Float);
     }
@@ -112,7 +116,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("1;;lkaj;lasjkdfs");
 
         Parameter parameter = new QueryParameter().items(new FloatProperty());
-        Object o = utils.cast(values, parameter, Float.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(Float.class), null);
 
         assertNull(o);
     }
@@ -122,7 +126,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("1");
 
         Parameter parameter = new QueryParameter().items(new DoubleProperty());
-        Object o = utils.cast(values, parameter, Double.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(Double.class), null);
 
         assertTrue(o instanceof Double);
     }
@@ -132,7 +136,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("abcdefg");
 
         Parameter parameter = new QueryParameter().items(new DoubleProperty());
-        Object o = utils.cast(values, parameter, Double.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(Double.class), null);
 
         assertNull(o);
     }
@@ -142,7 +146,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("true");
 
         Parameter parameter = new QueryParameter().items(new BooleanProperty());
-        Object o = utils.cast(values, parameter, Boolean.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(Boolean.class), null);
 
         assertTrue(o instanceof Boolean);
     }
@@ -152,7 +156,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("1");
 
         Parameter parameter = new QueryParameter().items(new BooleanProperty());
-        Object o = utils.cast(values, parameter, Boolean.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(Boolean.class), null);
 
         assertTrue(o instanceof Boolean);
         assertTrue((Boolean) o);
@@ -163,7 +167,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("0");
 
         Parameter parameter = new QueryParameter().items(new BooleanProperty());
-        Object o = utils.cast(values, parameter, Boolean.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(Boolean.class), null);
 
         assertTrue(o instanceof Boolean);
         assertFalse((Boolean) o);
@@ -174,7 +178,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("163e1000-2a5a-4be2-b271-3470b63dff00");
 
         Parameter parameter = new QueryParameter().items(new UUIDProperty());
-        Object o = utils.cast(values, parameter, UUID.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(UUID.class), null);
 
         assertTrue(o instanceof UUID);
     }
@@ -184,7 +188,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("bleh");
 
         Parameter parameter = new QueryParameter().items(new UUIDProperty());
-        Object o = utils.cast(values, parameter, UUID.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(UUID.class), null);
 
         assertNull(o);
     }
@@ -194,7 +198,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("fehguy@gmail.com");
 
         Parameter parameter = new QueryParameter().items(new EmailProperty());
-        Object o = utils.cast(values, parameter, String.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(String.class), null);
 
         assertTrue(o instanceof String);
     }
@@ -204,7 +208,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("2005-12-31");
 
         Parameter parameter = new QueryParameter().items(new DateProperty());
-        Object o = utils.cast(values, parameter, LocalDate.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(LocalDate.class), null);
 
         assertEquals(o.toString(), "2005-12-31");
         assertTrue(o instanceof LocalDate);
@@ -215,7 +219,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("Booyah!");
 
         Parameter parameter = new QueryParameter().items(new DateProperty());
-        Object o = utils.cast(values, parameter, LocalDate.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(LocalDate.class), null);
 
         assertNull(o);
     }
@@ -225,7 +229,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("2005-12-31T01:23:45.600-08:00");
 
         Parameter parameter = new QueryParameter().items(new DateTimeProperty());
-        Object o = utils.cast(values, parameter, DateTime.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(DateTime.class), null);
 
         assertEquals(o.toString(), "2005-12-31T01:23:45.600-08:00");
         assertTrue(o instanceof DateTime);
@@ -236,7 +240,7 @@ public class ValueCoercionTest {
         List<String> values = Arrays.asList("Booyah!");
 
         Parameter parameter = new QueryParameter().items(new DateTimeProperty());
-        Object o = utils.cast(values, parameter, DateTime.class, null);
+        Object o = utils.cast(values, parameter, tf.constructType(DateTime.class), null);
 
         assertNull(o);
     }
