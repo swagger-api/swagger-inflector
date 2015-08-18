@@ -65,7 +65,7 @@ swaggerUrl: swagger.yaml
 # specific mappings for models, used to locate models in the `#/definitions/${model}`
 modelMappings:
   User: io.swagger.sample.models.User
-  
+
 # HTTP response code when required parameters are missing
 invalidRequestCode: 400
 ```
@@ -135,6 +135,26 @@ paths:
 ```
 
 the Inflector will do the following:
+
+ - Look in vendor extensions for the models to see if a mapping exists.  If so, it will attempt to load it via the classloader
+
+ ```yaml
+   Address:
+    x-swagger-router-model: io.swagger.test.models.Address
+    properties:
+      street:
+        type: string
+        example: 12345 El Monte Road
+      city:
+        type: string
+        example: Los Altos Hills
+      state:
+        type: string
+        example: CA
+      zip:
+        type: string
+        example: '94022'
+ ```
 
  - Look in the configuration for a mapping between `User` and a concrete class definition.  If the definition exists AND the class can be loaded, the method will look like such:
 
