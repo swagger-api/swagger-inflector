@@ -43,6 +43,7 @@ import java.util.Map;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
@@ -85,9 +86,9 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             } else {
                 builder.append(", ");
                 if(args[i] == null) {
-                  System.out.println("broken!");
+                  LOGGER.error("didn't expect a null class");
                 }
-                builder.append(args[i].toString());
+                builder.append(args[i].getRawClass().toString());
                 builder.append(" ").append(operation.getParameters().get(i - 1).getName());
             }
         }
@@ -307,6 +308,10 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
               return Response.ok().entity(response).build();
           } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
               LOGGER.error("failed to invoke method " + method, e);
+              return Response.status(Status.INTERNAL_SERVER_ERROR)
+                  .entity(new ApiError()
+                    .message("failed to invoke controller")
+                    .code(500)).build();
           }
         }
         Map<String, io.swagger.models.Response> responses = operation.getResponses();
