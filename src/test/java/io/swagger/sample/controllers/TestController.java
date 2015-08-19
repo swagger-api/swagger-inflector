@@ -50,9 +50,8 @@ public class TestController {
             .entity("ok");
     }
 
-    public ResponseContext withModelArray(RequestContext request, String id, List<?> modelArray) {
+    public ResponseContext withModelArray(RequestContext request, String id, Address[] modelArray) {
         return new ResponseContext()
-            .status(Status.OK)
-            .entity("ok");
+            .status(Status.OK);
     }
 }
