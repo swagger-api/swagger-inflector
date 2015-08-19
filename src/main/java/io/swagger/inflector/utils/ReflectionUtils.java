@@ -28,6 +28,7 @@ import io.swagger.models.properties.*;
 import io.swagger.util.Json;
 
 import java.io.InputStream;
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -125,7 +126,7 @@ public class ReflectionUtils {
             return tf.constructType(UUID.class);
         }
         if(("file".equals(type)) || property instanceof FileProperty) {
-            throw new RuntimeException("not implemented!");
+            return tf.constructType(File.class);
         }
         if(("integer".equals(type) && "int32".equals(format)) || property instanceof IntegerProperty) {
             return tf.constructType(Integer.class);
