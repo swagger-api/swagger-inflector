@@ -332,7 +332,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Animal'
+              $ref: '#/definitions/Address'
       responses:
         '200':
           description: 'success!'
