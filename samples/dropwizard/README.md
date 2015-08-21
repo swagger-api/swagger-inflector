@@ -11,7 +11,7 @@ mvn clean install
 Run with 
 
 ```
-java -jar target/inflector-dropwizard-sample-1.0--S-SNAPSHOT.jar server server.yml
+java -jar ./target/inflector-dropwizard-sample-1.0-SNAPSHOT.jar server server.yml
 ```
 
 Have fun!
