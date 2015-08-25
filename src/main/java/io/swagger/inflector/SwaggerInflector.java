@@ -19,7 +19,6 @@ package io.swagger.inflector;
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.processors.ExampleSerializer;
 import io.swagger.inflector.processors.JsonExampleSerializer;
-import io.swagger.inflector.utils.DefaultExceptionMapper;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import io.swagger.models.Model;
 import io.swagger.models.Operation;
@@ -156,7 +155,9 @@ public class SwaggerInflector extends ResourceConfig {
       Json.mapper().registerModule(simpleModule);
       Yaml.mapper().registerModule(simpleModule);
 
-      register(DefaultExceptionMapper.class);
+      for(Class<?> exceptionMapper : config.getExceptionMappers()) {
+        register(exceptionMapper);        
+      }
 
       // Example serializer
       register(ExampleSerializer.class);      
