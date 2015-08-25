@@ -86,10 +86,12 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             } else {
                 builder.append(", ");
                 if(args[i] == null) {
-                  LOGGER.error("didn't expect a null class");
+                  LOGGER.error("didn't expect a null class for " + operation.getParameters().get(i - 1).getName());
                 }
-                builder.append(args[i].getRawClass().toString());
-                builder.append(" ").append(operation.getParameters().get(i - 1).getName());
+                else if(args[i].getRawClass() != null) {
+                  builder.append(args[i].getRawClass().toString());
+                  builder.append(" ").append(operation.getParameters().get(i - 1).getName());
+                }
             }
         }
         builder.append(")");
