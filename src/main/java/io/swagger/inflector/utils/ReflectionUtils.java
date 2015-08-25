@@ -134,7 +134,14 @@ public class ReflectionUtils {
         if(("integer".equals(type) && "int64".equals(format)) || property instanceof LongProperty) {
             return tf.constructType(Long.class);
         }
-        if(property instanceof StringProperty) {
+        if("integer".equals(type)) {
+            // fallback
+            LOGGER.warn("falling back to `string` with format `" + format + "`");
+            return tf.constructType(Long.class);
+        }
+        if("string".equals(type) || property instanceof StringProperty) {
+            // fallback
+            LOGGER.warn("falling back to `string` with format `" + format + "`");
             return tf.constructType(String.class);
         }
         if(property instanceof ArrayProperty) {

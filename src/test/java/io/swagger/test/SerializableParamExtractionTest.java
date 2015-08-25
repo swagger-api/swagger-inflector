@@ -28,6 +28,7 @@ import io.swagger.models.properties.FloatProperty;
 import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.LongProperty;
 import io.swagger.models.properties.StringProperty;
+import io.swagger.models.properties.BaseIntegerProperty;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -63,6 +64,12 @@ public class SerializableParamExtractionTest {
     }
 
     @Test
+    public void getStringFallbackParameterClassTest() throws Exception {
+        JavaType jt = utils.getTypeFromParameter(new QueryParameter().property(new StringProperty("url")), null);
+        assertEquals(jt.getRawClass(), String.class);
+    }
+
+    @Test
     public void getIntegerParameterClassTest() throws Exception {
         JavaType jt = utils.getTypeFromParameter(new QueryParameter().property(new IntegerProperty()), null);
         assertEquals(jt.getRawClass(), Integer.class);
@@ -71,6 +78,12 @@ public class SerializableParamExtractionTest {
     @Test
     public void getLongParameterClassTest() throws Exception {
         JavaType jt = utils.getTypeFromParameter(new QueryParameter().property(new LongProperty()), null);
+        assertEquals(jt.getRawClass(), Long.class);
+    }
+
+    @Test
+    public void getLongFallbackParameterClassTest() throws Exception {
+        JavaType jt = utils.getTypeFromParameter(new QueryParameter().property(new BaseIntegerProperty("abc123")), null);
         assertEquals(jt.getRawClass(), Long.class);
     }
 
