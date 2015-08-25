@@ -16,10 +16,6 @@
 
 package io.swagger.inflector;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider;
-
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.processors.ExampleSerializer;
 import io.swagger.inflector.processors.JsonExampleSerializer;
@@ -32,22 +28,23 @@ import io.swagger.parser.SwaggerParser;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
 
-import org.apache.commons.lang3.StringUtils;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.server.ServerConfig;
-import org.glassfish.jersey.server.model.Resource;
-import org.glassfish.jersey.servlet.ServletContainer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.HttpMethod;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.model.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider;
 
 public class SwaggerInflector extends ResourceConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerInflector.class);
@@ -60,8 +57,8 @@ public class SwaggerInflector extends ResourceConfig {
       init(configuration);
     }
 
-    public SwaggerInflector(@Context ServletContext servletContext) {
-        this.servletContext = servletContext;
+    public SwaggerInflector(@Context ServletContext ctx) {
+        this.servletContext = ctx;
         Configuration config = null;
         if(servletContext != null) {
           if(servletContext.getInitParameter("inflector-config") != null) {
@@ -78,7 +75,7 @@ public class SwaggerInflector extends ResourceConfig {
         }
         init(config);
     }
-    
+
     protected void init(Configuration configuration) {
       config = configuration;
       Swagger swagger = new SwaggerParser().read(config.getSwaggerUrl(), null, true);
@@ -157,6 +154,10 @@ public class SwaggerInflector extends ResourceConfig {
       simpleModule.addSerializer(new JsonExampleSerializer());
       Json.mapper().registerModule(simpleModule);
       Yaml.mapper().registerModule(simpleModule);
+
+      for(Class<?> exceptionMapper : config.getExceptionMappers()) {
+        register(exceptionMapper);        
+      }
 
       // Example serializer
       register(ExampleSerializer.class);      

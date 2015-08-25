@@ -21,7 +21,9 @@ import io.swagger.util.Yaml;
 import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,7 @@ public class Configuration {
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
     private final Map<String, Class<?>> modelMap = new HashMap<String, Class<?>>();
+    private Set<Class<?>> exceptionMappers = new HashSet<Class<?>>();
     private String controllerPackage;
     private String modelPackage;
     private String swaggerUrl;
@@ -69,14 +72,19 @@ public class Configuration {
     }
 
     public static Configuration read(String configLocation) throws Exception {
-        return Yaml.mapper().readValue(new File(configLocation), Configuration.class);
+        Configuration config = Yaml.mapper().readValue(new File(configLocation), Configuration.class);
+        if(config != null && config.getExceptionMappers().size() == 0) {
+          config.setExceptionMappers(Configuration.defaultConfiguration().getExceptionMappers());
+        }
+        return config;
     }
 
     public static Configuration defaultConfiguration() {
         return new Configuration()
             .controllerPackage("io.swagger.sample.controllers")
             .modelPackage("io.swagger.sample.models")
-            .swaggerUrl("swagger.yaml");
+            .swaggerUrl("swagger.yaml")
+            .exceptionMapper("io.swagger.inflector.utils.DefaultExceptionMapper");
     }
 
     public Configuration modelPackage(String modelPackage) {
@@ -97,6 +105,18 @@ public class Configuration {
     public Configuration swaggerUrl(String swaggerUrl) {
         this.swaggerUrl = swaggerUrl;
         return this;
+    }
+    
+    public Configuration exceptionMapper(String className) {
+      Class<?> cls;
+      try {
+          ClassLoader classLoader = Configuration.class.getClassLoader();
+          cls = classLoader.loadClass(className);
+          exceptionMappers.add(cls);
+      } catch (ClassNotFoundException e) {
+          LOGGER.error("unable to add exception mapper for `" + className + "`, " + e.getMessage());
+      }
+      return this;
     }
 
     public Configuration() {
@@ -170,4 +190,10 @@ public class Configuration {
         return rootPath;
     }
 
+    public Set<Class<?>> getExceptionMappers() {
+        return exceptionMappers;
+    }
+    public void setExceptionMappers(Set<Class<?>> exceptionMappers) {
+        this.exceptionMappers = exceptionMappers;
+    }
 }

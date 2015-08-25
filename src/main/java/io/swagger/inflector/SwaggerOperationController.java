@@ -24,6 +24,7 @@ import io.swagger.inflector.models.ApiError;
 import io.swagger.inflector.models.RequestContext;
 import io.swagger.inflector.models.ResponseContext;
 import io.swagger.inflector.processors.EntityProcessorFactory;
+import io.swagger.inflector.utils.ApiException;
 import io.swagger.inflector.utils.ReflectionUtils;
 import io.swagger.inflector.validators.ValidationException;
 import io.swagger.inflector.validators.ValidationMessage;
@@ -43,7 +44,6 @@ import java.util.Map;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
@@ -277,10 +277,10 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                     count += 1;
                 }
                 int statusCode = config.getInvalidRequestStatusCode();
-                return Response.status(statusCode)
-                    .entity(new ApiError()
-                        .code(statusCode)
-                        .message(builder.toString())).build();
+                ApiError error = new ApiError()
+                  .code(statusCode)
+                  .message(builder.toString());
+                throw new ApiException(error);
             }
         }
         if(method != null) {
@@ -310,10 +310,10 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
               return Response.ok().entity(response).build();
           } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
               LOGGER.error("failed to invoke method " + method, e);
-              return Response.status(Status.INTERNAL_SERVER_ERROR)
-                  .entity(new ApiError()
+              ApiError error = new ApiError()
                     .message("failed to invoke controller")
-                    .code(500)).build();
+                    .code(500);
+              throw new ApiException(error);
           }
         }
         Map<String, io.swagger.models.Response> responses = operation.getResponses();
