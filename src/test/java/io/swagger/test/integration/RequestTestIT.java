@@ -17,7 +17,6 @@
 package io.swagger.test.integration;
 
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.testng.annotations.Test;
 
 import io.swagger.test.client.ApiClient;
@@ -25,6 +24,10 @@ import io.swagger.test.client.ApiException;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 
 import static org.testng.Assert.*;
 
@@ -50,5 +53,26 @@ public class RequestTestIT {
         String path = "/withModel/3";
         String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
         assertEquals(str, "ok");
+    }
+
+    @Test
+    public void verifyPostFormData() throws Exception {
+        String path = "/formTest";
+
+        MultivaluedMap<String, String> formData = new MultivaluedHashMap<String, String>();
+        formData.add("user", "tony");
+
+        String str = client.invokeAPI(
+            path,               // path
+            "POST",             // method
+            new HashMap<String, String>(),  // query
+            null,               // body
+            new HashMap<String, String>(), // header
+            Entity.form(formData),         // form
+            "application/json", // accept
+            "x-www-form-urlencoded",  // contentType
+            new String[0]);
+
+        assertEquals(str, "tony");
     }
 }

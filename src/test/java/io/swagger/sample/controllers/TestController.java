@@ -27,6 +27,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
 public class TestController {
+    public ResponseContext formTest(RequestContext request, String user) {
+      System.out.println("found it! " + user);
+        return new ResponseContext()
+            .status(Status.OK)
+            .contentType(MediaType.APPLICATION_JSON_TYPE)
+            .entity(user);
+    }
+
     public ResponseContext postFormData(RequestContext request, Long id, String name) {
         // show a sample response
         return new ResponseContext()
