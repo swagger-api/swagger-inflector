@@ -16,6 +16,22 @@ info:
 basePath: /api
 
 paths:
+  /formTest:
+    post:
+      operationId: formTest
+      x-swagger-router-controller: TestController
+      tags:
+        - formTest
+      consumes:
+        - x-www-form-urlencoded
+      parameters:
+        - name: user
+          in: formData
+          required: true
+          type: string
+      responses:
+        '200':
+          description: 'success!'
   /mockResponses:
     get:
       tags:
