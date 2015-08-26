@@ -205,7 +205,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                                         String key = kv[0];
                                         String value = kv[1];
                                         if (parameter.getName().equals(key)) {
-                                            JavaType jt = parameterClasses[i + 1];
+                                            JavaType jt = parameterClasses[i];
                                             Class<?> cls = jt.getRawClass();
                                             try {
                                                 o = validator.convertAndValidate(Arrays.asList(value), parameter, cls, definitions);
