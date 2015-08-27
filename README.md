@@ -8,6 +8,13 @@ To allow for an iterative development, the framework will mock responses for any
 
 You have full control over the mapping of controllers to classes and methods as well as models.
 
+## Quick start!
+
+Run this command to start in a hurry.  It will create a project named `my-project`
+```
+curl -L http://bit.ly/1MY50zo | project=my-project bash
+```
+
 **This project is in preview status!**
 
 ### Components

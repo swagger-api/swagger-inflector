@@ -18,6 +18,10 @@
         <version>9.2.9.v20150224</version>
         <configuration>
           <war>swagger-editor.war</war>
+          <httpConnector>
+            <port>8000</port>
+            <idleTimeout>60000</idleTimeout>
+          </httpConnector>
         </configuration>
       </plugin>
     </plugins>
