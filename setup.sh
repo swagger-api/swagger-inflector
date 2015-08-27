@@ -25,7 +25,7 @@ wget --quiet --no-check-certificate "https://github.com/swagger-api/swagger-infl
 wget --quiet --no-check-certificate "https://github.com/swagger-api/swagger-inflector/raw/feature/scripts/scripts/editor.sh" -O ./editor.sh
 
 echo "...fetching sample swagger description"
-wget --quiet --no-check-certificate "https://raw.githubusercontent.com/swagger-api/swagger-inflector/feature/scripts/src/test/swagger/sample1.yaml" -O src/main/swagger/swagger.yaml
+wget --quiet --no-check-certificate "https://raw.githubusercontent.com/swagger-api/swagger-inflector/feature/scripts/scripts/swagger.yaml" -O src/main/swagger/swagger.yaml
 
 echo "...fetching inflector configuration"
 wget --quiet --no-check-certificate "https://raw.githubusercontent.com/swagger-api/swagger-inflector/feature/scripts/scripts/inflector.yaml" -O ./inflector.yaml
