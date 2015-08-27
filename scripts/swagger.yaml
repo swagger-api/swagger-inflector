@@ -5,12 +5,16 @@ info:
   version: "1.0.0"
   title: <enter your title>
 
+basePath: /v1
+
 # Describe your paths here
 paths:
   /persons:
     # This is a HTTP operation
     get:
       # Describe this verb here. Note: you can use markdown
+      tags:
+        - People
       description: |
         Gets `Person` objects.
         Optional query param of **size** determines
