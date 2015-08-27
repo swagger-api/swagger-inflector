@@ -23,9 +23,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.swagger</groupId>
-    <artifactId>jetty-webxml-sample</artifactId>
+    <artifactId>SAMPLE_PROJECT</artifactId>
     <packaging>jar</packaging>
-    <name>jetty-webxml-sample</name>
+    <name>SAMPLE_PROJECT</name>
     <version>1.0.0-SNAPSHOT</version>
     <prerequisites>
         <maven>2.2.0</maven>
