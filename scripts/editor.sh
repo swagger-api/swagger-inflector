@@ -1,1 +1,1 @@
-mvn -f editor.xml jetty:run-war
+mvn -f editor/editor.xml jetty:run-war
