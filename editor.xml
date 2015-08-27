@@ -1,0 +1,52 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.wordnik</groupId>
+  <artifactId>swagger-editor</artifactId>
+  <name>swagger-editor</name>
+  <version>1.0.1</version>
+  <prerequisites>
+    <maven>2.2.0</maven>
+  </prerequisites>
+
+  <build>
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <version>9.2.9.v20150224</version>
+        <configuration>
+          <war>swagger-editor.war</war>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <repositories>
+    <repository>
+      <id>sonatype-snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
+    <repository>
+      <id>sonatype-releases</id>
+      <url>https://oss.sonatype.org/content/repositories/releases</url>
+    </repository>
+  </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>${servlet-api-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.4</version>
+    </dependency>
+  </dependencies>
+  <properties>
+    <maven-plugin.version>3.1.0</maven-plugin.version>
+    <jetty-version>7.6.0.v20120127</jetty-version>
+    <servlet-api-version>2.5</servlet-api-version>
+  </properties>
+</project>
