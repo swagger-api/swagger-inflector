@@ -301,6 +301,8 @@ paths:
       operationId: goodbye
       tags:
         - test2
+      produces:
+        - application/json
       parameters:
         - name: happy
           in: query
@@ -319,6 +321,8 @@ paths:
       tags:
         - test1
       operationId: testMe
+      produces:
+        - application/json
       parameters:
         - name: limit
           in: query
@@ -326,6 +330,12 @@ paths:
           type: integer
           format: int32
           minimum: 0.0
+        - name: min
+          in: query
+          required: true
+          type: integer
+          format: int32
+          minimum: 10.0
       responses:
         '200':
           description: 'fun!'

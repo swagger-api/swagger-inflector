@@ -47,6 +47,9 @@ paths:
           required: false
           schema:
             $ref: "#/definitions/Pet"
+        - in: query
+          name: limit
+          type: string
       responses:
         "405":
           description: Invalid input

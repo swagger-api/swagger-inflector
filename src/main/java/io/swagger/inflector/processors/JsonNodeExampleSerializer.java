@@ -33,7 +33,7 @@ import io.swagger.inflector.examples.models.StringExample;
 
 import java.io.IOException;
 
-public class JsonExampleSerializer extends JsonSerializer<Example> {
+public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
 
     @Override
     public void serialize(Example value, JsonGenerator jgen,
