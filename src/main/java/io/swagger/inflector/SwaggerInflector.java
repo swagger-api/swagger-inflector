@@ -17,8 +17,10 @@
 package io.swagger.inflector;
 
 import io.swagger.inflector.config.Configuration;
-import io.swagger.inflector.processors.ExampleSerializer;
-import io.swagger.inflector.processors.JsonExampleSerializer;
+import io.swagger.inflector.processors.JsonExampleProvider;
+import io.swagger.inflector.processors.JsonNodeExampleSerializer;
+import io.swagger.inflector.processors.XMLExampleProvider;
+import io.swagger.inflector.processors.YamlExampleProvider;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import io.swagger.models.Model;
 import io.swagger.models.Operation;
@@ -129,38 +131,41 @@ public class SwaggerInflector extends ResourceConfig {
               }
               registerResources(builder.build());
           }
-
-          // enable swagger JSON
-          enableSwaggerJSON(swagger);
-
-          // enable swagger YAML
-          enableSwaggerYAML(swagger);
       } else {
           LOGGER.error("No swagger definition detected!  Not much to do...");
       }
+      SimpleModule simpleModule = new SimpleModule();
+      simpleModule.addSerializer(new JsonNodeExampleSerializer());
+
       // JSON
-      register(JacksonJsonProvider.class);
+      if(config.getEntityProcessors().contains("json")) {
+        Json.mapper().registerModule(simpleModule);
+        register(JacksonJsonProvider.class);
+        register(JsonExampleProvider.class);
+        enableSwaggerJSON(swagger);
+      }
 
       // XML
-      register(JacksonJaxbXMLProvider.class);
+      if(config.getEntityProcessors().contains("xml")) {
+        register(JacksonJaxbXMLProvider.class);
+        register(XMLExampleProvider.class);
+      }
+      
+      // YAML
+      if(config.getEntityProcessors().contains("yaml")) {
+        Yaml.mapper().registerModule(simpleModule);
+        register(YamlExampleProvider.class);
+        enableSwaggerYAML(swagger);
+      }
 
       register(new MultiPartFeature());
 
       // Swagger serializers
       register(SwaggerSerializers.class);
 
-      // XML mapper
-      SimpleModule simpleModule = new SimpleModule();
-      simpleModule.addSerializer(new JsonExampleSerializer());
-      Json.mapper().registerModule(simpleModule);
-      Yaml.mapper().registerModule(simpleModule);
-
       for(Class<?> exceptionMapper : config.getExceptionMappers()) {
         register(exceptionMapper);        
       }
-
-      // Example serializer
-      register(ExampleSerializer.class);      
     }
 
     private String basePath(String basePath, String path) {

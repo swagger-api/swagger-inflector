@@ -40,6 +40,9 @@ public class Configuration {
     private String swaggerUrl;
     private int invalidRequestCode = 400;
     private String rootPath = "";
+    private Set<String> inputConverters = new HashSet<String>();
+    private Set<String> inputValidators = new HashSet<String>();
+    private Set<String> entityProcessors = new HashSet<String>();
 
     public static Configuration read() {
         String configLocation = System.getProperty("config", "inflector.yaml");
@@ -195,5 +198,26 @@ public class Configuration {
     }
     public void setExceptionMappers(Set<Class<?>> exceptionMappers) {
         this.exceptionMappers = exceptionMappers;
+    }
+
+    public Set<String> getEntityProcessors() {
+        return entityProcessors;
+    }
+    public void setEntityProcessors(Set<String> entityProcessors) {
+        this.entityProcessors = entityProcessors;
+    }
+
+    public Set<String> getInputValidators() {
+        return inputValidators;
+    }
+    public void setInputValidators(Set<String> inputValidators) {
+        this.inputValidators = inputValidators;
+    }
+
+    public Set<String> getInputConverters() {
+        return inputConverters;
+    }
+    public void setInputConverters(Set<String> inputConverters) {
+        this.inputConverters = inputConverters;
     }
 }

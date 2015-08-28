@@ -11,7 +11,7 @@ public class DefaultValidator implements Validator {
                 throw new ValidationException()
                   .message(new ValidationMessage()
                     .code(ValidationError.MISSING_REQUIRED)
-                    .message(parameter.getName() + ": " + parameter.getIn()));
+                    .message("missing required " + parameter.getIn() + " parameter `" + parameter.getName() + "`"));
             }
         }
         if(chain.hasNext()) {

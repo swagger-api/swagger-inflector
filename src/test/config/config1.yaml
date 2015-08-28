@@ -3,3 +3,17 @@ modelPackage: io.swagger.sample.models
 swaggerUrl: ./src/test/swagger/sample1.yaml
 modelMappings:
   User: io.swagger.test.models.User
+
+# loads all by default, or pick and choose
+entityProcessors:
+  - json
+  # - xml
+  - yaml
+
+# loads all by default, or pick and choose
+inputValidators:
+  - a
+
+# loads all by default, or pick and choose
+inputConverters:
+  - b

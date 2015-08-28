@@ -33,7 +33,6 @@ import io.swagger.models.Operation;
 import io.swagger.models.parameters.FormParameter;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.SerializableParameter;
-import io.swagger.util.Json;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -47,6 +46,7 @@ import java.util.Set;
 import java.util.Iterator;
 
 import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -57,6 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JavaType;
+
 
 public class SwaggerOperationController extends ReflectionUtils implements Inflector<ContainerRequestContext, Response> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerOperationController.class);
@@ -171,14 +172,15 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     @Override
     public Response apply(ContainerRequestContext ctx) {
         List<Parameter> parameters = operation.getParameters();
+        RequestContext requestContext = new RequestContext()
+            .headers(ctx.getHeaders())
+            .mediaType(ctx.getMediaType())
+            .acceptableMediaTypes(ctx.getAcceptableMediaTypes());
         Object[] args = new Object[parameters.size() + 1];
         if (parameters != null) {
             int i = 0;
 
-            args[i] = new RequestContext()
-                .headers(ctx.getHeaders())
-                .mediaType(ctx.getMediaType())
-                .acceptableMediaTypes(ctx.getAcceptableMediaTypes());
+            args[i] = requestContext;
             i += 1;
             List<ValidationMessage> missingParams = new ArrayList<ValidationMessage>();
             UriInfo uri = ctx.getUriInfo();
@@ -307,8 +309,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                 i += 1;
             }
             if(existingKeys.size() > 0) {
-                LOGGER.error("extra keys: " + existingKeys);
-//                Json.prettyPrint(this.operation);
+                LOGGER.debug("unexpected keys: " + existingKeys);
             }
             if (missingParams.size() > 0) {
                 StringBuilder builder = new StringBuilder();
@@ -391,12 +392,37 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             io.swagger.models.Response response = responses.get(defaultKey);
             Object output = ExampleBuilder.fromProperty(response.getSchema(), definitions);
             if (output != null) {
-                return Response.status(code).entity(output).build();
+                ResponseContext resp = new ResponseContext().entity(output);
+                setContentType(requestContext, resp, operation);
+                if(resp.getContentType() != null)
+                  return Response.status(code).entity(output).type(resp.getContentType()).build();
+                else
+                  return Response.status(code).entity(output).build();
             }
             return Response.status(code).build();
         }
-
-        // TODO: might need to check possible response types
         return Response.ok().build();
+    }
+    
+    public void setContentType(RequestContext res, ResponseContext resp, Operation operation) {
+        // honor what has been set, it may be determined by business logic in the controller
+        if(resp.getContentType() != null) {
+          return;
+        }
+        List<String> available = operation.getProduces();
+        if(available != null) {
+          for(String a : available) {
+            MediaType mt = MediaType.valueOf(a);
+            for(MediaType acceptable : res.getAcceptableMediaTypes()) {
+              if(mt.isCompatible(acceptable)) {
+                resp.setContentType(mt);
+                return;
+              }
+            }
+          }
+          if(available.size() > 0) {
+            resp.setContentType(MediaType.valueOf(available.get(0)));
+          }
+        }
     }
 }

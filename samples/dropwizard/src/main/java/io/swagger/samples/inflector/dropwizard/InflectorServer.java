@@ -22,7 +22,7 @@ import io.dropwizard.setup.Environment;
 import io.swagger.inflector.SwaggerInflector;
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.processors.ExampleSerializer;
-import io.swagger.inflector.processors.JsonExampleSerializer;
+import io.swagger.inflector.processors.JsonNodeExampleSerializer;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
@@ -69,7 +69,7 @@ public class InflectorServer extends Application<InflectorServerConfiguration> {
         
         // mappers
         SimpleModule simpleModule = new SimpleModule();
-        simpleModule.addSerializer(new JsonExampleSerializer());
+        simpleModule.addSerializer(new JsonNodeExampleSerializer());
         Json.mapper().registerModule(simpleModule);
         Yaml.mapper().registerModule(simpleModule);
     }

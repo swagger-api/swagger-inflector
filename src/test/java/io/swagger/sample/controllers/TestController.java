@@ -16,8 +16,6 @@
 
 package io.swagger.sample.controllers;
 
-import java.util.List;
-
 import io.swagger.inflector.models.RequestContext;
 import io.swagger.inflector.models.ResponseContext;
 import io.swagger.test.models.Address;
