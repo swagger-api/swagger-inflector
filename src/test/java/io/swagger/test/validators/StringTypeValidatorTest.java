@@ -28,16 +28,26 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class StringTypeValidatorTest {
+    InputConverter converter;
+  
+    @BeforeClass
+    public void setup() {
+        converter = InputConverter.getInstance()
+            .defaultConverters()
+            .defaultValidators();
+    }
+
     @Test
     public void testDateTimeConversion() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test")
             .property(new DateTimeProperty());
 
-        InputConverter.getInstance().validate(new DateTime(), parameter);
+        converter.validate(new DateTime(), parameter);
     }
 
     @Test(expectedExceptions = ValidationException.class)
@@ -46,7 +56,7 @@ public class StringTypeValidatorTest {
             .name("test")
             .property(new DateTimeProperty());
 
-        InputConverter.getInstance().validate(new Integer(3), parameter);
+        converter.validate(new Integer(3), parameter);
     }
 
     @Test
@@ -55,7 +65,7 @@ public class StringTypeValidatorTest {
             .name("test")
             .property(new DateTimeProperty());
 
-        InputConverter.getInstance().validate(new LocalDate(), parameter);
+        converter.validate(new LocalDate(), parameter);
     }
 
     @Test
@@ -72,7 +82,7 @@ public class StringTypeValidatorTest {
         
         parameter._enum(values);
 
-        InputConverter.getInstance().validate(new LocalDate("2015-01-02"), parameter);
+        converter.validate(new LocalDate("2015-01-02"), parameter);
     }
 
     @Test(expectedExceptions = ValidationException.class)
@@ -89,7 +99,7 @@ public class StringTypeValidatorTest {
         
         parameter._enum(values);
 
-        InputConverter.getInstance().validate(new LocalDate("2015-01-04"), parameter);
+        converter.validate(new LocalDate("2015-01-04"), parameter);
     }
 
     @Test
@@ -106,7 +116,7 @@ public class StringTypeValidatorTest {
         
         parameter._enum(values);
 
-        InputConverter.getInstance().validate("allowable_1", parameter);
+        converter.validate("allowable_1", parameter);
     }
 
     @Test(expectedExceptions = ValidationException.class)
@@ -123,6 +133,6 @@ public class StringTypeValidatorTest {
         
         parameter._enum(values);
 
-        InputConverter.getInstance().validate("allowable_4", parameter);
+        converter.validate("allowable_4", parameter);
     }
 }

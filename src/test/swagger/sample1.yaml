@@ -301,6 +301,8 @@ paths:
       operationId: goodbye
       tags:
         - test2
+      produces:
+        - application/json
       parameters:
         - name: happy
           in: query

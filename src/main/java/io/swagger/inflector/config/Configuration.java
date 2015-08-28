@@ -16,12 +16,15 @@
 
 package io.swagger.inflector.config;
 
+import io.swagger.inflector.converters.InputConverter;
 import io.swagger.util.Yaml;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,9 +43,9 @@ public class Configuration {
     private String swaggerUrl;
     private int invalidRequestCode = 400;
     private String rootPath = "";
-    private Set<String> inputConverters = new HashSet<String>();
-    private Set<String> inputValidators = new HashSet<String>();
-    private Set<String> entityProcessors = new HashSet<String>();
+    private List<String> inputConverters = new ArrayList<String>();
+    private List<String> inputValidators = new ArrayList<String>();
+    private List<String> entityProcessors = new ArrayList<String>();
 
     public static Configuration read() {
         String configLocation = System.getProperty("config", "inflector.yaml");
@@ -87,9 +90,27 @@ public class Configuration {
             .controllerPackage("io.swagger.sample.controllers")
             .modelPackage("io.swagger.sample.models")
             .swaggerUrl("swagger.yaml")
-            .exceptionMapper("io.swagger.inflector.utils.DefaultExceptionMapper");
+            .exceptionMapper("io.swagger.inflector.utils.DefaultExceptionMapper")
+            .defaultValidators()
+            .defaultConverters()
+            .defaultProcessors();
     }
 
+    public Configuration defaultValidators() {
+        InputConverter.getInstance().defaultValidators();
+        return this;
+    }
+
+    public Configuration defaultConverters() {
+  //    this.setInputValidators(InputConverter.getInstance().defaultValidators());
+        return this;
+    }
+
+    public Configuration defaultProcessors() {
+  //    this.setInputValidators(InputConverter.getInstance().defaultValidators());
+        return this;
+  }
+    
     public Configuration modelPackage(String modelPackage) {
         this.modelPackage = modelPackage;
         return this;
@@ -200,24 +221,24 @@ public class Configuration {
         this.exceptionMappers = exceptionMappers;
     }
 
-    public Set<String> getEntityProcessors() {
+    public List<String> getEntityProcessors() {
         return entityProcessors;
     }
-    public void setEntityProcessors(Set<String> entityProcessors) {
+    public void setEntityProcessors(List<String> entityProcessors) {
         this.entityProcessors = entityProcessors;
     }
 
-    public Set<String> getInputValidators() {
+    public List<String> getInputValidators() {
         return inputValidators;
     }
-    public void setInputValidators(Set<String> inputValidators) {
+    public void setInputValidators(List<String> inputValidators) {
         this.inputValidators = inputValidators;
     }
 
-    public Set<String> getInputConverters() {
+    public List<String> getInputConverters() {
         return inputConverters;
     }
-    public void setInputConverters(Set<String> inputConverters) {
+    public void setInputConverters(List<String> inputConverters) {
         this.inputConverters = inputConverters;
     }
 }

@@ -7,13 +7,15 @@ modelMappings:
 # loads all by default, or pick and choose
 entityProcessors:
   - json
-  # - xml
+  - xml
   - yaml
 
 # loads all by default, or pick and choose
 inputValidators:
-  - a
+  - requiredFieldValidator
+  - numericValidator
+  - stringValidator
 
 # loads all by default, or pick and choose
 inputConverters:
-  - b
+  - defaultConverter

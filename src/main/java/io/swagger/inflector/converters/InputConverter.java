@@ -1,9 +1,6 @@
 package io.swagger.inflector.converters;
 
-import io.swagger.inflector.validators.DefaultValidator;
 import io.swagger.inflector.validators.*;
-import io.swagger.inflector.validators.ValidationException;
-import io.swagger.inflector.validators.Validator;
 import io.swagger.models.Model;
 import io.swagger.models.parameters.Parameter;
 
@@ -17,31 +14,66 @@ public class InputConverter {
     private List<Validator> validationChain = new ArrayList<Validator>();
     private List<Converter> converterChain = new ArrayList<Converter>();
 
-    static {
-        INSTANCE.addValidator(new DefaultValidator());
-        INSTANCE.addValidator(new NumericValidator());
-        INSTANCE.addValidator(new StringTypeValidator());
-        INSTANCE.addConverter(new DefaultConverter());
-    }
-
     public static InputConverter getInstance() {
         return INSTANCE;
     }
 
     public void addConverter(Converter converter) {
-        converterChain.add(converter);
+      boolean matched = false;
+      for(Converter c : converterChain) {
+        if(c.getClass().getName().equals(converter.getClass().getName())) {
+          matched = true;
+        }
+      }
+      if(!matched)
+         converterChain.add(converter);
     }
 
     public void addConverter(Converter converter, boolean first) {
+      boolean matched = false;
+      for(Converter c : converterChain) {
+        if(c.getClass().getName().equals(converter.getClass().getName())) {
+          matched = true;
+        }
+      }
+      if(!matched)
         converterChain.add(0, converter);
     }
 
+    public InputConverter defaultConverters() {
+        converterChain.clear();
+        converterChain.add(new DefaultConverter());
+        return this;
+    }
+
     public void addValidator(Validator validator) {
-        validationChain.add(validator);
+        boolean matched = false;
+        for(Validator v : validationChain) {
+          if(v.getClass().getName().equals(validator.getClass().getName())) {
+            matched = true;
+          }
+        }
+        if(!matched)
+            validationChain.add(validator);
     }
 
     public void addValidator(Validator validator, boolean first) {
-        validationChain.add(0, validator);
+      boolean matched = false;
+      for(Validator v : validationChain) {
+        if(v.getClass().getName().equals(validator.getClass().getName())) {
+          matched = true;
+        }
+      }
+      if(!matched)
+          validationChain.add(0, validator);
+    }
+
+    public InputConverter defaultValidators() {
+        validationChain.clear();
+        validationChain.add(new DefaultValidator());
+        validationChain.add(new NumericValidator());
+        validationChain.add(new StringTypeValidator());
+        return this;
     }
 
     public Object convertAndValidate(List<String> value, Parameter parameter, Class<?> cls, Map<String, Model> definitions) throws ConversionException, ValidationException {

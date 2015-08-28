@@ -16,29 +16,34 @@
 
 package io.swagger.test.validators;
 
-import io.swagger.inflector.converters.ConversionException;
 import io.swagger.inflector.converters.InputConverter;
-import io.swagger.inflector.validators.*;
-import io.swagger.models.parameters.*;
-import io.swagger.models.properties.*;
+import io.swagger.inflector.validators.ValidationException;
+import io.swagger.models.parameters.QueryParameter;
+import io.swagger.models.properties.DoubleProperty;
+import io.swagger.models.properties.LongProperty;
+
+import java.util.Arrays;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-
-import java.util.Arrays;
-
 public class NumericValidatorTest {
+    InputConverter converter;
+
+    @BeforeClass
+    public void setup() {
+        converter = InputConverter.getInstance()
+            .defaultConverters()
+            .defaultValidators();
+    }
+
     @Test
     public void testValidIntegerMinimum() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test");
         parameter.setMinimum(10.0);
 
-        InputConverter.getInstance().validate(new Integer(11), parameter);
+        converter.validate(new Integer(11), parameter);
     }
 
     @Test(expectedExceptions = ValidationException.class)
@@ -47,7 +52,7 @@ public class NumericValidatorTest {
             .name("test");
         parameter.setMinimum(10.0);
 
-        InputConverter.getInstance().validate(new Integer(9), parameter);
+        converter.validate(new Integer(9), parameter);
     }
 
     @Test
@@ -56,7 +61,7 @@ public class NumericValidatorTest {
             .name("test");
         parameter.setMaximum(10.0);
 
-        InputConverter.getInstance().validate(new Integer(9), parameter);
+        converter.validate(new Integer(9), parameter);
     }
 
     @Test(expectedExceptions = ValidationException.class)
@@ -65,7 +70,7 @@ public class NumericValidatorTest {
             .name("test");
         parameter.setMaximum(10.0);
 
-        InputConverter.getInstance().validate(new Integer(11), parameter);
+        converter.validate(new Integer(11), parameter);
     }
 
     @Test
