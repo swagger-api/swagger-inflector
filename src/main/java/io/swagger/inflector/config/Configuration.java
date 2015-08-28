@@ -102,12 +102,12 @@ public class Configuration {
     }
 
     public Configuration defaultConverters() {
-  //    this.setInputValidators(InputConverter.getInstance().defaultValidators());
+        InputConverter.getInstance().defaultConverters();
         return this;
     }
 
     public Configuration defaultProcessors() {
-  //    this.setInputValidators(InputConverter.getInstance().defaultValidators());
+        InputConverter.getInstance().defaultValidators();
         return this;
   }
     
