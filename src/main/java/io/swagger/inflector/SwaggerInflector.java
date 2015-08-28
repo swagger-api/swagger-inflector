@@ -17,8 +17,16 @@
 package io.swagger.inflector;
 
 import io.swagger.inflector.config.Configuration;
-import io.swagger.inflector.processors.ExampleSerializer;
-import io.swagger.inflector.processors.JsonExampleSerializer;
+import io.swagger.inflector.converters.Converter;
+import io.swagger.inflector.converters.InputConverter;
+import io.swagger.inflector.processors.JsonExampleProvider;
+import io.swagger.inflector.processors.JsonNodeExampleSerializer;
+import io.swagger.inflector.processors.XMLExampleProvider;
+import io.swagger.inflector.processors.YamlExampleProvider;
+import io.swagger.inflector.validators.DefaultValidator;
+import io.swagger.inflector.validators.NumericValidator;
+import io.swagger.inflector.validators.StringTypeValidator;
+import io.swagger.inflector.validators.Validator;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import io.swagger.models.Model;
 import io.swagger.models.Operation;
@@ -129,38 +137,85 @@ public class SwaggerInflector extends ResourceConfig {
               }
               registerResources(builder.build());
           }
-
-          // enable swagger JSON
-          enableSwaggerJSON(swagger);
-
-          // enable swagger YAML
-          enableSwaggerYAML(swagger);
       } else {
           LOGGER.error("No swagger definition detected!  Not much to do...");
       }
+      SimpleModule simpleModule = new SimpleModule();
+      simpleModule.addSerializer(new JsonNodeExampleSerializer());
+
       // JSON
-      register(JacksonJsonProvider.class);
+      if(config.getEntityProcessors().contains("json")) {
+        Json.mapper().registerModule(simpleModule);
+        register(JacksonJsonProvider.class);
+        register(JsonExampleProvider.class);
+        enableSwaggerJSON(swagger);
+      }
 
       // XML
-      register(JacksonJaxbXMLProvider.class);
+      if(config.getEntityProcessors().contains("xml")) {
+        register(JacksonJaxbXMLProvider.class);
+        register(XMLExampleProvider.class);
+      }
+      
+      // YAML
+      if(config.getEntityProcessors().contains("yaml")) {
+        Yaml.mapper().registerModule(simpleModule);
+        register(YamlExampleProvider.class);
+        enableSwaggerYAML(swagger);
+      }
 
       register(new MultiPartFeature());
 
       // Swagger serializers
       register(SwaggerSerializers.class);
 
-      // XML mapper
-      SimpleModule simpleModule = new SimpleModule();
-      simpleModule.addSerializer(new JsonExampleSerializer());
-      Json.mapper().registerModule(simpleModule);
-      Yaml.mapper().registerModule(simpleModule);
-
       for(Class<?> exceptionMapper : config.getExceptionMappers()) {
         register(exceptionMapper);        
       }
-
-      // Example serializer
-      register(ExampleSerializer.class);      
+      
+      // validators
+      if(config.getInputValidators() != null && config.getInputValidators().size() > 0) {
+        for(String inputValidator : config.getInputValidators()) {
+          try {
+            String clsName = inputValidator;
+            if("requiredFieldValidator".equalsIgnoreCase(inputValidator)) {
+              clsName = "io.swagger.inflector.validators.DefaultValidator";
+            }
+            if("numericValidator".equalsIgnoreCase(inputValidator)) {
+              clsName = "io.swagger.inflector.validators.NumericValidator";
+            }
+            if("stringValidator".equalsIgnoreCase(inputValidator)) {
+              clsName = "io.swagger.inflector.validators.StringTypeValidator";          
+            }
+            InputConverter.getInstance().addValidator((Validator)Class.forName(clsName).newInstance());
+          }
+          catch (Exception e) {
+            LOGGER.warn("unable to add validator `" + inputValidator + "`");
+          }
+        }
+      }
+      else {
+        InputConverter.getInstance().defaultValidators();
+      }
+      
+      // converters
+      if(config.getInputConverters() != null && config.getInputConverters().size() > 0) {
+        for(String converter : config.getInputConverters()) {
+          try {
+            String clsName = converter;
+            if("defaultConverter".equalsIgnoreCase(converter)) {
+              clsName = "io.swagger.inflector.converters.DefaultConverter";
+            }
+            InputConverter.getInstance().addConverter((Converter)Class.forName(clsName).newInstance());
+          }
+          catch (Exception e) {
+            LOGGER.warn("unable to add validator `" + converter + "`");
+          }
+        }
+      }
+      else {
+        InputConverter.getInstance().defaultConverters();
+      }
     }
 
     private String basePath(String basePath, String path) {

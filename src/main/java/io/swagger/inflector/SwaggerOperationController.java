@@ -30,6 +30,7 @@ import io.swagger.inflector.validators.ValidationException;
 import io.swagger.inflector.validators.ValidationMessage;
 import io.swagger.models.Model;
 import io.swagger.models.Operation;
+import io.swagger.models.parameters.FormParameter;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.SerializableParameter;
 
@@ -39,9 +40,13 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.Iterator;
 
 import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -53,9 +58,20 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JavaType;
 
+
 public class SwaggerOperationController extends ReflectionUtils implements Inflector<ContainerRequestContext, Response> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerOperationController.class);
+    
+    private static Set<String> commonHeaders = new HashSet<String>();
 
+    static {
+      commonHeaders.add("Host");
+      commonHeaders.add("User-Agent");
+      commonHeaders.add("Accept");
+      commonHeaders.add("Content-Type");
+      commonHeaders.add("Content-Length");
+    }
+    
     private String path;
     private String httpMethod;
     private Operation operation;
@@ -156,18 +172,51 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     @Override
     public Response apply(ContainerRequestContext ctx) {
         List<Parameter> parameters = operation.getParameters();
+        RequestContext requestContext = new RequestContext()
+            .headers(ctx.getHeaders())
+            .mediaType(ctx.getMediaType())
+            .acceptableMediaTypes(ctx.getAcceptableMediaTypes());
         Object[] args = new Object[parameters.size() + 1];
         if (parameters != null) {
             int i = 0;
 
-            args[i] = new RequestContext()
-                .headers(ctx.getHeaders())
-                .mediaType(ctx.getMediaType())
-                .acceptableMediaTypes(ctx.getAcceptableMediaTypes());
+            args[i] = requestContext;
             i += 1;
             List<ValidationMessage> missingParams = new ArrayList<ValidationMessage>();
             UriInfo uri = ctx.getUriInfo();
             String formDataString = null;
+            String[] parts = null;
+            Set<String> existingKeys = new HashSet<String>();
+            
+            for(Iterator<String> x = uri.getQueryParameters().keySet().iterator(); x.hasNext(); ) {
+              existingKeys.add(x.next() + ": qp");
+            }
+            for(Iterator<String> x = uri.getPathParameters().keySet().iterator(); x.hasNext(); ) {
+              existingKeys.add(x.next() + ": pp");
+            }
+            for(Iterator<String> x = ctx.getHeaders().keySet().iterator(); x.hasNext(); ) {
+              String key = x.next();
+//              if(!commonHeaders.contains(key))
+//                existingKeys.add(key);
+            }
+            for(Parameter p : parameters) {
+              if(p instanceof FormParameter) {
+                if (formDataString == null) {
+                  // can only read stream once
+                  try {
+                    formDataString = IOUtils.toString(ctx.getEntityStream(), "UTF-8");
+                    parts = formDataString.split("&");
+  
+                    for (String part : parts) {
+                        String[] kv = part.split("=");
+                        existingKeys.add(kv[0] + ": fp");
+                    }
+                  } catch (IOException e) {
+                    e.printStackTrace();
+                  }
+                }
+              }
+            }
 /*
             // TODO handling for multipart
             if(ctx.getMediaType().isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {
@@ -191,39 +240,45 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                         if ("file".equals(sp.getType())) {
                             o = ctx.getEntityStream();
                         } else {
-                            if (formDataString == null) {
-                                // can only read stream once
-                                formDataString = IOUtils.toString(ctx.getEntityStream(), "UTF-8");
-                            }
                             if (formDataString != null) {
-                                // TODO need to decode
-                                String[] parts = formDataString.split("&");
                                 for (String part : parts) {
                                     String[] kv = part.split("=");
-                                    if (kv != null && kv.length == 2) {
-                                        // TODO how to handle arrays here?
-                                        String key = kv[0];
-                                        String value = kv[1];
-                                        if (parameter.getName().equals(key)) {
-                                            JavaType jt = parameterClasses[i];
-                                            Class<?> cls = jt.getRawClass();
-                                            try {
-                                                o = validator.convertAndValidate(Arrays.asList(value), parameter, cls, definitions);
-                                            }
-                                            catch (ConversionException e) {
-                                                missingParams.add(e.getError());
-                                            }
-                                            catch (ValidationException e) {
-                                                missingParams.add(e.getValidationMessage());
-                                            }
-                                        }
-                                    }
+                                    if(kv != null) {
+                                      if(kv.length > 0) {
+                                        existingKeys.remove(kv[0] + ": fp");
+                                      }
+                                      if (kv.length == 2) {
+                                          // TODO how to handle arrays here?
+                                          String key = kv[0];
+                                          String value = kv[1];
+                                          if (parameter.getName().equals(key)) {
+                                              JavaType jt = parameterClasses[i];
+                                              Class<?> cls = jt.getRawClass();
+                                              try {
+                                                  o = validator.convertAndValidate(Arrays.asList(value), parameter, cls, definitions);
+                                              }
+                                              catch (ConversionException e) {
+                                                  missingParams.add(e.getError());
+                                              }
+                                              catch (ValidationException e) {
+                                                  missingParams.add(e.getValidationMessage());
+                                              }
+                                          }
+                                      }
+                                   }
                                 }
                             }
                         }
                     }
                     else {
                         try {
+                            String paramName = parameter.getName();
+                            if("query".equals(in)) {
+                              existingKeys.remove(paramName + ": qp");
+                            }
+                            if("path".equals(in)) {
+                              existingKeys.remove(paramName + ": pp");
+                            }
                             JavaType jt = parameterClasses[i];
                             Class<?> cls = jt.getRawClass();
                             if ("body".equals(in)) {
@@ -248,14 +303,14 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                     }
                 } catch (NumberFormatException e) {
                     LOGGER.error("Couldn't find " + parameter.getName() + " (" + in + ") to " + parameterClasses[i], e);
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
 
                 args[i] = o;
                 i += 1;
             }
-
+            if(existingKeys.size() > 0) {
+                LOGGER.debug("unexpected keys: " + existingKeys);
+            }
             if (missingParams.size() > 0) {
                 StringBuilder builder = new StringBuilder();
                 builder.append("Input error");
@@ -337,12 +392,37 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             io.swagger.models.Response response = responses.get(defaultKey);
             Object output = ExampleBuilder.fromProperty(response.getSchema(), definitions);
             if (output != null) {
-                return Response.status(code).entity(output).build();
+                ResponseContext resp = new ResponseContext().entity(output);
+                setContentType(requestContext, resp, operation);
+                if(resp.getContentType() != null)
+                  return Response.status(code).entity(output).type(resp.getContentType()).build();
+                else
+                  return Response.status(code).entity(output).build();
             }
             return Response.status(code).build();
         }
-
-        // TODO: might need to check possible response types
         return Response.ok().build();
+    }
+    
+    public void setContentType(RequestContext res, ResponseContext resp, Operation operation) {
+        // honor what has been set, it may be determined by business logic in the controller
+        if(resp.getContentType() != null) {
+          return;
+        }
+        List<String> available = operation.getProduces();
+        if(available != null) {
+          for(String a : available) {
+            MediaType mt = MediaType.valueOf(a);
+            for(MediaType acceptable : res.getAcceptableMediaTypes()) {
+              if(mt.isCompatible(acceptable)) {
+                resp.setContentType(mt);
+                return;
+              }
+            }
+          }
+          if(available.size() > 0) {
+            resp.setContentType(MediaType.valueOf(available.get(0)));
+          }
+        }
     }
 }

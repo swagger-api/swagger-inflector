@@ -23,7 +23,7 @@ import io.swagger.inflector.examples.ExampleBuilder;
 import io.swagger.inflector.examples.XmlExampleSerializer;
 import io.swagger.inflector.examples.models.Example;
 import io.swagger.inflector.processors.JsonExampleDeserializer;
-import io.swagger.inflector.processors.JsonExampleSerializer;
+import io.swagger.inflector.processors.JsonNodeExampleSerializer;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
 import io.swagger.models.Xml;
@@ -51,7 +51,7 @@ public class ExampleBuilderTest {
     static {
         // register the JSON serializer
         SimpleModule simpleModule = new SimpleModule();
-        simpleModule.addSerializer(new JsonExampleSerializer());
+        simpleModule.addSerializer(new JsonNodeExampleSerializer());
         Json.mapper().registerModule(simpleModule);
         Yaml.mapper().registerModule(simpleModule);
     }
@@ -172,7 +172,7 @@ public class ExampleBuilderTest {
 
         // register the JSON serializer
         SimpleModule simpleModule = new SimpleModule();
-        simpleModule.addSerializer(new JsonExampleSerializer());
+        simpleModule.addSerializer(new JsonNodeExampleSerializer());
         simpleModule.addDeserializer(Example.class, new JsonExampleDeserializer());
         Json.mapper().registerModule(simpleModule);
 

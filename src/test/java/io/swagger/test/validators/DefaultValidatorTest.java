@@ -25,20 +25,25 @@ import io.swagger.models.properties.*;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-
 import java.util.Arrays;
 
 public class DefaultValidatorTest {
+    InputConverter converter;
+  
+    @BeforeClass
+    public void setup() {
+        converter = InputConverter.getInstance()
+            .defaultConverters()
+            .defaultValidators();
+    }
+    
     @Test
     public void testOptionalParameter() throws Exception {
         Parameter parameter = new QueryParameter()
             .name("test")
             .property(new StringProperty());
 
-        InputConverter.getInstance().validate(null, parameter);
+        converter.validate(null, parameter);
     }
 
     @Test(expectedExceptions = ValidationException.class)
@@ -48,7 +53,7 @@ public class DefaultValidatorTest {
             .required(true)
             .property(new StringProperty());
 
-        InputConverter.getInstance().validate(null, parameter);
+        converter.validate(null, parameter);
     }
 
     @Test(expectedExceptions = ConversionException.class)
@@ -58,6 +63,6 @@ public class DefaultValidatorTest {
             .required(true)
             .property(new IntegerProperty());
 
-        InputConverter.getInstance().convertAndValidate(Arrays.asList("oops"), parameter, Integer.class, null);
+        converter.convertAndValidate(Arrays.asList("oops"), parameter, Integer.class, null);
     }
 }

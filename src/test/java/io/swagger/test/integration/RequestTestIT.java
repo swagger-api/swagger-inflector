@@ -23,7 +23,6 @@ import io.swagger.test.client.ApiClient;
 import io.swagger.test.client.ApiException;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -48,7 +47,7 @@ public class RequestTestIT {
         assertNotNull(str);
     }
 
-    @Test
+    @org.junit.Test
     public void verifyModelMappingFromExtensions() throws Exception {
         String path = "/withModel/3";
         String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);

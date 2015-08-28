@@ -37,8 +37,18 @@ public class ResponseContext {
         return this;
     }
 
+    public ResponseContext contentType(String contentType) {
+        this.contentType = MediaType.valueOf(contentType);
+        return this;
+    }
+
     public ResponseContext status(Status status) {
         this.status = status;
+        return this;
+    }
+
+    public ResponseContext status(int status) {
+        this.status = Status.fromStatusCode(status);
         return this;
     }
 
