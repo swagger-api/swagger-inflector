@@ -3,7 +3,6 @@ package io.swagger.inflector.utils;
 
 import io.swagger.inflector.models.ApiError;
 
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
