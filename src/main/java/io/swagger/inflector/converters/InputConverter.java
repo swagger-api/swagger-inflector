@@ -4,18 +4,30 @@ import io.swagger.inflector.validators.*;
 import io.swagger.models.Model;
 import io.swagger.models.parameters.Parameter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class InputConverter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(InputConverter.class);
     private static InputConverter INSTANCE = new InputConverter();
     private List<Validator> validationChain = new ArrayList<Validator>();
     private List<Converter> converterChain = new ArrayList<Converter>();
 
     public static InputConverter getInstance() {
         return INSTANCE;
+    }
+    
+    public List<Validator> getValidators() {
+      return validationChain;
+    }
+
+    public List<Converter> getConverters() {
+      return converterChain;
     }
 
     public void addConverter(Converter converter) {
@@ -25,8 +37,13 @@ public class InputConverter {
           matched = true;
         }
       }
-      if(!matched)
-         converterChain.add(converter);
+      if(!matched) {
+        LOGGER.debug("adding " + converter.getClass().getName());
+        converterChain.add(converter);
+      }
+      else {
+        LOGGER.debug("skipping " + converter.getClass().getName());
+      }
     }
 
     public void addConverter(Converter converter, boolean first) {
@@ -81,6 +98,7 @@ public class InputConverter {
         Object o = null;
         if(itr.hasNext()) {
             Converter converter = itr.next();
+            LOGGER.debug("using converter `" + converter.getClass().getName() + "`");
             o = converter.convert(value, parameter, cls, definitions, itr);
         }
 

@@ -172,9 +172,10 @@ public class SwaggerInflector extends ResourceConfig {
       for(Class<?> exceptionMapper : config.getExceptionMappers()) {
         register(exceptionMapper);        
       }
-      
+
       // validators
       if(config.getInputValidators() != null && config.getInputValidators().size() > 0) {
+        InputConverter.getInstance().getValidators().clear();
         for(String inputValidator : config.getInputValidators()) {
           try {
             String clsName = inputValidator;
@@ -191,21 +192,24 @@ public class SwaggerInflector extends ResourceConfig {
           }
           catch (Exception e) {
             LOGGER.warn("unable to add validator `" + inputValidator + "`");
+            e.printStackTrace();
           }
         }
       }
       else {
         InputConverter.getInstance().defaultValidators();
       }
-      
+
       // converters
       if(config.getInputConverters() != null && config.getInputConverters().size() > 0) {
+        InputConverter.getInstance().getConverters().clear();
         for(String converter : config.getInputConverters()) {
           try {
             String clsName = converter;
             if("defaultConverter".equalsIgnoreCase(converter)) {
               clsName = "io.swagger.inflector.converters.DefaultConverter";
             }
+            LOGGER.debug("adding converter `" + clsName + "`");
             InputConverter.getInstance().addConverter((Converter)Class.forName(clsName).newInstance());
           }
           catch (Exception e) {

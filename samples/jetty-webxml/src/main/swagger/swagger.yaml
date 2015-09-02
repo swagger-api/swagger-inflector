@@ -180,6 +180,9 @@ paths:
           required: true
           type: integer
           format: int64
+          enum:
+            - 0
+            - 1
       responses:
         "200":
           description: successful operation

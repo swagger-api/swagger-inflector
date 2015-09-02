@@ -18,4 +18,4 @@ inputValidators:
 
 # loads all by default, or pick and choose
 inputConverters:
-  - defaultConverter
+  - io.swagger.sample.converters.SampleConverter
