@@ -19,10 +19,7 @@ package io.swagger.inflector;
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.converters.Converter;
 import io.swagger.inflector.converters.InputConverter;
-import io.swagger.inflector.processors.JsonExampleProvider;
-import io.swagger.inflector.processors.JsonNodeExampleSerializer;
-import io.swagger.inflector.processors.XMLExampleProvider;
-import io.swagger.inflector.processors.YamlExampleProvider;
+import io.swagger.inflector.processors.*;
 import io.swagger.inflector.validators.DefaultValidator;
 import io.swagger.inflector.validators.NumericValidator;
 import io.swagger.inflector.validators.StringTypeValidator;
@@ -143,11 +140,13 @@ public class SwaggerInflector extends ResourceConfig {
       SimpleModule simpleModule = new SimpleModule();
       simpleModule.addSerializer(new JsonNodeExampleSerializer());
 
+
       // JSON
       if(config.getEntityProcessors().contains("json")) {
         Json.mapper().registerModule(simpleModule);
         register(JacksonJsonProvider.class);
         register(JsonExampleProvider.class);
+        register(JsonProvider.class);
         enableSwaggerJSON(swagger);
       }
 
