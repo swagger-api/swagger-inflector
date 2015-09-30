@@ -5,3 +5,6 @@ swaggerUrl: ./src/main/swagger/swagger.yaml
 # add any model mappings you like
 modelMappings:
   Pet: io.swagger.sample.models.Pet
+entityProcessors:
+  - json
+  - xml
