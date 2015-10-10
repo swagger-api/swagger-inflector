@@ -98,21 +98,21 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
 
         for (int i = 0; i < args.length; i++) {
             if (i == 0) {
-                builder.append(RequestContext.class.getCanonicalName() + " request");
+                builder.append(RequestContext.class.getCanonicalName()).append(" request");
             } else {
                 builder.append(", ");
                 if(args[i] == null) {
                   LOGGER.error("didn't expect a null class for " + operation.getParameters().get(i - 1).getName());
                 }
                 else if(args[i].getRawClass() != null) {
-                  builder.append(args[i].getRawClass().toString());
+                  builder.append(args[i].getRawClass().getName());
                   builder.append(" ").append(operation.getParameters().get(i - 1).getName());
                 }
             }
         }
         builder.append(")");
 
-        LOGGER.debug("looking for operation: " + builder.toString());
+        LOGGER.debug("looking for operation: `public io.swagger.inflector.models.ResponseContext" + builder.toString() + "`");
 
         this.method = detectMethod(operation);
         if (method == null) {
@@ -187,7 +187,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             String formDataString = null;
             String[] parts = null;
             Set<String> existingKeys = new HashSet<String>();
-            
+
             for(Iterator<String> x = uri.getQueryParameters().keySet().iterator(); x.hasNext(); ) {
               existingKeys.add(x.next() + ": qp");
             }
@@ -339,7 +339,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             }
         }
         if(method != null) {
-          LOGGER.info("calling method " + method + " on controller " + this.controller + " with args " + args);
+          LOGGER.info("calling method " + method + " on controller " + this.controller + " with args " + Arrays.toString(args));
           try {
               Object response = method.invoke(controller, args);
               if (response instanceof ResponseContext) {

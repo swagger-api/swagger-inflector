@@ -182,7 +182,7 @@ public class ReflectionUtils {
             return tf.constructType(config.getModelMapping(name));
         }
         if(model.getVendorExtensions() != null && model.getVendorExtensions().get("x-swagger-router-model") != null) {
-            String modelName = (String) model.getVendorExtensions().get("x-swagger-router-model");
+            String modelName = (String) model.getVendorExtensions().get("x-swagger-router-model").toString();
             Class<?> cls = loadClass(modelName);
             if(cls != null) {
                 return tf.constructType(cls);
