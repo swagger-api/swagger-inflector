@@ -369,6 +369,7 @@ paths:
       tags:
         - test2
       operationId: withModel
+      x-swagger-router-controller: TestController
       parameters:
         - name: id
           in: path
