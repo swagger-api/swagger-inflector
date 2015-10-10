@@ -47,7 +47,7 @@ echo "then open a browser at open http://localhost:8000"
 
 echo ""
 echo "you can run your server as follows:"
-echo "mvn package"
+echo "mvn package jetty:run"
 echo ""
 echo "and your swagger listing will be at http://localhost:8080/{basePath}/swagger.json"
 echo ""
