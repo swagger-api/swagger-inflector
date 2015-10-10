@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package io.swagger.inflector;
+package io.swagger.inflector.controllers;
 
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.converters.ConversionException;
@@ -424,6 +424,14 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             resp.setContentType(MediaType.valueOf(available.get(0)));
           }
         }
+    }
+
+    public String getOperationSignature() {
+        return operationSignature;
+    }
+
+    public void setOperationSignature(String operationSignature) {
+        this.operationSignature = operationSignature;
     }
 
     public String getControllerName() {

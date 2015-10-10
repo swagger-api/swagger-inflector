@@ -17,12 +17,13 @@
 package io.swagger.inflector;
 
 import io.swagger.inflector.config.Configuration;
+import io.swagger.inflector.controllers.InflectResultController;
+import io.swagger.inflector.controllers.SwaggerOperationController;
+import io.swagger.inflector.controllers.SwaggerResourceController;
 import io.swagger.inflector.converters.Converter;
 import io.swagger.inflector.converters.InputConverter;
+import io.swagger.inflector.models.InflectResult;
 import io.swagger.inflector.processors.*;
-import io.swagger.inflector.validators.DefaultValidator;
-import io.swagger.inflector.validators.NumericValidator;
-import io.swagger.inflector.validators.StringTypeValidator;
 import io.swagger.inflector.validators.Validator;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import io.swagger.models.Model;
@@ -30,13 +31,11 @@ import io.swagger.models.Operation;
 import io.swagger.models.Path;
 import io.swagger.models.Swagger;
 import io.swagger.parser.SwaggerParser;
+import io.swagger.parser.util.SwaggerDeserializationResult;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.HttpMethod;
@@ -61,6 +60,7 @@ public class SwaggerInflector extends ResourceConfig {
     private String originalBasePath;
     private ServletContext servletContext;
     private Map<String, List<String>> missingOperations = new HashMap<String, List<String>>();
+    private Set<String> unimplementedMappedModels = new TreeSet<String>();
 
     public SwaggerInflector(Configuration configuration) {
         init(configuration);
@@ -87,7 +87,11 @@ public class SwaggerInflector extends ResourceConfig {
 
     protected void init(Configuration configuration) {
         config = configuration;
-        Swagger swagger = new SwaggerParser().read(config.getSwaggerUrl(), null, true);
+        SwaggerDeserializationResult swaggerParseResult = new SwaggerParser().readWithInfo(config.getSwaggerUrl(), null, true);
+
+
+
+        Swagger swagger = swaggerParseResult.getSwagger();
 
         if (swagger != null) {
             originalBasePath = swagger.getBasePath();
@@ -219,6 +223,21 @@ public class SwaggerInflector extends ResourceConfig {
         } else {
             InputConverter.getInstance().defaultConverters();
         }
+
+        InflectResult result = new InflectResult();
+        for(String key: swaggerParseResult.getMessages()) {
+            result.specParseMessage(key);
+        }
+        for(String key: missingOperations.keySet()) {
+            result.unimplementedControllers(key, missingOperations.get(key));
+        }
+        for(String model: config.getUnimplementedModels()) {
+            result.unimplementedModel(model);
+        }
+        for(String model: unimplementedMappedModels) {
+            result.unimplementedModel(model);
+        }
+
         if (Configuration.Environment.DEVELOPMENT.equals(configuration.getEnvironment())) {
             if(missingOperations.size() > 0) {
                 LOGGER.debug("There are unimplemented operations!");
@@ -229,6 +248,14 @@ public class SwaggerInflector extends ResourceConfig {
                     LOGGER.debug(" - " + val);
                 }
             }
+            final Resource.Builder builder = Resource.builder();
+            builder.path(basePath(originalBasePath, "/debug.json"))
+                    .addMethod(HttpMethod.GET)
+                    .produces(MediaType.APPLICATION_JSON)
+                    .handledBy(new InflectResultController(result))
+                    .build();
+
+            registerResources(builder.build());
         }
         else if (Configuration.Environment.STAGING.equals(configuration.getEnvironment())) {
             if(missingOperations.size() > 0) {
@@ -292,14 +319,15 @@ public class SwaggerInflector extends ResourceConfig {
         SwaggerOperationController controller = new SwaggerOperationController(config, pathString, method, operation, definitions);
         if (controller.getMethod() == null) {
             if (controller.getMethodName() != null) {
-                List<String> missingMethods = missingOperations.get(controller.getMethodName());
+                List<String> missingMethods = missingOperations.get(controller.getControllerName());
                 if (missingMethods == null) {
                     missingMethods = new ArrayList<String>();
-                    missingOperations.put(controller.getMethodName(), missingMethods);
+                    missingOperations.put(controller.getControllerName(), missingMethods);
                 }
-                missingMethods.add(controller.getMethodName());
+                missingMethods.add(controller.getOperationSignature());
             }
         }
+        unimplementedMappedModels.addAll(controller.getUnimplementedMappedModels());
         builder.addMethod(method).handledBy(controller);
     }
 }

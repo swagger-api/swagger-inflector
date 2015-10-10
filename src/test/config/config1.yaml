@@ -4,6 +4,8 @@ swaggerUrl: ./src/test/swagger/sample1.yaml
 modelMappings:
   User: io.swagger.test.models.User
 
+# allows environment to be develop, staging, production.  Production will not start if
+# unimplemented models or methods are detected
 environment: development
 
 # loads all by default, or pick and choose

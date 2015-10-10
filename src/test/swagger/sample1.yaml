@@ -6,7 +6,7 @@ info:
   description: description
   termsOfService: terms
   contact:
-    name: API Team 
+    name: API Team
     url: http://swagger.io
     email: apiteam@swagger.io
   license:
@@ -399,6 +399,44 @@ paths:
           description: 'success!'
           schema:
             $ref: '#/definitions/Address'
+  '/unmappedWithModel/{id}':
+    post:
+      tags:
+        - test2
+      operationId: unmappedWithModelInput
+      x-swagger-router-controller: TestController
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: animal
+          in: body
+          schema:
+            $ref: '#/definitions/Address'
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            $ref: '#/definitions/Address'
+  '/unmappedWithUndefinedModel/{id}':
+    post:
+      tags:
+        - test2
+      operationId: unmappedWithUndefinedModel
+      x-swagger-router-controller: TestController
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: mysteryModel
+          in: body
+          schema:
+            $ref: '#/definitions/UnmappedModel'
+      responses:
+        '200':
+          description: 'success!'
   '/withPath/{id}':
     get:
       tags:
@@ -520,3 +558,10 @@ definitions:
       address:
         $ref: '#/definitions/Address'
     description: 'the name!'
+  UnmappedModel:
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string

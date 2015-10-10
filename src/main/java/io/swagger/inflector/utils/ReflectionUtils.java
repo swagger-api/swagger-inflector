@@ -27,14 +27,9 @@ import io.swagger.models.properties.*;
 
 import io.swagger.util.Json;
 
-import java.io.InputStream;
 import java.io.File;
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.validation.constraints.Null;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
@@ -50,6 +45,7 @@ public class ReflectionUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReflectionUtils.class);
 
     protected Configuration config;
+    protected Set<String> unimplementedMappedModels = new TreeSet<String>();
 
     public void setConfiguration(Configuration config) {
         this.config = config;
@@ -181,8 +177,11 @@ public class ReflectionUtils {
         if(config != null && config.getModelMapping(name) != null) {
             return tf.constructType(config.getModelMapping(name));
         }
+
         if(model.getVendorExtensions() != null && model.getVendorExtensions().get("x-swagger-router-model") != null) {
-            String modelName = (String) model.getVendorExtensions().get("x-swagger-router-model").toString();
+            String modelName = model.getVendorExtensions().get("x-swagger-router-model").toString();
+            // it's legal to have quotes around the model name so trim them
+            modelName = modelName.replaceAll("^\"|\"$", "");
             Class<?> cls = loadClass(modelName);
             if(cls != null) {
                 return tf.constructType(cls);
@@ -194,8 +193,9 @@ public class ReflectionUtils {
             if(cls != null) {
                 return tf.constructType(cls);
             }
+            unimplementedMappedModels.add(modelName);
         }
-        // load from default package
+        // try to load from default package
         if(!"".equals(name)) {
             String modelName = name;
             if(config.getModelPackage() != null && name.indexOf(".") == -1) {
@@ -204,6 +204,11 @@ public class ReflectionUtils {
             Class<?> cls = loadClass(modelName);
             if(cls != null) {
                 return tf.constructType(cls);
+            }
+            // check to avoid double-counting
+            if(model.getVendorExtensions() == null || model.getVendorExtensions().get("x-swagger-router-model") == null) {
+                // add to unimplemented models
+                unimplementedMappedModels.add(modelName);
             }
         }
         if(model instanceof ArrayModel) {
@@ -279,6 +284,7 @@ public class ReflectionUtils {
     public String getControllerName(Operation operation) {
         String name = (String) operation.getVendorExtensions().get("x-swagger-router-controller");
         if (name != null) {
+            name = name.replaceAll("^\"|\"$", "");
             if (name.indexOf(".") == -1 && config.getControllerPackage() != null) {
                 return config.getControllerPackage() + "." + name;
             } else {
@@ -293,5 +299,13 @@ public class ReflectionUtils {
             return className;
         }
         return null;
+    }
+
+    public Set<String> getUnimplementedMappedModels() {
+        return unimplementedMappedModels;
+    }
+
+    public void setUnimplementedMappedModels(Set<String> unimplementedMappedModels) {
+        this.unimplementedMappedModels = unimplementedMappedModels;
     }
 }

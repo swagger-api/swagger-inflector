@@ -14,23 +14,23 @@
  *  limitations under the License.
  */
 
-package io.swagger.inflector;
+package io.swagger.inflector.controllers;
 
-import io.swagger.models.Swagger;
+import io.swagger.inflector.models.InflectResult;
 import org.glassfish.jersey.process.Inflector;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 
-public class SwaggerResourceController implements Inflector<ContainerRequestContext, Response> {
-    private Swagger swagger;
+public class InflectResultController implements Inflector<ContainerRequestContext, Response> {
+    private InflectResult result;
 
-    public SwaggerResourceController(Swagger swagger) {
-        this.swagger = swagger;
+    public InflectResultController(InflectResult result) {
+        this.result = result;
     }
 
     @Override
     public Response apply(ContainerRequestContext arg0) {
-        return Response.ok().entity(swagger).build();
+        return Response.ok().entity(result).build();
     }
 }

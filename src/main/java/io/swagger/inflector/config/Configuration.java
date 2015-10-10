@@ -45,6 +45,7 @@ public class Configuration {
     private int invalidRequestCode = 400;
     private String rootPath = "";
     private Environment environment = Environment.DEVELOPMENT;
+    private Set<String> unimplementedModels = new HashSet<String>();
     private List<String> inputConverters = new ArrayList<String>();
     private List<String> inputValidators = new ArrayList<String>();
     private List<String> entityProcessors = new ArrayList<String>();
@@ -195,6 +196,7 @@ public class Configuration {
                 cls = classLoader.loadClass(className);
                 modelMap.put(key, cls);
             } catch (ClassNotFoundException e) {
+                unimplementedModels.add(className);
                 LOGGER.error("unable to add mapping for `" + key + "` : `" + className + "`, " + e.getMessage());
             }
         }
@@ -271,5 +273,13 @@ public class Configuration {
     }
     public void setEnvironment(Environment environment) {
         this.environment = environment;
+    }
+
+    public Set<String> getUnimplementedModels() {
+        return unimplementedModels;
+    }
+
+    public void setUnimplementedModels(Set<String> unimplementedModels) {
+        this.unimplementedModels = unimplementedModels;
     }
 }
