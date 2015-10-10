@@ -4,6 +4,8 @@ swaggerUrl: ./src/test/swagger/sample1.yaml
 modelMappings:
   User: io.swagger.test.models.User
 
+environment: development
+
 # loads all by default, or pick and choose
 entityProcessors:
   - json
