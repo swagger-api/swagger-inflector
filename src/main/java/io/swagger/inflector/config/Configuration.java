@@ -16,6 +16,7 @@
 
 package io.swagger.inflector.config;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.inflector.converters.InputConverter;
 import io.swagger.util.Yaml;
 
@@ -43,9 +44,27 @@ public class Configuration {
     private String swaggerUrl;
     private int invalidRequestCode = 400;
     private String rootPath = "";
+    private Environment environment = Environment.DEVELOPMENT;
     private List<String> inputConverters = new ArrayList<String>();
     private List<String> inputValidators = new ArrayList<String>();
     private List<String> entityProcessors = new ArrayList<String>();
+
+    public static enum Environment {
+        DEVELOPMENT(1, "development"), STAGING(2, "staging"), PRODUCTION(3, "production");
+
+        private Integer id;
+        private String name;
+
+        private Environment(final Integer id, final String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        @JsonValue
+        public String getName() {
+            return name;
+        }
+    }
 
     public static Configuration read() {
         String configLocation = System.getProperty("config", "inflector.yaml");
@@ -81,6 +100,11 @@ public class Configuration {
         Configuration config = Yaml.mapper().readValue(new File(configLocation), Configuration.class);
         if(config != null && config.getExceptionMappers().size() == 0) {
           config.setExceptionMappers(Configuration.defaultConfiguration().getExceptionMappers());
+        }
+        String environment = System.getProperty("environment");
+        if(environment != null) {
+            System.out.println("Overriding environment to " + environment);
+            config.setEnvironment(Environment.valueOf(environment));
         }
         return config;
     }
@@ -240,5 +264,12 @@ public class Configuration {
     }
     public void setInputConverters(List<String> inputConverters) {
         this.inputConverters = inputConverters;
+    }
+
+    public Environment getEnvironment() {
+        return environment;
+    }
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 }
