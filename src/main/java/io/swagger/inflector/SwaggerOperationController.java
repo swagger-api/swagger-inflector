@@ -80,6 +80,9 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     private JavaType[] parameterClasses = null;
     private Map<String, Model> definitions;
     private InputConverter validator;
+    private String controllerName;
+    private String methodName;
+    private String operationSignature;
 
     public SwaggerOperationController(Configuration config, String path, String httpMethod, Operation operation, Map<String, Model> definitions) {
         this.setConfiguration(config);
@@ -87,10 +90,18 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
         this.httpMethod = httpMethod;
         this.operation = operation;
         this.definitions = definitions;
-
         this.validator = InputConverter.getInstance();
+        this.method = detectMethod(operation);
+        if (method == null) {
+            LOGGER.debug("no method `" + methodName + "` in `" + controllerName + "` to map to, using mock response");
+        }
+    }
 
-        JavaType[] args = getOperationParameterClasses(operation, definitions);
+    public Method detectMethod(Operation operation) {
+        controllerName = getControllerName(operation);
+        methodName = getMethodName(path, httpMethod, operation);
+        JavaType[] args = getOperationParameterClasses(operation, this.definitions);
+
         StringBuilder builder = new StringBuilder();
 
         builder.append(getMethodName(path, httpMethod, operation))
@@ -102,40 +113,31 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             } else {
                 builder.append(", ");
                 if(args[i] == null) {
-                  LOGGER.error("didn't expect a null class for " + operation.getParameters().get(i - 1).getName());
+                    LOGGER.error("didn't expect a null class for " + operation.getParameters().get(i - 1).getName());
                 }
                 else if(args[i].getRawClass() != null) {
-                  builder.append(args[i].getRawClass().getName());
-                  builder.append(" ").append(operation.getParameters().get(i - 1).getName());
+                    builder.append(args[i].getRawClass().getName());
+                    builder.append(" ").append(operation.getParameters().get(i - 1).getName());
                 }
             }
         }
         builder.append(")");
 
-        LOGGER.debug("looking for operation: `public io.swagger.inflector.models.ResponseContext" + builder.toString() + "`");
+        operationSignature = "public io.swagger.inflector.models.ResponseContext " + builder.toString();
 
-        this.method = detectMethod(operation);
-        if (method == null) {
-            this.parameterClasses = args;
-            LOGGER.debug("no method to map to, using mock response");
-        }
-    }
+        LOGGER.info("looking for method: `" + operationSignature + "` in class `" + controllerName + "`");
+        this.parameterClasses = args;
 
-    public Method detectMethod(Operation operation) {
-        String controller = getControllerName(operation);
-        String methodName = getMethodName(path, httpMethod, operation);
-
-        if (controller != null && methodName != null) {
+        if (controllerName != null && methodName != null) {
             try {
                 Class<?> cls;
                 try {
-                    cls = Class.forName(controller);
+                    cls = Class.forName(controllerName);
                 } catch (ClassNotFoundException e) {
-                    controller = controller + "Controller";
-                    cls = Class.forName(controller);
+                    controllerName = controllerName + "Controller";
+                    cls = Class.forName(controllerName);
                 }
 
-                JavaType[] args = getOperationParameterClasses(operation, this.definitions);
                 Method[] methods = cls.getMethods();
                 for (Method method : methods) {
                     if (methodName.equals(method.getName())) {
@@ -150,14 +152,12 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                             if (matched) {
                                 this.parameterClasses = args;
                                 this.controller = cls.newInstance();
-                                LOGGER.debug("matched " + method);
+                                LOGGER.debug("found class `" + controllerName + "`");
                                 return method;
                             }
                         }
                     }
                 }
-
-                LOGGER.debug("no match in " + controller);
             } catch (ClassNotFoundException e) {
                 LOGGER.debug("didn't find class " + controller);
             } catch (IllegalAccessException e) {
@@ -424,5 +424,29 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             resp.setContentType(MediaType.valueOf(available.get(0)));
           }
         }
+    }
+
+    public String getControllerName() {
+        return controllerName;
+    }
+
+    public void setControllerName(String controllerName) {
+        this.controllerName = controllerName;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
+    public Method getMethod() {
+        return method;
+    }
+
+    public void setMethod(Method method) {
+        this.method = method;
     }
 }

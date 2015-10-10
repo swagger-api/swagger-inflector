@@ -33,6 +33,9 @@ import io.swagger.parser.SwaggerParser;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
@@ -57,168 +60,202 @@ public class SwaggerInflector extends ResourceConfig {
     private String basePath;
     private String originalBasePath;
     private ServletContext servletContext;
+    private Map<String, List<String>> missingOperations = new HashMap<String, List<String>>();
 
     public SwaggerInflector(Configuration configuration) {
-      init(configuration);
+        init(configuration);
     }
 
     public SwaggerInflector(@Context ServletContext ctx) {
         this.servletContext = ctx;
         Configuration config = null;
-        if(servletContext != null) {
-          if(servletContext.getInitParameter("inflector-config") != null) {
-            try {
-              config = Configuration.read(servletContext.getInitParameter("inflector-config"));
-            } catch (Exception e) {
-              LOGGER.error("unable to read configuration from init param");
+        if (servletContext != null) {
+            if (servletContext.getInitParameter("inflector-config") != null) {
+                try {
+                    config = Configuration.read(servletContext.getInitParameter("inflector-config"));
+                } catch (Exception e) {
+                    LOGGER.error("unable to read configuration from init param");
+                }
             }
-          }
         }
-        if(config == null) {
-          // use default location
-          config = Configuration.read();
+        if (config == null) {
+            // use default location
+            config = Configuration.read();
         }
         init(config);
     }
 
     protected void init(Configuration configuration) {
-      config = configuration;
-      Swagger swagger = new SwaggerParser().read(config.getSwaggerUrl(), null, true);
+        config = configuration;
+        Swagger swagger = new SwaggerParser().read(config.getSwaggerUrl(), null, true);
 
-      if (swagger != null) {
-          originalBasePath = swagger.getBasePath();
-          StringBuilder b = new StringBuilder();
+        if (swagger != null) {
+            originalBasePath = swagger.getBasePath();
+            StringBuilder b = new StringBuilder();
 
-          if(!"".equals(configuration.getRootPath()))
-            b.append(configuration.getRootPath());
-          if(swagger.getBasePath() != null) {
-            b.append(swagger.getBasePath());
-          }
-          if(b.length() > 0) {
-            swagger.setBasePath(b.toString());
-          }
-
-          Map<String, Path> paths = swagger.getPaths();
-          Map<String, Model> definitions = swagger.getDefinitions();
-          for (String pathString : paths.keySet()) {
-              Path path = paths.get(pathString);
-              final Resource.Builder builder = Resource.builder();
-              this.basePath = configuration.getRootPath() + swagger.getBasePath();
-
-              builder.path(basePath(originalBasePath, pathString));
-              Operation operation;
-
-              operation = path.getGet();
-              if (operation != null) {
-                  addOperation(pathString, builder, HttpMethod.GET, operation, definitions);
-              }
-              operation = path.getPost();
-              if (operation != null) {
-                  addOperation(pathString, builder, HttpMethod.POST, operation, definitions);
-              }
-              operation = path.getPut();
-              if (operation != null) {
-                  addOperation(pathString, builder, HttpMethod.PUT, operation, definitions);
-              }
-              operation = path.getDelete();
-              if (operation != null) {
-                  addOperation(pathString, builder, HttpMethod.DELETE, operation, definitions);
-              }
-              operation = path.getOptions();
-              if (operation != null) {
-                  addOperation(pathString, builder, HttpMethod.OPTIONS, operation, definitions);
-              }
-              operation = path.getPatch();
-              if (operation != null) {
-                  addOperation(pathString, builder, "PATCH", operation, definitions);
-              }
-              registerResources(builder.build());
-          }
-      } else {
-          LOGGER.error("No swagger definition detected!  Not much to do...");
-      }
-      SimpleModule simpleModule = new SimpleModule();
-      simpleModule.addSerializer(new JsonNodeExampleSerializer());
-
-
-      // JSON
-      if(config.getEntityProcessors().contains("json")) {
-        Json.mapper().registerModule(simpleModule);
-        register(JacksonJsonProvider.class);
-        register(JsonExampleProvider.class);
-        register(JsonProvider.class);
-        enableSwaggerJSON(swagger);
-      }
-
-      // XML
-      if(config.getEntityProcessors().contains("xml")) {
-        register(JacksonJaxbXMLProvider.class);
-        register(XMLExampleProvider.class);
-      }
-      
-      // YAML
-      if(config.getEntityProcessors().contains("yaml")) {
-        Yaml.mapper().registerModule(simpleModule);
-        register(YamlExampleProvider.class);
-        enableSwaggerYAML(swagger);
-      }
-
-      register(new MultiPartFeature());
-
-      // Swagger serializers
-      register(SwaggerSerializers.class);
-
-      for(Class<?> exceptionMapper : config.getExceptionMappers()) {
-        register(exceptionMapper);        
-      }
-
-      // validators
-      if(config.getInputValidators() != null && config.getInputValidators().size() > 0) {
-        InputConverter.getInstance().getValidators().clear();
-        for(String inputValidator : config.getInputValidators()) {
-          try {
-            String clsName = inputValidator;
-            if("requiredFieldValidator".equalsIgnoreCase(inputValidator)) {
-              clsName = "io.swagger.inflector.validators.DefaultValidator";
+            if (!"".equals(configuration.getRootPath()))
+                b.append(configuration.getRootPath());
+            if (swagger.getBasePath() != null) {
+                b.append(swagger.getBasePath());
             }
-            if("numericValidator".equalsIgnoreCase(inputValidator)) {
-              clsName = "io.swagger.inflector.validators.NumericValidator";
+            if (b.length() > 0) {
+                swagger.setBasePath(b.toString());
             }
-            if("stringValidator".equalsIgnoreCase(inputValidator)) {
-              clsName = "io.swagger.inflector.validators.StringTypeValidator";          
+
+            Map<String, Path> paths = swagger.getPaths();
+            Map<String, Model> definitions = swagger.getDefinitions();
+            for (String pathString : paths.keySet()) {
+                Path path = paths.get(pathString);
+                final Resource.Builder builder = Resource.builder();
+                this.basePath = configuration.getRootPath() + swagger.getBasePath();
+
+                builder.path(basePath(originalBasePath, pathString));
+                Operation operation;
+
+                operation = path.getGet();
+                if (operation != null) {
+                    addOperation(pathString, builder, HttpMethod.GET, operation, definitions);
+                }
+                operation = path.getPost();
+                if (operation != null) {
+                    addOperation(pathString, builder, HttpMethod.POST, operation, definitions);
+                }
+                operation = path.getPut();
+                if (operation != null) {
+                    addOperation(pathString, builder, HttpMethod.PUT, operation, definitions);
+                }
+                operation = path.getDelete();
+                if (operation != null) {
+                    addOperation(pathString, builder, HttpMethod.DELETE, operation, definitions);
+                }
+                operation = path.getOptions();
+                if (operation != null) {
+                    addOperation(pathString, builder, HttpMethod.OPTIONS, operation, definitions);
+                }
+                operation = path.getPatch();
+                if (operation != null) {
+                    addOperation(pathString, builder, "PATCH", operation, definitions);
+                }
+                registerResources(builder.build());
             }
-            InputConverter.getInstance().addValidator((Validator)Class.forName(clsName).newInstance());
-          }
-          catch (Exception e) {
-            LOGGER.warn("unable to add validator `" + inputValidator + "`");
-            e.printStackTrace();
-          }
+        } else {
+            LOGGER.error("No swagger definition detected!  Not much to do...");
         }
-      }
-      else {
-        InputConverter.getInstance().defaultValidators();
-      }
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addSerializer(new JsonNodeExampleSerializer());
 
-      // converters
-      if(config.getInputConverters() != null && config.getInputConverters().size() > 0) {
-        InputConverter.getInstance().getConverters().clear();
-        for(String converter : config.getInputConverters()) {
-          try {
-            String clsName = converter;
-            if("defaultConverter".equalsIgnoreCase(converter)) {
-              clsName = "io.swagger.inflector.converters.DefaultConverter";
-            }
-            LOGGER.debug("adding converter `" + clsName + "`");
-            InputConverter.getInstance().addConverter((Converter)Class.forName(clsName).newInstance());
-          }
-          catch (Exception e) {
-            LOGGER.warn("unable to add validator `" + converter + "`");
-          }
+
+        // JSON
+        if (config.getEntityProcessors().contains("json")) {
+            Json.mapper().registerModule(simpleModule);
+            register(JacksonJsonProvider.class);
+            register(JsonExampleProvider.class);
+            register(JsonProvider.class);
+            enableSwaggerJSON(swagger);
         }
-      }
-      else {
-        InputConverter.getInstance().defaultConverters();
-      }
+
+        // XML
+        if (config.getEntityProcessors().contains("xml")) {
+            register(JacksonJaxbXMLProvider.class);
+            register(XMLExampleProvider.class);
+        }
+
+        // YAML
+        if (config.getEntityProcessors().contains("yaml")) {
+            Yaml.mapper().registerModule(simpleModule);
+            register(YamlExampleProvider.class);
+            enableSwaggerYAML(swagger);
+        }
+
+        register(new MultiPartFeature());
+
+        // Swagger serializers
+        register(SwaggerSerializers.class);
+
+        for (Class<?> exceptionMapper : config.getExceptionMappers()) {
+            register(exceptionMapper);
+        }
+
+        // validators
+        if (config.getInputValidators() != null && config.getInputValidators().size() > 0) {
+            InputConverter.getInstance().getValidators().clear();
+            for (String inputValidator : config.getInputValidators()) {
+                try {
+                    String clsName = inputValidator;
+                    if ("requiredFieldValidator".equalsIgnoreCase(inputValidator)) {
+                        clsName = "io.swagger.inflector.validators.DefaultValidator";
+                    }
+                    if ("numericValidator".equalsIgnoreCase(inputValidator)) {
+                        clsName = "io.swagger.inflector.validators.NumericValidator";
+                    }
+                    if ("stringValidator".equalsIgnoreCase(inputValidator)) {
+                        clsName = "io.swagger.inflector.validators.StringTypeValidator";
+                    }
+                    InputConverter.getInstance().addValidator((Validator) Class.forName(clsName).newInstance());
+                } catch (Exception e) {
+                    LOGGER.warn("unable to add validator `" + inputValidator + "`");
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            InputConverter.getInstance().defaultValidators();
+        }
+
+        // converters
+        if (config.getInputConverters() != null && config.getInputConverters().size() > 0) {
+            InputConverter.getInstance().getConverters().clear();
+            for (String converter : config.getInputConverters()) {
+                try {
+                    String clsName = converter;
+                    if ("defaultConverter".equalsIgnoreCase(converter)) {
+                        clsName = "io.swagger.inflector.converters.DefaultConverter";
+                    }
+                    LOGGER.debug("adding converter `" + clsName + "`");
+                    InputConverter.getInstance().addConverter((Converter) Class.forName(clsName).newInstance());
+                } catch (Exception e) {
+                    LOGGER.warn("unable to add validator `" + converter + "`");
+                }
+            }
+        } else {
+            InputConverter.getInstance().defaultConverters();
+        }
+        if (Configuration.Environment.DEVELOPMENT.equals(configuration.getEnvironment())) {
+            if(missingOperations.size() > 0) {
+                LOGGER.debug("There are unimplemented operations!");
+            }
+            for(String key: missingOperations.keySet()) {
+                LOGGER.debug(key);
+                for(String val: missingOperations.get(key)) {
+                    LOGGER.debug(" - " + val);
+                }
+            }
+        }
+        else if (Configuration.Environment.STAGING.equals(configuration.getEnvironment())) {
+            if(missingOperations.size() > 0) {
+                LOGGER.warn("There are unimplemented operations!");
+            }
+            for(String key: missingOperations.keySet()) {
+                LOGGER.warn(key);
+                for(String val: missingOperations.get(key)) {
+                    LOGGER.warn(" - " + val);
+                }
+            }
+        }
+        else if (Configuration.Environment.PRODUCTION.equals(configuration.getEnvironment())) {
+            if(missingOperations.size() > 0) {
+                LOGGER.error("There are unimplemented operations!");
+            }
+            for(String key: missingOperations.keySet()) {
+                LOGGER.error(key);
+                for(String val: missingOperations.get(key)) {
+                    LOGGER.error(" - " + val);
+                }
+            }
+            if(missingOperations.size() > 0) {
+                LOGGER.error("Unable to start due to unimplemented methods");
+                throw new RuntimeException("Unable to start due to unimplemented methods");
+            }
+        }
     }
 
     private String basePath(String basePath, String path) {
@@ -231,10 +268,10 @@ public class SwaggerInflector extends ResourceConfig {
     private void enableSwaggerJSON(Swagger swagger) {
         final Resource.Builder builder = Resource.builder();
         builder.path(basePath(originalBasePath, "/swagger.json"))
-            .addMethod(HttpMethod.GET)
-            .produces(MediaType.APPLICATION_JSON)
-            .handledBy(new SwaggerResourceController(swagger))
-            .build();
+                .addMethod(HttpMethod.GET)
+                .produces(MediaType.APPLICATION_JSON)
+                .handledBy(new SwaggerResourceController(swagger))
+                .build();
 
         registerResources(builder.build());
     }
@@ -242,17 +279,27 @@ public class SwaggerInflector extends ResourceConfig {
     private void enableSwaggerYAML(Swagger swagger) {
         final Resource.Builder builder = Resource.builder();
         builder.path(basePath(originalBasePath, "/swagger.yaml"))
-            .addMethod(HttpMethod.GET)
-            .produces("application/yaml")
-            .handledBy(new SwaggerResourceController(swagger))
-            .build();
+                .addMethod(HttpMethod.GET)
+                .produces("application/yaml")
+                .handledBy(new SwaggerResourceController(swagger))
+                .build();
 
         registerResources(builder.build());
     }
 
     private void addOperation(String pathString, Resource.Builder builder, String method, Operation operation, Map<String, Model> definitions) {
-        // TODO: handle other content types
-        LOGGER.debug("adding operation `" + pathString + "` " + method);
-        builder.addMethod(method).handledBy(new SwaggerOperationController(config, pathString, method, operation, definitions));
+        LOGGER.debug("adding operation for `" + pathString + "` " + method);
+        SwaggerOperationController controller = new SwaggerOperationController(config, pathString, method, operation, definitions);
+        if (controller.getMethod() == null) {
+            if (controller.getMethodName() != null) {
+                List<String> missingMethods = missingOperations.get(controller.getMethodName());
+                if (missingMethods == null) {
+                    missingMethods = new ArrayList<String>();
+                    missingOperations.put(controller.getMethodName(), missingMethods);
+                }
+                missingMethods.add(controller.getMethodName());
+            }
+        }
+        builder.addMethod(method).handledBy(controller);
     }
 }
