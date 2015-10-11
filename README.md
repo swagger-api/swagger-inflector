@@ -285,15 +285,15 @@ EntityProcessorFactory.addProcessor(myProcessor);
 
 #### Development Lifecycle
 
-There are three modes that the Inflector supports:
+There are three modes that the Inflector supports, as configured by the `environment` attribute in the inflector config:
 
- - development.  In this mode, mock responses will be sent for controllers which are not implemented.  The intention
+ - **development**.  In this mode, mock responses will be sent for controllers which are not implemented.  The intention
    is to allow you to quickly iterate on the implementation of the design.  In addition, missing model implementations
    are tolerated and supported.
 
- - staging.  Warning messages will be logged when starting the service for any missing controller, method, or model.
+ - **staging**.  Warning messages will be logged when starting the service for any missing controller, method, or model.
 
- - production.  The expectation is all methods and declared (manually mapped) models exist.  If they don't, it'll throw
+ - **production**.  The expectation is all methods and declared (manually mapped) models exist.  If they don't, it'll throw
    nasty errors and the server will not start.
 
 In development mode, there is a `/debug.json` page which shows implementation details of the inflector service.
