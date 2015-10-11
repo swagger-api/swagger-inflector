@@ -62,6 +62,10 @@ Inflector uses a single yaml file for configuration.  The default file is `infle
 The configuration supports the following:
 
 ```yaml
+# mode (development | staging | production).  Default is development, and this value will be overridden by a system property
+# -Denvironment=production for example
+environment: development
+
 # configure your default controller package for method discovery
 controllerPackage: io.swagger.sample.controllers
 
@@ -278,6 +282,24 @@ There is a pluggable framework for handling different content types.  You can re
 EntityProcessor myProcessor = new MyEntityProcessor();  // implements EntityProcessor
 EntityProcessorFactory.addProcessor(myProcessor);
 ```
+
+#### Development Lifecycle
+
+There are three modes that the Inflector supports:
+
+ - development.  In this mode, mock responses will be sent for controllers which are not implemented.  The intention
+   is to allow you to quickly iterate on the implementation of the design.  In addition, missing model implementations
+   are tolerated and supported.
+
+ - staging.  Warning messages will be logged when starting the service for any missing controller, method, or model.
+
+ - production.  The expectation is all methods and declared (manually mapped) models exist.  If they don't, it'll throw
+   nasty errors and the server will not start.
+
+In development mode, there is a `/debug.json` page which shows implementation details of the inflector service.
+
+If your Swagger Description is unparsable, the server will throw ugly errors on startup and the `debug.json` page will
+   give indications as to why.
 
 #### Samples
 
