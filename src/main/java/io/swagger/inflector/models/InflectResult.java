@@ -99,7 +99,7 @@ public class InflectResult {
     }
 
     public Integer getUnimplementedModelCount() {
-        if(this.unimplementedModels.size() == 0) {
+        if(unimplementedModels == null || this.unimplementedModels.size() == 0) {
             return null;
         }
         return this.unimplementedModels.size();
