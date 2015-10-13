@@ -298,7 +298,7 @@ public class ReflectionUtils {
             }
             return className;
         }
-        return null;
+        return config.getControllerPackage() + "." + StringUtils.capitalize(sanitizeToJava("default"));
     }
 
     public Set<String> getUnimplementedMappedModels() {
