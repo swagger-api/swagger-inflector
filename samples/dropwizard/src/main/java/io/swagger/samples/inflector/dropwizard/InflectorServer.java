@@ -16,25 +16,22 @@
 
 package io.swagger.samples.inflector.dropwizard;
 
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.swagger.inflector.SwaggerInflector;
 import io.swagger.inflector.config.Configuration;
-import io.swagger.inflector.processors.ExampleSerializer;
 import io.swagger.inflector.processors.JsonNodeExampleSerializer;
+import io.swagger.inflector.processors.XMLExampleProvider;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
-
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
-
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
-
 import java.util.EnumSet;
 
 public class InflectorServer extends Application<InflectorServerConfiguration> {
@@ -65,7 +62,7 @@ public class InflectorServer extends Application<InflectorServerConfiguration> {
         environment.jersey().register(SwaggerSerializers.class);
 
         // example serializers
-        environment.jersey().register(ExampleSerializer.class);
+        environment.jersey().register(XMLExampleProvider.class);
         
         // mappers
         SimpleModule simpleModule = new SimpleModule();
