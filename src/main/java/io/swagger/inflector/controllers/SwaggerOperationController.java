@@ -16,6 +16,7 @@
 
 package io.swagger.inflector.controllers;
 
+import com.fasterxml.jackson.databind.JavaType;
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.converters.ConversionException;
 import io.swagger.inflector.converters.InputConverter;
@@ -33,30 +34,20 @@ import io.swagger.models.Operation;
 import io.swagger.models.parameters.FormParameter;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.SerializableParameter;
-
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.Iterator;
+import org.apache.commons.io.IOUtils;
+import org.glassfish.jersey.process.Inflector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
-
-import org.apache.commons.io.IOUtils;
-import org.glassfish.jersey.process.Inflector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.databind.JavaType;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
 
 
 public class SwaggerOperationController extends ReflectionUtils implements Inflector<ContainerRequestContext, Response> {
@@ -172,10 +163,8 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     @Override
     public Response apply(ContainerRequestContext ctx) {
         List<Parameter> parameters = operation.getParameters();
-        RequestContext requestContext = new RequestContext()
-            .headers(ctx.getHeaders())
-            .mediaType(ctx.getMediaType())
-            .acceptableMediaTypes(ctx.getAcceptableMediaTypes());
+        RequestContext requestContext = new RequestContext(ctx);
+
         Object[] args = new Object[parameters.size() + 1];
         if (parameters != null) {
             int i = 0;
