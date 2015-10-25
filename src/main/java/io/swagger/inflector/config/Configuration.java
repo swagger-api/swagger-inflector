@@ -49,6 +49,7 @@ public class Configuration {
     private List<String> inputConverters = new ArrayList<String>();
     private List<String> inputValidators = new ArrayList<String>();
     private List<String> entityProcessors = new ArrayList<String>();
+    private ControllerFactory controllerFactory = new DefaultControllerFactory();
 
     public static enum Environment {
         DEVELOPMENT(1, "development"), STAGING(2, "staging"), PRODUCTION(3, "production");
@@ -151,6 +152,11 @@ public class Configuration {
         return this;
     }
 
+    public Configuration controllerInstantiator( ControllerFactory instantiator ){
+        this.controllerFactory = instantiator;
+        return this;
+    }
+
     public Configuration swaggerUrl(String swaggerUrl) {
         this.swaggerUrl = swaggerUrl;
         return this;
@@ -169,6 +175,14 @@ public class Configuration {
     }
 
     public Configuration() {
+    }
+
+    public ControllerFactory getControllerFactory() {
+        return controllerFactory;
+    }
+
+    public void setControllerFactory(ControllerFactory controllerFactory) {
+        this.controllerFactory = controllerFactory;
     }
 
     public void setControllerPackage(String controllerPackage) {
