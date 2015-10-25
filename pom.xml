@@ -403,8 +403,8 @@
     </dependencies>
     <properties>
         <maven-plugin-version>1.0.0</maven-plugin-version>
-        <swagger-core-version>1.5.4-SNAPSHOT</swagger-core-version>
-        <swagger-parser-version>1.0.12-SNAPSHOT</swagger-parser-version>
+        <swagger-core-version>1.5.4</swagger-core-version>
+        <swagger-parser-version>1.0.11</swagger-parser-version>
         <joda-time-version>2.2</joda-time-version>
         <joda-version>1.2</joda-version>
         <jetty-version>9.2.9.v20150224</jetty-version>
