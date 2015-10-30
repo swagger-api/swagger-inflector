@@ -365,6 +365,11 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
               if( e.getCause() instanceof ApiException ){
                   throw (ApiException)e.getCause();
               }
+              else if( e instanceof InvocationTargetException &&
+                      ((InvocationTargetException)e).getTargetException() instanceof  ApiException ){
+                  throw (ApiException) ((InvocationTargetException)e).getTargetException();
+              }
+
               ApiError error = new ApiError()
                     .message("failed to invoke controller")
                     .code(500);
