@@ -88,9 +88,6 @@ public class SwaggerInflector extends ResourceConfig {
     protected void init(Configuration configuration) {
         config = configuration;
         SwaggerDeserializationResult swaggerParseResult = new SwaggerParser().readWithInfo(config.getSwaggerUrl(), null, true);
-
-
-
         Swagger swagger = swaggerParseResult.getSwagger();
 
         if (swagger != null) {
