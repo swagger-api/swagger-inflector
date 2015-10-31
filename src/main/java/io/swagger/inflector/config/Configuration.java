@@ -16,23 +16,16 @@
 
 package io.swagger.inflector.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.inflector.converters.InputConverter;
 import io.swagger.util.Yaml;
-
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.File;
+import java.io.InputStream;
+import java.util.*;
 
 public class Configuration {
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
@@ -42,6 +35,7 @@ public class Configuration {
     private String controllerPackage;
     private String modelPackage;
     private String swaggerUrl;
+    private String filterClass;
     private int invalidRequestCode = 400;
     private String rootPath = "";
     private Environment environment = Environment.DEVELOPMENT;
@@ -152,6 +146,11 @@ public class Configuration {
         return this;
     }
 
+    public Configuration filterClass(String filterClass) {
+        this.filterClass = filterClass;
+        return this;
+    }
+
     public Configuration modelMap(String name, Class<?> cls) {
         modelMap.put(name, cls);
         return this;
@@ -196,6 +195,14 @@ public class Configuration {
 
     public String getControllerPackage() {
         return controllerPackage;
+    }
+
+    public String getFilterClass() {
+        return filterClass;
+    }
+
+    public void setFilterClass(String filterClass) {
+        this.filterClass = filterClass;
     }
 
     public void setModelPackage(String modelPackage) {

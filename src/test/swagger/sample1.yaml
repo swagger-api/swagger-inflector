@@ -16,6 +16,13 @@ info:
 basePath: /api
 
 paths:
+  /hidden:
+    get:
+      x-inflector-hidden: true
+      responses:
+        default:
+          description: ok
+
   /formTest:
     post:
       operationId: formTest

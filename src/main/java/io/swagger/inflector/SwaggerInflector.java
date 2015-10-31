@@ -16,6 +16,11 @@
 
 package io.swagger.inflector;
 
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider;
+import io.swagger.config.FilterFactory;
+import io.swagger.core.filter.SwaggerSpecFilter;
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.controllers.InflectResultController;
 import io.swagger.inflector.controllers.SwaggerOperationController;
@@ -24,6 +29,7 @@ import io.swagger.inflector.converters.Converter;
 import io.swagger.inflector.converters.InputConverter;
 import io.swagger.inflector.models.InflectResult;
 import io.swagger.inflector.processors.*;
+import io.swagger.inflector.utils.DefaultSpecFilter;
 import io.swagger.inflector.validators.Validator;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import io.swagger.models.Model;
@@ -34,14 +40,6 @@ import io.swagger.parser.SwaggerParser;
 import io.swagger.parser.util.SwaggerDeserializationResult;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
-
-import java.util.*;
-
-import javax.servlet.ServletContext;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -49,9 +47,11 @@ import org.glassfish.jersey.server.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider;
+import javax.servlet.ServletContext;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import java.util.*;
 
 public class SwaggerInflector extends ResourceConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerInflector.class);
@@ -88,8 +88,6 @@ public class SwaggerInflector extends ResourceConfig {
     protected void init(Configuration configuration) {
         config = configuration;
         SwaggerDeserializationResult swaggerParseResult = new SwaggerParser().readWithInfo(config.getSwaggerUrl(), null, true);
-
-
 
         Swagger swagger = swaggerParseResult.getSwagger();
 
@@ -148,6 +146,20 @@ public class SwaggerInflector extends ResourceConfig {
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(new JsonNodeExampleSerializer());
 
+        // filters
+        if (config.getFilterClass() != null) {
+            if(!config.getFilterClass().isEmpty()) {
+                try {
+                    FilterFactory.setFilter((SwaggerSpecFilter) SwaggerInflector.class.getClassLoader().loadClass(config.getFilterClass()).newInstance());
+                }
+                catch (Exception e) {
+                    LOGGER.error("Unable to set filter class " + config.getFilterClass());
+                }
+            }
+        }
+        else {
+            FilterFactory.setFilter(new DefaultSpecFilter());
+        }
 
         // JSON
         if (config.getEntityProcessors().contains("json")) {
