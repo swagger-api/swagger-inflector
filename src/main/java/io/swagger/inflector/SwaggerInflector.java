@@ -261,7 +261,7 @@ public class SwaggerInflector extends ResourceConfig {
                 }
             }
             final Resource.Builder builder = Resource.builder();
-            builder.path(basePath(originalBasePath, "/debug.json"))
+            builder.path(basePath(originalBasePath, config.getSwaggerBase() + "debug.json"))
                     .addMethod(HttpMethod.GET)
                     .produces(MediaType.APPLICATION_JSON)
                     .handledBy(new InflectResultController(result))
@@ -306,7 +306,7 @@ public class SwaggerInflector extends ResourceConfig {
 
     private void enableSwaggerJSON(Swagger swagger) {
         final Resource.Builder builder = Resource.builder();
-        builder.path(basePath(originalBasePath, "/swagger.json"))
+        builder.path(basePath(originalBasePath, config.getSwaggerBase() + "swagger.json"))
                 .addMethod(HttpMethod.GET)
                 .produces(MediaType.APPLICATION_JSON)
                 .handledBy(new SwaggerResourceController(swagger))
@@ -317,7 +317,7 @@ public class SwaggerInflector extends ResourceConfig {
 
     private void enableSwaggerYAML(Swagger swagger) {
         final Resource.Builder builder = Resource.builder();
-        builder.path(basePath(originalBasePath, "/swagger.yaml"))
+        builder.path(basePath(originalBasePath, config.getSwaggerBase() + "swagger.yaml"))
                 .addMethod(HttpMethod.GET)
                 .produces("application/yaml")
                 .handledBy(new SwaggerResourceController(swagger))
