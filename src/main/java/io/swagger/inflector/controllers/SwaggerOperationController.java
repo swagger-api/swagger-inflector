@@ -107,7 +107,11 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                     LOGGER.error("didn't expect a null class for " + operation.getParameters().get(i - 1).getName());
                 }
                 else if(args[i].getRawClass() != null) {
-                    builder.append(args[i].getRawClass().getName());
+                    String className = args[i].getRawClass().getName();
+                    if(className.startsWith("java.lang.")) {
+                        className = className.substring("java.lang.".length());
+                    }
+                    builder.append(className);
                     builder.append(" ").append(operation.getParameters().get(i - 1).getName());
                 }
             }
