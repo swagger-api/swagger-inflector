@@ -50,6 +50,11 @@ public class Configuration {
     private List<String> inputValidators = new ArrayList<String>();
     private List<String> entityProcessors = new ArrayList<String>();
     private ControllerFactory controllerFactory = new DefaultControllerFactory();
+    private String swaggerBase = "/";
+
+    public String getSwaggerBase() {
+        return swaggerBase;
+    }
 
     public static enum Environment {
         DEVELOPMENT(1, "development"), STAGING(2, "staging"), PRODUCTION(3, "production");
@@ -295,5 +300,9 @@ public class Configuration {
 
     public void setUnimplementedModels(Set<String> unimplementedModels) {
         this.unimplementedModels = unimplementedModels;
+    }
+
+    public void setSwaggerBase(String swaggerBase) {
+        this.swaggerBase = swaggerBase;
     }
 }
