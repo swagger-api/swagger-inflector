@@ -23,6 +23,7 @@ import io.swagger.test.models.User;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
+import java.util.List;
 
 public class TestController {
     public ResponseContext formTest(RequestContext request, String user) {
@@ -56,8 +57,14 @@ public class TestController {
             .entity("ok");
     }
 
-    public ResponseContext withModelArray(RequestContext request, String id, Address[] modelArray) {
+    public ResponseContext withModelArray(RequestContext request, String id, List<Address> modelArray) {
         return new ResponseContext()
             .status(Status.OK);
+    }
+
+    public ResponseContext arrayInputTest(RequestContext request, List<String> users) {
+        return new ResponseContext()
+            .status(Status.OK)
+            .entity(users);
     }
 }

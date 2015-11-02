@@ -16,19 +16,19 @@
 
 package io.swagger.test.integration;
 
-import org.joda.time.DateTime;
-import org.testng.annotations.Test;
-
 import io.swagger.test.client.ApiClient;
 import io.swagger.test.client.ApiException;
-
-import java.util.HashMap;
+import org.joda.time.DateTime;
+import org.testng.annotations.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 public class RequestTestIT {
     ApiClient client = new ApiClient();
@@ -52,6 +52,18 @@ public class RequestTestIT {
         String path = "/withModel/3";
         String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
         assertEquals(str, "ok");
+    }
+
+    @org.junit.Test
+    public void verifyStringArrayQueryParam() throws Exception {
+        client.setDebugging(true);
+
+        String path = "/arrayInputTest";
+        Map<String, String> queryParameters = new HashMap<String, String>();
+
+        queryParameters.put("users", "a,b,c");
+        String str = client.invokeAPI(path, "GET", queryParameters, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertEquals(str, "[\"a\",\"b\",\"c\"]");
     }
 
     @Test

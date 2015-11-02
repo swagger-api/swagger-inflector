@@ -1,5 +1,7 @@
 package io.swagger.inflector.converters;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.swagger.inflector.utils.ReflectionUtils;
 import io.swagger.inflector.validators.ValidationError;
 import io.swagger.inflector.validators.ValidationMessage;
@@ -10,14 +12,6 @@ import io.swagger.models.parameters.SerializableParameter;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.util.Json;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -27,8 +21,8 @@ import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import java.io.IOException;
+import java.util.*;
 
 public class DefaultConverter extends ReflectionUtils implements Converter {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultConverter.class);
@@ -69,6 +63,10 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
                         }
                         if ("ssv".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
                             parts = obj.split(" ");
+                        }
+                        if ("multi".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
+                            parts = new String[1];
+                            parts[0]= obj;
                         }
                         for (String p : parts) {
                             Object ob = cast(p, inner, innerClass);

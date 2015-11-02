@@ -23,6 +23,23 @@ paths:
         default:
           description: ok
 
+  /arrayInputTest:
+    get:
+      operationId: arrayInputTest
+      x-swagger-router-controller: TestController
+      tags:
+        - inputTest
+      parameters:
+        - name: users
+          in: query
+          required: true
+          type: array
+          items:
+            type: string
+          collectionFormat: csv
+      responses:
+        '200':
+          description: 'success!'
   /formTest:
     post:
       operationId: formTest

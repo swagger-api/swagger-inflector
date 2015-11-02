@@ -16,30 +16,29 @@
 
 package io.swagger.inflector.utils;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.models.RequestContext;
 import io.swagger.models.ArrayModel;
 import io.swagger.models.Model;
 import io.swagger.models.Operation;
 import io.swagger.models.RefModel;
-import io.swagger.models.parameters.*;
+import io.swagger.models.parameters.BodyParameter;
+import io.swagger.models.parameters.Parameter;
+import io.swagger.models.parameters.SerializableParameter;
 import io.swagger.models.properties.*;
-
 import io.swagger.util.Json;
-
-import java.io.File;
-import java.math.BigDecimal;
-import java.util.*;
-
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import java.io.File;
+import java.math.BigDecimal;
+import java.util.*;
 
 public class ReflectionUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReflectionUtils.class);
@@ -91,6 +90,35 @@ public class ReflectionUtils {
     public JavaType getTypeFromProperty(String type, String format, Property property, Map<String, Model> definitions) {
         TypeFactory tf = Json.mapper().getTypeFactory();
 
+
+        if(property instanceof ArrayProperty) {
+            ArrayProperty ap = (ArrayProperty)property;
+            Property inner = ap.getItems();
+            JavaType innerType = getTypeFromProperty(null, null, inner, definitions);
+            return tf.constructCollectionType(List.class, innerType);
+        }
+        if(property instanceof MapProperty) {
+            MapProperty mp = (MapProperty) property;
+            Property inner = mp.getAdditionalProperties();
+            JavaType innerType = getTypeFromProperty(null, null, inner, definitions);
+            return tf.constructMapLikeType(Map.class, getTypeFromProperty("string", null, null, definitions), innerType);
+        }
+        if(property instanceof RefProperty) {
+            RefProperty ref = (RefProperty) property;
+            if(definitions != null) {
+                Model model = definitions.get(ref.getSimpleRef());
+                if(model != null) {
+                    JavaType mt = getTypeFromModel(ref.getSimpleRef(), model, definitions);
+                    if(mt != null) {
+                        return mt;
+                    }
+                }
+            }
+        }
+        if("array".equals(type)) {
+            JavaType innerType = getTypeFromProperty(null, null, property, definitions);
+            return tf.constructCollectionType(List.class, innerType);
+        }
         if(("byte".equals(type)) || property instanceof ByteArrayProperty) {
             return tf.constructType(Byte[].class);
         }
@@ -139,30 +167,6 @@ public class ReflectionUtils {
             // fallback
             LOGGER.warn("falling back to `string` with format `" + format + "`");
             return tf.constructType(String.class);
-        }
-        if(property instanceof ArrayProperty) {
-            ArrayProperty ap = (ArrayProperty)property;
-            Property inner = ap.getItems();
-            JavaType innerType = getTypeFromProperty(null, null, inner, definitions);
-            return tf.constructArrayType(innerType);
-        }
-        if(property instanceof MapProperty) {
-            MapProperty mp = (MapProperty) property;
-            Property inner = mp.getAdditionalProperties();
-            JavaType innerType = getTypeFromProperty(null, null, inner, definitions);
-            return tf.constructMapLikeType(Map.class, getTypeFromProperty("string", null, null, definitions), innerType);
-        }
-        if(property instanceof RefProperty) {
-            RefProperty ref = (RefProperty) property;
-            if(definitions != null) {
-                Model model = definitions.get(ref.getSimpleRef());
-                if(model != null) {
-                    JavaType mt = getTypeFromModel(ref.getSimpleRef(), model, definitions);
-                    if(mt != null) {
-                        return mt;
-                    }
-                }
-            }
         }
         return null;
     }
