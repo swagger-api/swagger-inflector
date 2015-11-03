@@ -16,12 +16,15 @@
 
 package io.swagger.sample.controllers;
 
+import io.swagger.inflector.models.ApiError;
 import io.swagger.inflector.models.RequestContext;
 import io.swagger.inflector.models.ResponseContext;
+import io.swagger.inflector.utils.ApiException;
 import io.swagger.test.models.Address;
 import io.swagger.test.models.User;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.List;
 
@@ -66,5 +69,21 @@ public class TestController {
         return new ResponseContext()
             .status(Status.OK)
             .entity(users);
+    }
+
+    public ResponseContext throwApiException(RequestContext request) {
+        final Response.Status status = Response.Status.CONFLICT;
+        throw new ApiException(
+                new ApiError().code(status.getStatusCode()).message(status.getReasonPhrase()));
+    }
+
+    public ResponseContext throwApiExceptionAsCause(RequestContext request) {
+        final Response.Status status = Response.Status.CONFLICT;
+        throw new RuntimeException(new ApiException(
+                new ApiError().code(status.getStatusCode()).message(status.getReasonPhrase())));
+    }
+
+    public ResponseContext throwNonApiException(RequestContext request) {
+        throw new NullPointerException("I'm NPE!");
     }
 }

@@ -356,24 +356,19 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                   return builder.build();
               }
               return Response.ok().entity(response).build();
-          }
-          catch( ApiException e ){
-              throw e;
-          }
-          catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+          } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
               LOGGER.error("failed to invoke method " + method, e);
-              if( e.getCause() instanceof ApiException ){
-                  throw (ApiException)e.getCause();
+              for (Throwable cause = e.getCause(); cause != null;) {
+                  if (cause instanceof ApiException) {
+                      throw (ApiException) cause;
+                  }
+                  final Throwable next = cause.getCause();
+                  cause = next == cause || next == null ? null : next;
               }
-              else if( e instanceof InvocationTargetException &&
-                      ((InvocationTargetException)e).getTargetException() instanceof  ApiException ){
-                  throw (ApiException) ((InvocationTargetException)e).getTargetException();
-              }
-
               ApiError error = new ApiError()
                     .message("failed to invoke controller")
                     .code(500);
-              throw new ApiException(error);
+              throw new ApiException(error, e);
           }
         }
         Map<String, io.swagger.models.Response> responses = operation.getResponses();
