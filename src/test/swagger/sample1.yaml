@@ -557,6 +557,15 @@ paths:
       responses:
         '200':
           description: 'success!'
+  '/returnNonRfc2616Status':
+    get:
+      tags:
+        - throw
+      operationId: returnNonRfc2616Status
+      x-swagger-router-controller: TestController
+      responses:
+        '200':
+          description: 'success!'
 definitions:
   User:
     properties:

@@ -72,4 +72,15 @@ public class ResponseWithExceptionTestIT {
                     expected.getStatusCode(), "failed to invoke controller"));
         }
     }
+
+    @Test
+    public void verifyNonRfc2616Status() {
+        try {
+            client.invokeAPI("/returnNonRfc2616Status", "GET", new HashMap<String, String>(), null,
+                    new HashMap<String, String>(), null, null, null, new String[0]);
+            Assert.fail("Exception was expected!");
+        } catch (ApiException e) {
+            Assert.assertEquals(e.getCode(), 422);
+        }
+    }
 }

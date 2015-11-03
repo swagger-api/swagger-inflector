@@ -86,4 +86,8 @@ public class TestController {
     public ResponseContext throwNonApiException(RequestContext request) {
         throw new NullPointerException("I'm NPE!");
     }
+
+    public ResponseContext returnNonRfc2616Status(RequestContext request) {
+        return new ResponseContext().status(422).entity("I'm from RFC 4918");
+    }
 }
