@@ -22,10 +22,10 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response.Status;
 
 public class ResponseContext {
-    MultivaluedMap<String, String> headers = new MultivaluedHashMap<String, String>();
-    MediaType contentType;
-    Status status = Status.OK;
-    Object entity;
+    private MultivaluedMap<String, String> headers = new MultivaluedHashMap<String, String>();
+    private MediaType contentType;
+    private int status = Status.OK.getStatusCode();
+    private Object entity;
 
     public ResponseContext header(String key, String value) {
         this.headers.add(key, value);
@@ -43,12 +43,12 @@ public class ResponseContext {
     }
 
     public ResponseContext status(Status status) {
-        this.status = status;
+        this.status = status.getStatusCode();
         return this;
     }
 
     public ResponseContext status(int status) {
-        this.status = Status.fromStatusCode(status);
+        this.status = status;
         return this;
     }
 
@@ -73,11 +73,11 @@ public class ResponseContext {
         this.contentType = contentType;
     }
 
-    public Status getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 

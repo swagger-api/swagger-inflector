@@ -146,7 +146,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                             }
                             if (matched) {
                                 this.parameterClasses = args;
-                                this.controller = config.getControllerFactory().instantiateController( cls );
+                                this.controller = config.getControllerFactory().instantiateController(cls);
                                 LOGGER.debug("found class `" + controllerName + "`");
                                 return method;
                             }
@@ -358,10 +358,17 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
               return Response.ok().entity(response).build();
           } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
               LOGGER.error("failed to invoke method " + method, e);
+              for (Throwable cause = e.getCause(); cause != null;) {
+                  if (cause instanceof ApiException) {
+                      throw (ApiException) cause;
+                  }
+                  final Throwable next = cause.getCause();
+                  cause = next == cause || next == null ? null : next;
+              }
               ApiError error = new ApiError()
                     .message("failed to invoke controller")
                     .code(500);
-              throw new ApiException(error);
+              throw new ApiException(error, e);
           }
         }
         Map<String, io.swagger.models.Response> responses = operation.getResponses();

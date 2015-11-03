@@ -156,7 +156,7 @@ public class Configuration {
         return this;
     }
 
-    public Configuration controllerInstantiator( ControllerFactory instantiator ){
+    public Configuration controllerFactory( ControllerFactory instantiator ){
         this.controllerFactory = instantiator;
         return this;
     }
