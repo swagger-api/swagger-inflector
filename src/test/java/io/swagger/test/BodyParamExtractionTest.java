@@ -16,11 +16,13 @@
 
 package io.swagger.test;
 
+import com.fasterxml.jackson.databind.JavaType;
 import io.swagger.converter.ModelConverters;
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.utils.ReflectionUtils;
 import io.swagger.models.ArrayModel;
 import io.swagger.models.Model;
+import io.swagger.models.ModelImpl;
 import io.swagger.models.RefModel;
 import io.swagger.models.parameters.BodyParameter;
 import io.swagger.models.parameters.Parameter;
@@ -29,15 +31,13 @@ import io.swagger.models.properties.RefProperty;
 import io.swagger.models.properties.StringProperty;
 import io.swagger.test.models.Person;
 import io.swagger.test.models.User;
-
 import org.junit.Before;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.fasterxml.jackson.databind.JavaType;
-
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.testng.Assert.assertEquals;
 
@@ -52,6 +52,26 @@ public class BodyParamExtractionTest {
         config.addModelMapping("User", User.class);
 
         utils.setConfiguration(config);
+    }
+
+    @Test
+    public void testStringBodyParam() throws Exception {
+        Map<String, Model> definitions = new HashMap<String, Model>();
+
+        Parameter parameter = new BodyParameter().schema(new ModelImpl().type("string"));
+        JavaType jt = utils.getTypeFromParameter(parameter, definitions);
+
+        assertEquals(jt.getRawClass(), String.class);
+    }
+
+    @org.junit.Test
+    public void testUUIDBodyParam() throws Exception {
+        Map<String, Model> definitions = new HashMap<String, Model>();
+
+        Parameter parameter = new BodyParameter().schema(new ModelImpl().type("string").format("uuid"));
+        JavaType jt = utils.getTypeFromParameter(parameter, definitions);
+
+        assertEquals(jt.getRawClass(), UUID.class);
     }
 
     @Test

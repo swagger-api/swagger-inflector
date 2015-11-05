@@ -21,10 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.models.RequestContext;
-import io.swagger.models.ArrayModel;
-import io.swagger.models.Model;
-import io.swagger.models.Operation;
-import io.swagger.models.RefModel;
+import io.swagger.models.*;
 import io.swagger.models.parameters.BodyParameter;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.SerializableParameter;
@@ -233,7 +230,33 @@ public class ReflectionUtils {
                 return getTypeFromModel(name, inner, definitions);
             }
         }
+        if(model instanceof ModelImpl) {
+            ModelImpl mi = (ModelImpl) model;
+            String type = mi.getType();
+
+            Property property = propertyFromModel(mi);
+            if(property != null) {
+                return getTypeFromProperty(mi.getType(), mi.getFormat(), property, definitions);
+            }
+        }
+
         return tf.constructType(JsonNode.class);
+    }
+
+    public Property propertyFromModel(ModelImpl model) {
+        if(model.getType() == null) {
+            return null;
+        }
+        // construct property map
+        Map<PropertyBuilder.PropertyId, Object> map = new HashMap<PropertyBuilder.PropertyId, Object>();
+        if(model.getTitle() != null) map.put(PropertyBuilder.PropertyId.TITLE, model.getTitle());
+        if(model.getDescription() != null) map.put(PropertyBuilder.PropertyId.DESCRIPTION, model.getDescription());
+        if(model.getDefaultValue() != null) map.put(PropertyBuilder.PropertyId.DEFAULT, model.getDefaultValue());
+        if(model.getExample() != null) map.put(PropertyBuilder.PropertyId.EXAMPLE, model.getExample());
+        if(model.getFormat() != null) map.put(PropertyBuilder.PropertyId.FORMAT, model.getFormat());
+        if(model.getVendorExtensions() != null) map.put(PropertyBuilder.PropertyId.VENDOR_EXTENSIONS, model.getVendorExtensions());
+
+        return PropertyBuilder.build(model.getType(), model.getFormat(), map);
     }
     
     public Class<?> loadClass(String className) {

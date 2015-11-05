@@ -47,14 +47,14 @@ public class RequestTestIT {
         assertNotNull(str);
     }
 
-    @org.junit.Test
+    @Test
     public void verifyModelMappingFromExtensions() throws Exception {
         String path = "/withModel/3";
         String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
         assertEquals(str, "ok");
     }
 
-    @org.junit.Test
+    @Test
     public void verifyStringArrayQueryParam() throws Exception {
         client.setDebugging(true);
 
@@ -64,6 +64,17 @@ public class RequestTestIT {
         queryParameters.put("users", "a,b,c");
         String str = client.invokeAPI(path, "GET", queryParameters, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
         assertEquals(str, "[\"a\",\"b\",\"c\"]");
+    }
+
+
+    @org.junit.Test
+    public void verifyStringPostBody() throws Exception {
+        client.setDebugging(true);
+
+        String path = "/primitiveBody/string";
+
+        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), "string", new HashMap<String, String>(), null, "application/yaml", null, new String[0]);
+        assertEquals(str, "string");
     }
 
     @Test
