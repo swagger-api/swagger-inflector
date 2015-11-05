@@ -87,10 +87,10 @@ invalidRequestCode: 400
 
 The actual controller class for each method is located via 4 mechanisms:
 - a x-swagger-router-controller extension at the method level can specify the specific controller class
-- each tag associated with the method is assembled into the classnames <controllerPackage>.<Tag> or 
-<controllerPackage>.<Tag>Controller, the first that is found will be used
-- an optional <controllerClass> configuration parameter is appended to <controllerPackage> 
-- as a last resort a class named <controllerPackage>.Default is used
+- each tag associated with the method is assembled into the classnames &lt;controllerPackage&gt;.&lt;Tag&gt; or 
+&lt;controllerPackage&gt;.&lt;Tag&gt;Controller, the first that is found will be used
+- an optional &lt;controllerClass&gt; configuration parameter is appended to &lt;controllerPackage&gt; 
+- as a last resort a class named &lt;controllerPackage&gt;.Default is used
 
 By default the class is loaded directly with Class.forName(...).newInstance() - but you can override class creation
 by providing a custom ControllerFactory to the inflector configuration (for example if you want your controllers to be 
