@@ -46,6 +46,9 @@ public class JacksonProcessor implements EntityProcessor {
         if (mediaType.toString().equalsIgnoreCase("application/yaml")) {
             return true;
         }
+        if (mediaType.TEXT_PLAIN_TYPE.isCompatible(mediaType)) {
+            return true;
+        }
         return false;
     }
 
