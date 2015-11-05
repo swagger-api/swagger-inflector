@@ -85,10 +85,10 @@ invalidRequestCode: 400
 
 ### Locating the controller class
 
-The actual controller class for each method is located via 4 mechanisms:
+The actual controller class for each method is located via the first of the following mechanisms:
 - a x-swagger-router-controller extension at the method level can specify the specific controller class
-- each tag associated with the method is assembled into the classnames &lt;controllerPackage&gt;.&lt;Tag&gt; or 
-&lt;controllerPackage&gt;.&lt;Tag&gt;Controller, the first that is found will be used
+- each tag associated with the method is assembled into the classnames "&lt;controllerPackage&gt;.&lt;Tag&gt;" or 
+"&lt;controllerPackage&gt;.&lt;Tag&gt;Controller", the first of these classes that is found by Class.forName(...) will be used
 - an optional &lt;controllerClass&gt; configuration parameter is appended to &lt;controllerPackage&gt; 
 - as a last resort a class named &lt;controllerPackage&gt;.Default is used
 
