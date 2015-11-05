@@ -19,6 +19,7 @@ package io.swagger.inflector.utils;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import io.swagger.inflector.Constants;
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.models.RequestContext;
 import io.swagger.models.ArrayModel;
@@ -45,9 +46,24 @@ public class ReflectionUtils {
 
     protected Configuration config;
     protected Set<String> unimplementedMappedModels = new TreeSet<String>();
+    private ClassNameValidator classNameValidator = new ClassNameValidator() {
+        @Override
+        public boolean isValidClassname(String classname) {
+            try {
+                return Class.forName(classname) != null;
+            } catch (ClassNotFoundException e) {
+                LOGGER.warn( "Failed to find class [" + classname + "]");
+                return false;
+            }
+        }
+    };
 
     public void setConfiguration(Configuration config) {
         this.config = config;
+    }
+
+    public Configuration getConfiguration() {
+        return config;
     }
 
     public JavaType[] getOperationParameterClasses(Operation operation, Map<String, Model> definitions) {
@@ -182,8 +198,8 @@ public class ReflectionUtils {
             return tf.constructType(config.getModelMapping(name));
         }
 
-        if(model.getVendorExtensions() != null && model.getVendorExtensions().get("x-swagger-router-model") != null) {
-            String modelName = model.getVendorExtensions().get("x-swagger-router-model").toString();
+        if(model.getVendorExtensions() != null && model.getVendorExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL) != null) {
+            String modelName = model.getVendorExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL).toString();
             // it's legal to have quotes around the model name so trim them
             modelName = modelName.replaceAll("^\"|\"$", "");
             Class<?> cls = loadClass(modelName);
@@ -210,7 +226,7 @@ public class ReflectionUtils {
                 return tf.constructType(cls);
             }
             // check to avoid double-counting
-            if(model.getVendorExtensions() == null || model.getVendorExtensions().get("x-swagger-router-model") == null) {
+            if(model.getVendorExtensions() == null || model.getVendorExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL) == null) {
                 // add to unimplemented models
                 unimplementedMappedModels.add(modelName);
             }
@@ -286,23 +302,41 @@ public class ReflectionUtils {
     }
 
     public String getControllerName(Operation operation) {
-        String name = (String) operation.getVendorExtensions().get("x-swagger-router-controller");
+        String name = (String) operation.getVendorExtensions().get(Constants.X_SWAGGER_ROUTER_CONTROLLER);
         if (name != null) {
             name = name.replaceAll("^\"|\"$", "");
             if (name.indexOf(".") == -1 && config.getControllerPackage() != null) {
-                return config.getControllerPackage() + "." + name;
-            } else {
+                name = config.getControllerPackage() + "." + name;
+            }
+
+            if( classNameValidator.isValidClassname( name )) {
                 return name;
             }
         }
+
         if (operation.getTags() != null && operation.getTags().size() > 0) {
-            String className = StringUtils.capitalize(sanitizeToJava(operation.getTags().get(0)));
-            if (config.getControllerPackage() != null) {
-                return config.getControllerPackage() + "." + className;
+
+            for( String tag : operation.getTags()){
+                name = StringUtils.capitalize(sanitizeToJava(tag));
+                if (config.getControllerPackage() != null) {
+                    name = config.getControllerPackage() + "." + name;
+                }
+
+                if( classNameValidator.isValidClassname( name )){
+                    return name;
+                }
+                else if( classNameValidator.isValidClassname( name + "Controller" )){
+                    return name + "Controller";
+                }
             }
-            return className;
         }
-        return config.getControllerPackage() + "." + StringUtils.capitalize(sanitizeToJava("default"));
+
+        String controllerClass = config.getControllerClass();
+        if( StringUtils.isEmpty( controllerClass )){
+            controllerClass = StringUtils.capitalize(sanitizeToJava("default"));
+        }
+
+        return config.getControllerPackage() + "." + controllerClass;
     }
 
     public Set<String> getUnimplementedMappedModels() {
@@ -311,5 +345,17 @@ public class ReflectionUtils {
 
     public void setUnimplementedMappedModels(Set<String> unimplementedMappedModels) {
         this.unimplementedMappedModels = unimplementedMappedModels;
+    }
+
+    public ClassNameValidator getClassNameValidator() {
+        return classNameValidator;
+    }
+
+    public void setClassNameValidator(ClassNameValidator classNameValidator) {
+        this.classNameValidator = classNameValidator;
+    }
+
+    public interface ClassNameValidator {
+        boolean isValidClassname( String classname );
     }
 }

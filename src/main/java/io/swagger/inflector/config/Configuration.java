@@ -33,6 +33,7 @@ public class Configuration {
     private final Map<String, Class<?>> modelMap = new HashMap<String, Class<?>>();
     private Set<Class<?>> exceptionMappers = new HashSet<Class<?>>();
     private String controllerPackage;
+    private String controllerClass;
     private String modelPackage;
     private String swaggerUrl;
     private String filterClass;
@@ -195,6 +196,14 @@ public class Configuration {
 
     public String getControllerPackage() {
         return controllerPackage;
+    }
+
+    public String getControllerClass() {
+        return controllerClass;
+    }
+
+    public void setControllerClass(String controllerClass) {
+        this.controllerClass = controllerClass;
     }
 
     public String getFilterClass() {

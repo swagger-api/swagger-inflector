@@ -83,6 +83,21 @@ modelMappings:
 invalidRequestCode: 400
 ```
 
+### Locating the controller class
+
+The actual controller class for each method is located via 4 mechanisms:
+- a x-swagger-router-controller extension at the method level can specify the specific controller class
+- each tag associated with the method is assembled into the classnames <controllerPackage>.<Tag> or 
+<controllerPackage>.<Tag>Controller, the first that is found will be used
+- an optional <controllerClass> configuration parameter is appended to <controllerPackage> 
+- as a last resort a class named <controllerPackage>.Default is used
+
+By default the class is loaded directly with Class.forName(...).newInstance() - but you can override class creation
+by providing a custom ControllerFactory to the inflector configuration (for example if you want your controllers to be 
+loaded by a DI framework).
+
+### Locating the target method
+
 When locating methods, the `operationId` is used as the method name for lookup via reflection.  If not specified, there is logic for generation of a method name.
 
 Once a method is matched via name, the parameter types will be compared to ensure we have the right model.  In all methods, only java objects are supported--primitives currently will not match (this allows for proper nulls).
