@@ -16,6 +16,31 @@ info:
 basePath: /api
 
 paths:
+  /primitiveBody/string:
+    post:
+      x-swagger-router-controller: TestController
+      operationId: stringBody
+      parameters:
+        - in: body
+          name: stringBody
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'ok!'
+  /primitiveBody/integer:
+    post:
+      x-swagger-router-controller: TestController
+      operationId: integerBody
+      parameters:
+        - in: body
+          name: stringBody
+          schema:
+            type: integer
+            format: int32
+      responses:
+        200:
+          description: 'ok!'
   /hidden:
     get:
       x-inflector-hidden: true

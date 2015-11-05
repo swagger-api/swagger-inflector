@@ -90,4 +90,8 @@ public class TestController {
     public ResponseContext returnNonRfc2616Status(RequestContext request) {
         return new ResponseContext().status(422).entity("I'm from RFC 4918");
     }
+
+    public ResponseContext stringBody(RequestContext request, String body) {
+        return new ResponseContext().status(200).entity(body);
+    }
 }
