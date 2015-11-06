@@ -16,16 +16,16 @@
 
 package io.swagger.inflector.processors;
 
-import javax.ws.rs.core.MediaType;
-
 import com.fasterxml.jackson.databind.JavaType;
+import io.swagger.inflector.converters.ConversionException;
 
+import javax.ws.rs.core.MediaType;
 import java.io.InputStream;
 
 public interface EntityProcessor {
     boolean supports(MediaType mediaType);
 
-    Object process(MediaType mediaType, InputStream entityStream, Class<?> cls);
+    Object process(MediaType mediaType, InputStream entityStream, Class<?> cls) throws ConversionException;
     
     Object process(MediaType mediaType, InputStream entityStream, JavaType javaType);
 }

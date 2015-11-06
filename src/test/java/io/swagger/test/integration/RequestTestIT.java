@@ -29,6 +29,7 @@ import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertTrue;
 
 public class RequestTestIT {
@@ -139,5 +140,27 @@ public class RequestTestIT {
                 new String[0]);
 
         assertEquals("success!", str);
+    }
+
+    @Test
+    public void verifyInvalidPostException() throws Exception {
+        String path = "/unmappedWithModel/3";
+
+        try {
+            String str = client.invokeAPI(
+                    path,                           // path
+                    "POST",                         // method
+                    new HashMap<String, String>(),  // query
+                    "BAD BAD BAD!!>><<<{{[[",       // body
+                    new HashMap<String, String>(),  // header
+                    null,                           // form
+                    "application/json",             // accept
+                    "application/json",             // contentType
+                    new String[0]);
+            fail("should have thrown an exception!");
+        }
+        catch (ApiException e) {
+            assertTrue(e.getCode() == 400);
+        }
     }
 }
