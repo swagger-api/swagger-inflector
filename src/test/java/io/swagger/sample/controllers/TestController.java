@@ -29,6 +29,12 @@ import javax.ws.rs.core.Response.Status;
 import java.util.List;
 
 public class TestController {
+    public io.swagger.inflector.models.ResponseContext inlineRequiredBody(io.swagger.inflector.models.RequestContext request, com.fasterxml.jackson.databind.JsonNode inlineBody) {
+        return new ResponseContext()
+            .status(200)
+            .entity("success!");
+    }
+
     public ResponseContext formTest(RequestContext request, String user) {
       System.out.println("found it! " + user);
         return new ResponseContext()

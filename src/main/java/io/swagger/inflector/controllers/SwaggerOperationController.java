@@ -278,6 +278,12 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                                 if (ctx.hasEntity()) {
                                     o = EntityProcessorFactory.readValue(ctx.getMediaType(), ctx.getEntityStream(), cls);
                                 }
+                                else if(parameter.getRequired()) {
+                                    ValidationException e = new ValidationException();
+                                    e.message(new ValidationMessage()
+                                        .message("The input body `" + paramName + "` is required"));
+                                    throw e;
+                                }
                             }
                             if ("query".equals(in)) {
                                 o = validator.convertAndValidate(uri.getQueryParameters().get(parameter.getName()), parameter, cls, definitions);

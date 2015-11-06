@@ -16,6 +16,22 @@ info:
 basePath: /api
 
 paths:
+  /primitiveBody/inline:
+    post:
+      x-swagger-router-controller: TestController
+      operationId: inlineRequiredBody
+      parameters:
+        - in: body
+          name: inlineBody
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+          required: true
+      responses:
+        200:
+          description: 'ok!'
   /primitiveBody/string:
     post:
       x-swagger-router-controller: TestController
