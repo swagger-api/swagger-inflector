@@ -181,6 +181,9 @@ public class ReflectionUtils {
             LOGGER.warn("falling back to `string` with format `" + format + "`");
             return tf.constructType(String.class);
         }
+        if(property instanceof ObjectProperty) {
+            return tf.constructType(JsonNode.class);
+        }
         return null;
     }
     

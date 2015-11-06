@@ -29,6 +29,7 @@ import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 public class RequestTestIT {
     ApiClient client = new ApiClient();
@@ -96,5 +97,47 @@ public class RequestTestIT {
             new String[0]);
 
         assertEquals(str, "tony");
+    }
+
+    @Test
+    public void verifyMissingRequiredPostBody() throws Exception {
+        String path = "/primitiveBody/inline";
+
+        try {
+            String str = client.invokeAPI(
+                    path,                           // path
+                    "POST",                         // method
+                    new HashMap<String, String>(),  // query
+                    null,                           // body
+                    new HashMap<String, String>(),  // header
+                    null,                           // form
+                    "application/json",             // accept
+                    "application/json",             // contentType
+                    new String[0]);
+
+            System.out.println(str);
+        }
+        catch (ApiException e) {
+            // expected!
+            assertTrue(e.getCode() == 400);
+        }
+    }
+
+    @Test
+    public void verifyRequiredPostBody() throws Exception {
+        String path = "/primitiveBody/inline";
+
+        String str = client.invokeAPI(
+                path,                           // path
+                "POST",                         // method
+                new HashMap<String, String>(),  // query
+                "{}",                           // body
+                new HashMap<String, String>(),  // header
+                null,                           // form
+                "application/json",             // accept
+                "application/json",             // contentType
+                new String[0]);
+
+        assertEquals("success!", str);
     }
 }
