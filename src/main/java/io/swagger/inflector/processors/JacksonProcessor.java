@@ -19,6 +19,9 @@ package io.swagger.inflector.processors;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
+import io.swagger.inflector.converters.ConversionException;
+import io.swagger.inflector.validators.ValidationError;
+import io.swagger.inflector.validators.ValidationMessage;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
 
@@ -54,26 +57,26 @@ public class JacksonProcessor implements EntityProcessor {
 
     @Override
     public Object process(MediaType mediaType, InputStream entityStream,
-        JavaType javaType) {
-      try {
-        if (MediaType.APPLICATION_JSON_TYPE.isCompatible(mediaType)) {
-            return Json.mapper().readValue(entityStream, javaType);
+                          JavaType javaType) {
+        try {
+            if (MediaType.APPLICATION_JSON_TYPE.isCompatible(mediaType)) {
+                return Json.mapper().readValue(entityStream, javaType);
+            }
+            if (MediaType.APPLICATION_XML_TYPE.isCompatible(mediaType)) {
+                return XML.readValue(entityStream, javaType);
+            }
+            if (mediaType.toString().equalsIgnoreCase("application/yaml")) {
+                return Yaml.mapper().readValue(entityStream, javaType);
+            }
+        } catch (IOException e) {
+            LOGGER.error("unable to extract entity from content-type `" + mediaType + "` to " + javaType.toCanonical(), e);
         }
-        if (MediaType.APPLICATION_XML_TYPE.isCompatible(mediaType)) {
-            return XML.readValue(entityStream, javaType);
-        }
-        if (mediaType.toString().equalsIgnoreCase("application/yaml")) {
-            return Yaml.mapper().readValue(entityStream, javaType);
-        }
-    } catch (IOException e) {
-        LOGGER.error("unable to extract entity from content-type `" + mediaType + "` to " + javaType.toCanonical(), e);
+
+        return null;
     }
 
-    return null;
-    }
-    
     @Override
-    public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls) {
+    public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls) throws ConversionException {
         try {
             if (MediaType.APPLICATION_JSON_TYPE.isCompatible(mediaType)) {
                 return Json.mapper().readValue(entityStream, cls);
@@ -84,8 +87,12 @@ public class JacksonProcessor implements EntityProcessor {
             if (mediaType.toString().equalsIgnoreCase("application/yaml")) {
                 return Yaml.mapper().readValue(entityStream, cls);
             }
-        } catch (IOException e) {
-            LOGGER.error("unable to extract entity from content-type `" + mediaType + "` to " + cls.getCanonicalName(), e);
+        } catch (Exception e) {
+            LOGGER.trace("unable to extract entity from content-type `" + mediaType + "` to " + cls.getCanonicalName(), e);
+            throw new ConversionException()
+                    .message(new ValidationMessage()
+                            .code(ValidationError.UNACCEPTABLE_VALUE)
+                            .message("unable to convert input to " + cls.getCanonicalName()));
         }
 
         return null;

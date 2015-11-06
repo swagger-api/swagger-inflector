@@ -16,6 +16,8 @@
 
 package io.swagger.inflector.processors;
 
+import io.swagger.inflector.converters.ConversionException;
+
 import javax.ws.rs.core.MediaType;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -33,7 +35,7 @@ public class EntityProcessorFactory {
         PROCESSORS.add(processor);
     }
 
-    public static Object readValue(MediaType mediaType, InputStream entityStream, Class<?> class1) {
+    public static Object readValue(MediaType mediaType, InputStream entityStream, Class<?> class1) throws ConversionException {
         for (EntityProcessor p : getProcessors()) {
             if (p.supports(mediaType)) {
                 return p.process(mediaType, entityStream, class1);
