@@ -68,8 +68,7 @@ public class RequestTestIT {
         assertEquals(str, "[\"a\",\"b\",\"c\"]");
     }
 
-
-    @org.junit.Test
+    @Test
     public void verifyStringPostBody() throws Exception {
         client.setDebugging(true);
 
@@ -77,6 +76,16 @@ public class RequestTestIT {
 
         String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), "string", new HashMap<String, String>(), null, "application/yaml", null, new String[0]);
         assertEquals(str, "string");
+    }
+
+    @org.junit.Test
+    public void verifyStringPostBodyWithJsonContentType() throws Exception {
+        client.setDebugging(true);
+
+        String path = "/primitiveBody/string";
+
+        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), "string", new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertEquals(str, "\"string\"");
     }
 
     @Test

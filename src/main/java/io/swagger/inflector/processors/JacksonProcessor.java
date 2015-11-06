@@ -18,20 +18,17 @@ package io.swagger.inflector.processors;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-
 import io.swagger.inflector.converters.ConversionException;
 import io.swagger.inflector.validators.ValidationError;
 import io.swagger.inflector.validators.ValidationMessage;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
-
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
-
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 public class JacksonProcessor implements EntityProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(JacksonProcessor.class);
@@ -78,6 +75,11 @@ public class JacksonProcessor implements EntityProcessor {
     @Override
     public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls) throws ConversionException {
         try {
+            if(String.class.equals(cls)) {
+                OutputStream outputStream = new ByteArrayOutputStream();
+                IOUtils.copy(entityStream, outputStream);
+                return outputStream.toString();
+            }
             if (MediaType.APPLICATION_JSON_TYPE.isCompatible(mediaType)) {
                 return Json.mapper().readValue(entityStream, cls);
             }
