@@ -57,7 +57,6 @@ public class TestController {
         return new ResponseContext()
             .status(Status.OK)
             .entity(new User());
-
     }
 
     public ResponseContext withModel(RequestContext request, String id, Address animal) {

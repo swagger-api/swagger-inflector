@@ -297,7 +297,7 @@ public class SwaggerInflector extends ResourceConfig {
     }
 
     private String basePath(String basePath, String path) {
-        if (StringUtils.isEmpty(basePath)) {
+        if (StringUtils.isEmpty(basePath) || "/".equals(basePath)) {
             return path;
         }
         return basePath + path;
