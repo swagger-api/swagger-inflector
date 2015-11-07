@@ -255,6 +255,9 @@ public class Configuration {
     }
 
     public String getSwaggerUrl() {
+        if(System.getProperty("swaggerUrl") != null) {
+            return System.getProperty("swaggerUrl");
+        }
         return swaggerUrl;
     }
     public void setSwaggerUrl(String swaggerUrl) {
