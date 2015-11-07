@@ -26,7 +26,7 @@
     <artifactId>SAMPLE_PROJECT</artifactId>
     <packaging>jar</packaging>
     <name>SAMPLE_PROJECT</name>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <prerequisites>
         <maven>2.2.0</maven>
     </prerequisites>
@@ -113,11 +113,10 @@
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-inflector</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <properties>
-        <maven-plugin-version>1.0.0</maven-plugin-version>
         <jetty-version>9.2.9.v20150224</jetty-version>
         <logback-version>1.0.1</logback-version>
         <junit-version>4.8.2</junit-version>
