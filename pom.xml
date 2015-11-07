@@ -26,7 +26,7 @@
     <artifactId>swagger-inflector</artifactId>
     <packaging>jar</packaging>
     <name>swagger-inflector</name>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <url>https://github.com/swagger-api/swagger-inflector</url>
     <scm>
         <connection>scm:git:git@github.com:swagger-api/swagger-inflector.git</connection>
@@ -410,7 +410,7 @@
     <properties>
         <maven-plugin-version>1.0.0</maven-plugin-version>
         <swagger-core-version>1.5.4</swagger-core-version>
-        <swagger-parser-version>1.0.13-SNAPSHOT</swagger-parser-version>
+        <swagger-parser-version>1.0.13</swagger-parser-version>
         <joda-time-version>2.2</joda-time-version>
         <joda-version>1.2</joda-version>
         <jetty-version>9.2.9.v20150224</jetty-version>
