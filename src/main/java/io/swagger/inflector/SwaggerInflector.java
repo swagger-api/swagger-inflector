@@ -160,6 +160,10 @@ public class SwaggerInflector extends ResourceConfig {
             FilterFactory.setFilter(new DefaultSpecFilter());
         }
 
+        if(swagger == null) {
+            LOGGER.error("the swagger definition is not valid");
+        }
+
         // JSON
         if (config.getEntityProcessors().contains("json")) {
             Json.mapper().registerModule(simpleModule);
