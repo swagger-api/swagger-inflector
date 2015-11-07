@@ -1,5 +1,0 @@
-controllerPackage: io.swagger.sample.controllers
-modelPackage: io.swagger.sample.models
-swaggerUrl: ./src/main/swagger/swagger.yaml
-modelMappings:
-  Pet: io.swagger.sample.models.Pet
