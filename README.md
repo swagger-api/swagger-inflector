@@ -72,7 +72,7 @@ controllerPackage: io.swagger.sample.controllers
 # configure the default model package for model discovery
 modelPackage: io.swagger.sample.models
 
-# the path to the swagger definition
+# the path to the swagger definition (Note! this can be overridden with -DswaggerUrl as a system property
 swaggerUrl: swagger.yaml
 
 # specific mappings for models, used to locate models in the `#/definitions/${model}`
@@ -318,36 +318,4 @@ If your Swagger Description is unparsable, the server will throw ugly errors on 
 
 #### Samples
 
-There is a samples directory to show how to integrate with Inflector.  Before running any examples, you'll need to build the project and install it locally:
-
-```
-mvn install
-```
-
-##### dropwizard
-
-This example uses the popular dropwizard framework, which is programmatically configured without any xml nonsense.
-
-```
-cd samples/dropwizard
-mvn package
-java -jar target/inflector-dropwizard-sample-1.0-SNAPSHOT.jar server server.yml 
-```
-
-You can now access the server at `http://localhost:8080/v2/swagger.json`
-
-##### jetty war with web.xml
-
-This example uses a traditional web.xml file.  To run:
-
-```
-cd samples/jetty-webxml
-mvn package jetty:run
-```
-
-This will load the configuration file `inflector.yaml` which points to a swagger configuration at `src/main/swagger/swagger.yaml`.  You can modify these files and the project will reload.
-
-The swagger URL, as defined in the `swagger.yaml`, is hosted at `http://localhost:8080/v2/swagger.json` or `http://localhost:8080/v2/swagger.yaml`.
-
-There is one controller implemented that maps the `addPet` operation.
-
+You can find samples for the inflector project in the [Swagger-Samples]() repository.  The inflector projects start with `inflector-`
