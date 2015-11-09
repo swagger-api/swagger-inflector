@@ -2,14 +2,13 @@ package io.swagger.inflector.validators;
 
 import io.swagger.models.parameters.AbstractSerializableParameter;
 import io.swagger.models.parameters.Parameter;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 
 public class StringTypeValidator implements Validator {
     public void validate(Object o, Parameter parameter, Iterator<Validator> chain) throws ValidationException {
@@ -25,7 +24,7 @@ public class StringTypeValidator implements Validator {
                     throw new ValidationException()
                         .message(new ValidationMessage()
                             .code(ValidationError.UNACCEPTABLE_VALUE)
-                            .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + o + "` is not in the allowable values `" + allowable + "`"));
+                            .message(parameter.getIn() + " parameter `" + parameter.getName() + "` value `" + o + "` is not in the allowable values `" + allowable + "`"));
                 }
             };
 
