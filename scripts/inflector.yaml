@@ -3,7 +3,7 @@ modelPackage: io.swagger.sample.models
 swaggerUrl: ./src/main/swagger/swagger.yaml
 
 # add any model mappings you like if you have existing models to use
-modelMappings:
+#modelMappings:
 #  Pet: io.swagger.sample.models.Pet
 
 entityProcessors:
