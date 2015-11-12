@@ -109,6 +109,43 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <!-- generates pojos for a spec -->
+        <profile>
+            <id>pojos</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.swagger</groupId>
+                        <artifactId>swagger-codegen-maven-plugin</artifactId>
+                        <version>${codegen-version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                                <configuration>
+                                    <environmentVariables>
+                                        <!-- models to generate, empty means *all* -->
+                                        <models></models>
+                                        <!-- required by models as a helper -->
+                                        <supportingFiles>StringUtil.java</supportingFiles>
+                                    </environmentVariables>
+                                    <inputSpec>src/main/swagger/swagger.yaml</inputSpec>
+                                    <language>java</language>
+                                    <configOptions>
+                                        <sourceFolder>src/gen/java</sourceFolder>
+                                    </configOptions>
+                                    <output>.</output>
+                                    <modelPackage>io.swagger.sample.models</modelPackage>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
     <dependencies>
         <dependency>
             <groupId>io.swagger</groupId>
@@ -121,5 +158,6 @@
         <logback-version>1.0.1</logback-version>
         <junit-version>4.8.2</junit-version>
         <slf4j-version>1.6.3</slf4j-version>
+        <codegen-version>2.1.4</codegen-version>
     </properties>
 </project>
