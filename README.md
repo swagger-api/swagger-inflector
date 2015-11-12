@@ -17,8 +17,6 @@ curl -L http://bit.ly/1Pl62pe | project=my-project bash
 
 This will download everything you need to start editing and running a swagger-inflector based project.  See the output of the command for instructions.
 
-**This project is in preview status!**
-
 ### Components
 
 Inflector uses the following libraries:
