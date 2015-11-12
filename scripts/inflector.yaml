@@ -2,9 +2,13 @@ controllerPackage: io.swagger.sample.controllers
 modelPackage: io.swagger.sample.models
 swaggerUrl: ./src/main/swagger/swagger.yaml
 
-# add any model mappings you like
+# add any model mappings you like if you have existing models to use
 modelMappings:
-  Pet: io.swagger.sample.models.Pet
+#  Pet: io.swagger.sample.models.Pet
+
 entityProcessors:
   - json
   - xml
+
+# set the environment to development | staging | production
+environment: development
