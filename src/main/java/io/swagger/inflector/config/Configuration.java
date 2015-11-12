@@ -70,7 +70,7 @@ public class Configuration {
 
     public static Configuration read() {
         String configLocation = System.getProperty("config", "inflector.yaml");
-        System.out.println("loading config from " + configLocation);
+        System.out.println("loading inflector config from " + configLocation);
         if(configLocation != null) {
           try {
             return read(configLocation);
