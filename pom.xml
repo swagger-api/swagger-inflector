@@ -406,6 +406,11 @@
             <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.fge</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>${json-schema-validator-version}</version>
+        </dependency>
     </dependencies>
     <properties>
         <swagger-core-version>1.5.4</swagger-core-version>
@@ -418,6 +423,8 @@
         <commons-io-version>2.4</commons-io-version>
         <commons-lang-version>2.4</commons-lang-version>
         <commons-csv-version>1.1</commons-csv-version>
+        <json-schema-validator-version>2.2.6</json-schema-validator-version>
+
         <logback-version>1.0.1</logback-version>
         <junit-version>4.8.2</junit-version>
         <slf4j-version>1.6.3</slf4j-version>

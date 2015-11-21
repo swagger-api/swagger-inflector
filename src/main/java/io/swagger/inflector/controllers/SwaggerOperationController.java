@@ -17,6 +17,7 @@
 package io.swagger.inflector.controllers;
 
 import com.fasterxml.jackson.databind.JavaType;
+import io.swagger.inflector.schema.SchemaValidator;
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.converters.ConversionException;
 import io.swagger.inflector.converters.InputConverter;
@@ -31,9 +32,12 @@ import io.swagger.inflector.validators.ValidationException;
 import io.swagger.inflector.validators.ValidationMessage;
 import io.swagger.models.Model;
 import io.swagger.models.Operation;
+import io.swagger.models.parameters.BodyParameter;
 import io.swagger.models.parameters.FormParameter;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.SerializableParameter;
+import io.swagger.models.properties.Property;
+import io.swagger.util.Json;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.process.Inflector;
 import org.slf4j.Logger;
@@ -62,7 +66,8 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
       commonHeaders.add("Content-Type");
       commonHeaders.add("Content-Length");
     }
-    
+
+    private boolean validatePayload = true;
     private String path;
     private String httpMethod;
     private Operation operation;
@@ -168,6 +173,8 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     public Response apply(ContainerRequestContext ctx) {
         List<Parameter> parameters = operation.getParameters();
         RequestContext requestContext = new RequestContext(ctx);
+
+        String path = ctx.getUriInfo().getPath();
 
         Object[] args = new Object[parameters.size() + 1];
         if (parameters != null) {
@@ -276,7 +283,11 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                             Class<?> cls = jt.getRawClass();
                             if ("body".equals(in)) {
                                 if (ctx.hasEntity()) {
+                                    BodyParameter body = (BodyParameter) parameter;
                                     o = EntityProcessorFactory.readValue(ctx.getMediaType(), ctx.getEntityStream(), cls);
+                                    if(o != null && validatePayload) {
+                                        validate(o, body.getSchema(), SchemaValidator.Direction.INPUT);
+                                    }
                                 }
                                 else if(parameter.getRequired()) {
                                     ValidationException e = new ValidationException();
@@ -358,7 +369,16 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                   // entity
                   if (wrapper.getEntity() != null) {
                       builder.entity(wrapper.getEntity());
+
+                      if (validatePayload && operation.getResponses() != null) {
+                          String responseCode = "" + wrapper.getStatus();
+                          io.swagger.models.Response responseSchema = operation.getResponses().get(responseCode);
+                          if(responseSchema != null && responseSchema.getSchema() != null) {
+                              validate(wrapper.getEntity(), responseSchema.getSchema(), SchemaValidator.Direction.OUTPUT);
+                          }
+                      }
                   }
+
                   return builder.build();
               }
               return Response.ok().entity(response).build();
@@ -408,6 +428,42 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             return Response.status(code).build();
         }
         return Response.ok().build();
+    }
+
+    public void validate(Object o, Property property, SchemaValidator.Direction direction) throws ApiException {
+        if(config.isValidatePayloads()) {
+            boolean isValid = SchemaValidator.validate(o, Json.pretty(property), direction);
+            if(!isValid) {
+                if(SchemaValidator.Direction.INPUT.equals(direction)) {
+                    throw new ApiException(new ApiError()
+                            .code(config.getInvalidRequestStatusCode())
+                            .message("Input does not match the expected structure"));
+                }
+                else {
+                    throw new ApiException(new ApiError()
+                            .code(config.getInvalidRequestStatusCode())
+                            .message("The server generated an invalid response"));
+                }
+            }
+        }
+    }
+
+    public void validate(Object o, Model model, SchemaValidator.Direction direction) throws ApiException {
+        if(config.isValidatePayloads()) {
+            boolean isValid = SchemaValidator.validate(o, Json.pretty(model), direction);
+            if(!isValid) {
+                if(SchemaValidator.Direction.INPUT.equals(direction)) {
+                    throw new ApiException(new ApiError()
+                            .code(config.getInvalidRequestStatusCode())
+                            .message("Input does not match the expected structure"));
+                }
+                else {
+                    throw new ApiException(new ApiError()
+                            .code(config.getInvalidRequestStatusCode())
+                            .message("The server generated an invalid response"));
+                }
+            }
+        }
     }
     
     public void setContentType(RequestContext res, ResponseContext resp, Operation operation) {
@@ -463,4 +519,5 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     public void setMethod(Method method) {
         this.method = method;
     }
+
 }

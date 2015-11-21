@@ -46,6 +46,7 @@ public class Configuration {
     private List<String> entityProcessors = new ArrayList<String>();
     private ControllerFactory controllerFactory = new DefaultControllerFactory();
     private String swaggerBase = "/";
+    private boolean validatePayloads = false;
 
     public String getSwaggerBase() {
         return swaggerBase;
@@ -323,5 +324,13 @@ public class Configuration {
 
     public void setSwaggerBase(String swaggerBase) {
         this.swaggerBase = swaggerBase;
+    }
+
+    public boolean isValidatePayloads() {
+        return validatePayloads;
+    }
+
+    public void setValidatePayloads(boolean validatePayloads) {
+        this.validatePayloads = validatePayloads;
     }
 }

@@ -12,7 +12,6 @@ import java.util.Map;
 public class SampleConverter implements Converter {
   public Object convert(List<String> value, Parameter parameter, Class<?> cls, Map<String, Model> definitions, Iterator<Converter> chain)
       throws ConversionException {
-    System.out.println(value);
     if(chain.hasNext()) {
       return chain.next().convert(value, parameter, cls, definitions, chain);
     }
