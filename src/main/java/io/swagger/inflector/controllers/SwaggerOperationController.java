@@ -373,8 +373,15 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                       if (validatePayload && operation.getResponses() != null) {
                           String responseCode = "" + wrapper.getStatus();
                           io.swagger.models.Response responseSchema = operation.getResponses().get(responseCode);
+                          if(responseSchema == null) {
+                              // try default response schema
+                              responseSchema = operation.getResponses().get("default");
+                          }
                           if(responseSchema != null && responseSchema.getSchema() != null) {
                               validate(wrapper.getEntity(), responseSchema.getSchema(), SchemaValidator.Direction.OUTPUT);
+                          }
+                          else {
+                              LOGGER.debug("no response schema for code " + responseCode + " to validate against");
                           }
                       }
                   }
