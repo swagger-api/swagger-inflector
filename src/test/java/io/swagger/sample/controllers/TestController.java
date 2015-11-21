@@ -59,10 +59,18 @@ public class TestController {
             .entity(new User());
     }
 
-    public ResponseContext withModel(RequestContext request, String id, Address animal) {
-        return new ResponseContext()
-            .status(Status.OK)
-            .entity("ok");
+    public ResponseContext withModel(RequestContext request, String id, Address address) {
+        if("-1".equals(id)) {
+            return new ResponseContext()
+                    .status(Status.OK)
+                    .entity("oops!  This isn't valid!");
+        }
+        else {
+            address.setStreet(id + " street");
+            return new ResponseContext()
+                    .status(Status.OK)
+                    .entity(address);
+        }
     }
 
     public ResponseContext withModelArray(RequestContext request, String id, List<Address> modelArray) {

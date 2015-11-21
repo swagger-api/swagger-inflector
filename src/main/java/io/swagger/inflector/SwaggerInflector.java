@@ -30,6 +30,7 @@ import io.swagger.inflector.converters.InputConverter;
 import io.swagger.inflector.models.InflectResult;
 import io.swagger.inflector.processors.*;
 import io.swagger.inflector.utils.DefaultSpecFilter;
+import io.swagger.inflector.utils.ResolverUtil;
 import io.swagger.inflector.validators.Validator;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import io.swagger.models.Model;
@@ -89,6 +90,11 @@ public class SwaggerInflector extends ResourceConfig {
         config = configuration;
         SwaggerDeserializationResult swaggerParseResult = new SwaggerParser().readWithInfo(config.getSwaggerUrl(), null, true);
         Swagger swagger = swaggerParseResult.getSwagger();
+
+        if(config.isValidatePayloads()) {
+            LOGGER.info("resolving swagger");
+            new ResolverUtil().resolveFully(swagger);
+        }
 
         if (swagger != null) {
             originalBasePath = swagger.getBasePath();

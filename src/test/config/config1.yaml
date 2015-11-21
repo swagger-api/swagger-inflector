@@ -8,6 +8,8 @@ modelMappings:
 # unimplemented models or methods are detected
 environment: development
 
+validatePayloads: true
+
 # loads all by default, or pick and choose
 entityProcessors:
   - json

@@ -621,7 +621,10 @@ definitions:
         "foo":"bar"
       }
   Address:
+    type: object
     x-swagger-router-model: io.swagger.test.models.Address
+    required:
+      - street
     properties:
       street:
         type: string
