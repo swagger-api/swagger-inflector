@@ -171,6 +171,7 @@ public class ExampleBuilder {
             }
             else {
                 ObjectExample outputExample = new ObjectExample();
+                outputExample.setName( property.getName() );
                 ObjectProperty op = (ObjectProperty) property;
                 if(op.getProperties() != null) {
                     for(String propertyname : op.getProperties().keySet()) {

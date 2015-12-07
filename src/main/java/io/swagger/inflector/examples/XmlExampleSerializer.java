@@ -55,10 +55,22 @@ public class XmlExampleSerializer {
                 // write primitive type container
                 name = getTypeName(o);
             }
-            writer.writeStartElement(o.getPrefix(), name, o.getNamespace());
+
+            if( o.getNamespace() != null ){
+                writer.writeStartElement(o.getPrefix(), name, o.getNamespace());
+            }
+            else {
+                writer.writeStartElement(name);
+            }
+
             for (String key : or.keySet()) {
                 Object obj = or.get(key);
                 if (obj instanceof Example) {
+                    Example example = (Example) obj;
+                    if( example.getName() == null ){
+                        example.setName( key );
+                    }
+
                     writeTo(writer, (Example) obj);
                 }
             }
@@ -67,17 +79,34 @@ public class XmlExampleSerializer {
             ArrayExample ar = (ArrayExample) o;
             if (o.getWrapped() != null && o.getWrapped()) {
                 if (o.getWrappedName() != null) {
-                    writer.writeStartElement(o.getPrefix(), o.getWrappedName(), o.getNamespace());
+                    if( o.getNamespace() != null ){
+                        writer.writeStartElement(o.getPrefix(), o.getWrappedName(), o.getNamespace());
+                    }
+                    else {
+                        writer.writeStartElement(o.getWrappedName());
+                    }
+
                 } else {
-                    writer.writeStartElement(o.getPrefix(), o.getName() + "s", o.getNamespace());
+                    if( o.getNamespace() != null ){
+                        writer.writeStartElement(o.getPrefix(), o.getName() + "s", o.getNamespace());
+                    }
+                    else {
+                        writer.writeStartElement( o.getName() + "s");
+                    }
                 }
             }
             for (Example item : ar.getItems()) {
-                if (item.getName() == null) {
-                    writer.writeStartElement(o.getPrefix(), o.getName(), o.getNamespace());
+                if (item.getName() == null && o.getName() != null ) {
+
+                    if( o.getNamespace() != null ) {
+                        writer.writeStartElement(o.getPrefix(), o.getName(), o.getNamespace());
+                    }
+                    else {
+                        writer.writeStartElement(o.getName());
+                    }
                 }
                 writeTo(writer, item);
-                if (item.getName() == null) {
+                if (item.getName() == null && o.getName() != null ) {
                     writer.writeEndElement();
                 }
             }
@@ -95,7 +124,13 @@ public class XmlExampleSerializer {
             } else if (name == null) {
                 writer.writeCharacters(o.asString());
             } else {
-                writer.writeStartElement(o.getPrefix(), name, o.getNamespace());
+                if( o.getNamespace() != null ){
+                    writer.writeStartElement(o.getPrefix(), name, o.getNamespace());
+                }
+                else {
+                    writer.writeStartElement(name);
+                }
+
                 writer.writeCharacters(o.asString());
                 writer.writeEndElement();
             }
