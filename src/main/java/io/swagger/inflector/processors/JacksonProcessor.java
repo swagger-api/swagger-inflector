@@ -29,25 +29,25 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import java.io.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 public class JacksonProcessor implements EntityProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(JacksonProcessor.class);
 
     private static XmlMapper XML = new XmlMapper();
+    private static MediaType APPLICATION_YAML = new MediaType("application", "yaml");
+    private static Collection<MediaType> SUPPORTED_TYPES = Collections
+            .unmodifiableList(Arrays.asList(MediaType.APPLICATION_JSON_TYPE,
+                    MediaType.APPLICATION_XML_TYPE, APPLICATION_YAML, MediaType.TEXT_PLAIN_TYPE));
 
     @Override
     public boolean supports(MediaType mediaType) {
-        if (MediaType.APPLICATION_JSON_TYPE.isCompatible(mediaType)) {
-            return true;
-        }
-        if (MediaType.APPLICATION_XML_TYPE.isCompatible(mediaType)) {
-            return true;
-        }
-        if (mediaType.toString().equalsIgnoreCase("application/yaml")) {
-            return true;
-        }
-        if (mediaType.TEXT_PLAIN_TYPE.isCompatible(mediaType)) {
-            return true;
+        for (MediaType item : SUPPORTED_TYPES) {
+            if (item.isCompatible(mediaType)) {
+                return true;
+            }
         }
         return false;
     }
@@ -62,7 +62,7 @@ public class JacksonProcessor implements EntityProcessor {
             if (MediaType.APPLICATION_XML_TYPE.isCompatible(mediaType)) {
                 return XML.readValue(entityStream, javaType);
             }
-            if (mediaType.toString().equalsIgnoreCase("application/yaml")) {
+            if (APPLICATION_YAML.isCompatible(mediaType)) {
                 return Yaml.mapper().readValue(entityStream, javaType);
             }
         } catch (IOException e) {
@@ -86,7 +86,7 @@ public class JacksonProcessor implements EntityProcessor {
             if (MediaType.APPLICATION_XML_TYPE.isCompatible(mediaType)) {
                 return XML.readValue(entityStream, cls);
             }
-            if (mediaType.toString().equalsIgnoreCase("application/yaml")) {
+            if (APPLICATION_YAML.isCompatible(mediaType)) {
                 return Yaml.mapper().readValue(entityStream, cls);
             }
         } catch (Exception e) {

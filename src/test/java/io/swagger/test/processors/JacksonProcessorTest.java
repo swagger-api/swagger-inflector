@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import static org.testng.Assert.assertEquals;
 
@@ -59,5 +60,21 @@ public class JacksonProcessorTest {
         assertEquals(o.getClass(), ObjectNode.class);
         assertEquals(o.get("name").asText(), "fehguy");
         assertEquals(o.get("userId").asText(), "42");
+    }
+
+    @Test
+    public void testConvertYamlWithEncoding() throws Exception {
+        final String input = "type: application\nsubtype: yaml\ncharset: UTF-8";
+        final MediaType type = new MediaType("application", "yaml", StandardCharsets.UTF_8.name());
+
+        final String string = (String) EntityProcessorFactory.readValue(type,
+                new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)), String.class);
+        assertEquals(string, input);
+
+        final ObjectNode json = (ObjectNode) EntityProcessorFactory.readValue(type,
+                new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)), JsonNode.class);
+        assertEquals(json.get("type").asText(), "application");
+        assertEquals(json.get("subtype").asText(), "yaml");
+        assertEquals(json.get("charset").asText(), "UTF-8");
     }
 }
