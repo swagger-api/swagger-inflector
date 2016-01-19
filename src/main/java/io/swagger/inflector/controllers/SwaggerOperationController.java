@@ -390,7 +390,6 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
               }
               return Response.ok().entity(response).build();
           } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-              LOGGER.error("failed to invoke method " + method, e);
               for (Throwable cause = e.getCause(); cause != null;) {
                   if (cause instanceof ApiException) {
                       throw (ApiException) cause;
