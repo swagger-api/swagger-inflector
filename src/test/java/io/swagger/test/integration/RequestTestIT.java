@@ -87,12 +87,12 @@ public class RequestTestIT {
         assertEquals(str, "\"string\"");
     }
 
-    @Test
+    @org.junit.Test
     public void verifyPostFormData() throws Exception {
         String path = "/formTest";
 
         MultivaluedMap<String, String> formData = new MultivaluedHashMap<String, String>();
-        formData.add("user", "tony");
+        formData.add("user", "tony,the tam");
 
         String str = client.invokeAPI(
             path,               // path
@@ -105,7 +105,7 @@ public class RequestTestIT {
             "x-www-form-urlencoded",  // contentType
             new String[0]);
 
-        assertEquals(str, "tony");
+        assertEquals(str, "tony,the tam");
     }
 
     @Test

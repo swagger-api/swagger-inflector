@@ -49,8 +49,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
 import java.util.*;
 
 
@@ -250,19 +252,22 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                                       if (kv.length == 2) {
                                           // TODO how to handle arrays here?
                                           String key = kv[0];
-                                          String value = kv[1];
-                                          if (parameter.getName().equals(key)) {
-                                              JavaType jt = parameterClasses[i];
-                                              Class<?> cls = jt.getRawClass();
-                                              try {
-                                                  o = validator.convertAndValidate(Arrays.asList(value), parameter, cls, definitions);
+                                          try {
+                                              String value = URLDecoder.decode(kv[1], "utf-8");
+                                              if (parameter.getName().equals(key)) {
+                                                  JavaType jt = parameterClasses[i];
+                                                  Class<?> cls = jt.getRawClass();
+                                                  try {
+                                                      o = validator.convertAndValidate(Arrays.asList(value), parameter, cls, definitions);
+                                                  } catch (ConversionException e) {
+                                                      missingParams.add(e.getError());
+                                                  } catch (ValidationException e) {
+                                                      missingParams.add(e.getValidationMessage());
+                                                  }
                                               }
-                                              catch (ConversionException e) {
-                                                  missingParams.add(e.getError());
-                                              }
-                                              catch (ValidationException e) {
-                                                  missingParams.add(e.getValidationMessage());
-                                              }
+                                          }
+                                          catch(UnsupportedEncodingException e) {
+                                              LOGGER.error("unable to decode value for " + key);
                                           }
                                       }
                                    }

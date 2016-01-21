@@ -36,7 +36,6 @@ public class TestController {
     }
 
     public ResponseContext formTest(RequestContext request, String user) {
-      System.out.println("found it! " + user);
         return new ResponseContext()
             .status(Status.OK)
             .contentType(MediaType.APPLICATION_JSON_TYPE)
