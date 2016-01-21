@@ -358,7 +358,13 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
   
                   // response headers
                   for (String key : wrapper.getHeaders().keySet()) {
-                      builder.header(key, wrapper.getHeaders().get(key));
+                      List<String> v = wrapper.getHeaders().get(key);
+                      if(v.size() == 1) {
+                          builder.header(key, v.get(0));
+                      }
+                      else {
+                          builder.header(key, v);
+                      }
                   }
   
                   // content type

@@ -66,6 +66,9 @@ public class TestController {
                     .entity("oops!  This isn't valid!");
         }
         else {
+            if(address == null) {
+                address = new Address();
+            }
             address.setStreet(id + " street");
             return new ResponseContext()
                     .status(Status.OK)
@@ -106,5 +109,10 @@ public class TestController {
 
     public ResponseContext stringBody(RequestContext request, String body) {
         return new ResponseContext().status(200).entity(body);
+    }
+
+    public ResponseContext returnWithResponseHeaders(RequestContext request) {
+        return new ResponseContext().status(500)
+                .header("foo", "bar");
     }
 }

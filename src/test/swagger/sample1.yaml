@@ -607,6 +607,19 @@ paths:
       responses:
         '200':
           description: 'success!'
+  '/responseHeaders':
+    get:
+      tags:
+        - response
+      operationId: returnWithResponseHeaders
+      x-swagger-router-controller: TestController
+      responses:
+        '200':
+          description: success
+          headers:
+            x-thanks-alot:
+              type: string
+
 definitions:
   User:
     properties:
