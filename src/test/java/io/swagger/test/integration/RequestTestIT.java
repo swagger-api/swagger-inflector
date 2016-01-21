@@ -27,9 +27,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.fail;
+import static org.testng.Assert.*;
 import static org.testng.AssertJUnit.assertTrue;
 
 public class RequestTestIT {
@@ -45,6 +43,7 @@ public class RequestTestIT {
     @Test(expectedExceptions = ApiException.class)
     public void verifyInvalidDateTimeInput() throws Exception {
         String path = "/withDate/booyah";
+
         String str = client.invokeAPI(path, "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
         assertNotNull(str);
     }
@@ -53,7 +52,7 @@ public class RequestTestIT {
     public void verifyModelMappingFromExtensions() throws Exception {
         String path = "/withModel/3";
         String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        assertEquals(str, "ok");
+        assertEquals(str, "{\"street\":\"3 street\"}");
     }
 
     @Test
@@ -75,10 +74,10 @@ public class RequestTestIT {
         String path = "/primitiveBody/string";
 
         String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), "string", new HashMap<String, String>(), null, "application/yaml", null, new String[0]);
-        assertEquals(str, "string");
+        assertEquals(str, "\"string\"");
     }
 
-    @org.junit.Test
+    @Test
     public void verifyStringPostBodyWithJsonContentType() throws Exception {
         client.setDebugging(true);
 
@@ -141,7 +140,7 @@ public class RequestTestIT {
                 path,                           // path
                 "POST",                         // method
                 new HashMap<String, String>(),  // query
-                "{}",                           // body
+                new Object(),                            // body
                 new HashMap<String, String>(),  // header
                 null,                           // form
                 "application/json",             // accept
@@ -170,6 +169,31 @@ public class RequestTestIT {
         }
         catch (ApiException e) {
             assertTrue(e.getCode() == 400);
+        }
+    }
+
+
+    @Test
+    public void verifyResponseHeaders() throws Exception {
+        String path = "/responseHeaders";
+
+        try {
+            String str = client.invokeAPI(
+                    path,                           // path
+                    "GET",                          // method
+                    new HashMap<String, String>(),  // query
+                    null,                           // body
+                    new HashMap<String, String>(),  // header
+                    null,                           // form
+                    "application/json",             // accept
+                    "application/json",             // contentType
+                    new String[0]);
+
+            fail("should have thrown an exception!");
+        }
+        catch (ApiException e) {
+            Object o = e.getResponseHeaders().get("foo");
+            assertEquals(o.toString(), "[bar]");
         }
     }
 }
