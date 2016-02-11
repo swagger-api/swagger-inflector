@@ -21,6 +21,7 @@ import io.swagger.inflector.models.RequestContext;
 import io.swagger.inflector.models.ResponseContext;
 import io.swagger.inflector.utils.ApiException;
 import io.swagger.test.models.Address;
+import io.swagger.sample.models.Dog;
 import io.swagger.test.models.User;
 
 import javax.ws.rs.core.MediaType;
@@ -113,5 +114,9 @@ public class TestController {
     public ResponseContext returnWithResponseHeaders(RequestContext request) {
         return new ResponseContext().status(500)
                 .header("foo", "bar");
+    }
+
+    public ResponseContext mappedWithDefinedModel(RequestContext request, Dog dog) {
+        return new ResponseContext().status(200);
     }
 }
