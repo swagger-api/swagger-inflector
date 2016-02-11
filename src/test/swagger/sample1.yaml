@@ -484,6 +484,26 @@ paths:
           description: 'success!'
           schema:
             $ref: '#/definitions/Address'
+  '/mappedWithDefinedModel/{id}':
+    post:
+      tags:
+        - test2
+      operationId: mappedWithDefinedModel
+      x-swagger-router-controller: TestController
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: animal
+          in: body
+          schema:
+            $ref: '#/definitions/Dog'
+      responses:
+        '200':
+          description: 'success!'
+          schema:
+            $ref: '#/definitions/Dog'
   '/unmappedWithUndefinedModel/{id}':
     post:
       tags:
@@ -675,6 +695,15 @@ definitions:
       address:
         $ref: '#/definitions/Address'
     description: 'the name!'
+  Dog:
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+      dogType:
+        type: string
   UnmappedModel:
     properties:
       id:
