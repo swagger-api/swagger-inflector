@@ -1,5 +1,6 @@
 package io.swagger.inflector.utils;
 
+import io.swagger.inflector.Constants;
 import io.swagger.models.*;
 import io.swagger.models.parameters.BodyParameter;
 import io.swagger.models.parameters.Parameter;
@@ -23,6 +24,25 @@ public class ResolverUtil {
         models = swagger.getDefinitions();
         if(models == null) {
             models = new HashMap<String, Model>();
+        }
+
+        for(String name: models.keySet()) {
+            Model model = models.get(name);
+            if(model instanceof ModelImpl) {
+                ModelImpl impl = (ModelImpl) model;
+                if(!impl.getVendorExtensions().containsKey(Constants.X_SWAGGER_ROUTER_MODEL))
+                    impl.setVendorExtension(Constants.X_SWAGGER_ROUTER_MODEL, name);
+            }
+            else if(model instanceof ComposedModel) {
+                ComposedModel cm = (ComposedModel) model;
+                if(!cm.getVendorExtensions().containsKey(Constants.X_SWAGGER_ROUTER_MODEL))
+                    cm.setVendorExtension(Constants.X_SWAGGER_ROUTER_MODEL, name);
+            }
+            else if(model instanceof ArrayModel) {
+                ArrayModel am = (ArrayModel) model;
+                if(!am.getVendorExtensions().containsKey(Constants.X_SWAGGER_ROUTER_MODEL))
+                    am.setVendorExtension(Constants.X_SWAGGER_ROUTER_MODEL, name);
+            }
         }
 
         for(String pathname : swagger.getPaths().keySet()) {
