@@ -16,34 +16,85 @@
 
 package io.swagger.test.integration;
 
+import io.swagger.inflector.Constants;
+import io.swagger.models.Model;
+import io.swagger.models.Operation;
+import io.swagger.models.Path;
 import io.swagger.models.Swagger;
 import io.swagger.test.client.ApiClient;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
+import junit.framework.Assert;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static org.testng.Assert.assertNotNull;
 
 public class SwaggerListingIT {
+
     @Test
     public void verifySwaggerJson() throws Exception {
-        ApiClient client = new ApiClient();
-
-        String str = client.invokeAPI("swagger.json", "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        Swagger swagger = Json.mapper().readValue(str, Swagger.class);
-
+        Swagger swagger = getJsonSwagger();
         assertNotNull(swagger);
     }
 
     @Test
     public void verifySwaggerYaml() throws Exception {
+        Swagger swagger = getYamlSwagger();
+        assertNotNull(swagger);
+    }
+
+    @Test
+    public void verifyVendorSpecExtensionsDelete() throws Exception {
+        testVendorSpecExtensionDelete(getJsonSwagger());
+        testVendorSpecExtensionDelete(getYamlSwagger());
+    }
+
+    private void testVendorSpecExtensionDelete(Swagger swagger) throws Exception {
+        for (Path path : swagger.getPaths().values()) {
+            for (Operation operation : path.getOperations()) {
+                final Constants.VendorExtension filteredVendorExtension =
+                        getFilteredVendorExtensions(operation.getVendorExtensions());
+                if (filteredVendorExtension != null) {
+                    Assert.fail("Operation " + operation.getOperationId() + " contains " +
+                            filteredVendorExtension.getValue());
+                }
+            }
+        }
+        for (Map.Entry<String, Model> definition : swagger.getDefinitions().entrySet()) {
+            final Constants.VendorExtension filteredVendorExtension =
+                    getFilteredVendorExtensions(definition.getValue().getVendorExtensions());
+            if (filteredVendorExtension != null) {
+                Assert.fail("Model " + definition.getKey() + " contains " +
+                        filteredVendorExtension.getValue());
+            }
+        }
+    }
+
+    private Constants.VendorExtension getFilteredVendorExtensions(Map<String, Object> vendorExtensions) {
+        final Set<String> extensionNames = vendorExtensions.keySet();
+        for (Constants.VendorExtension vendorExtension : Constants.VendorExtension.values()) {
+            if (extensionNames.contains(vendorExtension.getValue())) {
+                return vendorExtension;
+            }
+        }
+        return null;
+    }
+
+    private Swagger getJsonSwagger() throws Exception {
+        ApiClient client = new ApiClient();
+
+        String str = client.invokeAPI("swagger.json", "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        return Json.mapper().readValue(str, Swagger.class);
+    }
+
+    private Swagger getYamlSwagger() throws Exception {
         ApiClient client = new ApiClient();
 
         String str = client.invokeAPI("swagger.yaml", "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/yaml", null, new String[0]);
-        Swagger swagger = Yaml.mapper().readValue(str, Swagger.class);
-
-        assertNotNull(swagger);
+        return Yaml.mapper().readValue(str, Swagger.class);
     }
 }
