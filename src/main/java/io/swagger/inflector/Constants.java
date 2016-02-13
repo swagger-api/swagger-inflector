@@ -17,7 +17,23 @@
 package io.swagger.inflector;
 
 public class Constants {
-    public static final String X_SWAGGER_ROUTER_CONTROLLER = "x-swagger-router-controller";
-    public static final String X_SWAGGER_ROUTER_MODEL = "x-swagger-router-model";
+    public static final String X_SWAGGER_ROUTER_CONTROLLER = VendorExtension.X_SWAGGER_ROUTER_CONTROLLER.getValue();
+    public static final String X_SWAGGER_ROUTER_MODEL = VendorExtension.X_SWAGGER_ROUTER_MODEL.getValue();
     public static final String X_INFLECTOR_HIDDEN = "x-inflector-hidden";
+
+    public enum VendorExtension {
+        X_SWAGGER_ROUTER_CONTROLLER("x-swagger-router-controller"),
+        X_SWAGGER_ROUTER_MODEL("x-swagger-router-model");
+
+        private String value;
+
+        VendorExtension(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+    }
 }
