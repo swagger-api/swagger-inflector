@@ -17,8 +17,8 @@ public class ResolverUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResolverUtil.class);
 
     private Map<String, Model> models;
-    private Set<String> resolvedModels = new HashSet<String>();
-    private Set<String> resolvedProperties = new HashSet<String>();
+    private Map<String, Model> resolvedModels = new HashMap<String, Model>();
+    private Map<String, Property> resolvedProperties = new HashMap<String, Property>();
 
     public void resolveFully(Swagger swagger) {
         models = swagger.getDefinitions();
@@ -72,7 +72,6 @@ public class ResolverUtil {
     }
 
     public Model resolveFully(Model schema) {
-        // TODO: check for loops
         if(schema instanceof RefModel) {
             RefModel ref = (RefModel) schema;
             Model resolved = models.get(ref.getSimpleRef());
@@ -80,12 +79,17 @@ public class ResolverUtil {
                 LOGGER.error("unresolved model " + ref.getSimpleRef());
                 return schema;
             }
-            if(this.resolvedModels.contains(ref.getSimpleRef())) {
+            if(this.resolvedModels.containsKey(ref.getSimpleRef())) {
                 LOGGER.debug("avoiding infinite loop");
-                return schema;
+                return this.resolvedModels.get(ref.getSimpleRef());
             }
-            this.resolvedModels.add(ref.getSimpleRef());
-            return resolveFully(resolved);
+            this.resolvedModels.put(ref.getSimpleRef(), ref);
+
+            Model model = resolveFully(resolved);
+
+            // if we make it without a resolution loop, we can update the reference
+            this.resolvedModels.put(ref.getSimpleRef(), model);
+            return model;
         }
         if(schema instanceof ArrayModel) {
             ArrayModel arrayModel = (ArrayModel) schema;
@@ -114,22 +118,23 @@ public class ResolverUtil {
     }
 
     public Property resolveFully(Property property) {
-        // TODO: check for loops
         if(property instanceof RefProperty) {
             RefProperty ref = (RefProperty) property;
-            if(this.resolvedProperties.contains(ref.getSimpleRef())) {
+            if(this.resolvedProperties.containsKey(ref.getSimpleRef())) {
                 LOGGER.debug("avoiding infinite loop");
-                return property;
+                return this.resolvedProperties.get(ref.getSimpleRef());
             }
 
-            this.resolvedProperties.add(ref.getSimpleRef());
+            this.resolvedProperties.put(ref.getSimpleRef(), ref);
             Model model = models.get(ref.getSimpleRef());
             if(model == null) {
                 LOGGER.error("unresolved model " + ref.getSimpleRef());
                 return property;
             }
             else {
-                return createObjectProperty(model);
+                Property output = createObjectProperty(model);
+                this.resolvedProperties.put(ref.getSimpleRef(), output);
+                return output;
             }
         }
         else if (property instanceof ObjectProperty) {
@@ -138,8 +143,11 @@ public class ResolverUtil {
                 Map<String, Property> updated = new LinkedHashMap<String, Property>();
                 for(String propertyName : obj.getProperties().keySet()) {
                     Property innerProperty = obj.getProperties().get(propertyName);
-                    Property resolved = resolveFully(innerProperty);
-                    updated.put(propertyName, resolved);
+                    // reference check
+                    if(property != innerProperty) {
+                        Property resolved = resolveFully(innerProperty);
+                        updated.put(propertyName, resolved);
+                    }
                 }
                 obj.setProperties(updated);
             }
