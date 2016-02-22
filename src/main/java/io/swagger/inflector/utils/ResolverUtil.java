@@ -58,11 +58,13 @@ public class ResolverUtil {
                 }
 
                 // responses
-                for(String code : op.getResponses().keySet()) {
-                    Response response = op.getResponses().get(code);
-                    if(response.getSchema() != null) {
-                        Property resolved = resolveFully(response.getSchema());
-                        response.setSchema(resolved);
+                if(op.getResponses() != null) {
+                    for(String code : op.getResponses().keySet()) {
+                        Response response = op.getResponses().get(code);
+                        if (response.getSchema() != null) {
+                            Property resolved = resolveFully(response.getSchema());
+                            response.setSchema(resolved);
+                        }
                     }
                 }
             }
@@ -73,7 +75,7 @@ public class ResolverUtil {
         if(schema instanceof RefModel) {
             RefModel ref = (RefModel) schema;
             Model resolved = models.get(ref.getSimpleRef());
-            return resolved;
+            return resolveFully(resolved);
         }
         if(schema instanceof ArrayModel) {
             ArrayModel arrayModel = (ArrayModel) schema;
