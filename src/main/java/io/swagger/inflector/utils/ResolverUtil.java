@@ -11,14 +11,14 @@ import io.swagger.models.properties.RefProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ResolverUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResolverUtil.class);
 
     private Map<String, Model> models;
+    private Set<String> resolvedModels = new HashSet<String>();
+    private Set<String> resolvedProperties = new HashSet<String>();
 
     public void resolveFully(Swagger swagger) {
         models = swagger.getDefinitions();
@@ -72,9 +72,19 @@ public class ResolverUtil {
     }
 
     public Model resolveFully(Model schema) {
+        // TODO: check for loops
         if(schema instanceof RefModel) {
             RefModel ref = (RefModel) schema;
             Model resolved = models.get(ref.getSimpleRef());
+            if(resolved == null) {
+                LOGGER.error("unresolved model " + ref.getSimpleRef());
+                return schema;
+            }
+            if(this.resolvedModels.contains(ref.getSimpleRef())) {
+                LOGGER.debug("avoiding infinite loop");
+                return schema;
+            }
+            this.resolvedModels.add(ref.getSimpleRef());
             return resolveFully(resolved);
         }
         if(schema instanceof ArrayModel) {
@@ -104,8 +114,15 @@ public class ResolverUtil {
     }
 
     public Property resolveFully(Property property) {
+        // TODO: check for loops
         if(property instanceof RefProperty) {
             RefProperty ref = (RefProperty) property;
+            if(this.resolvedProperties.contains(ref.getSimpleRef())) {
+                LOGGER.debug("avoiding infinite loop");
+                return property;
+            }
+
+            this.resolvedProperties.add(ref.getSimpleRef());
             Model model = models.get(ref.getSimpleRef());
             if(model == null) {
                 LOGGER.error("unresolved model " + ref.getSimpleRef());
