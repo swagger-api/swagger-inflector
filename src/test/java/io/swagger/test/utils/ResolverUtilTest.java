@@ -12,6 +12,7 @@ import io.swagger.models.properties.ObjectProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.parser.SwaggerParser;
 import io.swagger.sample.models.Dog;
+import io.swagger.util.Json;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertNotNull;
@@ -26,6 +27,8 @@ public class ResolverUtilTest {
         new ResolverUtil().resolveFully(swagger);
         Operation operation = swagger.getPath("/withModelArray/{id}").getPost();
         Parameter param = operation.getParameters().get(1);
+
+        Json.prettyPrint(swagger);
 
         assertTrue(param instanceof BodyParameter);
         BodyParameter body = (BodyParameter) param;
@@ -94,5 +97,100 @@ public class ResolverUtilTest {
         assertNotNull(am);
         Property prop = am.getItems();
         assertTrue(prop instanceof ObjectProperty);
+    }
+
+    @Test
+    public void selfReferenceTest() {
+        String yaml = "" +
+                "swagger: '2.0'\n" +
+                "paths:\n" +
+                "  /selfRefA:\n" +
+                "    get:\n" +
+                "      parameters:\n" +
+                "        - in: body\n" +
+                "          name: body\n" +
+                "          schema:\n" +
+                "            $ref: '#/definitions/ModelA'\n" +
+                "  /selfRefB:\n" +
+                "    get:\n" +
+                "      parameters:\n" +
+                "        - in: body\n" +
+                "          name: body\n" +
+                "          schema:\n" +
+                "            $ref: '#/definitions/ModelB'\n" +
+                "  /selfRefC:\n" +
+                "    get:\n" +
+                "      parameters:\n" +
+                "        - in: body\n" +
+                "          name: body\n" +
+                "          schema:\n" +
+                "            $ref: '#/definitions/ModelC'\n" +
+                "  /selfRefD:\n" +
+                "    get:\n" +
+                "      parameters: []\n" +
+                "      responses:\n" +
+                "        default:\n" +
+                "          schema:\n" +
+                "            $ref: '#/definitions/ModelA'\n" +
+                "  /selfRefE:\n" +
+                "    get:\n" +
+                "      parameters: []\n" +
+                "      responses:\n" +
+                "        default:\n" +
+                "          schema:\n" +
+                "            type: array\n" +
+                "            items:\n" +
+                "              $ref: '#/definitions/ModelA'\n" +
+                "definitions:\n" +
+                "  ModelA:\n" +
+                "    properties:\n" +
+                "      modelB:\n" +
+                "        $ref: '#/definitions/ModelB'\n" +
+                "  ModelB:\n" +
+                "    properties:\n" +
+                "      modelB:\n" +
+                "        $ref: '#/definitions/ModelB'\n" +
+                "  ModelC:\n" +
+                "    properties:\n" +
+                "      modelA:\n" +
+                "        $ref: '#/definitions/ModelA'";
+
+        Swagger swagger = new SwaggerParser().parse(yaml);
+        new ResolverUtil().resolveFully(swagger);
+    }
+
+    @Test
+    public void testSelfReferenceResolution() {
+        String yaml = "" +
+                "swagger: '2.0'\n" +
+                "paths:\n" +
+                "  /selfRefA:\n" +
+                "    get:\n" +
+                "      parameters:\n" +
+                "        - in: body\n" +
+                "          name: body\n" +
+                "          schema:\n" +
+                "            $ref: '#/definitions/ModelA'\n" +
+                "  /selfRefB:\n" +
+                "    get:\n" +
+                "      parameters:\n" +
+                "        - in: body\n" +
+                "          name: body\n" +
+                "          schema:\n" +
+                "            $ref: '#/definitions/ModelB'\n" +
+                "\n" +
+                "definitions:\n" +
+                "  ModelA:\n" +
+                "    properties:\n" +
+                "      name:\n" +
+                "        type: string\n" +
+                "      modelB:\n" +
+                "        $ref: '#/definitions/ModelB'\n" +
+                "  ModelB:\n" +
+                "    properties:\n" +
+                "      modelB:\n" +
+                "        $ref: '#/definitions/ModelB'";
+        Swagger swagger = new SwaggerParser().parse(yaml);
+        new ResolverUtil().resolveFully(swagger);
     }
 }
