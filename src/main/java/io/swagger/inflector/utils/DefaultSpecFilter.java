@@ -1,6 +1,6 @@
 package io.swagger.inflector.utils;
 
-import io.swagger.core.filter.SwaggerSpecFilter;
+import io.swagger.core.filter.AbstractSpecFilter;
 import io.swagger.inflector.Constants;
 import io.swagger.model.ApiDescription;
 import io.swagger.models.Model;
@@ -11,7 +11,7 @@ import io.swagger.models.properties.Property;
 import java.util.List;
 import java.util.Map;
 
-public class DefaultSpecFilter implements SwaggerSpecFilter {
+public class DefaultSpecFilter extends AbstractSpecFilter {
 
     @Override
     public boolean isOperationAllowed(Operation operation, ApiDescription api, Map<String, List<String>> params, Map<String, String> cookies, Map<String, List<String>> headers) {
@@ -34,6 +34,11 @@ public class DefaultSpecFilter implements SwaggerSpecFilter {
         if(property.getVendorExtensions() != null && property.getVendorExtensions().containsKey(Constants.X_INFLECTOR_HIDDEN)) {
             return false;
         }
+        return true;
+    }
+
+    @Override
+    public boolean isRemovingUnreferencedDefinitions() {
         return true;
     }
 }

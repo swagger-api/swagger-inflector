@@ -413,7 +413,7 @@
         </dependency>
     </dependencies>
     <properties>
-        <swagger-core-version>1.5.6</swagger-core-version>
+        <swagger-core-version>1.5.8-SNAPSHOT</swagger-core-version>
         <swagger-parser-version>1.0.18-SNAPSHOT</swagger-parser-version>
         <joda-time-version>2.2</joda-time-version>
         <joda-version>1.2</joda-version>
