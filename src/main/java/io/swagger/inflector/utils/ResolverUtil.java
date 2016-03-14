@@ -109,7 +109,21 @@ public class ResolverUtil {
                     Property resolved = resolveFully(property);
                     updated.put(propertyName, resolved);
                 }
-                model.setProperties(updated);
+                Map<String, Property> existing = model.getProperties();
+                for(String key : updated.keySet()) {
+                    Property property = updated.get(key);
+
+                    if(property instanceof ObjectProperty) {
+                        ObjectProperty op = (ObjectProperty) property;
+                        if(op.getProperties() != model.getProperties()) {
+                            model.addProperty(key, property);
+                        }
+                        else {
+                            LOGGER.debug("not adding recursive properties, using generic object");
+                            model.addProperty(key, new ObjectProperty());
+                        }
+                    }
+                }
                 return model;
             }
         }
@@ -121,7 +135,12 @@ public class ResolverUtil {
         if(property instanceof RefProperty) {
             RefProperty ref = (RefProperty) property;
             if(this.resolvedProperties.containsKey(ref.getSimpleRef())) {
-                LOGGER.debug("avoiding infinite loop");
+                Property resolved = this.resolvedProperties.get(ref.getSimpleRef());
+                // don't return full recursion, check object address
+                if(resolved == property) {
+                    LOGGER.debug("avoiding infinite loop, using generic object property");
+                    return new ObjectProperty();
+                }
                 return this.resolvedProperties.get(ref.getSimpleRef());
             }
 

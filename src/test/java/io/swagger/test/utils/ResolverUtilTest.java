@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 
 public class ResolverUtilTest {
@@ -164,13 +165,6 @@ public class ResolverUtilTest {
         String yaml = "" +
                 "swagger: '2.0'\n" +
                 "paths:\n" +
-                "  /selfRefA:\n" +
-                "    get:\n" +
-                "      parameters:\n" +
-                "        - in: body\n" +
-                "          name: body\n" +
-                "          schema:\n" +
-                "            $ref: '#/definitions/ModelA'\n" +
                 "  /selfRefB:\n" +
                 "    get:\n" +
                 "      parameters:\n" +
@@ -192,5 +186,15 @@ public class ResolverUtilTest {
                 "        $ref: '#/definitions/ModelB'";
         Swagger swagger = new SwaggerParser().parse(yaml);
         new ResolverUtil().resolveFully(swagger);
+
+        Parameter param = swagger.getPaths().get("/selfRefB").getGet().getParameters().get(0);
+        BodyParameter bp = (BodyParameter) param;
+        Model schema = bp.getSchema();
+        try {
+            Json.mapper().writeValueAsString(schema);
+        }
+        catch (Exception e) {
+            fail("Recursive loop found");
+        }
     }
 }
