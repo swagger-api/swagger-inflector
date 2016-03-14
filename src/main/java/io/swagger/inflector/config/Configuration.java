@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
 
 public class Configuration {
@@ -83,11 +83,11 @@ public class Configuration {
         }
         try {
             // try to load from resources
-            
-            InputStream is = Configuration.class.getClassLoader().getResourceAsStream("/WEB-INF/inflector.yaml");
-            if(is != null) {
+            URL url = Configuration.class.getClassLoader().getResource("inflector.yaml");
+            if(url != null) {
                 try {
-                  return Yaml.mapper().readValue(is, Configuration.class);
+                    Configuration config = Yaml.mapper().readValue(new File(url.getFile()), Configuration.class);
+                    return config;
                 } catch (Exception e) {
                   LOGGER.warn("couldn't read inflector config from resource stream");
                   // continue
