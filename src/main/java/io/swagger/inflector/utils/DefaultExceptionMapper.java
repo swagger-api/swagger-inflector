@@ -16,25 +16,39 @@
 
 package io.swagger.inflector.utils;
 
+import io.swagger.inflector.CustomMediaTypes;
 import io.swagger.inflector.models.ApiError;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import javax.ws.rs.ext.Providers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.TreeSet;
+
 @Provider
 public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultExceptionMapper.class);
+    private static final Set<String> OVERRIDDEN;
+
+    @Context
+    Providers providers;
+
+    @Context
+    private HttpHeaders headers;
 
     public Response toResponse(Exception exception) {
-        final ApiError error = createError(ThreadLocalRandom.current().nextLong(), exception);
+        final ApiError error = createError(exception);
         final int code = error.getCode();
         if (code != Status.INTERNAL_SERVER_ERROR.getStatusCode()) {
             if (LOGGER.isDebugEnabled()) {
@@ -43,20 +57,35 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
         } else {
             LOGGER.error(error.getMessage(), exception);
         }
-        return Response.status(code).entity(error).build();
+        final Response.ResponseBuilder builder = Response.status(code).entity(error);
+        int count = 0;
+        for (MediaType acceptable : headers.getAcceptableMediaTypes()) {
+            if (!OVERRIDDEN.contains(acceptable.getSubtype())) {
+                ++count;
+            }
+        }
+        if (count == 0) {
+            builder.type(providers.getContextResolver(MediaType.class, MediaType.WILDCARD_TYPE)
+                    .getContext(getClass()));
+        }
+        return builder.build();
     }
 
-    private ApiError createError(long id, Exception exception) {
+    private ApiError createError(Exception exception) {
         if (exception instanceof ApiException) {
             return ((ApiException) exception).getError();
         } else if (exception instanceof WebApplicationException) {
             final WebApplicationException e = (WebApplicationException) exception;
             return new ApiError().code(e.getResponse().getStatus()).message(e.getMessage());
         } else {
-            final String message = String.format("There was an error processing your request."
-                    + " It has been logged (ID: %016x).", id);
-            return new ApiError().code(Status.INTERNAL_SERVER_ERROR.getStatusCode())
-                    .message(message);
+            return ApiError.createInternalError();
         }
+    }
+
+    static {
+        final Set<String> overridden = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        overridden.add(MediaType.MEDIA_TYPE_WILDCARD);
+        overridden.add(CustomMediaTypes.APPLICATION_YAML.getSubtype());
+        OVERRIDDEN = Collections.unmodifiableSet(overridden);
     }
 }

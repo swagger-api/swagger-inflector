@@ -408,10 +408,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                   final Throwable next = cause.getCause();
                   cause = next == cause || next == null ? null : next;
               }
-              ApiError error = new ApiError()
-                    .message("failed to invoke controller")
-                    .code(500);
-              throw new ApiException(error, e);
+              throw new ApiException(ApiError.createInternalError(), e);
           }
         }
         Map<String, io.swagger.models.Response> responses = operation.getResponses();
