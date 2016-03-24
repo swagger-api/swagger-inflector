@@ -112,8 +112,8 @@ public class ResponseWithExceptionTestIT {
             final ApiError error = Json.mapper().readValue(e.getMessage(), ApiError.class);
             Assert.assertEquals(error.getCode(), expected.getStatusCode());
             Assert.assertEquals(
-                    error.getMessage().replaceFirst("\\(ID: [^\\)]+\\)\\.$", "(ID: XXXXXXXX)."),
-                    "There was an error processing your request. It has been logged (ID: XXXXXXXX).");
+                    error.getMessage().replaceFirst("\\(ID: [^\\)]+\\)$", "(ID: XXXXXXXX)"),
+                    "There was an error processing your request. It has been logged (ID: XXXXXXXX)");
         }
     }
 
