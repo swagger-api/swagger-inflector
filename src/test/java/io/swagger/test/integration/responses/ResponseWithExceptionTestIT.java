@@ -16,23 +16,28 @@
 
 package io.swagger.test.integration.responses;
 
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import io.swagger.inflector.CustomMediaTypes;
+import io.swagger.inflector.models.ApiError;
 import io.swagger.test.client.ApiClient;
 import io.swagger.test.client.ApiException;
-
+import io.swagger.util.Json;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
+import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 public class ResponseWithExceptionTestIT {
-    private static final String MSG_TEMPLATE =
-            "<ApiError><code>%d</code><message>%s</message></ApiError>";
     private final ApiClient client = new ApiClient();
 
     @Test
-    public void verifyApiException() {
+    public void verifyApiExceptionAsJson() throws IOException {
         try {
             client.invokeAPI("/throwApiException", "GET", new HashMap<String, String>(), null,
                     new HashMap<String, String>(), null, null, null, new String[0]);
@@ -40,13 +45,48 @@ public class ResponseWithExceptionTestIT {
         } catch (ApiException e) {
             final Response.Status expected = Response.Status.CONFLICT;
             Assert.assertEquals(e.getCode(), expected.getStatusCode());
-            Assert.assertEquals(e.getMessage(), String.format(MSG_TEMPLATE,
-                    expected.getStatusCode(), expected.getReasonPhrase()));
+            final ApiError error = Json.mapper().readValue(e.getMessage(), ApiError.class);
+            Assert.assertEquals(error.getCode(), expected.getStatusCode());
+            Assert.assertEquals(error.getMessage(), expected.getReasonPhrase());
         }
     }
 
     @Test
-    public void verifyApiExceptionAsCause() {
+    public void verifyApiExceptionAsXml() throws IOException {
+        try {
+            final Map<String, String> headerParams = Collections.singletonMap(HttpHeaders.ACCEPT,
+                    MediaType.APPLICATION_XML);
+            client.invokeAPI("/throwApiException", "GET", new HashMap<String, String>(), null,
+                    headerParams, null, null, null, new String[0]);
+            Assert.fail("Exception was expected!");
+        } catch (ApiException e) {
+            final Response.Status expected = Response.Status.CONFLICT;
+            Assert.assertEquals(e.getCode(), expected.getStatusCode());
+            final ApiError error = new XmlMapper().readValue(e.getMessage(), ApiError.class);
+            Assert.assertEquals(error.getCode(), expected.getStatusCode());
+            Assert.assertEquals(error.getMessage(), expected.getReasonPhrase());
+        }
+    }
+
+    @Test
+    public void verifyApiExceptionForYaml() throws IOException {
+        try {
+            final Map<String, String> headerParams = Collections.singletonMap(HttpHeaders.ACCEPT,
+                    CustomMediaTypes.APPLICATION_YAML.toString());
+            client.invokeAPI("/throwApiException", "GET", new HashMap<String, String>(), null,
+                    headerParams, null, null, null, new String[0]);
+            Assert.fail("Exception was expected!");
+        } catch (ApiException e) {
+            final Response.Status expected = Response.Status.CONFLICT;
+            Assert.assertEquals(e.getCode(), expected.getStatusCode());
+            final ApiError error = Json.mapper().readValue(e.getMessage(), ApiError.class);
+            Assert.assertEquals(error.getCode(), expected.getStatusCode());
+            Assert.assertEquals(error.getMessage(), expected.getReasonPhrase());
+        }
+    }
+
+    @Test
+    public void verifyApiExceptionAsCause() throws IOException {
         try {
             client.invokeAPI("/throwApiExceptionAsCause", "GET", new HashMap<String, String>(),
                     null, new HashMap<String, String>(), null, null, null, new String[0]);
@@ -54,13 +94,14 @@ public class ResponseWithExceptionTestIT {
         } catch (ApiException e) {
             final Response.Status expected = Response.Status.CONFLICT;
             Assert.assertEquals(e.getCode(), expected.getStatusCode());
-            Assert.assertEquals(e.getMessage(), String.format(MSG_TEMPLATE,
-                    expected.getStatusCode(), expected.getReasonPhrase()));
+            final ApiError error = Json.mapper().readValue(e.getMessage(), ApiError.class);
+            Assert.assertEquals(error.getCode(), expected.getStatusCode());
+            Assert.assertEquals(error.getMessage(), expected.getReasonPhrase());
         }
     }
 
     @Test
-    public void verifyNonApiException() {
+    public void verifyNonApiException() throws IOException {
         try {
             client.invokeAPI("/throwNonApiException", "GET", new HashMap<String, String>(), null,
                     new HashMap<String, String>(), null, null, null, new String[0]);
@@ -68,8 +109,11 @@ public class ResponseWithExceptionTestIT {
         } catch (ApiException e) {
             final Response.Status expected = Response.Status.INTERNAL_SERVER_ERROR;
             Assert.assertEquals(e.getCode(), expected.getStatusCode());
-            Assert.assertEquals(e.getMessage(), String.format(MSG_TEMPLATE,
-                    expected.getStatusCode(), "failed to invoke controller"));
+            final ApiError error = Json.mapper().readValue(e.getMessage(), ApiError.class);
+            Assert.assertEquals(error.getCode(), expected.getStatusCode());
+            Assert.assertEquals(
+                    error.getMessage().replaceFirst("\\(ID: [^\\)]+\\)\\.$", "(ID: XXXXXXXX)."),
+                    "There was an error processing your request. It has been logged (ID: XXXXXXXX).");
         }
     }
 

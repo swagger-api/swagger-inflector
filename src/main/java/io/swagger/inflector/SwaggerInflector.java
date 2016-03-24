@@ -28,7 +28,12 @@ import io.swagger.inflector.controllers.SwaggerResourceController;
 import io.swagger.inflector.converters.Converter;
 import io.swagger.inflector.converters.InputConverter;
 import io.swagger.inflector.models.InflectResult;
-import io.swagger.inflector.processors.*;
+import io.swagger.inflector.processors.JsonExampleProvider;
+import io.swagger.inflector.processors.JsonNodeExampleSerializer;
+import io.swagger.inflector.processors.JsonProvider;
+import io.swagger.inflector.processors.XMLExampleProvider;
+import io.swagger.inflector.processors.YamlExampleProvider;
+import io.swagger.inflector.utils.DefaultMediaTypeProvider;
 import io.swagger.inflector.utils.DefaultSpecFilter;
 import io.swagger.inflector.utils.ResolverUtil;
 import io.swagger.inflector.validators.Validator;
@@ -52,7 +57,13 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.util.*;
+import javax.ws.rs.ext.ContextResolver;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class SwaggerInflector extends ResourceConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerInflector.class);
@@ -170,26 +181,31 @@ public class SwaggerInflector extends ResourceConfig {
             LOGGER.error("the swagger definition is not valid");
         }
 
-        // JSON
-        if (config.getEntityProcessors().contains("json")) {
-            Json.mapper().registerModule(simpleModule);
-            register(JacksonJsonProvider.class);
-            register(JsonExampleProvider.class);
-            register(JsonProvider.class);
-            enableSwaggerJSON(swagger);
-        }
-
-        // XML
-        if (config.getEntityProcessors().contains("xml")) {
-            register(JacksonJaxbXMLProvider.class);
-            register(XMLExampleProvider.class);
-        }
-
-        // YAML
-        if (config.getEntityProcessors().contains("yaml")) {
-            Yaml.mapper().registerModule(simpleModule);
-            register(YamlExampleProvider.class);
-            enableSwaggerYAML(swagger);
+        // Add content providers in order or appearance in the configuration
+        for (String item : config.getEntityProcessors()) {
+            if ("json".equalsIgnoreCase(item)) {
+                // JSON
+                Json.mapper().registerModule(simpleModule);
+                register(JacksonJsonProvider.class);
+                register(JsonExampleProvider.class);
+                register(JsonProvider.class);
+                if (!isRegistered(DefaultMediaTypeProvider.class)) {
+                    register(new DefaultMediaTypeProvider(MediaType.APPLICATION_JSON_TYPE), ContextResolver.class);
+                }
+                enableSwaggerJSON(swagger);
+            } else if ("xml".equalsIgnoreCase(item)) {
+                // XML
+                if (!isRegistered(DefaultMediaTypeProvider.class)) {
+                    register(new DefaultMediaTypeProvider(MediaType.APPLICATION_XML_TYPE), ContextResolver.class);
+                }
+                register(JacksonJaxbXMLProvider.class);
+                register(XMLExampleProvider.class);
+            } else if ("yaml".equalsIgnoreCase(item)) {
+                // YAML
+                Yaml.mapper().registerModule(simpleModule);
+                register(YamlExampleProvider.class);
+                enableSwaggerYAML(swagger);
+            }
         }
 
         register(new MultiPartFeature());
