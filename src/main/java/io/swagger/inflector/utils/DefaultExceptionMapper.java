@@ -78,7 +78,7 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
             final WebApplicationException e = (WebApplicationException) exception;
             return new ApiError().code(e.getResponse().getStatus()).message(e.getMessage());
         } else {
-            return ApiError.createInternalError();
+            return ApiErrorUtils.createInternalError();
         }
     }
 

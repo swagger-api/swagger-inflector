@@ -26,6 +26,7 @@ import io.swagger.inflector.models.ApiError;
 import io.swagger.inflector.models.RequestContext;
 import io.swagger.inflector.models.ResponseContext;
 import io.swagger.inflector.processors.EntityProcessorFactory;
+import io.swagger.inflector.utils.ApiErrorUtils;
 import io.swagger.inflector.utils.ApiException;
 import io.swagger.inflector.utils.ReflectionUtils;
 import io.swagger.inflector.validators.ValidationException;
@@ -408,7 +409,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                   final Throwable next = cause.getCause();
                   cause = next == cause || next == null ? null : next;
               }
-              throw new ApiException(ApiError.createInternalError(), e);
+              throw new ApiException(ApiErrorUtils.createInternalError(), e);
           }
         }
         Map<String, io.swagger.models.Response> responses = operation.getResponses();

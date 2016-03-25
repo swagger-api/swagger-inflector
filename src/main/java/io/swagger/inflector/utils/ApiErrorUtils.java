@@ -14,35 +14,19 @@
  *  limitations under the License.
  */
 
-package io.swagger.inflector.models;
+package io.swagger.inflector.utils;
 
-public class ApiError {
-    private int code;
-    private String message;
+import io.swagger.inflector.models.ApiError;
 
-    public ApiError code(int code) {
-        this.code = code;
-        return this;
-    }
+import javax.ws.rs.core.Response;
+import java.util.concurrent.ThreadLocalRandom;
 
-    public ApiError message(String message) {
-        this.message = message;
-        return this;
-    }
+public class ApiErrorUtils {
 
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
+    public static ApiError createInternalError() {
+        final String message = String.format("There was an error processing your request."
+                + " It has been logged (ID: %016x)", ThreadLocalRandom.current().nextLong());
+        return new ApiError().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
+                .message(message);
     }
 }

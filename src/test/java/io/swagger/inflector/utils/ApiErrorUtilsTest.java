@@ -14,35 +14,19 @@
  *  limitations under the License.
  */
 
-package io.swagger.inflector.models;
+package io.swagger.inflector.utils;
 
-public class ApiError {
-    private int code;
-    private String message;
+import io.swagger.inflector.models.ApiError;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-    public ApiError code(int code) {
-        this.code = code;
-        return this;
-    }
-
-    public ApiError message(String message) {
-        this.message = message;
-        return this;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
+public class ApiErrorUtilsTest {
+    @Test
+    public void testInternalError() {
+        final ApiError first = ApiErrorUtils.createInternalError();
+        Assert.assertEquals(first.getCode(), 500);
+        final ApiError second = ApiErrorUtils.createInternalError();
+        Assert.assertEquals(second.getCode(), first.getCode());
+        Assert.assertNotEquals(second.getMessage(), first.getMessage());
     }
 }
