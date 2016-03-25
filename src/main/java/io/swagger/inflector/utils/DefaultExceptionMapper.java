@@ -18,6 +18,8 @@ package io.swagger.inflector.utils;
 
 import io.swagger.inflector.CustomMediaTypes;
 import io.swagger.inflector.models.ApiError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
@@ -25,13 +27,10 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import javax.ws.rs.ext.Providers;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
@@ -65,8 +64,13 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
             }
         }
         if (count == 0) {
-            builder.type(providers.getContextResolver(MediaType.class, MediaType.WILDCARD_TYPE)
-                    .getContext(getClass()));
+            ContextResolver<MediaType> resolver = providers.getContextResolver(MediaType.class, MediaType.WILDCARD_TYPE);
+            if(resolver != null) {
+                builder.type(resolver.getContext(getClass()));
+            }
+            else {
+                builder.type(MediaType.APPLICATION_JSON_TYPE);
+            }
         }
         return builder.build();
     }
