@@ -96,6 +96,16 @@ public class Configuration {
         } catch (Exception e) {
           LOGGER.warn("Returning default configuration!");
         }
+        // try to read from default location, inflector.yaml
+        configLocation = "inflector.yaml";
+        try {
+            return read(configLocation);
+        }
+        catch (Exception e) {
+            // continue
+            LOGGER.warn("couldn't read inflector config from system property");
+        }
+
         return defaultConfiguration();
     }
 
