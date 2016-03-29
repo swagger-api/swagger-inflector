@@ -44,6 +44,9 @@ import org.glassfish.jersey.process.Inflector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -82,6 +85,8 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     private String controllerName;
     private String methodName;
     private String operationSignature;
+    @Inject
+    private Provider<HttpServletRequest> requestProvider;
 
     public SwaggerOperationController(Configuration config, String path, String httpMethod, Operation operation, Map<String, Model> definitions) {
         this.setConfiguration(config);
@@ -175,7 +180,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     @Override
     public Response apply(ContainerRequestContext ctx) {
         List<Parameter> parameters = operation.getParameters();
-        RequestContext requestContext = new RequestContext(ctx);
+        final RequestContext requestContext = createContext(ctx);
 
         String path = ctx.getUriInfo().getPath();
 
@@ -535,4 +540,14 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
         this.method = method;
     }
 
+    private RequestContext createContext(ContainerRequestContext from) {
+        final RequestContext result = new RequestContext(from);
+        if (requestProvider != null) {
+            final HttpServletRequest request = requestProvider.get();
+            if (request != null) {
+                result.setRemoteAddr(request.getRemoteAddr());
+            }
+        }
+        return result;
+    }
 }
