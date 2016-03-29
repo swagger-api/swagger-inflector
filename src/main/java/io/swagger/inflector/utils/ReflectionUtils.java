@@ -215,6 +215,13 @@ public class ReflectionUtils {
             }
             unimplementedMappedModels.add(modelName);
         }
+        if(model instanceof RefModel) {
+            RefModel ref = (RefModel) model;
+            Model inner = definitions.get(ref.getSimpleRef());
+            if(inner != null) {
+                return getTypeFromModel(name, inner, definitions);
+            }
+        }
         // try to load from default package
         if(!"".equals(name)) {
             String modelName = name;
@@ -240,13 +247,6 @@ public class ReflectionUtils {
             }
             else {
                 return tf.constructArrayType(JsonNode.class);
-            }
-        }
-        if(model instanceof RefModel) {
-            RefModel ref = (RefModel) model;
-            Model inner = definitions.get(ref.getSimpleRef());
-            if(inner != null) {
-                return getTypeFromModel(name, inner, definitions);
             }
         }
         if(model instanceof ModelImpl) {
