@@ -26,6 +26,7 @@ public class RequestContext {
     MultivaluedMap<String, String> headers;
     MediaType mediaType;
     List<MediaType> acceptableMediaTypes;
+    private String remoteAddr;
 
     public RequestContext() {}
 
@@ -83,5 +84,13 @@ public class RequestContext {
 
     public void setContext(ContainerRequestContext context) {
         this.context = context;
+    }
+
+    public String getRemoteAddr() {
+        return remoteAddr;
+    }
+
+    public void setRemoteAddr(String remoteAddr) {
+        this.remoteAddr = remoteAddr;
     }
 }
