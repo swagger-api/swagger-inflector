@@ -1,5 +1,5 @@
 /*
- *  Copyright 2006 SmartBear Software
+ *  Copyright 2016 SmartBear Software
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,15 +19,19 @@ package io.swagger.inflector.utils;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ContextResolver;
 
-public class DefaultMediaTypeProvider implements ContextResolver<MediaType> {
-    private final MediaType mediaType;
+public class DefaultContentTypeProvider implements ContextResolver<ContentTypeSelector> {
+    private final ContentTypeSelector selector;
 
-    public DefaultMediaTypeProvider(MediaType mediaType) {
-        this.mediaType = mediaType;
+    public DefaultContentTypeProvider(MediaType type) {
+        this(new DefaultContentTypeSelector(type));
+    }
+
+    public DefaultContentTypeProvider(ContentTypeSelector selector) {
+        this.selector = selector;
     }
 
     @Override
-    public MediaType getContext(Class<?> type) {
-        return mediaType;
+    public ContentTypeSelector getContext(Class<?> type) {
+        return selector;
     }
 }

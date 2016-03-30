@@ -28,6 +28,7 @@ import io.swagger.inflector.models.ResponseContext;
 import io.swagger.inflector.processors.EntityProcessorFactory;
 import io.swagger.inflector.utils.ApiErrorUtils;
 import io.swagger.inflector.utils.ApiException;
+import io.swagger.inflector.utils.ContentTypeSelector;
 import io.swagger.inflector.utils.ReflectionUtils;
 import io.swagger.inflector.validators.ValidationException;
 import io.swagger.inflector.validators.ValidationMessage;
@@ -52,6 +53,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Providers;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
@@ -85,6 +88,8 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     private String controllerName;
     private String methodName;
     private String operationSignature;
+    @Inject
+    private Provider<Providers> providersProvider;
     @Inject
     private Provider<HttpServletRequest> requestProvider;
 
@@ -377,15 +382,22 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                           builder.header(key, v);
                       }
                   }
-  
-                  // content type
-                  if (wrapper.getContentType() != null) {
-                      builder.type(wrapper.getContentType());
-                  }
-  
+
                   // entity
                   if (wrapper.getEntity() != null) {
                       builder.entity(wrapper.getEntity());
+                        // content type
+                        if (wrapper.getContentType() != null) {
+                            builder.type(wrapper.getContentType());
+                        } else {
+                            final ContextResolver<ContentTypeSelector> selector = providersProvider
+                                    .get().getContextResolver(ContentTypeSelector.class,
+                                            MediaType.WILDCARD_TYPE);
+                            if (selector != null) {
+                                selector.getContext(getClass()).apply(ctx.getAcceptableMediaTypes(),
+                                        builder);
+                            }
+                        }
 
                       if (validatePayload && operation.getResponses() != null) {
                           String responseCode = "" + wrapper.getStatus();
