@@ -33,7 +33,7 @@ import io.swagger.inflector.processors.JsonNodeExampleSerializer;
 import io.swagger.inflector.processors.JsonProvider;
 import io.swagger.inflector.processors.XMLExampleProvider;
 import io.swagger.inflector.processors.YamlExampleProvider;
-import io.swagger.inflector.utils.DefaultMediaTypeProvider;
+import io.swagger.inflector.utils.DefaultContentTypeProvider;
 import io.swagger.inflector.utils.DefaultSpecFilter;
 import io.swagger.inflector.utils.ResolverUtil;
 import io.swagger.inflector.validators.Validator;
@@ -189,14 +189,16 @@ public class SwaggerInflector extends ResourceConfig {
                 register(JacksonJsonProvider.class);
                 register(JsonExampleProvider.class);
                 register(JsonProvider.class);
-                if (!isRegistered(DefaultMediaTypeProvider.class)) {
-                    register(new DefaultMediaTypeProvider(MediaType.APPLICATION_JSON_TYPE), ContextResolver.class);
+                if (!isRegistered(DefaultContentTypeProvider.class)) {
+                    register(new DefaultContentTypeProvider(MediaType.APPLICATION_JSON_TYPE),
+                            ContextResolver.class);
                 }
                 enableSwaggerJSON(swagger);
             } else if ("xml".equalsIgnoreCase(item)) {
                 // XML
-                if (!isRegistered(DefaultMediaTypeProvider.class)) {
-                    register(new DefaultMediaTypeProvider(MediaType.APPLICATION_XML_TYPE), ContextResolver.class);
+                if (!isRegistered(DefaultContentTypeProvider.class)) {
+                    register(new DefaultContentTypeProvider(MediaType.APPLICATION_XML_TYPE),
+                            ContextResolver.class);
                 }
                 register(JacksonJaxbXMLProvider.class);
                 register(XMLExampleProvider.class);

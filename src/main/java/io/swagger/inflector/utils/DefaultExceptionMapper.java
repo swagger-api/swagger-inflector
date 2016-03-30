@@ -16,7 +16,6 @@
 
 package io.swagger.inflector.utils;
 
-import io.swagger.inflector.CustomMediaTypes;
 import io.swagger.inflector.models.ApiError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,14 +30,10 @@ import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import javax.ws.rs.ext.Providers;
-import java.util.Collections;
-import java.util.Set;
-import java.util.TreeSet;
 
 @Provider
 public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultExceptionMapper.class);
-    private static final Set<String> OVERRIDDEN;
 
     @Context
     Providers providers;
@@ -55,22 +50,11 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
             }
         } else {
             LOGGER.error(error.getMessage(), exception);
-        }
-        final Response.ResponseBuilder builder = Response.status(code).entity(error);
-        int count = 0;
-        for (MediaType acceptable : headers.getAcceptableMediaTypes()) {
-            if (!OVERRIDDEN.contains(acceptable.getSubtype())) {
-                ++count;
-            }
-        }
-        if (count == 0) {
-            ContextResolver<MediaType> resolver = providers.getContextResolver(MediaType.class, MediaType.WILDCARD_TYPE);
-            if(resolver != null) {
-                builder.type(resolver.getContext(getClass()));
-            }
-            else {
-                builder.type(MediaType.APPLICATION_JSON_TYPE);
-            }
+        } final Response.ResponseBuilder builder = Response.status(code).entity(error);
+        final ContextResolver<ContentTypeSelector> selector = providers.getContextResolver(
+                ContentTypeSelector.class, MediaType.WILDCARD_TYPE);
+        if (selector != null) {
+            selector.getContext(getClass()).apply(headers.getAcceptableMediaTypes(), builder);
         }
         return builder.build();
     }
@@ -84,12 +68,5 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
         } else {
             return ApiErrorUtils.createInternalError();
         }
-    }
-
-    static {
-        final Set<String> overridden = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        overridden.add(MediaType.MEDIA_TYPE_WILDCARD);
-        overridden.add(CustomMediaTypes.APPLICATION_YAML.getSubtype());
-        OVERRIDDEN = Collections.unmodifiableSet(overridden);
     }
 }
