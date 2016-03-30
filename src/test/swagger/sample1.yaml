@@ -178,6 +178,20 @@ paths:
           schema:
             type: string
             example: fun
+  /mockResponses/responseWithExamples:
+    get:
+      tags:
+        - mockResponses
+      produces:
+        - application/json
+        - application/yaml
+      responses:
+        '200':
+          description: 'success!'
+          examples:
+            application/json : {"test":"value"}
+            application/yaml :
+              test: value
   /mockResponses/primitiveDateResponse:
     get:
       tags:

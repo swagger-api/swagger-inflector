@@ -91,15 +91,17 @@ public class ExampleBuilder {
                 return null;
             }
             processedModels.add(ref.getSimpleRef());
-            Model model = definitions.get(ref.getSimpleRef());
-            if (model != null) {
-                if (model.getExample() != null) {
-                    try {
-                        String str = model.getExample().toString();
-                        output = Json.mapper().readValue(str, ObjectExample.class);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return null;
+            if( definitions != null ) {
+                Model model = definitions.get(ref.getSimpleRef());
+                if (model != null) {
+                    if (model.getExample() != null) {
+                        try {
+                            String str = model.getExample().toString();
+                            output = Json.mapper().readValue(str, ObjectExample.class);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            return null;
+                        }
                     }
                 }
             }
@@ -225,47 +227,51 @@ public class ExampleBuilder {
 
         // TODO: File
         if (property instanceof RefProperty && output == null) {
-            RefProperty ref = (RefProperty) property;
-            Model model = definitions.get(ref.getSimpleRef());
-            if (model != null) {
-                if (model instanceof ModelImpl) {
-                    ModelImpl i = (ModelImpl) model;
-                    if (i.getXml() != null) {
-                        Xml xml = i.getXml();
-                        name = xml.getName();
-                        attribute = xml.getAttribute();
-                        namespace = xml.getNamespace();
-                        prefix = xml.getPrefix();
-                        wrapped = xml.getWrapped();
-                    }
-                }
-                if (model.getExample() != null) {
-                    try {
-                        Example n = Json.mapper().readValue(model.getExample().toString(), Example.class);
-                        output = n;
-                    } catch (IOException e) {
-                        LOGGER.error("unable to convert value", e);
-                    }
-                } else {
-                    ObjectExample values = new ObjectExample();
-
-                    Map<String, Property> properties = model.getProperties();
-                    for (String key : properties.keySet()) {
-                        Property innerProp = properties.get(key);
-                        Example p = (Example) fromProperty(innerProp, definitions, processedModels);
-                        if (p != null) {
-                            if (p.getName() == null) {
-                                p.setName(key);
-                            }
-                            values.put(key, p);
-                            processedModels.add(key);
+            if( definitions != null ) {
+                RefProperty ref = (RefProperty) property;
+                Model model = definitions.get(ref.getSimpleRef());
+                if (model != null) {
+                    if (model instanceof ModelImpl) {
+                        ModelImpl i = (ModelImpl) model;
+                        if (i.getXml() != null) {
+                            Xml xml = i.getXml();
+                            name = xml.getName();
+                            attribute = xml.getAttribute();
+                            namespace = xml.getNamespace();
+                            prefix = xml.getPrefix();
+                            wrapped = xml.getWrapped();
                         }
                     }
-                    output = values;
+                    if (model.getExample() != null) {
+                        try {
+                            Example n = Json.mapper().readValue(model.getExample().toString(), Example.class);
+                            output = n;
+                        } catch (IOException e) {
+                            LOGGER.error("unable to convert value", e);
+                        }
+                    } else {
+                        ObjectExample values = new ObjectExample();
+
+                        Map<String, Property> properties = model.getProperties();
+                        if (properties != null) {
+                            for (String key : properties.keySet()) {
+                                Property innerProp = properties.get(key);
+                                Example p = (Example) fromProperty(innerProp, definitions, processedModels);
+                                if (p != null) {
+                                    if (p.getName() == null) {
+                                        p.setName(key);
+                                    }
+                                    values.put(key, p);
+                                    processedModels.add(key);
+                                }
+                            }
+                        }
+                        output = values;
+                    }
                 }
-            }
-            if (output != null) {
-                output.setName(ref.getSimpleRef());
+                if (output != null) {
+                    output.setName(ref.getSimpleRef());
+                }
             }
         }
         if (output != null) {
