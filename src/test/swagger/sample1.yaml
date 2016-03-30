@@ -189,9 +189,9 @@ paths:
         '200':
           description: 'success!'
           examples:
-            application/json : {"test":"value"}
+            application/json : {"test":"jsonvalue"}
             application/yaml :
-              test: value
+              test: yamlvalue
   /mockResponses/primitiveDateResponse:
     get:
       tags:

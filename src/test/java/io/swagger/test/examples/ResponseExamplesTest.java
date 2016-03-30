@@ -73,7 +73,7 @@ public class ResponseExamplesTest {
         Response response = controller.apply( requestContext );
 
         assertEquals( 200, response.getStatus() );
-        assertEquals( "{\"test\":\"value\"}", Json.mapper().writeValueAsString(response.getEntity()));
+        assertEquals( "{\"test\":\"jsonvalue\"}", Json.mapper().writeValueAsString(response.getEntity()));
     }
 
     @Test
@@ -100,6 +100,6 @@ public class ResponseExamplesTest {
         Response response = controller.apply( requestContext );
 
         assertEquals( 200, response.getStatus() );
-        assertEquals( "---\ntest: \"value\"\n", Yaml.mapper().writeValueAsString(response.getEntity()));
+        assertEquals( "---\ntest: \"yamlvalue\"\n", Yaml.mapper().writeValueAsString(response.getEntity()));
     }
 }
