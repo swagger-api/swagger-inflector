@@ -448,6 +448,18 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             }
 
             io.swagger.models.Response response = responses.get(defaultKey);
+
+            Map<String, Object> examples = response.getExamples();
+            if( examples != null ){
+                for( MediaType mediaType : requestContext.getAcceptableMediaTypes()){
+                    for( String key : examples.keySet()){
+                        if( MediaType.valueOf(key).isCompatible(mediaType)){
+                            return Response.status( code ).entity( examples.get( key ) ).type(mediaType).build();
+                        }
+                    }
+                }
+            }
+
             Object output = ExampleBuilder.fromProperty(response.getSchema(), definitions);
             if (output != null) {
                 ResponseContext resp = new ResponseContext().entity(output);
