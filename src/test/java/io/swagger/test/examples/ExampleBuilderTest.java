@@ -40,9 +40,8 @@ import io.swagger.test.models.User;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import static org.testng.Assert.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +61,7 @@ public class ExampleBuilderTest {
         Object o = ExampleBuilder.fromProperty(new RefProperty("User"), definitions);
 
         String str = new XmlExampleSerializer().serialize((Example) o);
-        assertEquals(str, "<?xml version='1.1' encoding='UTF-8'?><user><id>0</id><user>string</user><child><childNames>string</childNames></child></user>");
+        assertEqualsIgnoreLineEnding(str, "<?xml version='1.1' encoding='UTF-8'?><user><id>0</id><user>string</user><child><childNames>string</childNames></child></user>");
     }
 
     @Test
@@ -110,8 +109,8 @@ public class ExampleBuilderTest {
         Example rep = (Example) ExampleBuilder.fromProperty(new RefProperty("User"), definitions);
 
         String xmlString = new XmlExampleSerializer().serialize(rep);
-        assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><user><userName>fehguy</userName><addressess><address><street>12345 El Monte Blvd</street><city>Los Altos Hills</city><state>CA</state><zip>94022</zip></address></addressess><managers><key>key</key><value>SVP Engineering</value></managers><kidsAges>9</kidsAges></user>");
-        assertEquals(Yaml.pretty().writeValueAsString(rep), "---\nusername: \"fehguy\"\naddresses:\n- street: \"12345 El Monte Blvd\"\n  city: \"Los Altos Hills\"\n  state: \"CA\"\n  zip: \"94022\"\nmanagers:\n  key: \"key\"\n  value: \"SVP Engineering\"\nkidsAges:\n- 9\n");
+        assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><user><userName>fehguy</userName><addressess><address><street>12345 El Monte Blvd</street><city>Los Altos Hills</city><state>CA</state><zip>94022</zip></address></addressess><managers><key>key</key><value>SVP Engineering</value></managers><kidsAges>9</kidsAges></user>");
+        assertEqualsIgnoreLineEnding(Yaml.pretty().writeValueAsString(rep), "---\nusername: \"fehguy\"\naddresses:\n- street: \"12345 El Monte Blvd\"\n  city: \"Los Altos Hills\"\n  state: \"CA\"\n  zip: \"94022\"\nmanagers:\n  key: \"key\"\n  value: \"SVP Engineering\"\nkidsAges:\n- 9\n");
     }
 
     @Test
@@ -142,7 +141,7 @@ public class ExampleBuilderTest {
 
         String json = Json.pretty(rep);
 
-        assertEquals("[ {\n  \"street\" : \"12345 El Monte Blvd\",\n  \"city\" : \"Los Altos Hills\",\n  \"state\" : \"CA\",\n  \"zip\" : \"94022\"\n} ]", json);
+        assertEqualsIgnoreLineEnding("[ {\n  \"street\" : \"12345 El Monte Blvd\",\n  \"city\" : \"Los Altos Hills\",\n  \"state\" : \"CA\",\n  \"zip\" : \"94022\"\n} ]", json);
     }
 
     @Test
@@ -177,7 +176,7 @@ public class ExampleBuilderTest {
         Json.mapper().registerModule(simpleModule);
 
         Example rep = (Example) ExampleBuilder.fromProperty(new StringProperty("hello").example("fun"), definitions);
-        assertEquals(Json.pretty(rep), "\"fun\"");
+        assertEqualsIgnoreLineEnding(Json.pretty(rep), "\"fun\"");
     }
 
     @Test
@@ -189,7 +188,7 @@ public class ExampleBuilderTest {
 
         Map<String, Model> definitions = new HashMap<String, Model>();
         definitions.put("User", model);
-        assertEquals(Json.pretty(ExampleBuilder.fromProperty(new RefProperty("User"), definitions)), "{\n  \"id\" : \"string\"\n}");
+        assertEqualsIgnoreLineEnding(Json.pretty(ExampleBuilder.fromProperty(new RefProperty("User"), definitions)), "{\n  \"id\" : \"string\"\n}");
     }
 
     @Test
@@ -197,7 +196,7 @@ public class ExampleBuilderTest {
         BooleanProperty sp = new BooleanProperty();
         Example ex = ExampleBuilder.fromProperty(sp, null);
         String xmlString = new XmlExampleSerializer().serialize(ex);
-        assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><boolean>true</boolean>");
+        assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><boolean>true</boolean>");
     }
 
     @Test
@@ -205,7 +204,7 @@ public class ExampleBuilderTest {
         DecimalProperty sp = new DecimalProperty();
         Example ex = ExampleBuilder.fromProperty(sp, null);
         String xmlString = new XmlExampleSerializer().serialize(ex);
-        assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><decimal>1.5</decimal>");
+        assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><decimal>1.5</decimal>");
     }
 
     @Test
@@ -213,7 +212,7 @@ public class ExampleBuilderTest {
         FloatProperty sp = new FloatProperty();
         Example ex = ExampleBuilder.fromProperty(sp, null);
         String xmlString = new XmlExampleSerializer().serialize(ex);
-        assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><float>1.1</float>");
+        assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><float>1.1</float>");
     }
 
     @Test
@@ -221,7 +220,7 @@ public class ExampleBuilderTest {
         IntegerProperty sp = new IntegerProperty();
         Example ex = ExampleBuilder.fromProperty(sp, null);
         String xmlString = new XmlExampleSerializer().serialize(ex);
-        assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><integer>0</integer>");
+        assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><integer>0</integer>");
     }
 
     @Test
@@ -229,7 +228,7 @@ public class ExampleBuilderTest {
         LongProperty sp = new LongProperty();
         Example ex = ExampleBuilder.fromProperty(sp, null);
         String xmlString = new XmlExampleSerializer().serialize(ex);
-        assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><long>0</long>");
+        assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><long>0</long>");
     }
 
     @Test
@@ -237,7 +236,7 @@ public class ExampleBuilderTest {
         StringProperty sp = new StringProperty();
         Example ex = ExampleBuilder.fromProperty(sp, null);
         String xmlString = new XmlExampleSerializer().serialize(ex);
-        assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><string>string</string>");
+        assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><string>string</string>");
     }
 
     @Test
@@ -255,8 +254,13 @@ public class ExampleBuilderTest {
         definitions.put("Person", person);
 
         Example rep = (Example) ExampleBuilder.fromProperty(new RefProperty("Person"), definitions);
-        assertEquals(Json.pretty(rep), "{\n  \"age\" : 42\n}");
+        assertEqualsIgnoreLineEnding(Json.pretty(rep), "{\n  \"age\" : 42\n}");
         String xmlString = new XmlExampleSerializer().serialize(rep);
-        assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><Person><age>42</age></Person>");
+        assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><Person><age>42</age></Person>");
     }
+
+    private void assertEqualsIgnoreLineEnding(String actual, String expected) {
+        Assert.assertEquals(actual.replace("\n", System.getProperty("line.separator")), expected);
+    }
+
 }
