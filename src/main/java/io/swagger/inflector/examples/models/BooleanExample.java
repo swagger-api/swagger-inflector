@@ -29,14 +29,11 @@ public class BooleanExample extends AbstractExample {
     }
 
     public String asString() {
-        if (value == null) {
-            return null;
-        }
         return value.toString();
     }
 
     public Boolean getValue() {
-        return value;
+        return value != null ? value : false;
     }
 
     public void setValue(Boolean value) {

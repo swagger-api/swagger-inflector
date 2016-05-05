@@ -32,14 +32,11 @@ public class IntegerExample extends AbstractExample {
     }
 
     public String asString() {
-        if (value == null) {
-            return null;
-        }
         return String.valueOf(value);
     }
 
     public Integer getValue() {
-        return value;
+        return value != null ? value : 12;
     }
 
     public void setValue(Integer value) {

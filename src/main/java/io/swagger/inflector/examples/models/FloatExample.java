@@ -28,14 +28,11 @@ public class FloatExample extends AbstractExample {
     }
 
     public String asString() {
-        if (value == null) {
-            return null;
-        }
         return String.valueOf(value);
     }
 
     public Float getValue() {
-        return value;
+        return value != null ? value : 3.14f;
     }
 
     public void setValue(Float value) {

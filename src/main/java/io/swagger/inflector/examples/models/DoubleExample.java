@@ -28,14 +28,11 @@ public class DoubleExample extends AbstractExample {
     }
 
     public String asString() {
-        if (value == null) {
-            return null;
-        }
         return String.valueOf(value);
     }
 
     public Double getValue() {
-        return value;
+        return value != null ? value : 4.56;
     }
 
     public void setValue(Double value) {
