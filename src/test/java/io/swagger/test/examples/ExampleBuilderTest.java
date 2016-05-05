@@ -17,29 +17,22 @@
 package io.swagger.test.examples;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-
 import io.swagger.converter.ModelConverters;
 import io.swagger.inflector.examples.ExampleBuilder;
 import io.swagger.inflector.examples.XmlExampleSerializer;
+import io.swagger.inflector.examples.models.ArrayExample;
+import io.swagger.inflector.examples.models.DoubleExample;
 import io.swagger.inflector.examples.models.Example;
+import io.swagger.inflector.examples.models.StringExample;
 import io.swagger.inflector.processors.JsonExampleDeserializer;
 import io.swagger.inflector.processors.JsonNodeExampleSerializer;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
 import io.swagger.models.Xml;
-import io.swagger.models.properties.ArrayProperty;
-import io.swagger.models.properties.BooleanProperty;
-import io.swagger.models.properties.DecimalProperty;
-import io.swagger.models.properties.FloatProperty;
-import io.swagger.models.properties.IntegerProperty;
-import io.swagger.models.properties.LongProperty;
-import io.swagger.models.properties.MapProperty;
-import io.swagger.models.properties.RefProperty;
-import io.swagger.models.properties.StringProperty;
+import io.swagger.models.properties.*;
 import io.swagger.test.models.User;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -259,8 +252,31 @@ public class ExampleBuilderTest {
         assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><Person><age>42</age></Person>");
     }
 
+    @Test
+    public void testEmptyStringArrayJsonModel() throws Exception {
+        ArrayExample example = new ArrayExample();
+        example.add(new StringExample());
+        Assert.assertEquals(Json.pretty(example), "[ null ]");
+    }
+
+    @Test
+    public void testEmptyDoubleArrayJsonModel() throws Exception {
+        ArrayExample example = new ArrayExample();
+        example.add(new DoubleExample());
+        Assert.assertEquals(Json.pretty(example), "[ 4.56 ]");
+    }
+
+    @Test
+    public void testEmptyArrayXmlModel() throws Exception {
+        ArrayExample example = new ArrayExample();
+        example.add(new StringExample());
+        String xmlString = new XmlExampleSerializer().serialize(example);
+
+        // array of empty primitives makes no sense
+        Assert.assertNull(xmlString);
+    }
+
     private void assertEqualsIgnoreLineEnding(String actual, String expected) {
         Assert.assertEquals(actual.replace("\n", System.getProperty("line.separator")), expected);
     }
-
 }

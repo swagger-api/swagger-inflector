@@ -36,7 +36,7 @@ public class StringExample extends AbstractExample {
     }
 
     public String asString() {
-        return value;
+        return value != null ? value : "null";
     }
 
     public String getValue() {

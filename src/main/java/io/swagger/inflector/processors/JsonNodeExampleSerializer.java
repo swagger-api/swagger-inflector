@@ -48,9 +48,13 @@ public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
             ArrayExample obj = (ArrayExample) value;
             jgen.writeStartArray();
             for (Example item : obj.getItems()) {
-                jgen.writeStartObject();
+                if(item instanceof ObjectExample) {
+                    jgen.writeStartObject();
+                }
                 writeTo(jgen, item);
-                jgen.writeEndObject();
+                if(item instanceof ObjectExample) {
+                    jgen.writeEndObject();
+                }
             }
             jgen.writeEndArray();
         } else {

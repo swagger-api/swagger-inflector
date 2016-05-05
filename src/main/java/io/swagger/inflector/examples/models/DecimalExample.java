@@ -30,14 +30,11 @@ public class DecimalExample extends AbstractExample {
     }
 
     public String asString() {
-        if (value == null) {
-            return null;
-        }
         return value.toPlainString();
     }
 
     public BigDecimal getValue() {
-        return value;
+        return value != null ? value : new BigDecimal(1.23);
     }
 
     public void setValue(BigDecimal value) {

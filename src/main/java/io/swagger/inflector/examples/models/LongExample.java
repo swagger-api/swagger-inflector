@@ -28,14 +28,11 @@ public class LongExample extends AbstractExample {
     }
 
     public String asString() {
-        if (value == null) {
-            return null;
-        }
         return String.valueOf(value);
     }
 
     public Long getValue() {
-        return value;
+        return value != null ? value : 12345;
     }
 
     public void setValue(Long value) {
