@@ -1,0 +1,5 @@
+value:
+- nestedObject:
+    nestedValue: 1
+- nestedObject:
+    nestedValue: 2
