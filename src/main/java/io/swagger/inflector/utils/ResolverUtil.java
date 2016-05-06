@@ -197,6 +197,11 @@ public class ResolverUtil {
             if(m.getExample() != null) {
                 property.setExample(m.getExample().toString());
             }
+            final String name = (String) m.getVendorExtensions()
+                    .get(Constants.X_SWAGGER_ROUTER_MODEL);
+            if (name != null) {
+                property.setVendorExtension(Constants.X_SWAGGER_ROUTER_MODEL, name);
+            }
 
             return property;
         }

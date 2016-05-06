@@ -18,16 +18,20 @@ package io.swagger.test.integration;
 
 import io.swagger.test.client.ApiClient;
 import io.swagger.test.client.ApiException;
+import io.swagger.test.models.Address;
 import org.joda.time.DateTime;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
-import java.util.HashMap;
-import java.util.Map;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertTrue;
 
 public class RequestTestIT {
@@ -53,6 +57,17 @@ public class RequestTestIT {
         String path = "/withModel/3";
         String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
         assertEquals(str, "{\"street\":\"3 street\"}");
+    }
+
+    @Test
+    public void verifyArrayModelMapping() throws Exception {
+        final Address first = new Address();
+        first.setStreet("first");
+        final Address second = new Address();
+        second.setStreet("second");
+        client.invokeAPI("/withModelArray/3", "POST", new HashMap<String, String>(),
+                Arrays.asList(first, second), new HashMap<String, String>(), null,
+                "application/json", null, new String[0]);
     }
 
     @Test
@@ -87,7 +102,7 @@ public class RequestTestIT {
         assertEquals(str, "\"string\"");
     }
 
-    @org.junit.Test
+    @Test
     public void verifyPostFormData() throws Exception {
         String path = "/formTest";
 

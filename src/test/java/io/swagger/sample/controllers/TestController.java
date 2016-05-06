@@ -76,7 +76,7 @@ public class TestController {
         }
     }
 
-    public ResponseContext withModelArray(RequestContext request, String id, List<Address> modelArray) {
+    public ResponseContext withModelArray(RequestContext request, String id, Address[] modelArray) {
         return new ResponseContext()
             .status(Status.OK);
     }
