@@ -102,7 +102,7 @@ public class SwaggerInflector extends ResourceConfig {
         SwaggerDeserializationResult swaggerParseResult = new SwaggerParser().readWithInfo(config.getSwaggerUrl(), null, true);
         Swagger swagger = swaggerParseResult.getSwagger();
 
-        if(config.isValidatePayloads()) {
+        if(!config.getValidatePayloads().isEmpty()) {
             LOGGER.info("resolving swagger");
             new ResolverUtil().resolveFully(swagger);
         }

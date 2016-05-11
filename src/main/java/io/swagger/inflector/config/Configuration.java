@@ -18,6 +18,7 @@ package io.swagger.inflector.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.inflector.converters.InputConverter;
 import io.swagger.util.Yaml;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class Configuration {
     private List<String> entityProcessors = new ArrayList<String>();
     private ControllerFactory controllerFactory = new DefaultControllerFactory();
     private String swaggerBase = "/";
-    private boolean validatePayloads = false;
+    private Set<Direction> validatePayloads = Collections.emptySet();
 
     public String getSwaggerBase() {
         return swaggerBase;
@@ -67,6 +68,10 @@ public class Configuration {
         public String getName() {
             return name;
         }
+    }
+
+    public enum Direction {
+        IN, OUT;
     }
 
     public static Configuration read() {
@@ -336,11 +341,12 @@ public class Configuration {
         this.swaggerBase = swaggerBase;
     }
 
-    public boolean isValidatePayloads() {
+    public Set<Direction> getValidatePayloads() {
         return validatePayloads;
     }
 
-    public void setValidatePayloads(boolean validatePayloads) {
+    @JsonDeserialize(using = DirectionDeserializer.class)
+    public void setValidatePayloads(Set<Direction> validatePayloads) {
         this.validatePayloads = validatePayloads;
     }
 }

@@ -182,6 +182,14 @@ public class ReflectionUtils {
             return tf.constructType(String.class);
         }
         if(property instanceof ObjectProperty) {
+            final String name = (String) property.getVendorExtensions()
+                    .get(Constants.X_SWAGGER_ROUTER_MODEL);
+            if (name != null) {
+                final JavaType modelType = getTypeFromModelName(name);
+                if (modelType != null) {
+                    return modelType;
+                }
+            }
             return tf.constructType(JsonNode.class);
         }
         return null;
@@ -199,21 +207,11 @@ public class ReflectionUtils {
         }
 
         if(model.getVendorExtensions() != null && model.getVendorExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL) != null) {
-            String modelName = model.getVendorExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL).toString();
-            // it's legal to have quotes around the model name so trim them
-            modelName = modelName.replaceAll("^\"|\"$", "");
-            Class<?> cls = loadClass(modelName);
-            if(cls != null) {
-                return tf.constructType(cls);
-            }            
-            if(config.getModelPackage() != null && modelName.indexOf(".") == -1) {
-                modelName = config.getModelPackage() + "." + modelName;
+            final JavaType modelType = getTypeFromModelName(
+                    (String) model.getVendorExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL));
+            if (modelType != null) {
+                return modelType;
             }
-            cls = loadClass(modelName);
-            if(cls != null) {
-                return tf.constructType(cls);
-            }
-            unimplementedMappedModels.add(modelName);
         }
         if(model instanceof RefModel) {
             RefModel ref = (RefModel) model;
@@ -379,6 +377,25 @@ public class ReflectionUtils {
 
     public void setClassNameValidator(ClassNameValidator classNameValidator) {
         this.classNameValidator = classNameValidator;
+    }
+
+    private JavaType getTypeFromModelName(String name) {
+        final TypeFactory tf = Json.mapper().getTypeFactory();
+        // it's legal to have quotes around the model name so trim them
+        String modelName = name.replaceAll("^\"|\"$", "");
+        Class<?> cls = loadClass(modelName);
+        if(cls != null) {
+            return tf.constructType(cls);
+        }
+        if(config.getModelPackage() != null && !modelName.contains(".")) {
+            modelName = config.getModelPackage() + "." + modelName;
+            cls = loadClass(modelName);
+            if (cls != null) {
+                return tf.constructType(cls);
+            }
+        }
+        unimplementedMappedModels.add(modelName);
+        return null;
     }
 
     public interface ClassNameValidator {

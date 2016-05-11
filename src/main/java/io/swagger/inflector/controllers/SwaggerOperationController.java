@@ -76,7 +76,6 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
       commonHeaders.add("Content-Length");
     }
 
-    private boolean validatePayload = true;
     private String path;
     private String httpMethod;
     private Operation operation;
@@ -301,7 +300,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                                 if (ctx.hasEntity()) {
                                     BodyParameter body = (BodyParameter) parameter;
                                     o = EntityProcessorFactory.readValue(ctx.getMediaType(), ctx.getEntityStream(), cls);
-                                    if(o != null && validatePayload) {
+                                    if(o != null) {
                                         validate(o, body.getSchema(), SchemaValidator.Direction.INPUT);
                                     }
                                 }
@@ -399,8 +398,8 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                             }
                         }
 
-                      if (validatePayload && operation.getResponses() != null) {
-                          String responseCode = "" + wrapper.getStatus();
+                      if (operation.getResponses() != null) {
+                          String responseCode = String.valueOf(wrapper.getStatus());
                           io.swagger.models.Response responseSchema = operation.getResponses().get(responseCode);
                           if(responseSchema == null) {
                               // try default response schema
@@ -475,39 +474,11 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     }
 
     public void validate(Object o, Property property, SchemaValidator.Direction direction) throws ApiException {
-        if(config.isValidatePayloads()) {
-            boolean isValid = SchemaValidator.validate(o, Json.pretty(property), direction);
-            if(!isValid) {
-                if(SchemaValidator.Direction.INPUT.equals(direction)) {
-                    throw new ApiException(new ApiError()
-                            .code(config.getInvalidRequestStatusCode())
-                            .message("Input does not match the expected structure"));
-                }
-                else {
-                    throw new ApiException(new ApiError()
-                            .code(config.getInvalidRequestStatusCode())
-                            .message("The server generated an invalid response"));
-                }
-            }
-        }
+        doValidation(o, property, direction);
     }
 
     public void validate(Object o, Model model, SchemaValidator.Direction direction) throws ApiException {
-        if(config.isValidatePayloads()) {
-            boolean isValid = SchemaValidator.validate(o, Json.pretty(model), direction);
-            if(!isValid) {
-                if(SchemaValidator.Direction.INPUT.equals(direction)) {
-                    throw new ApiException(new ApiError()
-                            .code(config.getInvalidRequestStatusCode())
-                            .message("Input does not match the expected structure"));
-                }
-                else {
-                    throw new ApiException(new ApiError()
-                            .code(config.getInvalidRequestStatusCode())
-                            .message("The server generated an invalid response"));
-                }
-            }
-        }
+        doValidation(o, model, direction);
     }
     
     public void setContentType(RequestContext res, ResponseContext resp, Operation operation) {
@@ -573,5 +544,29 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             }
         }
         return result;
+    }
+
+    private void doValidation(Object value, Object schema, SchemaValidator.Direction direction) throws ApiException {
+        if(config.getValidatePayloads().isEmpty()) {
+            return;
+        }
+        switch (direction) {
+            case INPUT:
+                if (config.getValidatePayloads().contains(Configuration.Direction.IN)
+                        && !SchemaValidator.validate(value, Json.pretty(schema), direction)) {
+                    throw new ApiException(new ApiError()
+                            .code(config.getInvalidRequestStatusCode())
+                            .message("Input does not match the expected structure"));
+                }
+                break;
+            case OUTPUT:
+                if (config.getValidatePayloads().contains(Configuration.Direction.OUT)
+                        && !SchemaValidator.validate(value, Json.pretty(schema), direction)) {
+                    throw new ApiException(new ApiError()
+                            .code(config.getInvalidRequestStatusCode())
+                            .message("The server generated an invalid response"));
+                }
+                break;
+        }
     }
 }
