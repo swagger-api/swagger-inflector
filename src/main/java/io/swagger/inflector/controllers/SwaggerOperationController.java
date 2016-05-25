@@ -17,6 +17,7 @@
 package io.swagger.inflector.controllers;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import io.swagger.inflector.schema.SchemaValidator;
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.converters.ConversionException;
@@ -87,6 +88,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     private String controllerName;
     private String methodName;
     private String operationSignature;
+    private SchemaValidator schemaValidator;
     @Inject
     private Provider<Providers> providersProvider;
     @Inject
@@ -100,6 +102,8 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
         this.definitions = definitions;
         this.validator = InputConverter.getInstance();
         this.method = detectMethod(operation);
+        this.schemaValidator = new SchemaValidator(config);
+
         if (method == null) {
             LOGGER.debug("no method `" + methodName + "` in `" + controllerName + "` to map to, using mock response");
         }
@@ -553,7 +557,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
         switch (direction) {
             case INPUT:
                 if (config.getValidatePayloads().contains(Configuration.Direction.IN)
-                        && !SchemaValidator.validate(value, Json.pretty(schema), direction)) {
+                        && schemaValidator.validate(value, Json.pretty(schema), direction)) {
                     throw new ApiException(new ApiError()
                             .code(config.getInvalidRequestStatusCode())
                             .message("Input does not match the expected structure"));
@@ -561,7 +565,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                 break;
             case OUTPUT:
                 if (config.getValidatePayloads().contains(Configuration.Direction.OUT)
-                        && !SchemaValidator.validate(value, Json.pretty(schema), direction)) {
+                        && schemaValidator.validate(value, Json.pretty(schema), direction)) {
                     throw new ApiException(new ApiError()
                             .code(config.getInvalidRequestStatusCode())
                             .message("The server generated an invalid response"));
