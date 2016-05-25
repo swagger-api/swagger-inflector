@@ -35,14 +35,13 @@ public class SchemaValidator {
         swaggerUrl = config.getSwaggerUrl();
     }
 
-
     public boolean validate(Object o, String schema, Direction direction) {
         try {
             // make local refs absolute to match existing schema
             schema = schema.replaceAll("\"#\\/definitions\\/", "\"" + swaggerUrl + "#/definitions/");
             JsonNode schemaObject = Json.mapper().readTree(schema);
 
-            JsonNode content = Json.mapper().convertValue(o, JsonNode.class);
+            JsonNode content = (o instanceof JsonNode) ? (JsonNode)o : Json.mapper().convertValue(o, JsonNode.class);
             JsonSchema jsonSchema = ensureFactory().getJsonSchema(schemaObject);
 
             ProcessingReport report = jsonSchema.validate(content);
