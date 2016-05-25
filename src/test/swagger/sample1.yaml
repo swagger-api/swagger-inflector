@@ -57,6 +57,26 @@ paths:
       responses:
         200:
           description: 'ok!'
+  /primitiveBody/binary:
+    post:
+      x-swagger-router-controller: TestController
+      consumes:
+        - application/octet-stream
+      produces:
+        - application/octet-stream
+      operationId: binaryBody
+      parameters:
+        - name: content
+          in: body
+          schema:
+            type: string
+            format: binary
+      responses:
+        '200':
+          description: 'ok!'
+          schema:
+            type: string
+            format: binary
   /hidden:
     get:
       x-inflector-hidden: true
@@ -653,7 +673,6 @@ paths:
           headers:
             x-thanks-alot:
               type: string
-
 definitions:
   User:
     properties:

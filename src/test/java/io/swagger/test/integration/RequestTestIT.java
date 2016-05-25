@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -100,6 +101,17 @@ public class RequestTestIT {
 
         String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), "string", new HashMap<String, String>(), null, "application/json", null, new String[0]);
         assertEquals(str, "\"string\"");
+    }
+
+    @Test
+    public void verifyBinaryPostBody() throws Exception {
+        client.setDebugging(true);
+
+        String path = "/primitiveBody/binary";
+
+        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), new byte[]{42, 0, 1}, new
+                HashMap<String, String>(), null, MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_OCTET_STREAM, new String[0]);
+        assertEquals(str.getBytes(), new byte[]{42, 0, 1});
     }
 
     @Test
