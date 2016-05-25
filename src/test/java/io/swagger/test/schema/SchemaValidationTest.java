@@ -29,7 +29,7 @@ public class SchemaValidationTest {
                 "  }\n" +
                 "}";
 
-        assertTrue(SchemaValidator.validate(user, schema, SchemaValidator.Direction.INPUT));
+        assertTrue(new SchemaValidator().validate(user, schema, SchemaValidator.Direction.INPUT));
     }
 
     public void testInvalidPayload() {
@@ -48,7 +48,7 @@ public class SchemaValidationTest {
                 "  }\n" +
                 "}";
 
-        assertFalse(SchemaValidator.validate(user, schema, SchemaValidator.Direction.INPUT));
+        assertFalse(new SchemaValidator().validate(user, schema, SchemaValidator.Direction.INPUT));
     }
 
     public void testInvalidPayloadWithRange() {
@@ -70,7 +70,7 @@ public class SchemaValidationTest {
                 "  }\n" +
                 "}";
 
-        assertFalse(SchemaValidator.validate(user, schema, SchemaValidator.Direction.INPUT));
+        assertFalse(new SchemaValidator().validate(user, schema, SchemaValidator.Direction.INPUT));
     }
 
     @Test
