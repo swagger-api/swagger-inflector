@@ -29,6 +29,7 @@ public class EntityProcessorFactory {
     static {
         // handles yaml, json, xml
         PROCESSORS.add(new JacksonProcessor());
+        PROCESSORS.add(new BinaryProcessor());
     }
 
     public static void addProcessor(EntityProcessor processor) {
