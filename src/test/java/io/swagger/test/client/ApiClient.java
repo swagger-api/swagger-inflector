@@ -31,6 +31,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.io.IOException;
@@ -324,13 +325,13 @@ public class ApiClient {
         }
     }
 
-    /**
-     * Serialize the given Java object into JSON string.
-     */
-    public String serialize(Object obj) throws ApiException {
+    private Entity<?> serialize(Object obj, String contentType) throws ApiException {
         try {
             if (obj != null) {
-                return Json.mapper().writeValueAsString(obj);
+                if (contentType == null || MediaType.APPLICATION_JSON.equals(contentType)) {
+                    return Entity.json(Json.mapper().writeValueAsString(obj));
+                }
+                return Entity.entity(obj, contentType);
             } else {
                 return null;
             }
@@ -401,7 +402,7 @@ public class ApiClient {
             } else if (body == null) {
                 response = invocationBuilder.post(null);
             } else {
-                response = invocationBuilder.post(Entity.json(serialize(body)));
+                response = invocationBuilder.post(serialize(body, contentType));
             }
         } else if ("PUT".equals(method)) {
             if (formParams != null) {
@@ -409,7 +410,7 @@ public class ApiClient {
             } else if (body == null) {
                 response = invocationBuilder.put(null);
             } else {
-                response = invocationBuilder.put(Entity.json(serialize(body)));
+                response = invocationBuilder.put(serialize(body, contentType));
             }
         } else if ("DELETE".equals(method)) {
             response = invocationBuilder.delete();

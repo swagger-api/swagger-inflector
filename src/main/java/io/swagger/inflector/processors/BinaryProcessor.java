@@ -43,7 +43,7 @@ public class BinaryProcessor implements EntityProcessor {
         try {
             return IOUtils.toByteArray(entityStream);
         } catch (IOException e) {
-            LOGGER.trace("unable to extract entity from content-type `" + mediaType + "` to " + cls.getCanonicalName(), e);
+            LOGGER.trace("unable to extract entity from content-type `" + mediaType + "` to byte[]", e);
             throw new ConversionException()
                     .message(new ValidationMessage()
                             .code(ValidationError.UNACCEPTABLE_VALUE)
@@ -56,7 +56,7 @@ public class BinaryProcessor implements EntityProcessor {
         try {
             return IOUtils.toByteArray(entityStream);
         } catch (IOException e) {
-            LOGGER.error("unable to extract entity from content-type `" + mediaType + "` to " + javaType.toCanonical(), e);
+            LOGGER.error("unable to extract entity from content-type `" + mediaType + "` to byte[]", e);
         }
         return null;
     }

@@ -111,6 +111,10 @@ public class TestController {
         return new ResponseContext().status(200).entity(body);
     }
 
+    public ResponseContext binaryBody(RequestContext request, byte[] content) {
+        return new ResponseContext().status(200).entity(content);
+    }
+
     public ResponseContext returnWithResponseHeaders(RequestContext request) {
         return new ResponseContext().status(500)
                 .header("foo", "bar");
