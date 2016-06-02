@@ -419,7 +419,7 @@
     </dependencies>
     <properties>
         <swagger-core-version>1.5.9</swagger-core-version>
-        <swagger-parser-version>1.0.20-SNAPSHOT</swagger-parser-version>
+        <swagger-parser-version>1.0.20</swagger-parser-version>
         <joda-time-version>2.2</joda-time-version>
         <joda-version>1.2</joda-version>
         <jetty-version>9.2.9.v20150224</jetty-version>
