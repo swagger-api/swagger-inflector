@@ -16,6 +16,28 @@ info:
 basePath: /api
 
 paths:
+  /fileUpload:
+    post:
+      x-swagger-router-controller: TestController
+      operationId: uploadFile
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: theFile
+          type: file
+        - in: formData
+          name: stringMetadata
+          type: string
+        - in: formData
+          name: intMetadata
+          type: integer
+          format: int32
+      responses:
+        200:
+          description: the stringMetadata passed in
+          schema:
+            type: string
   /primitiveBody/inline:
     post:
       x-swagger-router-controller: TestController
