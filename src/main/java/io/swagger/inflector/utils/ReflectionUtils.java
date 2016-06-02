@@ -352,6 +352,15 @@ public class ReflectionUtils {
                 else if( classNameValidator.isValidClassname( name + "Controller" )){
                     return name + "Controller";
                 }
+                else if( classNameValidator.isValidClassname( sanitizeToJava("default"))) {
+                    return sanitizeToJava("default");
+                }
+                else if( classNameValidator.isValidClassname( sanitizeToJava("default"))) {
+                    return sanitizeToJava("default") + "Controller";
+                }
+                else {
+                    return name;
+                }
             }
         }
 
