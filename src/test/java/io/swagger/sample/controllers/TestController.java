@@ -20,16 +20,27 @@ import io.swagger.inflector.models.ApiError;
 import io.swagger.inflector.models.RequestContext;
 import io.swagger.inflector.models.ResponseContext;
 import io.swagger.inflector.utils.ApiException;
-import io.swagger.test.models.Address;
 import io.swagger.sample.models.Dog;
+import io.swagger.test.models.Address;
 import io.swagger.test.models.User;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.io.File;
 import java.util.List;
 
 public class TestController {
+    public io.swagger.inflector.models.ResponseContext uploadFile(io.swagger.inflector.models.RequestContext request, File inputFile, String stringMetadata, Integer integerMetadata) {
+        if(inputFile != null) {
+            stringMetadata += ": " + String.valueOf(inputFile.length());
+        }
+
+        return new ResponseContext()
+                .status(200)
+                .entity(stringMetadata);
+    }
+
     public io.swagger.inflector.models.ResponseContext inlineRequiredBody(io.swagger.inflector.models.RequestContext request, com.fasterxml.jackson.databind.JsonNode inlineBody) {
         return new ResponseContext()
             .status(200)

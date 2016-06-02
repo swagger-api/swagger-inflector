@@ -17,7 +17,6 @@
 package io.swagger.inflector.controllers;
 
 import com.fasterxml.jackson.databind.JavaType;
-import io.swagger.inflector.schema.SchemaValidator;
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.converters.ConversionException;
 import io.swagger.inflector.converters.InputConverter;
@@ -26,6 +25,7 @@ import io.swagger.inflector.models.ApiError;
 import io.swagger.inflector.models.RequestContext;
 import io.swagger.inflector.models.ResponseContext;
 import io.swagger.inflector.processors.EntityProcessorFactory;
+import io.swagger.inflector.schema.SchemaValidator;
 import io.swagger.inflector.utils.ApiErrorUtils;
 import io.swagger.inflector.utils.ApiException;
 import io.swagger.inflector.utils.ContentTypeSelector;
@@ -40,6 +40,9 @@ import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.SerializableParameter;
 import io.swagger.models.properties.Property;
 import io.swagger.util.Json;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.process.Inflector;
 import org.slf4j.Logger;
@@ -55,8 +58,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Providers;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
@@ -65,15 +67,15 @@ import java.util.*;
 
 public class SwaggerOperationController extends ReflectionUtils implements Inflector<ContainerRequestContext, Response> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerOperationController.class);
-    
+
     private static Set<String> commonHeaders = new HashSet<String>();
 
     static {
-      commonHeaders.add("Host");
-      commonHeaders.add("User-Agent");
-      commonHeaders.add("Accept");
-      commonHeaders.add("Content-Type");
-      commonHeaders.add("Content-Length");
+        commonHeaders.add("Host");
+        commonHeaders.add("User-Agent");
+        commonHeaders.add("Accept");
+        commonHeaders.add("Content-Type");
+        commonHeaders.add("Content-Length");
     }
 
     private String path;
@@ -120,12 +122,11 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                 builder.append(RequestContext.class.getCanonicalName()).append(" request");
             } else {
                 builder.append(", ");
-                if(args[i] == null) {
+                if (args[i] == null) {
                     LOGGER.error("didn't expect a null class for " + operation.getParameters().get(i - 1).getName());
-                }
-                else if(args[i].getRawClass() != null) {
+                } else if (args[i].getRawClass() != null) {
                     String className = args[i].getRawClass().getName();
-                    if(className.startsWith("java.lang.")) {
+                    if (className.startsWith("java.lang.")) {
                         className = className.substring("java.lang.".length());
                     }
                     builder.append(className);
@@ -187,6 +188,8 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
         final RequestContext requestContext = createContext(ctx);
 
         String path = ctx.getUriInfo().getPath();
+        Map<String, Map<String, String>> formMap = new HashMap<String, Map<String, String>>();
+        Map<String, File> inputStreams = new HashMap<String, File>();
 
         Object[] args = new Object[parameters.size() + 1];
         if (parameters != null) {
@@ -200,48 +203,121 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
             String[] parts = null;
             Set<String> existingKeys = new HashSet<String>();
 
-            for(Iterator<String> x = uri.getQueryParameters().keySet().iterator(); x.hasNext(); ) {
-              existingKeys.add(x.next() + ": qp");
+            for (Iterator<String> x = uri.getQueryParameters().keySet().iterator(); x.hasNext(); ) {
+                existingKeys.add(x.next() + ": qp");
             }
-            for(Iterator<String> x = uri.getPathParameters().keySet().iterator(); x.hasNext(); ) {
-              existingKeys.add(x.next() + ": pp");
+            for (Iterator<String> x = uri.getPathParameters().keySet().iterator(); x.hasNext(); ) {
+                existingKeys.add(x.next() + ": pp");
             }
-            for(Iterator<String> x = ctx.getHeaders().keySet().iterator(); x.hasNext(); ) {
-              String key = x.next();
+            for (Iterator<String> x = ctx.getHeaders().keySet().iterator(); x.hasNext(); ) {
+                String key = x.next();
 //              if(!commonHeaders.contains(key))
 //                existingKeys.add(key);
             }
-            for(Parameter p : parameters) {
-              if(p instanceof FormParameter) {
-                if (formDataString == null) {
-                  // can only read stream once
-                  try {
-                    formDataString = IOUtils.toString(ctx.getEntityStream(), "UTF-8");
-                    parts = formDataString.split("&");
-  
-                    for (String part : parts) {
-                        String[] kv = part.split("=");
-                        existingKeys.add(kv[0] + ": fp");
-                    }
-                  } catch (IOException e) {
-                    e.printStackTrace();
-                  }
-                }
-              }
-            }
-/*
-            // TODO handling for multipart
-            if(ctx.getMediaType().isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {
-              MultiPart mp = new MultiPart();
-              mp.bodyPart(ctx.getEntityStream(), MediaType.MULTIPART_FORM_DATA_TYPE);
+            MediaType mt = requestContext.getMediaType();
 
-              for(BodyPart bp : mp.getBodyParts()) {
-                StreamDataBodyPart sd = new StreamDataBodyPart();
-                sd.setStreamEntity(ctx.getEntityStream(), MediaType.TEXT_PLAIN_TYPE);
-              }
-              System.out.println("bp: " + mp.getBodyParts());
+            for (Parameter p : parameters) {
+                Map<String, String> headers = new HashMap<String, String>();
+                String name = null;
+
+                if (p instanceof FormParameter) {
+                    if (formDataString == null) {
+                        // can only read stream once
+                        if (mt.isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {
+                            // get the boundary
+                            String boundary = mt.getParameters().get("boundary");
+
+                            if (boundary != null) {
+                                try {
+                                    InputStream output = ctx.getEntityStream();
+
+                                    MultipartStream multipartStream = new MultipartStream(output, boundary.getBytes());
+                                    boolean nextPart = multipartStream.skipPreamble();
+                                    while (nextPart) {
+                                        String header = multipartStream.readHeaders();
+                                        // process headers
+                                        if (header != null) {
+                                            CSVFormat format = CSVFormat.DEFAULT
+                                                    .withDelimiter(';')
+                                                    .withRecordSeparator("=");
+
+                                            Iterable<CSVRecord> records = format.parse(new StringReader(header));
+                                            for (CSVRecord r : records) {
+                                                for (int j = 0; j < r.size(); j++) {
+                                                    String string = r.get(j);
+
+                                                    Iterable<CSVRecord> outerString = CSVFormat.DEFAULT
+                                                            .withDelimiter('=')
+                                                            .parse(new StringReader(string));
+                                                    for (CSVRecord outerKvPair : outerString) {
+                                                        if (outerKvPair.size() == 2) {
+                                                            String key = outerKvPair.get(0).trim();
+                                                            String value = outerKvPair.get(1).trim();
+                                                            if ("name".equals(key)) {
+                                                                name = value;
+                                                            }
+                                                            headers.put(key, value);
+                                                        } else {
+                                                            Iterable<CSVRecord> innerString = CSVFormat.DEFAULT
+                                                                    .withDelimiter(':')
+                                                                    .parse(new StringReader(string));
+                                                            for (CSVRecord innerKVPair : innerString) {
+                                                                if (innerKVPair.size() == 2) {
+                                                                    String key = innerKVPair.get(0).trim();
+                                                                    String value = innerKVPair.get(1).trim();
+                                                                    if ("name".equals(key)) {
+                                                                        name = value;
+                                                                    }
+                                                                    headers.put(key, value);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    if (name != null) {
+                                                        formMap.put(name, headers);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (headers.get("filename") != null) {
+                                            File file = File.createTempFile("inflector-tmp-", ".tmp");
+                                            file.deleteOnExit();
+                                            FileOutputStream fo = new FileOutputStream(file);
+                                            multipartStream.readBodyData(fo);
+                                            inputStreams.put(name, file);
+                                        } else {
+                                            ByteArrayOutputStream bo = new ByteArrayOutputStream();
+                                            multipartStream.readBodyData(bo);
+                                            String value = bo.toString();
+                                            headers.put(name, value);
+                                        }
+                                        if(name != null) {
+                                            formMap.put(name, headers);
+                                        }
+                                        headers = new HashMap<>();
+                                        name = null;
+                                        nextPart = multipartStream.readBoundary();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } else {
+                            try {
+                                formDataString = IOUtils.toString(ctx.getEntityStream(), "UTF-8");
+                                parts = formDataString.split("&");
+
+                                for (String part : parts) {
+                                    String[] kv = part.split("=");
+                                    existingKeys.add(kv[0] + ": fp");
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
             }
-*/
             for (Parameter parameter : parameters) {
                 String in = parameter.getIn();
                 Object o = null;
@@ -249,50 +325,70 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                 try {
                     if ("formData".equals(in)) {
                         SerializableParameter sp = (SerializableParameter) parameter;
-                        if ("file".equals(sp.getType())) {
-                            o = ctx.getEntityStream();
+                        String name = parameter.getName();
+                        if (mt.isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {
+                            // look in the form map
+                            Map<String, String> headers = formMap.get(name);
+                            if (headers != null && headers.size() > 0) {
+                                if ("file".equals(sp.getType())) {
+                                    o = inputStreams.get(name);
+                                } else {
+                                    Object obj = headers.get(parameter.getName());
+                                    if (obj != null) {
+                                        JavaType jt = parameterClasses[i];
+                                        Class<?> cls = jt.getRawClass();
+
+                                        List<String> os = Arrays.asList(obj.toString());
+                                        try {
+                                            o = validator.convertAndValidate(os, parameter, cls, definitions);
+                                        } catch (ConversionException e) {
+                                            missingParams.add(e.getError());
+                                        } catch (ValidationException e) {
+                                            missingParams.add(e.getValidationMessage());
+                                        }
+                                    }
+                                }
+                            }
                         } else {
                             if (formDataString != null) {
                                 for (String part : parts) {
                                     String[] kv = part.split("=");
-                                    if(kv != null) {
-                                      if(kv.length > 0) {
-                                        existingKeys.remove(kv[0] + ": fp");
-                                      }
-                                      if (kv.length == 2) {
-                                          // TODO how to handle arrays here?
-                                          String key = kv[0];
-                                          try {
-                                              String value = URLDecoder.decode(kv[1], "utf-8");
-                                              if (parameter.getName().equals(key)) {
-                                                  JavaType jt = parameterClasses[i];
-                                                  Class<?> cls = jt.getRawClass();
-                                                  try {
-                                                      o = validator.convertAndValidate(Arrays.asList(value), parameter, cls, definitions);
-                                                  } catch (ConversionException e) {
-                                                      missingParams.add(e.getError());
-                                                  } catch (ValidationException e) {
-                                                      missingParams.add(e.getValidationMessage());
-                                                  }
-                                              }
-                                          }
-                                          catch(UnsupportedEncodingException e) {
-                                              LOGGER.error("unable to decode value for " + key);
-                                          }
-                                      }
-                                   }
+                                    if (kv != null) {
+                                        if (kv.length > 0) {
+                                            existingKeys.remove(kv[0] + ": fp");
+                                        }
+                                        if (kv.length == 2) {
+                                            // TODO how to handle arrays here?
+                                            String key = kv[0];
+                                            try {
+                                                String value = URLDecoder.decode(kv[1], "utf-8");
+                                                if (parameter.getName().equals(key)) {
+                                                    JavaType jt = parameterClasses[i];
+                                                    Class<?> cls = jt.getRawClass();
+                                                    try {
+                                                        o = validator.convertAndValidate(Arrays.asList(value), parameter, cls, definitions);
+                                                    } catch (ConversionException e) {
+                                                        missingParams.add(e.getError());
+                                                    } catch (ValidationException e) {
+                                                        missingParams.add(e.getValidationMessage());
+                                                    }
+                                                }
+                                            } catch (UnsupportedEncodingException e) {
+                                                LOGGER.error("unable to decode value for " + key);
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
-                    else {
+                    } else {
                         try {
                             String paramName = parameter.getName();
-                            if("query".equals(in)) {
-                              existingKeys.remove(paramName + ": qp");
+                            if ("query".equals(in)) {
+                                existingKeys.remove(paramName + ": qp");
                             }
-                            if("path".equals(in)) {
-                              existingKeys.remove(paramName + ": pp");
+                            if ("path".equals(in)) {
+                                existingKeys.remove(paramName + ": pp");
                             }
                             JavaType jt = parameterClasses[i];
                             Class<?> cls = jt.getRawClass();
@@ -300,14 +396,13 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                                 if (ctx.hasEntity()) {
                                     BodyParameter body = (BodyParameter) parameter;
                                     o = EntityProcessorFactory.readValue(ctx.getMediaType(), ctx.getEntityStream(), cls);
-                                    if(o != null) {
+                                    if (o != null) {
                                         validate(o, body.getSchema(), SchemaValidator.Direction.INPUT);
                                     }
-                                }
-                                else if(parameter.getRequired()) {
+                                } else if (parameter.getRequired()) {
                                     ValidationException e = new ValidationException();
                                     e.message(new ValidationMessage()
-                                        .message("The input body `" + paramName + "` is required"));
+                                            .message("The input body `" + paramName + "` is required"));
                                     throw e;
                                 }
                             }
@@ -318,11 +413,9 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                             } else if ("header".equals(in)) {
                                 o = validator.convertAndValidate(ctx.getHeaders().get(parameter.getName()), parameter, cls, definitions);
                             }
-                        }
-                        catch (ConversionException e) {
+                        } catch (ConversionException e) {
                             missingParams.add(e.getError());
-                        }
-                        catch (ValidationException e) {
+                        } catch (ValidationException e) {
                             missingParams.add(e.getValidationMessage());
                         }
                     }
@@ -333,7 +426,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                 args[i] = o;
                 i += 1;
             }
-            if(existingKeys.size() > 0) {
+            if (existingKeys.size() > 0) {
                 LOGGER.debug("unexpected keys: " + existingKeys);
             }
             if (missingParams.size() > 0) {
@@ -348,129 +441,136 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                     if (count > 0) {
                         builder.append(", ");
                     }
-                    if(message != null && message.getMessage() != null) {
+                    if (message != null && message.getMessage() != null) {
                         builder.append(message.getMessage());
-                    }
-                    else {
+                    } else {
                         builder.append("no additional input");
                     }
                     count += 1;
                 }
                 int statusCode = config.getInvalidRequestStatusCode();
                 ApiError error = new ApiError()
-                  .code(statusCode)
-                  .message(builder.toString());
+                        .code(statusCode)
+                        .message(builder.toString());
                 throw new ApiException(error);
             }
         }
-        if(method != null) {
-          LOGGER.info("calling method " + method + " on controller " + this.controller + " with args " + Arrays.toString(args));
-          try {
-              Object response = method.invoke(controller, args);
-              if (response instanceof ResponseContext) {
-                  ResponseContext wrapper = (ResponseContext) response;
-                  ResponseBuilder builder = Response.status(wrapper.getStatus());
-  
-                  // response headers
-                  for (String key : wrapper.getHeaders().keySet()) {
-                      List<String> v = wrapper.getHeaders().get(key);
-                      if(v.size() == 1) {
-                          builder.header(key, v.get(0));
-                      }
-                      else {
-                          builder.header(key, v);
-                      }
-                  }
+        try {
+            if (method != null) {
+                LOGGER.info("calling method " + method + " on controller " + this.controller + " with args " + Arrays.toString(args));
+                try {
+                    Object response = method.invoke(controller, args);
+                    if (response instanceof ResponseContext) {
+                        ResponseContext wrapper = (ResponseContext) response;
+                        ResponseBuilder builder = Response.status(wrapper.getStatus());
 
-                  // entity
-                  if (wrapper.getEntity() != null) {
-                      builder.entity(wrapper.getEntity());
-                        // content type
-                        if (wrapper.getContentType() != null) {
-                            builder.type(wrapper.getContentType());
-                        } else {
-                            final ContextResolver<ContentTypeSelector> selector = providersProvider
-                                    .get().getContextResolver(ContentTypeSelector.class,
-                                            MediaType.WILDCARD_TYPE);
-                            if (selector != null) {
-                                selector.getContext(getClass()).apply(ctx.getAcceptableMediaTypes(),
-                                        builder);
+                        // response headers
+                        for (String key : wrapper.getHeaders().keySet()) {
+                            List<String> v = wrapper.getHeaders().get(key);
+                            if (v.size() == 1) {
+                                builder.header(key, v.get(0));
+                            } else {
+                                builder.header(key, v);
                             }
                         }
 
-                      if (operation.getResponses() != null) {
-                          String responseCode = String.valueOf(wrapper.getStatus());
-                          io.swagger.models.Response responseSchema = operation.getResponses().get(responseCode);
-                          if(responseSchema == null) {
-                              // try default response schema
-                              responseSchema = operation.getResponses().get("default");
-                          }
-                          if(responseSchema != null && responseSchema.getSchema() != null) {
-                              validate(wrapper.getEntity(), responseSchema.getSchema(), SchemaValidator.Direction.OUTPUT);
-                          }
-                          else {
-                              LOGGER.debug("no response schema for code " + responseCode + " to validate against");
-                          }
-                      }
-                  }
+                        // entity
+                        if (wrapper.getEntity() != null) {
+                            builder.entity(wrapper.getEntity());
+                            // content type
+                            if (wrapper.getContentType() != null) {
+                                builder.type(wrapper.getContentType());
+                            } else {
+                                final ContextResolver<ContentTypeSelector> selector = providersProvider
+                                        .get().getContextResolver(ContentTypeSelector.class,
+                                                MediaType.WILDCARD_TYPE);
+                                if (selector != null) {
+                                    selector.getContext(getClass()).apply(ctx.getAcceptableMediaTypes(),
+                                            builder);
+                                }
+                            }
 
-                  return builder.build();
-              }
-              return Response.ok().entity(response).build();
-          } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-              for (Throwable cause = e.getCause(); cause != null;) {
-                  if (cause instanceof ApiException) {
-                      throw (ApiException) cause;
-                  }
-                  final Throwable next = cause.getCause();
-                  cause = next == cause || next == null ? null : next;
-              }
-              throw new ApiException(ApiErrorUtils.createInternalError(), e);
-          }
-        }
-        Map<String, io.swagger.models.Response> responses = operation.getResponses();
-        if (responses != null) {
-            String[] keys = new String[responses.keySet().size()];
-            Arrays.sort(responses.keySet().toArray(keys));
-            int code = 0;
-            String defaultKey = null;
-            for (String key : keys) {
-                if (key.startsWith("2")) {
-                    defaultKey = key;
-                    code = Integer.parseInt(key);
-                    break;
-                }
-                if ("default".equals(key)) {
-                    defaultKey = key;
-                    code = 200;
+                            if (operation.getResponses() != null) {
+                                String responseCode = String.valueOf(wrapper.getStatus());
+                                io.swagger.models.Response responseSchema = operation.getResponses().get(responseCode);
+                                if (responseSchema == null) {
+                                    // try default response schema
+                                    responseSchema = operation.getResponses().get("default");
+                                }
+                                if (responseSchema != null && responseSchema.getSchema() != null) {
+                                    validate(wrapper.getEntity(), responseSchema.getSchema(), SchemaValidator.Direction.OUTPUT);
+                                } else {
+                                    LOGGER.debug("no response schema for code " + responseCode + " to validate against");
+                                }
+                            }
+                        }
+
+                        return builder.build();
+                    }
+                    return Response.ok().entity(response).build();
+                } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+                    for (Throwable cause = e.getCause(); cause != null; ) {
+                        if (cause instanceof ApiException) {
+                            throw (ApiException) cause;
+                        }
+                        final Throwable next = cause.getCause();
+                        cause = next == cause || next == null ? null : next;
+                    }
+                    throw new ApiException(ApiErrorUtils.createInternalError(), e);
                 }
             }
+            Map<String, io.swagger.models.Response> responses = operation.getResponses();
+            if (responses != null) {
+                String[] keys = new String[responses.keySet().size()];
+                Arrays.sort(responses.keySet().toArray(keys));
+                int code = 0;
+                String defaultKey = null;
+                for (String key : keys) {
+                    if (key.startsWith("2")) {
+                        defaultKey = key;
+                        code = Integer.parseInt(key);
+                        break;
+                    }
+                    if ("default".equals(key)) {
+                        defaultKey = key;
+                        code = 200;
+                    }
+                }
 
-            io.swagger.models.Response response = responses.get(defaultKey);
+                io.swagger.models.Response response = responses.get(defaultKey);
 
-            Map<String, Object> examples = response.getExamples();
-            if( examples != null ){
-                for( MediaType mediaType : requestContext.getAcceptableMediaTypes()){
-                    for( String key : examples.keySet()){
-                        if( MediaType.valueOf(key).isCompatible(mediaType)){
-                            return Response.status( code ).entity( examples.get( key ) ).type(mediaType).build();
+                Map<String, Object> examples = response.getExamples();
+                if (examples != null) {
+                    for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
+                        for (String key : examples.keySet()) {
+                            if (MediaType.valueOf(key).isCompatible(mediaType)) {
+                                return Response.status(code).entity(examples.get(key)).type(mediaType).build();
+                            }
                         }
                     }
                 }
-            }
 
-            Object output = ExampleBuilder.fromProperty(response.getSchema(), definitions);
-            if (output != null) {
-                ResponseContext resp = new ResponseContext().entity(output);
-                setContentType(requestContext, resp, operation);
-                if(resp.getContentType() != null)
-                  return Response.status(code).entity(output).type(resp.getContentType()).build();
-                else
-                  return Response.status(code).entity(output).build();
+                Object output = ExampleBuilder.fromProperty(response.getSchema(), definitions);
+                if (output != null) {
+                    ResponseContext resp = new ResponseContext().entity(output);
+                    setContentType(requestContext, resp, operation);
+                    if (resp.getContentType() != null)
+                        return Response.status(code).entity(output).type(resp.getContentType()).build();
+                    else
+                        return Response.status(code).entity(output).build();
+                }
+                return Response.status(code).build();
             }
-            return Response.status(code).build();
+            return Response.ok().build();
+        } finally {
+            for (String key : inputStreams.keySet()) {
+                File file = inputStreams.get(key);
+                if (file != null) {
+                    LOGGER.debug("deleting file " + file.getPath());
+                    file.delete();
+                }
+            }
         }
-        return Response.ok().build();
     }
 
     public void validate(Object o, Property property, SchemaValidator.Direction direction) throws ApiException {
@@ -480,26 +580,26 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     public void validate(Object o, Model model, SchemaValidator.Direction direction) throws ApiException {
         doValidation(o, model, direction);
     }
-    
+
     public void setContentType(RequestContext res, ResponseContext resp, Operation operation) {
         // honor what has been set, it may be determined by business logic in the controller
-        if(resp.getContentType() != null) {
-          return;
+        if (resp.getContentType() != null) {
+            return;
         }
         List<String> available = operation.getProduces();
-        if(available != null) {
-          for(String a : available) {
-            MediaType mt = MediaType.valueOf(a);
-            for(MediaType acceptable : res.getAcceptableMediaTypes()) {
-              if(mt.isCompatible(acceptable)) {
-                resp.setContentType(mt);
-                return;
-              }
+        if (available != null) {
+            for (String a : available) {
+                MediaType mt = MediaType.valueOf(a);
+                for (MediaType acceptable : res.getAcceptableMediaTypes()) {
+                    if (mt.isCompatible(acceptable)) {
+                        resp.setContentType(mt);
+                        return;
+                    }
+                }
             }
-          }
-          if(available.size() > 0) {
-            resp.setContentType(MediaType.valueOf(available.get(0)));
-          }
+            if (available.size() > 0) {
+                resp.setContentType(MediaType.valueOf(available.get(0)));
+            }
         }
     }
 
@@ -547,7 +647,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     }
 
     private void doValidation(Object value, Object schema, SchemaValidator.Direction direction) throws ApiException {
-        if(config.getValidatePayloads().isEmpty()) {
+        if (config.getValidatePayloads().isEmpty()) {
             return;
         }
         switch (direction) {
