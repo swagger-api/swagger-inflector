@@ -280,8 +280,11 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                                                 }
                                             }
                                         }
-                                        if (headers.get("filename") != null) {
-                                            File file = new File( Files.createTempDir(), headers.get("filename"));
+                                        String filename = headers.get("filename");
+                                        if (filename != null) {
+                                            filename = santizeFilename(filename);
+
+                                            File file = new File( Files.createTempDir(), filename);
                                             file.deleteOnExit();
                                             file.getParentFile().deleteOnExit();
                                             FileOutputStream fo = new FileOutputStream(file);
@@ -573,6 +576,14 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                 }
             }
         }
+    }
+
+    private String santizeFilename(String filename) {
+        int ix = filename.lastIndexOf( File.separatorChar );
+        if( ix >= 0 ){
+            filename = filename.substring(ix+1);
+        }
+        return filename;
     }
 
     public void validate(Object o, Property property, SchemaValidator.Direction direction) throws ApiException {
