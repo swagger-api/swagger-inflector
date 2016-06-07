@@ -17,6 +17,7 @@
 package io.swagger.inflector.controllers;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.google.common.io.Files;
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.converters.ConversionException;
 import io.swagger.inflector.converters.InputConverter;
@@ -280,8 +281,9 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                                             }
                                         }
                                         if (headers.get("filename") != null) {
-                                            File file = File.createTempFile("inflector-tmp-", ".tmp");
+                                            File file = new File( Files.createTempDir(), headers.get("filename"));
                                             file.deleteOnExit();
+                                            file.getParentFile().deleteOnExit();
                                             FileOutputStream fo = new FileOutputStream(file);
                                             multipartStream.readBodyData(fo);
                                             inputStreams.put(name, file);
