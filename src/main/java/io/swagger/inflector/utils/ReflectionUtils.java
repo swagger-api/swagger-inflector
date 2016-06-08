@@ -358,9 +358,6 @@ public class ReflectionUtils {
                 else if( classNameValidator.isValidClassname( sanitizeToJava("default"))) {
                     return sanitizeToJava("default") + "Controller";
                 }
-                else {
-                    return name;
-                }
             }
         }
 
