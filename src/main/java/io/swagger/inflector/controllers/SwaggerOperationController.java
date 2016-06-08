@@ -45,6 +45,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.process.Inflector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -280,16 +281,19 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                                                 }
                                             }
                                         }
-                                        String filename = headers.get("filename");
+                                        String filename = extractFilenameFromHeaders( headers ) ;
                                         if (filename != null) {
-                                            filename = santizeFilename(filename);
-
-                                            File file = new File( Files.createTempDir(), filename);
-                                            file.deleteOnExit();
-                                            file.getParentFile().deleteOnExit();
-                                            FileOutputStream fo = new FileOutputStream(file);
-                                            multipartStream.readBodyData(fo);
-                                            inputStreams.put(name, file);
+                                            try {
+                                                File file = new File(Files.createTempDir(), filename);
+                                                file.deleteOnExit();
+                                                file.getParentFile().deleteOnExit();
+                                                FileOutputStream fo = new FileOutputStream(file);
+                                                multipartStream.readBodyData(fo);
+                                                inputStreams.put(name, file);
+                                            }
+                                            catch( Exception e){
+                                                LOGGER.error("Failed to extract uploaded file", e );
+                                            }
                                         } else {
                                             ByteArrayOutputStream bo = new ByteArrayOutputStream();
                                             multipartStream.readBodyData(bo);
@@ -578,11 +582,22 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
         }
     }
 
-    private String santizeFilename(String filename) {
-        int ix = filename.lastIndexOf( File.separatorChar );
-        if( ix >= 0 ){
-            filename = filename.substring(ix+1);
+    static String extractFilenameFromHeaders(Map<String, String> headers) {
+        String filename = headers.get("filename");
+        if( StringUtils.isBlank( filename )){
+            return null;
         }
+
+        filename = filename.trim();
+
+        int ix = filename.lastIndexOf(File.separatorChar);
+        if (ix != -1 ) {
+            filename = filename.substring(ix + 1).trim();
+            if( StringUtils.isBlank(filename)){
+                return null;
+            }
+        }
+
         return filename;
     }
 
