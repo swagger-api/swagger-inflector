@@ -26,3 +26,6 @@ inputValidators:
 inputConverters:
   - io.swagger.sample.converters.SampleConverter
   - defaultConverter
+
+swaggerProcessors:
+  - io.swagger.test.integration.SwaggerListingIT$SwaggerProcessorImpl

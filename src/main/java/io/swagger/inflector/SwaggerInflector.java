@@ -53,17 +53,18 @@ import org.glassfish.jersey.server.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletContext;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.ext.ContextResolver;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.servlet.ServletContext;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.ContextResolver;
 
 public class SwaggerInflector extends ResourceConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerInflector.class);
@@ -193,7 +194,7 @@ public class SwaggerInflector extends ResourceConfig {
                     register(new DefaultContentTypeProvider(MediaType.APPLICATION_JSON_TYPE),
                             ContextResolver.class);
                 }
-                enableSwaggerJSON(swagger);
+                enableSwaggerJSON(swagger, configuration.getSwaggerProcessors());
             } else if ("xml".equalsIgnoreCase(item)) {
                 // XML
                 if (!isRegistered(DefaultContentTypeProvider.class)) {
@@ -206,7 +207,7 @@ public class SwaggerInflector extends ResourceConfig {
                 // YAML
                 Yaml.mapper().registerModule(simpleModule);
                 register(YamlExampleProvider.class);
-                enableSwaggerYAML(swagger);
+                enableSwaggerYAML(swagger, configuration.getSwaggerProcessors());
             }
         }
 
@@ -331,23 +332,23 @@ public class SwaggerInflector extends ResourceConfig {
         return basePath + path;
     }
 
-    private void enableSwaggerJSON(Swagger swagger) {
+    private void enableSwaggerJSON(Swagger swagger, List<String> swaggerProcessors) {
         final Resource.Builder builder = Resource.builder();
         builder.path(basePath(originalBasePath, config.getSwaggerBase() + "swagger.json"))
                 .addMethod(HttpMethod.GET)
                 .produces(MediaType.APPLICATION_JSON)
-                .handledBy(new SwaggerResourceController(swagger))
+                .handledBy(new SwaggerResourceController(swagger, swaggerProcessors))
                 .build();
 
         registerResources(builder.build());
     }
 
-    private void enableSwaggerYAML(Swagger swagger) {
+    private void enableSwaggerYAML(Swagger swagger, List<String> swaggerProcessors) {
         final Resource.Builder builder = Resource.builder();
         builder.path(basePath(originalBasePath, config.getSwaggerBase() + "swagger.yaml"))
                 .addMethod(HttpMethod.GET)
                 .produces("application/yaml")
-                .handledBy(new SwaggerResourceController(swagger))
+                .handledBy(new SwaggerResourceController(swagger, swaggerProcessors))
                 .build();
 
         registerResources(builder.build());
