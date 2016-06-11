@@ -17,6 +17,7 @@
 package io.swagger.test.integration;
 
 import io.swagger.inflector.Constants;
+import io.swagger.inflector.config.SwaggerProcessor;
 import io.swagger.models.Model;
 import io.swagger.models.Operation;
 import io.swagger.models.Path;
@@ -31,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
 public class SwaggerListingIT {
@@ -39,12 +41,14 @@ public class SwaggerListingIT {
     public void verifySwaggerJson() throws Exception {
         Swagger swagger = getJsonSwagger();
         assertNotNull(swagger);
+        assertEquals(swagger.getInfo().getDescription(), "processed");
     }
 
     @Test
     public void verifySwaggerYaml() throws Exception {
         Swagger swagger = getYamlSwagger();
         assertNotNull(swagger);
+        assertEquals(swagger.getInfo().getDescription(), "processed");
     }
 
     @Test
@@ -96,5 +100,12 @@ public class SwaggerListingIT {
 
         String str = client.invokeAPI("swagger.yaml", "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/yaml", null, new String[0]);
         return Yaml.mapper().readValue(str, Swagger.class);
+    }
+
+    public static class SwaggerProcessorImpl implements SwaggerProcessor {
+        @Override
+        public void process(Swagger swagger) {
+            swagger.getInfo().setDescription("processed");
+        }
     }
 }

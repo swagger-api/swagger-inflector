@@ -37,6 +37,7 @@ public class Configuration {
     private String controllerClass;
     private String modelPackage;
     private String swaggerUrl;
+    private List<String> swaggerProcessors = new ArrayList<>();
     private String filterClass;
     private int invalidRequestCode = 400;
     private String rootPath = "";
@@ -279,6 +280,15 @@ public class Configuration {
     public void setSwaggerUrl(String swaggerUrl) {
         this.swaggerUrl = swaggerUrl;
     }
+
+    public List<String> getSwaggerProcessors() {
+        return swaggerProcessors;
+    }
+
+    public void setSwaggerProcessors(List<String> swaggerProcessors) {
+        this.swaggerProcessors = swaggerProcessors;
+    }
+
 
     public void setInvalidRequestStatusCode(int code) {
         this.invalidRequestCode = code;

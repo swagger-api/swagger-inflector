@@ -18,22 +18,43 @@ package io.swagger.inflector.controllers;
 
 import io.swagger.config.FilterFactory;
 import io.swagger.core.filter.SwaggerSpecFilter;
+import io.swagger.inflector.config.SwaggerProcessor;
 import io.swagger.inflector.utils.VendorSpecFilter;
 import io.swagger.models.Swagger;
+import io.swagger.util.Json;
 import org.glassfish.jersey.process.Inflector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
-import java.util.Map;
 
 public class SwaggerResourceController implements Inflector<ContainerRequestContext, Response> {
-    private Swagger swagger;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerResourceController.class);
 
-    public SwaggerResourceController(Swagger swagger) {
+    private Swagger swagger;
+    private List<SwaggerProcessor> swaggerProcessors;
+
+    public SwaggerResourceController(Swagger swagger, List<String> swaggerProcessors) {
         this.swagger = swagger;
+
+        this.swaggerProcessors = new ArrayList<>(swaggerProcessors.size());
+        for (String swaggerProcessorClass : swaggerProcessors) {
+            try {
+                this.swaggerProcessors.add(((SwaggerProcessor) SwaggerResourceController.class.getClassLoader()
+                        .loadClass(swaggerProcessorClass).newInstance()));
+            } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+                LOGGER.error("Unable to load class: " + swaggerProcessorClass, e);
+            }
+        }
     }
 
     @Override
@@ -50,8 +71,24 @@ public class SwaggerResourceController implements Inflector<ContainerRequestCont
             }
 
             MultivaluedMap<String, String> headers = arg0.getHeaders();
-            return Response.ok().entity(new VendorSpecFilter().filter(swagger, filter, null, cookies, headers)).build();
+            return Response.ok().entity(new VendorSpecFilter().filter(getSwagger(), filter, null, cookies, headers)).build();
         }
-        return Response.ok().entity(swagger).build();
+        return Response.ok().entity(getSwagger()).build();
+    }
+
+    private Swagger getSwagger() {
+        if (!swaggerProcessors.isEmpty()) {
+            try {
+                final Swagger swagger = Json.mapper().readValue(Json.mapper().writeValueAsString(this.swagger),
+                        Swagger.class);
+                for (SwaggerProcessor swaggerProcessor : swaggerProcessors) {
+                    swaggerProcessor.process(swagger);
+                }
+                return swagger;
+            } catch (IOException e) {
+                LOGGER.error("Unable to serialize/deserialize swagger: " + swagger, e);
+            }
+        }
+        return swagger;
     }
 }
