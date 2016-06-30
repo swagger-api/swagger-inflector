@@ -166,7 +166,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                             }
                             if (matched) {
                                 this.parameterClasses = args;
-                                this.controller = config.getControllerFactory().instantiateController(cls);
+                                this.controller = config.getControllerFactory().instantiateController(cls, operation);
                                 LOGGER.debug("found class `" + controllerName + "`");
                                 return method;
                             }
