@@ -21,14 +21,19 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.inflector.converters.InputConverter;
 import io.swagger.util.Yaml;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class Configuration {
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
@@ -48,7 +53,7 @@ public class Configuration {
     private List<String> inputConverters = new ArrayList<String>();
     private List<String> inputValidators = new ArrayList<String>();
     private List<String> entityProcessors = new ArrayList<String>();
-    private String controllerFactoryClass;
+    private ControllerFactory controllerFactory = new DefaultControllerFactory();
     private String swaggerBase = "/";
     private Set<Direction> validatePayloads = Collections.emptySet();
 
@@ -197,14 +202,7 @@ public class Configuration {
     }
 
     public ControllerFactory getControllerFactory() {
-    	if (!StringUtils.isEmpty(controllerFactoryClass)){
-    		try {
-				return Class.forName(controllerFactoryClass).asSubclass(ControllerFactory.class).newInstance();
-			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-				LOGGER.warn("Couldn't create controller factory.");
-			}
-    	}
-    	return new DefaultControllerFactory();
+        return controllerFactory;
     }
 
     public void setControllerPackage(String controllerPackage) {
@@ -360,11 +358,22 @@ public class Configuration {
         this.validatePayloads = validatePayloads;
     }
 
-	public String getControllerFactoryClass() {
-		return controllerFactoryClass;
-	}
+    public String getControllerFactoryClass() {
+        return controllerFactory.getClass().getName();
+    }
 
 	public void setControllerFactoryClass(String controllerFactoryClass) {
-		this.controllerFactoryClass = controllerFactoryClass;
-	}
+        if (!StringUtils.isEmpty(controllerFactoryClass)) {
+            try {
+                controllerFactory = Class.forName(controllerFactoryClass).asSubclass(ControllerFactory.class)
+                        .newInstance();
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                LOGGER.error("Couldn't create controller factory", e);
+            }
+        }
+    }
+
+    public void setControllerFactory(ControllerFactory controllerFactory) {
+        this.controllerFactory = controllerFactory;
+    }
 }
