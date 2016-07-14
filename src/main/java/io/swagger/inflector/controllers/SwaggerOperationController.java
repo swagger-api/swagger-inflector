@@ -19,6 +19,7 @@ package io.swagger.inflector.controllers;
 import com.fasterxml.jackson.databind.JavaType;
 import com.google.common.io.Files;
 import io.swagger.inflector.config.Configuration;
+import io.swagger.inflector.config.ControllerFactory;
 import io.swagger.inflector.converters.ConversionException;
 import io.swagger.inflector.converters.InputConverter;
 import io.swagger.inflector.examples.ExampleBuilder;
@@ -95,6 +96,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
     private Provider<Providers> providersProvider;
     @Inject
     private Provider<HttpServletRequest> requestProvider;
+    private ControllerFactory controllerFactoryCache = null;
 
     public SwaggerOperationController(Configuration config, String path, String httpMethod, Operation operation, Map<String, Model> definitions) {
         this.setConfiguration(config);
@@ -166,7 +168,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                             }
                             if (matched) {
                                 this.parameterClasses = args;
-                                this.controller = config.getControllerFactory().instantiateController(cls);
+                                this.controller = getControllerFactory().instantiateController(cls, operation);
                                 LOGGER.debug("found class `" + controllerName + "`");
                                 return method;
                             }
@@ -696,5 +698,12 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                 }
                 break;
         }
+    }
+    
+    private ControllerFactory getControllerFactory() {
+    	if (controllerFactoryCache == null){
+    		controllerFactoryCache = config.getControllerFactory();
+    	}
+    	return controllerFactoryCache;
     }
 }

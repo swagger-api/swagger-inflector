@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.inflector.converters.InputConverter;
 import io.swagger.util.Yaml;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +48,7 @@ public class Configuration {
     private List<String> inputConverters = new ArrayList<String>();
     private List<String> inputValidators = new ArrayList<String>();
     private List<String> entityProcessors = new ArrayList<String>();
-    private ControllerFactory controllerFactory = new DefaultControllerFactory();
+    private String controllerFactoryClass;
     private String swaggerBase = "/";
     private Set<Direction> validatePayloads = Collections.emptySet();
 
@@ -174,11 +176,6 @@ public class Configuration {
         return this;
     }
 
-    public Configuration controllerFactory( ControllerFactory instantiator ){
-        this.controllerFactory = instantiator;
-        return this;
-    }
-
     public Configuration swaggerUrl(String swaggerUrl) {
         this.swaggerUrl = swaggerUrl;
         return this;
@@ -200,11 +197,14 @@ public class Configuration {
     }
 
     public ControllerFactory getControllerFactory() {
-        return controllerFactory;
-    }
-
-    public void setControllerFactory(ControllerFactory controllerFactory) {
-        this.controllerFactory = controllerFactory;
+    	if (!StringUtils.isEmpty(controllerFactoryClass)){
+    		try {
+				return Class.forName(controllerFactoryClass).asSubclass(ControllerFactory.class).newInstance();
+			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+				LOGGER.warn("Couldn't create controller factory.");
+			}
+    	}
+    	return new DefaultControllerFactory();
     }
 
     public void setControllerPackage(String controllerPackage) {
@@ -359,4 +359,12 @@ public class Configuration {
     public void setValidatePayloads(Set<Direction> validatePayloads) {
         this.validatePayloads = validatePayloads;
     }
+
+	public String getControllerFactoryClass() {
+		return controllerFactoryClass;
+	}
+
+	public void setControllerFactoryClass(String controllerFactoryClass) {
+		this.controllerFactoryClass = controllerFactoryClass;
+	}
 }

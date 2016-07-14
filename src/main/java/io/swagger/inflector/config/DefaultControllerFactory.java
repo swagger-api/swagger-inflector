@@ -16,6 +16,8 @@
 
 package io.swagger.inflector.config;
 
+import io.swagger.models.Operation;
+
 /**
  * Default ControllerFactory implementation that just calls newInstance
  */
@@ -26,13 +28,14 @@ public class DefaultControllerFactory implements ControllerFactory {
      * Instantiates the provided class calling cls.newInstance()
      *
      * @param cls the class to be instantiated
+     * @param operation the operation to instantiate
      * @return an instance of the provided class
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
 
     @Override
-    public Object instantiateController(Class<? extends Object> cls) throws IllegalAccessException, InstantiationException {
+    public Object instantiateController(Class<? extends Object> cls, Operation operation) throws IllegalAccessException, InstantiationException {
         return cls.newInstance();
     }
 }

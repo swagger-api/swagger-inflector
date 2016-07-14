@@ -16,6 +16,8 @@
 
 package io.swagger.inflector.config;
 
+import io.swagger.models.Operation;
+
 /**
  * Behaviour for instantiating controllers - provide your custom implementation to the Configuration
  * class for hooking into DI frameworks, script engines, etc
@@ -27,10 +29,11 @@ public interface ControllerFactory {
      * Instantiates the provided controller class
      *
      * @param cls the class to instantiate
+     * @param operation the operation to instantiate
      * @return an instance of the class
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
 
-    Object instantiateController(Class<? extends Object> cls) throws IllegalAccessException, InstantiationException;
+    Object instantiateController(Class<? extends Object> cls, Operation operation) throws IllegalAccessException, InstantiationException;
 }
