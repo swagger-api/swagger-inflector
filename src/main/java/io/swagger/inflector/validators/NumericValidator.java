@@ -27,8 +27,18 @@ public class NumericValidator implements Validator {
             };
             if(ap.getMaximum() != null) {
                 double max = ap.getMaximum();
+                Double value;
+                try {
+                    value = Double.parseDouble(o.toString());
+                }
+                catch (NumberFormatException e) {
+                    throw new ValidationException()
+                            .message(new ValidationMessage()
+                                    .code(ValidationError.INVALID_FORMAT)
+                                    .message(parameter.getIn() + " parameter `" + parameter.getName() + " is not a compatible number"));
+                }
                 if(ap.isExclusiveMaximum() != null && ap.isExclusiveMaximum()) {
-                    if(Double.parseDouble(o.toString()) >= max) {
+                    if(value >= max) {
                         throw new ValidationException()
                           .message(new ValidationMessage()
                               .code(ValidationError.VALUE_OVER_MAXIMUM)
@@ -36,7 +46,7 @@ public class NumericValidator implements Validator {
                     }
                 }
                 else {
-                    if(Double.parseDouble(o.toString()) > max) {
+                    if(value > max) {
                         throw new ValidationException()
                           .message(new ValidationMessage()
                               .code(ValidationError.VALUE_OVER_MAXIMUM)
@@ -46,8 +56,18 @@ public class NumericValidator implements Validator {
             }
             if(ap.getMinimum() != null) {
                 double min = ap.getMinimum();
+                Double value;
+                try {
+                    value = Double.parseDouble(o.toString());
+                }
+                catch (NumberFormatException e) {
+                    throw new ValidationException()
+                            .message(new ValidationMessage()
+                                    .code(ValidationError.INVALID_FORMAT)
+                                    .message(parameter.getIn() + " parameter `" + parameter.getName() + " is not a compatible number"));
+                }
                 if(ap.isExclusiveMinimum() != null && ap.isExclusiveMinimum()) {
-                    if(Double.parseDouble(o.toString()) <= min) {
+                    if(value <= min) {
                         throw new ValidationException()
                           .message(new ValidationMessage()
                               .code(ValidationError.VALUE_UNDER_MINIMUM)
@@ -55,7 +75,7 @@ public class NumericValidator implements Validator {
                     }
                 }
                 else {
-                    if(Double.parseDouble(o.toString()) < min) {
+                    if(value < min) {
                         throw new ValidationException()
                           .message(new ValidationMessage()
                               .code(ValidationError.VALUE_UNDER_MINIMUM)
