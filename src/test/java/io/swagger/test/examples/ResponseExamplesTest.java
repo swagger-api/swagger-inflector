@@ -51,7 +51,6 @@ public class ResponseExamplesTest {
 
     @Test
     public void testResponseJsonExample() throws Exception {
-
         Configuration config = new Configuration();
         Swagger swagger = new SwaggerParser().read( "src/test/swagger/sample1.yaml");
         Operation operation = swagger.getPath( "/mockResponses/responseWithExamples").getGet();

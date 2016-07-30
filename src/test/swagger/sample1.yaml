@@ -16,6 +16,19 @@ info:
 basePath: /api
 
 paths:
+  /producesTest:
+    get:
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        200:
+          description: it works
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
   /fileUpload:
     post:
       x-swagger-router-controller: TestController
