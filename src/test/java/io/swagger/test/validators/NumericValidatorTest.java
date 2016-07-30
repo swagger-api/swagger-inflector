@@ -21,11 +21,10 @@ import io.swagger.inflector.validators.ValidationException;
 import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.properties.DoubleProperty;
 import io.swagger.models.properties.LongProperty;
-
-import java.util.Arrays;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.Arrays;
 
 public class NumericValidatorTest {
     InputConverter converter;
@@ -56,6 +55,15 @@ public class NumericValidatorTest {
     }
 
     @Test
+    public void testEqualIntegerMinimum() throws Exception {
+        QueryParameter parameter = new QueryParameter()
+                .name("test");
+        parameter.setMinimum(10.0);
+
+        converter.validate(new Integer(10), parameter);
+    }
+
+    @Test
     public void testValidIntegerMaximum() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test");
@@ -83,8 +91,8 @@ public class NumericValidatorTest {
         InputConverter.getInstance().validate(new Integer(11), parameter);
     }
 
-    @Test
-    public void testValidIntegerExclusiveMinimumEquality() throws Exception {
+    @Test(expectedExceptions = ValidationException.class)
+    public void testInvalidIntegerExclusiveMinimumEquality() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test");
         parameter.setMinimum(10.0);
@@ -113,8 +121,8 @@ public class NumericValidatorTest {
         InputConverter.getInstance().validate(new Integer(11), parameter);
     }
 
-    @Test
-    public void testValidIntegerExclusiveMaximumEquality() throws Exception {
+    @Test(expectedExceptions = ValidationException.class)
+    public void testInvalidIntegerExclusiveMaximumEquality() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test");
         parameter.setMaximum(10.0);

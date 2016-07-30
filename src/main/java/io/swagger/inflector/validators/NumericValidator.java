@@ -1,9 +1,8 @@
 package io.swagger.inflector.validators;
 
-import io.swagger.models.parameters.*;
-import io.swagger.models.properties.*;
+import io.swagger.models.parameters.AbstractSerializableParameter;
+import io.swagger.models.parameters.Parameter;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -29,7 +28,7 @@ public class NumericValidator implements Validator {
             if(ap.getMaximum() != null) {
                 double max = ap.getMaximum();
                 if(ap.isExclusiveMaximum() != null && ap.isExclusiveMaximum()) {
-                    if(Double.parseDouble(o.toString()) > max) {
+                    if(Double.parseDouble(o.toString()) >= max) {
                         throw new ValidationException()
                           .message(new ValidationMessage()
                               .code(ValidationError.VALUE_OVER_MAXIMUM)
@@ -37,7 +36,7 @@ public class NumericValidator implements Validator {
                     }
                 }
                 else {
-                    if(Double.parseDouble(o.toString()) >= max) {
+                    if(Double.parseDouble(o.toString()) > max) {
                         throw new ValidationException()
                           .message(new ValidationMessage()
                               .code(ValidationError.VALUE_OVER_MAXIMUM)
@@ -48,7 +47,7 @@ public class NumericValidator implements Validator {
             if(ap.getMinimum() != null) {
                 double min = ap.getMinimum();
                 if(ap.isExclusiveMinimum() != null && ap.isExclusiveMinimum()) {
-                    if(Double.parseDouble(o.toString()) < min) {
+                    if(Double.parseDouble(o.toString()) <= min) {
                         throw new ValidationException()
                           .message(new ValidationMessage()
                               .code(ValidationError.VALUE_UNDER_MINIMUM)
@@ -56,7 +55,7 @@ public class NumericValidator implements Validator {
                     }
                 }
                 else {
-                    if(Double.parseDouble(o.toString()) <= min) {
+                    if(Double.parseDouble(o.toString()) < min) {
                         throw new ValidationException()
                           .message(new ValidationMessage()
                               .code(ValidationError.VALUE_UNDER_MINIMUM)
