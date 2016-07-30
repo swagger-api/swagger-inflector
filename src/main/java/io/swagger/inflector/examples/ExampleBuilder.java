@@ -29,22 +29,7 @@ import io.swagger.inflector.examples.models.StringExample;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
 import io.swagger.models.Xml;
-import io.swagger.models.properties.ArrayProperty;
-import io.swagger.models.properties.BooleanProperty;
-import io.swagger.models.properties.DateProperty;
-import io.swagger.models.properties.DateTimeProperty;
-import io.swagger.models.properties.DecimalProperty;
-import io.swagger.models.properties.DoubleProperty;
-import io.swagger.models.properties.EmailProperty;
-import io.swagger.models.properties.FloatProperty;
-import io.swagger.models.properties.IntegerProperty;
-import io.swagger.models.properties.LongProperty;
-import io.swagger.models.properties.MapProperty;
-import io.swagger.models.properties.ObjectProperty;
-import io.swagger.models.properties.Property;
-import io.swagger.models.properties.RefProperty;
-import io.swagger.models.properties.StringProperty;
-import io.swagger.models.properties.UUIDProperty;
+import io.swagger.models.properties.*;
 import io.swagger.util.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,6 +117,11 @@ public class ExampleBuilder {
                 output = new LongExample(Long.parseLong(example.toString()));
             }
             output = new LongExample(0);
+        } else if (property instanceof BaseIntegerProperty) {
+            if (example != null) {
+                output = new IntegerExample(Integer.parseInt(example.toString()));
+            }
+            output = new IntegerExample(0);
         } else if (property instanceof FloatProperty) {
             if (example != null) {
                 output = new FloatExample(Float.parseFloat(example.toString()));
