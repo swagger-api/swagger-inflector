@@ -399,6 +399,15 @@ paths:
             type: array
             items:
               $ref: '#/definitions/User'
+  /issue-125:
+    get:
+      parameters: []
+      responses:
+        200:
+          description: int16
+          schema:
+            type: integer
+            format: int16
   /form:
     post:
       operationId: postFormData

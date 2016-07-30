@@ -18,12 +18,10 @@ package io.swagger.test.integration.responses;
 
 import io.swagger.test.client.ApiClient;
 
-import org.testng.annotations.Test;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 public class PrimitiveResponseTestIT {
     ApiClient client = new ApiClient();
@@ -148,5 +146,16 @@ public class PrimitiveResponseTestIT {
 
         String str = client.invokeAPI("/mockResponses/primitiaveMapResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
         assertEquals(str, "{\"key\":\"key\",\"value\":\"string\"}");
+    }
+
+    /**
+     * test for https://github.com/swagger-api/swagger-inflector/issues/125
+     */
+    @org.junit.Test
+    public void verifyBaseIntegerResponse() throws Exception {
+        Map<String, String> queryParams = new HashMap<String, String>();
+
+        String str = client.invokeAPI("/issue-125", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertEquals(str, "0");
     }
 }
