@@ -28,7 +28,7 @@ public class LongExample extends AbstractExample {
     }
 
     public String asString() {
-        return String.valueOf(value);
+        return String.valueOf(getValue());
     }
 
     public Long getValue() {

@@ -32,7 +32,7 @@ public class IntegerExample extends AbstractExample {
     }
 
     public String asString() {
-        return String.valueOf(value);
+        return String.valueOf(getValue());
     }
 
     public Integer getValue() {

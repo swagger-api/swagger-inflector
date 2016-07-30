@@ -430,21 +430,21 @@ public class ApiClient {
             String message = "error";
             String respBody = null;
             Map<String, List<String>> responseHeaders = new HashMap<String, List<String>>();
+            for (String key : response.getHeaders().keySet()) {
+                List<Object> values = response.getHeaders().get(key);
+                for (Object o : values) {
+                    List<String> headers = responseHeaders.get(key);
+                    if (headers == null) {
+                        headers = new ArrayList<String>();
+                        responseHeaders.put(key, headers);
+                    }
+                    headers.add(String.valueOf(o));
+                }
+            }
 
             if (response.hasEntity()) {
                 try {
                     message = String.valueOf(response.readEntity(String.class));
-                    for (String key : response.getHeaders().keySet()) {
-                        List<Object> values = response.getHeaders().get(key);
-                        for (Object o : values) {
-                            List<String> headers = responseHeaders.get(key);
-                            if (headers == null) {
-                                headers = new ArrayList<String>();
-                                responseHeaders.put(key, headers);
-                            }
-                            headers.add(String.valueOf(o));
-                        }
-                    }
                 } catch (RuntimeException e) {
                     // e.printStackTrace();
                 }

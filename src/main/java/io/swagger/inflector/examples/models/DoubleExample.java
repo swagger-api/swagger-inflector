@@ -28,7 +28,7 @@ public class DoubleExample extends AbstractExample {
     }
 
     public String asString() {
-        return String.valueOf(value);
+        return String.valueOf(getValue());
     }
 
     public Double getValue() {

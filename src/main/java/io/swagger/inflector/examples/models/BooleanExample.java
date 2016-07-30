@@ -29,7 +29,7 @@ public class BooleanExample extends AbstractExample {
     }
 
     public String asString() {
-        return value.toString();
+        return getValue().toString();
     }
 
     public Boolean getValue() {
