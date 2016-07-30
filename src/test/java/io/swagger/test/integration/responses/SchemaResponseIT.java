@@ -72,13 +72,8 @@ public class SchemaResponseIT {
     public void testIssue130() throws Exception {
         Map<String, Object> body = new HashMap<String, Object>();
         String response = client.invokeAPI("/issue-130", "GET", new HashMap<String, String>(), body,
-                new HashMap<String, String>(), null, null, "application/yaml", new String[0]);
+                new HashMap<String, String>(), null, null, "application/json", new String[0]);
 
-        assertEquals(response,
-                "---\n" +
-                "anIntegerArray:\n" +
-                "- 99\n" +
-                "aStringArray:\n" +
-                "- \"a string value\"\n");
+        assertEquals(response, "{\"anIntegerArray\":[99],\"aStringArray\":[\"a string value\"]}");
     }
 }
