@@ -34,7 +34,20 @@ public class ArrayExample extends AbstractExample {
     }
 
     public String asString() {
-        return "NOT IMPLEMENTED";
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        if(values != null) {
+            for(int i = 0; i < values.size(); i++) {
+                Example example = values.get(i);
+                builder.append(example.asString());
+                if(i > 0) {
+                    builder.append(",");
+                }
+            }
+        }
+        builder.append("]");
+
+        return builder.toString();
     }
 
     public List<Example> getItems() {

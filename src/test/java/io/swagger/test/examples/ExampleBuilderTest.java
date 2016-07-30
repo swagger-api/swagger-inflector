@@ -267,6 +267,13 @@ public class ExampleBuilderTest {
     }
 
     @Test
+    public void testDoubleArrayModelAsString() throws Exception {
+        ArrayExample example = new ArrayExample();
+        example.add(new DoubleExample());
+        Assert.assertEquals(example.asString(), "[4.56]");
+    }
+
+    @Test
     public void testEmptyArrayXmlModel() throws Exception {
         ArrayExample example = new ArrayExample();
         example.add(new StringExample());

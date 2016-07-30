@@ -439,6 +439,32 @@ paths:
                   type: integer
                   format: int32
                   example: 99
+  /issue-133:
+    get:
+      parameters: []
+      responses:
+        303:
+          description: issue 133
+          headers:
+            Location:
+              type: string
+              format: url
+              example: 'http://foo.bar/other'
+              description: URI of the entity affected by the property change
+  /issue-133.2:
+    get:
+      parameters: []
+      responses:
+        303:
+          description: issue 133, alternate example
+          headers:
+            _links:
+              description: array of locations
+              type: array
+              items:
+                type: string
+                format: url
+                example: 'http://foo.bar/other'
   /form:
     post:
       operationId: postFormData

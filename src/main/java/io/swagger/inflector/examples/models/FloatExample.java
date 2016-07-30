@@ -28,7 +28,7 @@ public class FloatExample extends AbstractExample {
     }
 
     public String asString() {
-        return String.valueOf(value);
+        return String.valueOf(getValue());
     }
 
     public Float getValue() {

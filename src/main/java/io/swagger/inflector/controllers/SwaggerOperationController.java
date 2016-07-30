@@ -23,6 +23,9 @@ import io.swagger.inflector.config.ControllerFactory;
 import io.swagger.inflector.converters.ConversionException;
 import io.swagger.inflector.converters.InputConverter;
 import io.swagger.inflector.examples.ExampleBuilder;
+import io.swagger.inflector.examples.models.ArrayExample;
+import io.swagger.inflector.examples.models.Example;
+import io.swagger.inflector.examples.models.ObjectExample;
 import io.swagger.inflector.models.ApiError;
 import io.swagger.inflector.models.RequestContext;
 import io.swagger.inflector.models.ResponseContext;
@@ -555,28 +558,55 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                 }
 
                 if(defaultKey != null) {
+                    ResponseBuilder builder = Response.status(code);
                     io.swagger.models.Response response = responses.get(defaultKey);
+
+                    Map<String, Object> responseHeaders = null;
+
+                    if(response.getHeaders() != null && response.getHeaders().size() > 0) {
+                        for(String key: response.getHeaders().keySet()) {
+                            Property headerProperty = response.getHeaders().get(key);
+                            Object output = ExampleBuilder.fromProperty(headerProperty, definitions);
+                            if(output instanceof ArrayExample) {
+                                output = ((ArrayExample)output).asString();
+                            }
+                            else if(output instanceof ObjectExample) {
+                                LOGGER.debug("not serializing output example, only primitives or arrays of primitives are supported");
+                            }
+                            else {
+                                output = ((Example)output).asString();
+                            }
+                            builder.header(key, output);
+                        }
+                    }
 
                     Map<String, Object> examples = response.getExamples();
                     if (examples != null) {
                         for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
                             for (String key : examples.keySet()) {
                                 if (MediaType.valueOf(key).isCompatible(mediaType)) {
-                                    return Response.status(code).entity(examples.get(key)).type(mediaType).build();
+                                    builder.entity(examples.get(key))
+                                            .type(mediaType);
+
+                                    return builder.build();
                                 }
                             }
                         }
                     }
 
                     Object output = ExampleBuilder.fromProperty(response.getSchema(), definitions);
+
                     if (output != null) {
                         ResponseContext resp = new ResponseContext().entity(output);
                         setContentType(requestContext, resp, operation);
-                        if (resp.getContentType() != null)
-                            return Response.status(code).entity(output).type(resp.getContentType()).build();
-                        else
-                            return Response.status(code).entity(output).build();
+                        builder.entity(output);
+                        if (resp.getContentType() != null) {
+                            builder.type(resp.getContentType());
+                        }
+
+                        builder.entity(output);
                     }
+                    return builder.build();
                 }
                 else {
                     LOGGER.debug("no response type to map to, assume 200");
