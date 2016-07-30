@@ -149,7 +149,7 @@ public class PrimitiveResponseTestIT {
     }
 
     /**
-     * verifies that the email return value is automatically created
+     * test for https://github.com/swagger-api/swagger-inflector/issues/125
      */
     @org.junit.Test
     public void verifyBaseIntegerResponse() throws Exception {
