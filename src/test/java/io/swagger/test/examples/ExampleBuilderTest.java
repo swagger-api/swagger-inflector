@@ -303,6 +303,26 @@ public class ExampleBuilderTest {
                 "}");
     }
 
+    @Test
+    public void testIssue127() throws Exception {
+        IntegerProperty integerProperty = new IntegerProperty();
+        integerProperty.setFormat(null);
+        integerProperty.setExample(new Long(4321));
+        Model model = new ModelImpl()
+                .property("unboundedInteger", integerProperty);
+
+        Map<String, Model> definitions = new HashMap<>();
+        definitions.put("Address", model);
+
+        Example rep = ExampleBuilder.fromProperty(new RefProperty("Address"), definitions);
+
+        Json.prettyPrint(rep);
+        assertEquals(Json.pretty(rep),
+                "{\n" +
+                "  \"unboundedInteger\" : 4321\n" +
+                "}");
+    }
+
     private void assertEqualsIgnoreLineEnding(String actual, String expected) {
         assertEquals(actual.replace("\n", System.getProperty("line.separator")), expected);
     }

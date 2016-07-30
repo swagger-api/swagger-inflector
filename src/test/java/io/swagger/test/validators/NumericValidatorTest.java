@@ -131,6 +131,16 @@ public class NumericValidatorTest {
         InputConverter.getInstance().validate(new Integer(10), parameter);
     }
 
+    @Test(expectedExceptions = ValidationException.class)
+    public void testIssue127_b() throws Exception {
+        QueryParameter parameter = new QueryParameter()
+                .name("test");
+        parameter.setMaximum(10.0);
+        parameter.setExclusiveMaximum(true);
+
+        InputConverter.getInstance().validate("value 1", parameter);
+    }
+
     @Test
     public void testValidIntegerEnum() throws Exception {
         QueryParameter parameter = new QueryParameter()
