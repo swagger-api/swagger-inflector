@@ -29,6 +29,7 @@ import io.swagger.inflector.examples.models.ObjectExample;
 import io.swagger.inflector.models.ApiError;
 import io.swagger.inflector.models.RequestContext;
 import io.swagger.inflector.models.ResponseContext;
+import io.swagger.inflector.processors.EntityProcessor;
 import io.swagger.inflector.processors.EntityProcessorFactory;
 import io.swagger.inflector.schema.SchemaValidator;
 import io.swagger.inflector.utils.ApiErrorUtils;
@@ -561,8 +562,6 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                     ResponseBuilder builder = Response.status(code);
                     io.swagger.models.Response response = responses.get(defaultKey);
 
-                    Map<String, Object> responseHeaders = null;
-
                     if(response.getHeaders() != null && response.getHeaders().size() > 0) {
                         for(String key: response.getHeaders().keySet()) {
                             Property headerProperty = response.getHeaders().get(key);
@@ -601,8 +600,25 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                         setContentType(requestContext, resp, operation);
                         builder.entity(output);
                         if (resp.getContentType() != null) {
+                            // this comes from the operation itself
                             builder.type(resp.getContentType());
                         }
+                        else {
+                            // get acceptable content types
+                            List<EntityProcessor> processors = EntityProcessorFactory.getProcessors();
+
+                            // take first compatible one
+                            for (EntityProcessor processor : processors) {
+                                for (MediaType mt : requestContext.getAcceptableMediaTypes()) {
+                                    LOGGER.debug("checking type " + mt.toString() + " against " + processor.getClass().getName());
+                                    if (processor.supports(mt)) {
+                                        builder.type(mt);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
 
                         builder.entity(output);
                     }

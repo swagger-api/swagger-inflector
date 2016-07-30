@@ -94,4 +94,28 @@ public class SchemaResponseIT {
             assertEquals(value.get(0).toString(), "[http://foo.bar/other]");
         }
     }
+
+    /**
+     * ensure the response honors the produces type with no explicit Accept header
+     * @throws Exception
+     */
+    @Test
+    public void testProducesType() throws Exception {
+        String response = client.invokeAPI("/producesTest", "GET", new HashMap<String, String>(), new HashMap<String, Object>(),
+                new HashMap<String, String>(), null, null, null, new String[0]);
+
+        assertEquals("{\"name\":\"string\"}", response);
+    }
+
+    /**
+     * ensure the response honors the produces type with incompatible Accept header
+     * @throws Exception
+     */
+    @Test
+    public void testProducesTypeWithConflict() throws Exception {
+        String response = client.invokeAPI("/producesTest", "GET", new HashMap<String, String>(), new HashMap<String, Object>(),
+                new HashMap<String, String>(), null, null, "application/xml", new String[0]);
+
+        assertEquals("{\"name\":\"string\"}", response);
+    }
 }
