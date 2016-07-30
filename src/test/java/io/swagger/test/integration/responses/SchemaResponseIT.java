@@ -83,7 +83,7 @@ public class SchemaResponseIT {
     public void testResponseHeaders() throws Exception {
         Map<String, Object> body = new HashMap<String, Object>();
         try {
-            client.invokeAPI("/issue-133.2", "GET", new HashMap<String, String>(), body,
+            client.invokeAPI("/issue-132.2", "GET", new HashMap<String, String>(), body,
                     new HashMap<String, String>(), null, null, null, new String[0]);
             Assert.fail("Exception was expected!");
         }

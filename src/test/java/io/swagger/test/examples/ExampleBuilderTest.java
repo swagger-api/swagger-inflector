@@ -39,6 +39,8 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.testng.Assert.assertEquals;
+
 public class ExampleBuilderTest {
     static {
         // register the JSON serializer
@@ -99,7 +101,7 @@ public class ExampleBuilderTest {
 
         definitions.put("Address", address);
 
-        Example rep = (Example) ExampleBuilder.fromProperty(new RefProperty("User"), definitions);
+        Example rep = ExampleBuilder.fromProperty(new RefProperty("User"), definitions);
 
         String xmlString = new XmlExampleSerializer().serialize(rep);
         assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><user><userName>fehguy</userName><addressess><address><street>12345 El Monte Blvd</street><city>Los Altos Hills</city><state>CA</state><zip>94022</zip></address></addressess><managers><key>key</key><value>SVP Engineering</value></managers><kidsAges>9</kidsAges></user>");
@@ -256,21 +258,21 @@ public class ExampleBuilderTest {
     public void testEmptyStringArrayJsonModel() throws Exception {
         ArrayExample example = new ArrayExample();
         example.add(new StringExample());
-        Assert.assertEquals(Json.pretty(example), "[ null ]");
+        assertEquals(Json.pretty(example), "[ null ]");
     }
 
     @Test
     public void testEmptyDoubleArrayJsonModel() throws Exception {
         ArrayExample example = new ArrayExample();
         example.add(new DoubleExample());
-        Assert.assertEquals(Json.pretty(example), "[ 4.56 ]");
+        assertEquals(Json.pretty(example), "[ 4.56 ]");
     }
 
     @Test
     public void testDoubleArrayModelAsString() throws Exception {
         ArrayExample example = new ArrayExample();
         example.add(new DoubleExample());
-        Assert.assertEquals(example.asString(), "[4.56]");
+        assertEquals(example.asString(), "[4.56]");
     }
 
     @Test
@@ -283,7 +285,25 @@ public class ExampleBuilderTest {
         Assert.assertNull(xmlString);
     }
 
+    @Test
+    public void testIssue133() throws Exception {
+        IntegerProperty integerProperty = new IntegerProperty();
+        integerProperty.setFormat("int64");
+        integerProperty.setExample(new Long(4321));
+        Model model = new ModelImpl()
+            .property("int64", integerProperty);
+
+        Map<String, Model> definitions = new HashMap<>();
+        definitions.put("Address", model);
+
+        Example rep = ExampleBuilder.fromProperty(new RefProperty("Address"), definitions);
+        assertEquals(Json.pretty(rep),
+                "{\n" +
+                "  \"int64\" : 4321\n" +
+                "}");
+    }
+
     private void assertEqualsIgnoreLineEnding(String actual, String expected) {
-        Assert.assertEquals(actual.replace("\n", System.getProperty("line.separator")), expected);
+        assertEquals(actual.replace("\n", System.getProperty("line.separator")), expected);
     }
 }
