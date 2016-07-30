@@ -545,30 +545,42 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                     if ("default".equals(key)) {
                         defaultKey = key;
                         code = 200;
+                        break;
+                    }
+                    if (key.startsWith("3")) {
+                        // we use the 3xx responses as defaults
+                        defaultKey = key;
+                        code = Integer.parseInt(key);
                     }
                 }
 
-                io.swagger.models.Response response = responses.get(defaultKey);
+                if(defaultKey != null) {
+                    io.swagger.models.Response response = responses.get(defaultKey);
 
-                Map<String, Object> examples = response.getExamples();
-                if (examples != null) {
-                    for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
-                        for (String key : examples.keySet()) {
-                            if (MediaType.valueOf(key).isCompatible(mediaType)) {
-                                return Response.status(code).entity(examples.get(key)).type(mediaType).build();
+                    Map<String, Object> examples = response.getExamples();
+                    if (examples != null) {
+                        for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
+                            for (String key : examples.keySet()) {
+                                if (MediaType.valueOf(key).isCompatible(mediaType)) {
+                                    return Response.status(code).entity(examples.get(key)).type(mediaType).build();
+                                }
                             }
                         }
                     }
-                }
 
-                Object output = ExampleBuilder.fromProperty(response.getSchema(), definitions);
-                if (output != null) {
-                    ResponseContext resp = new ResponseContext().entity(output);
-                    setContentType(requestContext, resp, operation);
-                    if (resp.getContentType() != null)
-                        return Response.status(code).entity(output).type(resp.getContentType()).build();
-                    else
-                        return Response.status(code).entity(output).build();
+                    Object output = ExampleBuilder.fromProperty(response.getSchema(), definitions);
+                    if (output != null) {
+                        ResponseContext resp = new ResponseContext().entity(output);
+                        setContentType(requestContext, resp, operation);
+                        if (resp.getContentType() != null)
+                            return Response.status(code).entity(output).type(resp.getContentType()).build();
+                        else
+                            return Response.status(code).entity(output).build();
+                    }
+                }
+                else {
+                    LOGGER.debug("no response type to map to, assume 200");
+                    code = 200;
                 }
                 return Response.status(code).build();
             }

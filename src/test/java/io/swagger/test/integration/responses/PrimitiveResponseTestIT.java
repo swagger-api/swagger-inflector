@@ -17,11 +17,14 @@
 package io.swagger.test.integration.responses;
 
 import io.swagger.test.client.ApiClient;
+import io.swagger.test.client.ApiException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 public class PrimitiveResponseTestIT {
     ApiClient client = new ApiClient();
@@ -157,5 +160,22 @@ public class PrimitiveResponseTestIT {
 
         String str = client.invokeAPI("/issue-125", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
         assertEquals(str, "0");
+    }
+
+    /**
+     * test for https://github.com/swagger-api/swagger-inflector/issues/128
+     */
+    @org.junit.Test
+    public void verify303Response() throws Exception {
+        Map<String, String> queryParams = new HashMap<String, String>();
+
+        try {
+            String str = client.invokeAPI("/issue-128", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+            fail("expected non-200 response");
+        }
+        catch (ApiException e) {
+            assertTrue(e.getCode() == 303);
+            assertEquals(e.getMessage(), "\"http://foo.bar/other\"");
+        }
     }
 }
