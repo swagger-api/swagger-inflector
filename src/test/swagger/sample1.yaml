@@ -418,6 +418,27 @@ paths:
             type: string
             format: url
             example: 'http://foo.bar/other'
+  /issue-130:
+    get:
+      parameters: []
+      responses:
+        200:
+          description: issue 130
+          schema:
+            type: object
+            description: an object with array properties
+            properties:
+              aStringArray:
+                type: array
+                items:
+                  type: string
+                  example: a string value
+              anIntegerArray:
+                type: array
+                items:
+                  type: integer
+                  format: int32
+                  example: 99
   /form:
     post:
       operationId: postFormData
