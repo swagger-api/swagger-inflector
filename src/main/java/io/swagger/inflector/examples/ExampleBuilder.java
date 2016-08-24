@@ -92,14 +92,18 @@ public class ExampleBuilder {
             }
         } else if (property instanceof EmailProperty) {
             if (example != null) {
-                return new StringExample(example.toString());
+                output = new StringExample(example.toString());
             }
-            output = new StringExample("apiteam@swagger.io");
+            else {
+                output = new StringExample("apiteam@swagger.io");
+            }
         } else if (property instanceof UUIDProperty) {
             if (example != null) {
                 output = new StringExample(example.toString());
             }
-            output = new StringExample("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+            else {
+                output = new StringExample("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+            }
         } else if (property instanceof StringProperty) {
             if (example != null) {
                 output = new StringExample(example.toString());
@@ -108,50 +112,91 @@ public class ExampleBuilder {
             }
         } else if (property instanceof IntegerProperty) {
             if (example != null) {
-                output = new IntegerExample(Integer.parseInt(example.toString()));
-            } else {
+                try {
+                    output = new IntegerExample(Integer.parseInt(example.toString()));
+                }
+                catch( NumberFormatException e ){}
+            }
+
+            if( output == null )  {
                 output = new IntegerExample(0);
             }
         } else if (property instanceof LongProperty) {
             if (example != null) {
-                output = new LongExample(Long.parseLong(example.toString()));
+                try {
+                    output = new LongExample(Long.parseLong(example.toString()));
+                }
+                catch( NumberFormatException e ) {}
             }
-            output = new LongExample(0);
+
+            if( output == null ) {
+                output = new LongExample(0);
+            }
         } else if (property instanceof BaseIntegerProperty) {
             if (example != null) {
-                output = new IntegerExample(Integer.parseInt(example.toString()));
+                try {
+                    output = new IntegerExample(Integer.parseInt(example.toString()));
+                }
+                catch( NumberFormatException e ){}
             }
-            output = new IntegerExample(0);
+
+            if( output == null ) {
+                output = new IntegerExample(0);
+            }
         } else if (property instanceof FloatProperty) {
             if (example != null) {
-                output = new FloatExample(Float.parseFloat(example.toString()));
+                try {
+                    output = new FloatExample(Float.parseFloat(example.toString()));
+                }
+                catch( NumberFormatException e ){}
             }
-            output = new FloatExample(1.1f);
+
+            if( output == null ) {
+                output = new FloatExample(1.1f);
+            }
         } else if (property instanceof DoubleProperty) {
             if (example != null) {
-                output = new DoubleExample(Double.parseDouble(example.toString()));
+                try {
+                    output = new DoubleExample(Double.parseDouble(example.toString()));
+                }
+                catch( NumberFormatException e ){}
             }
-            output = new DoubleExample(1.23);
+
+            if( output == null ){
+                output = new DoubleExample(1.23);
+            }
         } else if (property instanceof BooleanProperty) {
             if (example != null) {
                 output = new BooleanExample(Boolean.valueOf(Boolean.parseBoolean(example.toString())));
             }
-            output = new BooleanExample(Boolean.valueOf(true));
+            else {
+                output = new BooleanExample(Boolean.valueOf(true));
+            }
         } else if (property instanceof DateProperty) {
             if (example != null) {
                 output = new StringExample(example.toString());
             }
-            output = new StringExample("2015-07-20");
+            else {
+                output = new StringExample("2015-07-20");
+            }
         } else if (property instanceof DateTimeProperty) {
             if (example != null) {
                 output = new StringExample(example.toString());
             }
-            output = new StringExample("2015-07-20T15:49:04-07:00");
+            else {
+                output = new StringExample("2015-07-20T15:49:04-07:00");
+            }
         } else if (property instanceof DecimalProperty) {
             if (example != null) {
-                output = new DecimalExample(new BigDecimal(example.toString()));
+                try {
+                    output = new DecimalExample(new BigDecimal(example.toString()));
+                }
+                catch( NumberFormatException e ){}
             }
-            output = new DecimalExample(new BigDecimal(1.5));
+
+            if( output == null ){
+                output = new DecimalExample(new BigDecimal(1.5));
+            }
         } else if (property instanceof ObjectProperty) {
             if (example != null) {
                 try {
