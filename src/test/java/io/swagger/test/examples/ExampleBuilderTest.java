@@ -24,8 +24,6 @@ import io.swagger.inflector.examples.models.AbstractExample;
 import io.swagger.inflector.examples.models.ArrayExample;
 import io.swagger.inflector.examples.models.DoubleExample;
 import io.swagger.inflector.examples.models.Example;
-import io.swagger.inflector.examples.models.FloatExample;
-import io.swagger.inflector.examples.models.IntegerExample;
 import io.swagger.inflector.examples.models.ObjectExample;
 import io.swagger.inflector.examples.models.StringExample;
 import io.swagger.inflector.processors.JsonExampleDeserializer;
@@ -33,7 +31,18 @@ import io.swagger.inflector.processors.JsonNodeExampleSerializer;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
 import io.swagger.models.Xml;
-import io.swagger.models.properties.*;
+import io.swagger.models.properties.AbstractProperty;
+import io.swagger.models.properties.ArrayProperty;
+import io.swagger.models.properties.BaseIntegerProperty;
+import io.swagger.models.properties.BooleanProperty;
+import io.swagger.models.properties.DecimalProperty;
+import io.swagger.models.properties.DoubleProperty;
+import io.swagger.models.properties.FloatProperty;
+import io.swagger.models.properties.IntegerProperty;
+import io.swagger.models.properties.LongProperty;
+import io.swagger.models.properties.MapProperty;
+import io.swagger.models.properties.RefProperty;
+import io.swagger.models.properties.StringProperty;
 import io.swagger.test.models.User;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
@@ -349,11 +358,11 @@ public class ExampleBuilderTest {
             ExampleBuilder.SAMPLE_BASE_INTEGER_PROPERTY_VALUE );
     }
 
-    public <T1 extends AbstractProperty> void testInvalidExample(T1 property, String invalidValue, Object defaultValue ) throws Exception {
+    public void testInvalidExample(AbstractProperty property, String invalidValue, Object defaultValue ) throws Exception {
        testInvalidExample( property, invalidValue, defaultValue, null );
     }
 
-    public <T1 extends AbstractProperty> void testInvalidExample(T1 property, String invalidValue, Object defaultValue, Object sampleValue ) throws Exception {
+    public void testInvalidExample(AbstractProperty property, String invalidValue, Object defaultValue, Object sampleValue ) throws Exception {
         property.setExample( invalidValue);
 
         Model model = new ModelImpl().property("test", property );
