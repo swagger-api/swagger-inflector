@@ -17,15 +17,12 @@
 package io.swagger.test.integration.responses;
 
 import io.swagger.inflector.examples.ExampleBuilder;
-import io.swagger.inflector.examples.models.Example;
 import io.swagger.test.client.ApiClient;
 import io.swagger.test.client.ApiException;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.google.common.io.CharSource.wrap;
-import static jdk.nashorn.internal.parser.JSONParser.quote;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
@@ -76,6 +73,10 @@ public class PrimitiveResponseTestIT {
 
         String str = client.invokeAPI("/mockResponses/primitiveUUIDResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
         assertEquals(str, quote(ExampleBuilder.SAMPLE_UUID_PROPERTY_VALUE));
+    }
+
+    private String quote(String string) {
+        return '"' + string + '"';
     }
 
     /**
