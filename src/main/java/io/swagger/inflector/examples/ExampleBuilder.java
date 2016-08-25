@@ -43,6 +43,19 @@ import java.util.Set;
 public class ExampleBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExampleBuilder.class);
 
+    public static final String SAMPLE_EMAIL_PROPERTY_VALUE = "apiteam@swagger.io";
+    public static final String SAMPLE_UUID_PROPERTY_VALUE = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+    public static final String SAMPLE_STRING_PROPERTY_VALUE = "string";
+    public static final int SAMPLE_INT_PROPERTY_VALUE = 0;
+    public static final int SAMPLE_LONG_PROPERTY_VALUE = 0;
+    public static final int SAMPLE_BASE_INTEGER_PROPERTY_VALUE = 0;
+    public static final float SAMPLE_FLOAT_PROPERTY_VALUE = 1.1f;
+    public static final double SAMPLE_DOUBLE_PROPERTY_VALUE = 1.1f;
+    public static final boolean SAMPLE_BOOLEAN_PROPERTY_VALUE = true;
+    public static final String SAMPLE_DATE_PROPERTY_VALUE = "2015-07-20";
+    public static final String SAMPLE_DATETIME_PROPERTY_VALUE = "2015-07-20T15:49:04-07:00";
+    public static final double SAMPLE_DECIMAL_PROPERTY_VALUE = 1.5;
+
     public static Example fromProperty(Property property, Map<String, Model> definitions) {
         return fromProperty(property, definitions, new HashSet<String>());
     }
@@ -95,20 +108,23 @@ public class ExampleBuilder {
                 output = new StringExample(example.toString());
             }
             else {
-                output = new StringExample("apiteam@swagger.io");
+                String defaultValue = ((EmailProperty)property).getDefault();
+                output = new StringExample( defaultValue == null ? SAMPLE_EMAIL_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof UUIDProperty) {
             if (example != null) {
                 output = new StringExample(example.toString());
             }
             else {
-                output = new StringExample("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+                String defaultValue = ((UUIDProperty)property).getDefault();
+                output = new StringExample( defaultValue == null ? SAMPLE_UUID_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof StringProperty) {
             if (example != null) {
                 output = new StringExample(example.toString());
             } else {
-                output = new StringExample("string");
+                String defaultValue = ((StringProperty)property).getDefault();
+                output = new StringExample( defaultValue == null ? SAMPLE_STRING_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof IntegerProperty) {
             if (example != null) {
@@ -119,7 +135,8 @@ public class ExampleBuilder {
             }
 
             if( output == null )  {
-                output = new IntegerExample(0);
+                Integer defaultValue = ((IntegerProperty) property).getDefault();
+                output = new IntegerExample( defaultValue == null ? SAMPLE_INT_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof LongProperty) {
             if (example != null) {
@@ -130,7 +147,8 @@ public class ExampleBuilder {
             }
 
             if( output == null ) {
-                output = new LongExample(0);
+                Long defaultValue = ((LongProperty) property).getDefault();
+                output = new LongExample( defaultValue == null ? SAMPLE_LONG_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof BaseIntegerProperty) {
             if (example != null) {
@@ -141,7 +159,7 @@ public class ExampleBuilder {
             }
 
             if( output == null ) {
-                output = new IntegerExample(0);
+                output = new IntegerExample(SAMPLE_BASE_INTEGER_PROPERTY_VALUE);
             }
         } else if (property instanceof FloatProperty) {
             if (example != null) {
@@ -152,7 +170,8 @@ public class ExampleBuilder {
             }
 
             if( output == null ) {
-                output = new FloatExample(1.1f);
+                Float defaultValue = ((FloatProperty) property).getDefault();
+                output = new FloatExample( defaultValue == null ? SAMPLE_FLOAT_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof DoubleProperty) {
             if (example != null) {
@@ -163,28 +182,31 @@ public class ExampleBuilder {
             }
 
             if( output == null ){
-                output = new DoubleExample(1.23);
+                Double defaultValue = ((DoubleProperty) property).getDefault();
+                output = new DoubleExample( defaultValue == null ? SAMPLE_DOUBLE_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof BooleanProperty) {
             if (example != null) {
-                output = new BooleanExample(Boolean.valueOf(Boolean.parseBoolean(example.toString())));
+                output = new BooleanExample(Boolean.valueOf(example.toString()));
             }
             else {
-                output = new BooleanExample(Boolean.valueOf(true));
+                Boolean defaultValue = ((BooleanProperty)property).getDefault();
+                output = new BooleanExample( defaultValue == null ? SAMPLE_BOOLEAN_PROPERTY_VALUE : defaultValue.booleanValue());
             }
         } else if (property instanceof DateProperty) {
             if (example != null) {
                 output = new StringExample(example.toString());
             }
             else {
-                output = new StringExample("2015-07-20");
+
+                output = new StringExample(SAMPLE_DATE_PROPERTY_VALUE);
             }
         } else if (property instanceof DateTimeProperty) {
             if (example != null) {
                 output = new StringExample(example.toString());
             }
             else {
-                output = new StringExample("2015-07-20T15:49:04-07:00");
+                output = new StringExample(SAMPLE_DATETIME_PROPERTY_VALUE);
             }
         } else if (property instanceof DecimalProperty) {
             if (example != null) {
@@ -195,7 +217,7 @@ public class ExampleBuilder {
             }
 
             if( output == null ){
-                output = new DecimalExample(new BigDecimal(1.5));
+                output = new DecimalExample(new BigDecimal(SAMPLE_DECIMAL_PROPERTY_VALUE));
             }
         } else if (property instanceof ObjectProperty) {
             if (example != null) {
