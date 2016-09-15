@@ -28,8 +28,19 @@ import io.swagger.inflector.processors.JsonExampleDeserializer;
 import io.swagger.inflector.processors.JsonNodeExampleSerializer;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
+import io.swagger.models.Response;
+import io.swagger.models.Swagger;
 import io.swagger.models.Xml;
-import io.swagger.models.properties.*;
+import io.swagger.models.properties.ArrayProperty;
+import io.swagger.models.properties.BooleanProperty;
+import io.swagger.models.properties.DecimalProperty;
+import io.swagger.models.properties.FloatProperty;
+import io.swagger.models.properties.IntegerProperty;
+import io.swagger.models.properties.LongProperty;
+import io.swagger.models.properties.MapProperty;
+import io.swagger.models.properties.RefProperty;
+import io.swagger.models.properties.StringProperty;
+import io.swagger.parser.SwaggerParser;
 import io.swagger.test.models.User;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
@@ -325,5 +336,16 @@ public class ExampleBuilderTest {
 
     private void assertEqualsIgnoreLineEnding(String actual, String expected) {
         assertEquals(actual.replace("\n", System.getProperty("line.separator")), expected);
+    }
+
+    @Test
+    public void testObjectWithAnonymousObjectArray() throws Exception {
+
+        Swagger swagger = new SwaggerParser().read("src/test/swagger/likud-liberal-swagger.yaml");
+
+        Response response = swagger.getPath("/auto-messages").getGet().getResponses().get( "200" );
+        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+
+        Json.pretty().writeValueAsString(example);
     }
 }
