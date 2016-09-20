@@ -28,10 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
-import java.io.*;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.*;
 
 public class JacksonProcessor implements EntityProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(JacksonProcessor.class);
@@ -41,6 +42,11 @@ public class JacksonProcessor implements EntityProcessor {
     private static Collection<MediaType> SUPPORTED_TYPES = Collections
             .unmodifiableList(Arrays.asList(MediaType.APPLICATION_JSON_TYPE,
                     MediaType.APPLICATION_XML_TYPE, APPLICATION_YAML, MediaType.TEXT_PLAIN_TYPE));
+
+    @Override
+    public List<MediaType> getSupportedMediaTypes() {
+        return new ArrayList(SUPPORTED_TYPES);
+    }
 
     @Override
     public boolean supports(MediaType mediaType) {

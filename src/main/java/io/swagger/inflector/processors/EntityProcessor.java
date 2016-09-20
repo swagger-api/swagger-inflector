@@ -21,9 +21,12 @@ import io.swagger.inflector.converters.ConversionException;
 
 import javax.ws.rs.core.MediaType;
 import java.io.InputStream;
+import java.util.List;
 
 public interface EntityProcessor {
     boolean supports(MediaType mediaType);
+
+    List<MediaType> getSupportedMediaTypes();
 
     Object process(MediaType mediaType, InputStream entityStream, Class<?> cls) throws ConversionException;
     
