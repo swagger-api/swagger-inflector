@@ -617,6 +617,15 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                                     }
                                 }
                             }
+
+                            // no match based on Accept header, use first processor in list
+                            for (EntityProcessor processor : processors) {
+                                List<MediaType> supportedTypes = processor.getSupportedMediaTypes();
+                                if(supportedTypes.size() > 0) {
+                                    builder.type(supportedTypes.get(0));
+                                    break;
+                                }
+                            }
                         }
 
 
