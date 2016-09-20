@@ -607,27 +607,34 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                             // get acceptable content types
                             List<EntityProcessor> processors = EntityProcessorFactory.getProcessors();
 
+                            MediaType responseMediaType = null;
+
                             // take first compatible one
                             for (EntityProcessor processor : processors) {
+                                if(responseMediaType != null) {
+                                    break;
+                                }
                                 for (MediaType mt : requestContext.getAcceptableMediaTypes()) {
                                     LOGGER.debug("checking type " + mt.toString() + " against " + processor.getClass().getName());
                                     if (processor.supports(mt)) {
                                         builder.type(mt);
+                                        responseMediaType = mt;
                                         break;
                                     }
                                 }
                             }
 
-                            // no match based on Accept header, use first processor in list
-                            for (EntityProcessor processor : processors) {
-                                List<MediaType> supportedTypes = processor.getSupportedMediaTypes();
-                                if(supportedTypes.size() > 0) {
-                                    builder.type(supportedTypes.get(0));
-                                    break;
+                            if(responseMediaType == null) {
+                                // no match based on Accept header, use first processor in list
+                                for (EntityProcessor processor : processors) {
+                                    List<MediaType> supportedTypes = processor.getSupportedMediaTypes();
+                                    if (supportedTypes.size() > 0) {
+                                        builder.type(supportedTypes.get(0));
+                                        break;
+                                    }
                                 }
                             }
                         }
-
 
                         builder.entity(output);
                     }

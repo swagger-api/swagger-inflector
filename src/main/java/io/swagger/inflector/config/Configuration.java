@@ -58,6 +58,15 @@ public class Configuration {
     private Set<Direction> validatePayloads = Collections.emptySet();
 
     public String getSwaggerBase() {
+        if("".equals(swaggerBase) || "/".equals(swaggerBase)) {
+            return swaggerBase;
+        }
+
+        if(swaggerBase != null) {
+            if(swaggerBase.endsWith("/")) {
+                return swaggerBase.substring(0, swaggerBase.length() - 1);
+            }
+        }
         return swaggerBase;
     }
 

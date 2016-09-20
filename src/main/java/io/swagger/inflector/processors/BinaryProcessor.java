@@ -31,14 +31,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BinaryProcessor implements EntityProcessor {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(BinaryProcessor.class);
+    private static List<MediaType> SUPPORTED_TYPES = new ArrayList<>();
+
+    static {
+        SUPPORTED_TYPES.add(MediaType.APPLICATION_OCTET_STREAM_TYPE);
+    }
 
     @Override
     public List<MediaType> getSupportedMediaTypes() {
-        List<MediaType> supportedTypes = new ArrayList<>();
-        supportedTypes.add(MediaType.APPLICATION_OCTET_STREAM_TYPE);
-        return supportedTypes;
+        return new ArrayList(SUPPORTED_TYPES);
+    }
+
+    @Override
+    public void enableType(MediaType type) {
+        MediaType t = type;
+        if(t != null) {
+            if(!SUPPORTED_TYPES.contains(t)) {
+                SUPPORTED_TYPES.add(type);
+            }
+        }
     }
 
     @Override

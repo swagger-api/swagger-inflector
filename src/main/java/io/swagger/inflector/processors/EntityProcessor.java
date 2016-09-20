@@ -28,6 +28,8 @@ public interface EntityProcessor {
 
     List<MediaType> getSupportedMediaTypes();
 
+    void enableType(MediaType type);
+
     Object process(MediaType mediaType, InputStream entityStream, Class<?> cls) throws ConversionException;
     
     Object process(MediaType mediaType, InputStream entityStream, JavaType javaType);
