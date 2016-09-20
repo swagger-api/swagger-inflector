@@ -1,6 +1,7 @@
 # Swagger Inflector
 
-[![Build Status](https://travis-ci.org/swagger-api/swagger-inflector.svg?branch=master)](https://travis-ci.org/swagger-api/swagger-inflector)[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector)
+[![Build Status](https://travis-ci.org/swagger-api/swagger-inflector.svg?branch=master)](https://travis-ci.org/swagger-api/swagger-inflector)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector)
 
 
 This project uses the Swagger Specification to drive an API implementation.  Rather than a typical top-down or bottom-up swagger integration, the Inflector uses the swagger specification as a DSL for the REST API.  The spec drives the creation of routes and controllers automatically, matching methods and method signatures from the implementation.  This brings a similar integration approach to the JVM as [swagger-node](https://github.com/swagger-api/swagger-node) brings to the javascript world.
