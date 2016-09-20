@@ -39,6 +39,6 @@ public class DefaultSpecFilter extends AbstractSpecFilter {
 
     @Override
     public boolean isRemovingUnreferencedDefinitions() {
-        return true;
+        return false;
     }
 }
