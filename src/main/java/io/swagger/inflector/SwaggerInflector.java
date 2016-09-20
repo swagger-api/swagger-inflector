@@ -28,11 +28,7 @@ import io.swagger.inflector.controllers.SwaggerResourceController;
 import io.swagger.inflector.converters.Converter;
 import io.swagger.inflector.converters.InputConverter;
 import io.swagger.inflector.models.InflectResult;
-import io.swagger.inflector.processors.JsonExampleProvider;
-import io.swagger.inflector.processors.JsonNodeExampleSerializer;
-import io.swagger.inflector.processors.JsonProvider;
-import io.swagger.inflector.processors.XMLExampleProvider;
-import io.swagger.inflector.processors.YamlExampleProvider;
+import io.swagger.inflector.processors.*;
 import io.swagger.inflector.utils.DefaultContentTypeProvider;
 import io.swagger.inflector.utils.DefaultSpecFilter;
 import io.swagger.inflector.utils.ResolverUtil;
@@ -53,18 +49,12 @@ import org.glassfish.jersey.server.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import javax.servlet.ServletContext;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ContextResolver;
+import java.util.*;
 
 public class SwaggerInflector extends ResourceConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerInflector.class);
@@ -194,6 +184,7 @@ public class SwaggerInflector extends ResourceConfig {
                     register(new DefaultContentTypeProvider(MediaType.APPLICATION_JSON_TYPE),
                             ContextResolver.class);
                 }
+                enableProcessor(JacksonProcessor.class, MediaType.APPLICATION_JSON_TYPE);
                 enableSwaggerJSON(swagger, configuration.getSwaggerProcessors());
             } else if ("xml".equalsIgnoreCase(item)) {
                 // XML
@@ -201,12 +192,14 @@ public class SwaggerInflector extends ResourceConfig {
                     register(new DefaultContentTypeProvider(MediaType.APPLICATION_XML_TYPE),
                             ContextResolver.class);
                 }
+                enableProcessor(JacksonProcessor.class, MediaType.APPLICATION_XML_TYPE);
                 register(JacksonJaxbXMLProvider.class);
                 register(XMLExampleProvider.class);
             } else if ("yaml".equalsIgnoreCase(item)) {
                 // YAML
                 Yaml.mapper().registerModule(simpleModule);
                 register(YamlExampleProvider.class);
+                enableProcessor(JacksonProcessor.class, JacksonProcessor.APPLICATION_YAML_TYPE);
                 enableSwaggerYAML(swagger, configuration.getSwaggerProcessors());
             }
         }
@@ -330,6 +323,23 @@ public class SwaggerInflector extends ResourceConfig {
             return path;
         }
         return basePath + path;
+    }
+
+    private void enableProcessor(Class<?> cls, MediaType type) {
+        List<EntityProcessor> processors = EntityProcessorFactory.getProcessors();
+        for(EntityProcessor processor : processors) {
+            if (processor.getClass().equals(cls)) {
+                processor.enableType(type);
+                return;
+            }
+        }
+        try {
+            EntityProcessor processor = (EntityProcessor) cls.newInstance();
+            processor.enableType(type);
+        }
+        catch (Exception e) {
+            LOGGER.error("unable to initialize class " + cls);
+        }
     }
 
     private void enableSwaggerJSON(Swagger swagger, List<String> swaggerProcessors) {

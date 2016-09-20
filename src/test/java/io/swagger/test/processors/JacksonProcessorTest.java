@@ -19,6 +19,7 @@ package io.swagger.test.processors;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.inflector.processors.EntityProcessorFactory;
+import io.swagger.inflector.processors.JacksonProcessor;
 import org.testng.annotations.Test;
 
 import javax.ws.rs.core.MediaType;
@@ -33,6 +34,8 @@ public class JacksonProcessorTest {
     public void testConvertXMLContent() throws Exception {
         String input = "<user><id>1</id><name>fehguy</name></user>";
 
+        EntityProcessorFactory.addProcessor(JacksonProcessor.class, MediaType.APPLICATION_XML_TYPE);
+
         InputStream is = new ByteArrayInputStream(input.getBytes());
         ObjectNode o = (ObjectNode) EntityProcessorFactory.readValue(MediaType.APPLICATION_XML_TYPE, is, JsonNode.class);
         assertEquals(o.getClass(), ObjectNode.class);
@@ -42,6 +45,7 @@ public class JacksonProcessorTest {
     @Test
     public void testConvertJsonContent() throws Exception {
         String input = "{\"name\":\"fehguy\"}";
+        EntityProcessorFactory.addProcessor(JacksonProcessor.class, MediaType.APPLICATION_JSON_TYPE);
 
         InputStream is = new ByteArrayInputStream(input.getBytes());
         ObjectNode o = (ObjectNode) EntityProcessorFactory.readValue(MediaType.APPLICATION_JSON_TYPE, is, JsonNode.class);
@@ -52,6 +56,7 @@ public class JacksonProcessorTest {
     @Test
     public void testConvertYamlContent() throws Exception {
         String input = "name: fehguy\nuserId: 42";
+        EntityProcessorFactory.addProcessor(JacksonProcessor.class, JacksonProcessor.APPLICATION_YAML_TYPE);
 
         InputStream is = new ByteArrayInputStream(input.getBytes());
         MediaType t = MediaType.valueOf("application/yaml");
