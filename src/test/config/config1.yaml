@@ -3,6 +3,7 @@ modelPackage: io.swagger.sample.models
 swaggerUrl: ./src/test/swagger/sample1.yaml
 modelMappings:
   User: io.swagger.test.models.User
+swaggerBase: /swagger/
 
 # allows environment to be develop, staging, production.  Production will not start if
 # unimplemented models or methods are detected

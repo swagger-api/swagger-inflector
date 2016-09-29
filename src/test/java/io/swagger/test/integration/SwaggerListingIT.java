@@ -91,14 +91,15 @@ public class SwaggerListingIT {
     private Swagger getJsonSwagger() throws Exception {
         ApiClient client = new ApiClient();
 
-        String str = client.invokeAPI("swagger.json", "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        String str = client.invokeAPI("swagger/swagger.json", "GET", new HashMap<String, String>(), null, new
+                HashMap<String, String>(), null, "application/json", null, new String[0]);
         return Json.mapper().readValue(str, Swagger.class);
     }
 
     private Swagger getYamlSwagger() throws Exception {
         ApiClient client = new ApiClient();
 
-        String str = client.invokeAPI("swagger.yaml", "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/yaml", null, new String[0]);
+        String str = client.invokeAPI("swagger/swagger.yaml", "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/yaml", null, new String[0]);
         return Yaml.mapper().readValue(str, Swagger.class);
     }
 
