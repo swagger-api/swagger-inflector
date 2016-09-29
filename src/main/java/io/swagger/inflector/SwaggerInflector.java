@@ -318,9 +318,30 @@ public class SwaggerInflector extends ResourceConfig {
         }
     }
 
-    private String basePath(String basePath, String path) {
-        if (StringUtils.isEmpty(basePath) || "/".equals(basePath)) {
-            return path;
+    public static String basePath(String basePath, String path) {
+        if(StringUtils.isBlank(basePath)) {
+            basePath = "/";
+        }
+        if (!basePath.endsWith("/") && !"/".equals(basePath) && StringUtils.isBlank(path)) {
+            basePath = basePath + "/";
+        }
+        if (StringUtils.isEmpty(path)) {
+            return basePath;
+        }
+        if (path.equals("/")) {
+            return basePath + "/";
+        }
+        if (!path.endsWith("/")) {
+            path = path + "/";
+        }
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        if ("/".equals(basePath)) {
+            basePath = "";
+        }
+        if(basePath.endsWith("/") && path.startsWith("/")) {
+            path = path.substring(1);
         }
         return basePath + path;
     }
