@@ -15,15 +15,17 @@
  */
 package io.swagger.inflector.config;
 
+import io.swagger.inflector.SwaggerInflector;
 import io.swagger.models.Operation;
-import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
 
 public class ConfigurationTest {
 
     @Test
     public void defaultControllerFactoryTest() {
-        Assert.assertEquals(new Configuration().getControllerFactory().getClass(), DefaultControllerFactory.class);
+        assertEquals(new Configuration().getControllerFactory().getClass(), DefaultControllerFactory.class);
     }
 
     @Test
@@ -31,7 +33,7 @@ public class ConfigurationTest {
         final Configuration configuration = new Configuration();
         configuration.setControllerFactoryClass(ControllerFactoryImpl.class.getName());
 
-        Assert.assertEquals(configuration.getControllerFactory().getClass(), ControllerFactoryImpl.class);
+        assertEquals(configuration.getControllerFactory().getClass(), ControllerFactoryImpl.class);
     }
 
     @Test
@@ -39,7 +41,63 @@ public class ConfigurationTest {
         final Configuration configuration = new Configuration();
         configuration.setControllerFactory(new ControllerFactoryImpl());
 
-        Assert.assertEquals(configuration.getControllerFactory().getClass(), ControllerFactoryImpl.class);
+        assertEquals(configuration.getControllerFactory().getClass(), ControllerFactoryImpl.class);
+    }
+
+    @Test
+    public void testSlashBasePath() {
+        String basePath = "/";
+        String swaggerBase = "/bar";
+        assertEquals(SwaggerInflector.basePath(basePath, swaggerBase), "/bar/");
+    }
+
+    @Test
+    public void testEmptyBasePath() {
+        String basePath = "";
+        String swaggerBase = "/bar";
+        assertEquals(SwaggerInflector.basePath(basePath, swaggerBase), "/bar/");
+    }
+
+    @Test
+    public void testPopulatedParts() {
+        String basePath = "/v1";
+        String swaggerBase = "/bar";
+        assertEquals(SwaggerInflector.basePath(basePath, swaggerBase), "/v1/bar/");
+    }
+
+    @Test
+    public void testEmptySwaggerBase() {
+        String basePath = "/";
+        String swaggerBase = "";
+        assertEquals(SwaggerInflector.basePath(basePath, swaggerBase), "/");
+    }
+
+    @Test
+    public void testEmptyParts() {
+        String basePath = "";
+        String swaggerBase = "";
+        assertEquals(SwaggerInflector.basePath(basePath, swaggerBase), "/");
+    }
+
+    @Test
+    public void testTrailingBasePathSlash() {
+        String basePath = "/api/";
+        String swaggerBase = "";
+        assertEquals(SwaggerInflector.basePath(basePath, swaggerBase), "/api/");
+    }
+
+    @Test
+    public void testTrailingSwaggerBasePathSlash() {
+        String basePath = "/api";
+        String swaggerBase = "/foo/";
+        assertEquals(SwaggerInflector.basePath(basePath, swaggerBase), "/api/foo/");
+    }
+
+    @Test
+    public void testTrailingSlashes() {
+        String basePath = "/api/";
+        String swaggerBase = "/foo/";
+        assertEquals(SwaggerInflector.basePath(basePath, swaggerBase), "/api/foo/");
     }
 
     public static class ControllerFactoryImpl implements ControllerFactory {
