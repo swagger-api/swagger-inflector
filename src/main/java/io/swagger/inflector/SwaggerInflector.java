@@ -365,7 +365,7 @@ public class SwaggerInflector extends ResourceConfig {
 
     private void enableSwaggerJSON(Swagger swagger, List<String> swaggerProcessors) {
         final Resource.Builder builder = Resource.builder();
-        builder.path(basePath(originalBasePath, config.getSwaggerBase() + "swagger.json"))
+        builder.path(basePath(originalBasePath, StringUtils.appendIfMissing(config.getSwaggerBase(), "/") + "swagger.json"))
                 .addMethod(HttpMethod.GET)
                 .produces(MediaType.APPLICATION_JSON)
                 .handledBy(new SwaggerResourceController(swagger, swaggerProcessors))
@@ -376,7 +376,7 @@ public class SwaggerInflector extends ResourceConfig {
 
     private void enableSwaggerYAML(Swagger swagger, List<String> swaggerProcessors) {
         final Resource.Builder builder = Resource.builder();
-        builder.path(basePath(originalBasePath, config.getSwaggerBase() + "swagger.yaml"))
+        builder.path(basePath(originalBasePath, StringUtils.appendIfMissing(config.getSwaggerBase(), "/") + "swagger.yaml"))
                 .addMethod(HttpMethod.GET)
                 .produces("application/yaml")
                 .handledBy(new SwaggerResourceController(swagger, swaggerProcessors))
