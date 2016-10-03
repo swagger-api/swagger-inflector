@@ -16,6 +16,8 @@
 
 package io.swagger.inflector.utils;
 
+import io.swagger.jaxrs.listing.SwaggerSerializers;
+
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -41,5 +43,6 @@ public class CORSFilter implements javax.servlet.Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        SwaggerSerializers.setPrettyPrint(Boolean.parseBoolean(filterConfig.getInitParameter("swagger.pretty.print")));
     }
 }
