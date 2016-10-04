@@ -179,7 +179,7 @@ public class SwaggerInflector extends ResourceConfig {
                 Json.mapper().registerModule(simpleModule);
                 register(JacksonJsonProvider.class);
                 register(JsonExampleProvider.class);
-                register(JsonProvider.class);
+                register(new JsonProvider(config.isPrettyPrint()));
                 if (!isRegistered(DefaultContentTypeProvider.class)) {
                     register(new DefaultContentTypeProvider(MediaType.APPLICATION_JSON_TYPE),
                             ContextResolver.class);
@@ -208,6 +208,7 @@ public class SwaggerInflector extends ResourceConfig {
 
         // Swagger serializers
         register(SwaggerSerializers.class);
+        SwaggerSerializers.setPrettyPrint(config.isPrettyPrint());
 
         for (Class<?> exceptionMapper : config.getExceptionMappers()) {
             register(exceptionMapper);

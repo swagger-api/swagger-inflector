@@ -56,6 +56,7 @@ public class Configuration {
     private ControllerFactory controllerFactory = new DefaultControllerFactory();
     private String swaggerBase = "/";
     private Set<Direction> validatePayloads = Collections.emptySet();
+    private boolean prettyPrint;
 
     public String getSwaggerBase() {
         if("".equals(swaggerBase) || "/".equals(swaggerBase)) {
@@ -384,5 +385,13 @@ public class Configuration {
 
     public void setControllerFactory(ControllerFactory controllerFactory) {
         this.controllerFactory = controllerFactory;
+    }
+
+    public boolean isPrettyPrint() {
+        return prettyPrint;
+    }
+
+    public void setPrettyPrint(boolean prettyPrint) {
+        this.prettyPrint = prettyPrint;
     }
 }
