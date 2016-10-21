@@ -55,7 +55,7 @@ public class BinaryProcessor implements EntityProcessor {
 
     @Override
     public boolean supports(MediaType mediaType) {
-        return MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(mediaType);
+        return SUPPORTED_TYPES.contains(mediaType);
     }
 
     @Override
