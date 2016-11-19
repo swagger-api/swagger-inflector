@@ -82,7 +82,7 @@ public class ExampleBuilder {
             if( definitions != null ) {
                 Model model = definitions.get(ref.getSimpleRef());
                 if (model != null) {
-                    output = fromModel(model, definitions, processedModels);
+                    output = fromModel(ref.getSimpleRef(), model, definitions, processedModels);
                 }
             }
         } else if (property instanceof EmailProperty) {
@@ -331,8 +331,7 @@ public class ExampleBuilder {
         return output;
     }
 
-    public static Example fromModel(Model model, Map<String, Model> definitions, Set<String> processedModels) {
-        String name = null;
+    public static Example fromModel(String name, Model model, Map<String, Model> definitions, Set<String> processedModels) {
         String namespace = null;
         String prefix = null;
         Boolean attribute = false;
@@ -377,7 +376,7 @@ public class ExampleBuilder {
             List<Example> innerExamples = new ArrayList<>();
             if(models != null) {
                 for (Model im : models) {
-                    Example innerExample = fromModel(im, definitions, processedModels);
+                    Example innerExample = fromModel(null, im, definitions, processedModels);
                     if(innerExample != null) {
                         innerExamples.add(innerExample);
                     }
