@@ -393,7 +393,7 @@ public class ExampleBuilderTest {
         definitions.put("InlineModel", model);
 
         Example rep = ExampleBuilder.fromProperty(new RefProperty("InlineModel"), definitions);
-        
+
         assertEquals(Json.pretty(rep), "{\n" +
             "  \"id\" : 999,\n" +
             "  \"inline\" : {\n" +

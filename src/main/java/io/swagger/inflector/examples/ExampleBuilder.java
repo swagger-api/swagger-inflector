@@ -332,6 +332,12 @@ public class ExampleBuilder {
     }
 
     public static Example fromModel(Model model, Map<String, Model> definitions, Set<String> processedModels) {
+        String name = null;
+        String namespace = null;
+        String prefix = null;
+        Boolean attribute = false;
+        Boolean wrapped = false;
+
         Example output = null;
         if (model.getExample() != null) {
             try {
@@ -343,6 +349,15 @@ public class ExampleBuilder {
         }
         else if(model instanceof ModelImpl) {
             ModelImpl impl = (ModelImpl) model;
+            if (impl.getXml() != null) {
+                Xml xml = impl.getXml();
+                name = xml.getName();
+                namespace = xml.getNamespace();
+                prefix = xml.getPrefix();
+                attribute = xml.getAttribute();
+                wrapped = xml.getWrapped() != null ? xml.getWrapped() : false;
+            }
+
             ObjectExample ex = new ObjectExample();
 
             if(impl.getProperties() != null) {
@@ -371,7 +386,21 @@ public class ExampleBuilder {
             mergeTo(ex, innerExamples);
             output = ex;
         }
-
+        if (output != null) {
+            if (attribute != null) {
+                output.setAttribute(attribute);
+            }
+            if (wrapped != null && wrapped) {
+                if (name != null) {
+                    output.setWrappedName(name);
+                }
+            } else if (name != null) {
+                output.setName(name);
+            }
+            output.setNamespace(namespace);
+            output.setPrefix(prefix);
+            output.setWrapped(wrapped);
+        }
         return output;
     }
 
