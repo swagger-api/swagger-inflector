@@ -397,8 +397,8 @@ public class ExampleBuilderTest {
         assertEquals(Json.pretty(rep), "{\n" +
             "  \"id\" : 999,\n" +
             "  \"inline\" : {\n" +
-            "    \"last\" : \"string\",\n" +
-            "    \"first\" : \"string\"\n" +
+            "    \"first\" : \"string\",\n" +
+            "    \"last\" : \"string\"\n" +
             "  }\n" +
             "}");
     }

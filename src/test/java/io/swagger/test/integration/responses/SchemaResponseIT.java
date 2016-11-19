@@ -76,7 +76,7 @@ public class SchemaResponseIT {
         String response = client.invokeAPI("/issue-130", "GET", new HashMap<String, String>(), body,
                 new HashMap<String, String>(), null, null, "application/json", new String[0]);
 
-        assertEquals(response, "{\"anIntegerArray\":[99],\"aStringArray\":[\"a string value\"]}");
+        assertEquals(response, "{\"aStringArray\":[\"a string value\"],\"anIntegerArray\":[99]}");
     }
 
     @Test
