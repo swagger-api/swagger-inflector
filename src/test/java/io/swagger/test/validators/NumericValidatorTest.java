@@ -163,8 +163,8 @@ public class NumericValidatorTest {
     public void testValidLongEnum() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test")
-            ._enum(Arrays.asList("1", "2", "3"))
-            .property(new LongProperty());
+            .property(new LongProperty())
+            ._enum(Arrays.asList("1", "2", "3"));
 
         InputConverter.getInstance().validate(new Long(3), parameter);
     }
@@ -173,8 +173,8 @@ public class NumericValidatorTest {
     public void testInvalidLongEnum() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test")
-            ._enum(Arrays.asList("1", "2", "3"))
-            .property(new LongProperty());
+            .property(new LongProperty())
+            ._enum(Arrays.asList("1", "2", "3"));
 
         InputConverter.getInstance().validate(new Long(4), parameter);
     }
@@ -183,11 +183,11 @@ public class NumericValidatorTest {
     public void testValidDoubleEnum() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test")
+            .property(new DoubleProperty())
             ._enum(Arrays.asList(
                 new Double(1).toString(),
                 new Double(2).toString(),
-                new Double(3).toString()))
-            .property(new DoubleProperty());
+                new Double(3).toString()));
 
         InputConverter.getInstance().validate(new Double(3), parameter);
     }
@@ -196,11 +196,11 @@ public class NumericValidatorTest {
     public void testInvalidDoubleEnum() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test")
+            .property(new DoubleProperty())
             ._enum(Arrays.asList(
                 new Double(1).toString(),
                 new Double(2).toString(),
-                new Double(3).toString()))
-            .property(new DoubleProperty());
+                new Double(3).toString()));
 
         InputConverter.getInstance().validate(new Double(4), parameter);
     }
