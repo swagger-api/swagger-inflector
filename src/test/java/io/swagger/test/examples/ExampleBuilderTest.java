@@ -299,6 +299,111 @@ public class ExampleBuilderTest {
     }
 
     @Test
+    public void testIssue126Simple() throws Exception {
+        String schema =
+            "{\n" +
+            "  \"type\": \"object\",\n" +
+            "  \"properties\": {\n" +
+            "    \"name\": {\n" +
+            "      \"type\": \"string\",\n" +
+            "      \"example\": \"hi!?\"\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+        Model model = Json.mapper().readValue(schema, Model.class);
+
+        Map<String, Model> definitions = new HashMap<>();
+        definitions.put("SimpleModel", model);
+
+        Example rep = ExampleBuilder.fromProperty(new RefProperty("SimpleModel"), definitions);
+
+        assertEquals(Json.pretty(rep),
+            "{\n" +
+            "  \"name\" : \"hi!?\"\n" +
+            "}");
+    }
+
+    @Test
+    public void testIssue126Composed() throws Exception {
+        String schema =
+            "{\n" +
+            "  \"allOf\": [\n" +
+            "    {\n" +
+            "      \"type\": \"object\",\n" +
+            "      \"properties\": {\n" +
+            "        \"id\": {\n" +
+            "          \"type\": \"integer\",\n" +
+            "          \"format\": \"int32\"\n" +
+            "        }\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"type\": \"object\",\n" +
+            "      \"properties\": {\n" +
+            "        \"name\": {\n" +
+            "          \"type\": \"string\",\n" +
+            "          \"example\": \"hi!?\"\n" +
+            "        }\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
+        Model model = Json.mapper().readValue(schema, Model.class);
+
+        Map<String, Model> definitions = new HashMap<>();
+        definitions.put("ComposedModel", model);
+
+        Example rep = ExampleBuilder.fromProperty(new RefProperty("ComposedModel"), definitions);
+
+        assertEquals(Json.pretty(rep),
+            "{\n" +
+            "  \"id\" : 0,\n" +
+            "  \"name\" : \"hi!?\"\n" +
+            "}");
+    }
+
+
+    @Test
+    public void testIssue126Inline() throws Exception {
+        String schema =
+            "{\n" +
+            "  \"type\": \"object\",\n" +
+            "  \"properties\": {\n" +
+            "    \"id\": {\n" +
+            "      \"type\": \"integer\",\n" +
+            "      \"format\": \"int32\",\n" +
+            "      \"example\": 999\n" +
+            "    },\n" +
+            "    \"inline\": {\n" +
+            "      \"type\": \"object\",\n" +
+            "      \"properties\": {\n" +
+            "        \"first\": {\n" +
+            "          \"type\": \"string\"\n" +
+            "        },\n" +
+            "        \"last\": {\n" +
+            "          \"type\": \"string\"\n" +
+            "        }\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+        Model model = Json.mapper().readValue(schema, Model.class);
+
+        Map<String, Model> definitions = new HashMap<>();
+        definitions.put("InlineModel", model);
+
+        Example rep = ExampleBuilder.fromProperty(new RefProperty("InlineModel"), definitions);
+
+        assertEquals(Json.pretty(rep), "{\n" +
+            "  \"id\" : 999,\n" +
+            "  \"inline\" : {\n" +
+            "    \"last\" : \"string\",\n" +
+            "    \"first\" : \"string\"\n" +
+            "  }\n" +
+            "}");
+    }
+
+    @Test
     public void testIssue133() throws Exception {
         IntegerProperty integerProperty = new IntegerProperty();
         integerProperty.setFormat("int64");

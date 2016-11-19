@@ -16,16 +16,8 @@
 
 package io.swagger.inflector.examples;
 
-import io.swagger.inflector.examples.models.ArrayExample;
-import io.swagger.inflector.examples.models.BooleanExample;
-import io.swagger.inflector.examples.models.DecimalExample;
-import io.swagger.inflector.examples.models.DoubleExample;
-import io.swagger.inflector.examples.models.Example;
-import io.swagger.inflector.examples.models.FloatExample;
-import io.swagger.inflector.examples.models.IntegerExample;
-import io.swagger.inflector.examples.models.LongExample;
-import io.swagger.inflector.examples.models.ObjectExample;
-import io.swagger.inflector.examples.models.StringExample;
+import io.swagger.inflector.examples.models.*;
+import io.swagger.models.ComposedModel;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
 import io.swagger.models.Xml;
@@ -36,9 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ExampleBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExampleBuilder.class);
@@ -92,15 +82,7 @@ public class ExampleBuilder {
             if( definitions != null ) {
                 Model model = definitions.get(ref.getSimpleRef());
                 if (model != null) {
-                    if (model.getExample() != null) {
-                        try {
-                            String str = model.getExample().toString();
-                            output = Json.mapper().readValue(str, ObjectExample.class);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            return null;
-                        }
-                    }
+                    output = fromModel(ref.getSimpleRef(), model, definitions, processedModels);
                 }
             }
         } else if (property instanceof EmailProperty) {
@@ -347,5 +329,86 @@ public class ExampleBuilder {
             output.setWrapped(wrapped);
         }
         return output;
+    }
+
+    public static Example fromModel(String name, Model model, Map<String, Model> definitions, Set<String> processedModels) {
+        String namespace = null;
+        String prefix = null;
+        Boolean attribute = false;
+        Boolean wrapped = false;
+
+        Example output = null;
+        if (model.getExample() != null) {
+            try {
+                String str = model.getExample().toString();
+                output = Json.mapper().readValue(str, ObjectExample.class);
+            } catch (IOException e) {
+                return null;
+            }
+        }
+        else if(model instanceof ModelImpl) {
+            ModelImpl impl = (ModelImpl) model;
+            if (impl.getXml() != null) {
+                Xml xml = impl.getXml();
+                name = xml.getName();
+                namespace = xml.getNamespace();
+                prefix = xml.getPrefix();
+                attribute = xml.getAttribute();
+                wrapped = xml.getWrapped() != null ? xml.getWrapped() : false;
+            }
+
+            ObjectExample ex = new ObjectExample();
+
+            if(impl.getProperties() != null) {
+                for(String key : impl.getProperties().keySet()) {
+                    Property property = impl.getProperties().get(key);
+                    Example propExample = fromProperty(property, definitions, processedModels);
+                    ex.put(key, propExample);
+                }
+            }
+            output = ex;
+        }
+        else if(model instanceof ComposedModel) {
+            ComposedModel cm = (ComposedModel) model;
+            List<Model> models = cm.getAllOf();
+            ObjectExample ex = new ObjectExample();
+
+            List<Example> innerExamples = new ArrayList<>();
+            if(models != null) {
+                for (Model im : models) {
+                    Example innerExample = fromModel(null, im, definitions, processedModels);
+                    if(innerExample != null) {
+                        innerExamples.add(innerExample);
+                    }
+                }
+            }
+            mergeTo(ex, innerExamples);
+            output = ex;
+        }
+        if (output != null) {
+            if (attribute != null) {
+                output.setAttribute(attribute);
+            }
+            if (wrapped != null && wrapped) {
+                if (name != null) {
+                    output.setWrappedName(name);
+                }
+            } else if (name != null) {
+                output.setName(name);
+            }
+            output.setNamespace(namespace);
+            output.setPrefix(prefix);
+            output.setWrapped(wrapped);
+        }
+        return output;
+    }
+
+    public static void mergeTo(ObjectExample output, List<Example> examples) {
+        for(Example ex : examples) {
+            if(ex instanceof ObjectExample) {
+                ObjectExample objectExample = (ObjectExample) ex;
+                output.putAll(objectExample.getValues());
+            }
+        }
     }
 }
