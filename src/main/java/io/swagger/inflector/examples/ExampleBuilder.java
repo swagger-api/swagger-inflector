@@ -76,7 +76,8 @@ public class ExampleBuilder {
         if (property instanceof RefProperty) {
             RefProperty ref = (RefProperty) property;
             if(processedModels.contains(ref.getSimpleRef())) {
-                return null;
+                // return some sort of example
+                return alreadyProcessedRefExample(ref.getSimpleRef(), definitions);
             }
             processedModels.add(ref.getSimpleRef());
             if( definitions != null ) {
@@ -328,6 +329,41 @@ public class ExampleBuilder {
             output.setPrefix(prefix);
             output.setWrapped(wrapped);
         }
+        return output;
+    }
+
+    public static Example alreadyProcessedRefExample(String name, Map<String, Model> definitions) {
+        Model model = definitions.get(name);
+        if(model == null) {
+            return null;
+        }
+        Example output = null;
+
+        if(model instanceof ModelImpl) {
+            // look at type
+            ModelImpl impl = (ModelImpl) model;
+            if(impl.getType() != null) {
+                if ("object".equals(impl.getType())) {
+                    return new ObjectExample();
+                }
+                else if("string".equals(impl.getType())) {
+                    return new StringExample("");
+                }
+                else if("integer".equals(impl.getType())) {
+                    return new IntegerExample(0);
+                }
+                else if("long".equals(impl.getType())) {
+                    return new LongExample(0);
+                }
+                else if("float".equals(impl.getType())) {
+                    return new FloatExample(0);
+                }
+                else if("double".equals(impl.getType())) {
+                    return new DoubleExample(0);
+                }
+            }
+        }
+
         return output;
     }
 
