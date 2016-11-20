@@ -362,6 +362,35 @@ public class ExampleBuilderTest {
             "}");
     }
 
+    @Test
+    public void testRecursiveSchema() throws Exception {
+        String schema = "{\n" +
+            "  \"type\": \"object\",\n" +
+            "  \"properties\": {\n" +
+            "    \"id\": {\n" +
+            "      \"type\": \"string\"\n" +
+            "    },\n" +
+            "    \"circular1\": {\n" +
+            "      \"$ref\": \"#/definitions/Circular\"\n" +
+            "    },\n" +
+            "    \"circular2\": {\n" +
+            "      \"$ref\": \"#/definitions/Circular\"\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+        Model model = Json.mapper().readValue(schema, Model.class);
+
+        Map<String, Model> definitions = new HashMap<>();
+        definitions.put("Circular", model);
+
+        Example rep = ExampleBuilder.fromProperty(new RefProperty("Circular"), definitions);
+
+        assertEquals(Json.pretty(rep), "{\n" +
+            "  \"id\" : \"string\",\n" +
+            "  \"circular1\" : { },\n" +
+            "  \"circular2\" : { }\n" +
+            "}");
+    }
 
     @Test
     public void testIssue126Inline() throws Exception {
