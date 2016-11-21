@@ -23,7 +23,6 @@ import io.swagger.inflector.examples.models.ObjectExample;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
 import java.io.ByteArrayOutputStream;
 
 public class XmlExampleSerializer {
