@@ -16,16 +16,8 @@
 
 package io.swagger.inflector.examples;
 
-import io.swagger.inflector.examples.models.ArrayExample;
-import io.swagger.inflector.examples.models.BooleanExample;
-import io.swagger.inflector.examples.models.DecimalExample;
-import io.swagger.inflector.examples.models.DoubleExample;
-import io.swagger.inflector.examples.models.Example;
-import io.swagger.inflector.examples.models.FloatExample;
-import io.swagger.inflector.examples.models.IntegerExample;
-import io.swagger.inflector.examples.models.LongExample;
-import io.swagger.inflector.examples.models.ObjectExample;
-import io.swagger.inflector.examples.models.StringExample;
+import io.swagger.inflector.examples.models.*;
+import io.swagger.models.ComposedModel;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
 import io.swagger.models.Xml;
@@ -36,12 +28,23 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ExampleBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExampleBuilder.class);
+
+    public static final String SAMPLE_EMAIL_PROPERTY_VALUE = "apiteam@swagger.io";
+    public static final String SAMPLE_UUID_PROPERTY_VALUE = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+    public static final String SAMPLE_STRING_PROPERTY_VALUE = "string";
+    public static final int SAMPLE_INT_PROPERTY_VALUE = 0;
+    public static final int SAMPLE_LONG_PROPERTY_VALUE = 0;
+    public static final int SAMPLE_BASE_INTEGER_PROPERTY_VALUE = 0;
+    public static final float SAMPLE_FLOAT_PROPERTY_VALUE = 1.1f;
+    public static final double SAMPLE_DOUBLE_PROPERTY_VALUE = 1.1f;
+    public static final boolean SAMPLE_BOOLEAN_PROPERTY_VALUE = true;
+    public static final String SAMPLE_DATE_PROPERTY_VALUE = "2015-07-20";
+    public static final String SAMPLE_DATETIME_PROPERTY_VALUE = "2015-07-20T15:49:04-07:00";
+    public static final double SAMPLE_DECIMAL_PROPERTY_VALUE = 1.5;
 
     public static Example fromProperty(Property property, Map<String, Model> definitions) {
         return fromProperty(property, definitions, new HashSet<String>());
@@ -73,85 +76,132 @@ public class ExampleBuilder {
         if (property instanceof RefProperty) {
             RefProperty ref = (RefProperty) property;
             if(processedModels.contains(ref.getSimpleRef())) {
-                return null;
+                // return some sort of example
+                return alreadyProcessedRefExample(ref.getSimpleRef(), definitions);
             }
             processedModels.add(ref.getSimpleRef());
             if( definitions != null ) {
                 Model model = definitions.get(ref.getSimpleRef());
                 if (model != null) {
-                    if (model.getExample() != null) {
-                        try {
-                            String str = model.getExample().toString();
-                            output = Json.mapper().readValue(str, ObjectExample.class);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            return null;
-                        }
-                    }
+                    output = fromModel(ref.getSimpleRef(), model, definitions, processedModels);
                 }
             }
         } else if (property instanceof EmailProperty) {
             if (example != null) {
-                return new StringExample(example.toString());
+                output = new StringExample(example.toString());
             }
-            output = new StringExample("apiteam@swagger.io");
+            else {
+                String defaultValue = ((EmailProperty)property).getDefault();
+                output = new StringExample( defaultValue == null ? SAMPLE_EMAIL_PROPERTY_VALUE : defaultValue );
+            }
         } else if (property instanceof UUIDProperty) {
             if (example != null) {
                 output = new StringExample(example.toString());
             }
-            output = new StringExample("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+            else {
+                String defaultValue = ((UUIDProperty)property).getDefault();
+                output = new StringExample( defaultValue == null ? SAMPLE_UUID_PROPERTY_VALUE : defaultValue );
+            }
         } else if (property instanceof StringProperty) {
             if (example != null) {
                 output = new StringExample(example.toString());
             } else {
-                output = new StringExample("string");
+                String defaultValue = ((StringProperty)property).getDefault();
+                output = new StringExample( defaultValue == null ? SAMPLE_STRING_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof IntegerProperty) {
             if (example != null) {
-                output = new IntegerExample(Integer.parseInt(example.toString()));
-            } else {
-                output = new IntegerExample(0);
+                try {
+                    output = new IntegerExample(Integer.parseInt(example.toString()));
+                }
+                catch( NumberFormatException e ){}
+            }
+
+            if( output == null )  {
+                Integer defaultValue = ((IntegerProperty) property).getDefault();
+                output = new IntegerExample( defaultValue == null ? SAMPLE_INT_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof LongProperty) {
             if (example != null) {
-                output = new LongExample(Long.parseLong(example.toString()));
+                try {
+                    output = new LongExample(Long.parseLong(example.toString()));
+                }
+                catch( NumberFormatException e ) {}
             }
-            output = new LongExample(0);
+
+            if( output == null ) {
+                Long defaultValue = ((LongProperty) property).getDefault();
+                output = new LongExample( defaultValue == null ? SAMPLE_LONG_PROPERTY_VALUE : defaultValue );
+            }
         } else if (property instanceof BaseIntegerProperty) {
             if (example != null) {
-                output = new IntegerExample(Integer.parseInt(example.toString()));
+                try {
+                    output = new IntegerExample(Integer.parseInt(example.toString()));
+                }
+                catch( NumberFormatException e ){}
             }
-            output = new IntegerExample(0);
+
+            if( output == null ) {
+                output = new IntegerExample(SAMPLE_BASE_INTEGER_PROPERTY_VALUE);
+            }
         } else if (property instanceof FloatProperty) {
             if (example != null) {
-                output = new FloatExample(Float.parseFloat(example.toString()));
+                try {
+                    output = new FloatExample(Float.parseFloat(example.toString()));
+                }
+                catch( NumberFormatException e ){}
             }
-            output = new FloatExample(1.1f);
+
+            if( output == null ) {
+                Float defaultValue = ((FloatProperty) property).getDefault();
+                output = new FloatExample( defaultValue == null ? SAMPLE_FLOAT_PROPERTY_VALUE : defaultValue );
+            }
         } else if (property instanceof DoubleProperty) {
             if (example != null) {
-                output = new DoubleExample(Double.parseDouble(example.toString()));
+                try {
+                    output = new DoubleExample(Double.parseDouble(example.toString()));
+                }
+                catch( NumberFormatException e ){}
             }
-            output = new DoubleExample(1.23);
+
+            if( output == null ){
+                Double defaultValue = ((DoubleProperty) property).getDefault();
+                output = new DoubleExample( defaultValue == null ? SAMPLE_DOUBLE_PROPERTY_VALUE : defaultValue );
+            }
         } else if (property instanceof BooleanProperty) {
             if (example != null) {
-                output = new BooleanExample(Boolean.valueOf(Boolean.parseBoolean(example.toString())));
+                output = new BooleanExample(Boolean.valueOf(example.toString()));
             }
-            output = new BooleanExample(Boolean.valueOf(true));
+            else {
+                Boolean defaultValue = ((BooleanProperty)property).getDefault();
+                output = new BooleanExample( defaultValue == null ? SAMPLE_BOOLEAN_PROPERTY_VALUE : defaultValue.booleanValue());
+            }
         } else if (property instanceof DateProperty) {
             if (example != null) {
                 output = new StringExample(example.toString());
             }
-            output = new StringExample("2015-07-20");
+            else {
+
+                output = new StringExample(SAMPLE_DATE_PROPERTY_VALUE);
+            }
         } else if (property instanceof DateTimeProperty) {
             if (example != null) {
                 output = new StringExample(example.toString());
             }
-            output = new StringExample("2015-07-20T15:49:04-07:00");
+            else {
+                output = new StringExample(SAMPLE_DATETIME_PROPERTY_VALUE);
+            }
         } else if (property instanceof DecimalProperty) {
             if (example != null) {
-                output = new DecimalExample(new BigDecimal(example.toString()));
+                try {
+                    output = new DecimalExample(new BigDecimal(example.toString()));
+                }
+                catch( NumberFormatException e ){}
             }
-            output = new DecimalExample(new BigDecimal(1.5));
+
+            if( output == null ){
+                output = new DecimalExample(new BigDecimal(SAMPLE_DECIMAL_PROPERTY_VALUE));
+            }
         } else if (property instanceof ObjectProperty) {
             if (example != null) {
                 try {
@@ -280,5 +330,121 @@ public class ExampleBuilder {
             output.setWrapped(wrapped);
         }
         return output;
+    }
+
+    public static Example alreadyProcessedRefExample(String name, Map<String, Model> definitions) {
+        Model model = definitions.get(name);
+        if(model == null) {
+            return null;
+        }
+        Example output = null;
+
+        if(model instanceof ModelImpl) {
+            // look at type
+            ModelImpl impl = (ModelImpl) model;
+            if(impl.getType() != null) {
+                if ("object".equals(impl.getType())) {
+                    return new ObjectExample();
+                }
+                else if("string".equals(impl.getType())) {
+                    return new StringExample("");
+                }
+                else if("integer".equals(impl.getType())) {
+                    return new IntegerExample(0);
+                }
+                else if("long".equals(impl.getType())) {
+                    return new LongExample(0);
+                }
+                else if("float".equals(impl.getType())) {
+                    return new FloatExample(0);
+                }
+                else if("double".equals(impl.getType())) {
+                    return new DoubleExample(0);
+                }
+            }
+        }
+
+        return output;
+    }
+
+    public static Example fromModel(String name, Model model, Map<String, Model> definitions, Set<String> processedModels) {
+        String namespace = null;
+        String prefix = null;
+        Boolean attribute = false;
+        Boolean wrapped = false;
+
+        Example output = null;
+        if (model.getExample() != null) {
+            try {
+                String str = model.getExample().toString();
+                output = Json.mapper().readValue(str, ObjectExample.class);
+            } catch (IOException e) {
+                return null;
+            }
+        }
+        else if(model instanceof ModelImpl) {
+            ModelImpl impl = (ModelImpl) model;
+            if (impl.getXml() != null) {
+                Xml xml = impl.getXml();
+                name = xml.getName();
+                namespace = xml.getNamespace();
+                prefix = xml.getPrefix();
+                attribute = xml.getAttribute();
+                wrapped = xml.getWrapped() != null ? xml.getWrapped() : false;
+            }
+
+            ObjectExample ex = new ObjectExample();
+
+            if(impl.getProperties() != null) {
+                for(String key : impl.getProperties().keySet()) {
+                    Property property = impl.getProperties().get(key);
+                    Example propExample = fromProperty(property, definitions, processedModels);
+                    ex.put(key, propExample);
+                }
+            }
+            output = ex;
+        }
+        else if(model instanceof ComposedModel) {
+            ComposedModel cm = (ComposedModel) model;
+            List<Model> models = cm.getAllOf();
+            ObjectExample ex = new ObjectExample();
+
+            List<Example> innerExamples = new ArrayList<>();
+            if(models != null) {
+                for (Model im : models) {
+                    Example innerExample = fromModel(null, im, definitions, processedModels);
+                    if(innerExample != null) {
+                        innerExamples.add(innerExample);
+                    }
+                }
+            }
+            mergeTo(ex, innerExamples);
+            output = ex;
+        }
+        if (output != null) {
+            if (attribute != null) {
+                output.setAttribute(attribute);
+            }
+            if (wrapped != null && wrapped) {
+                if (name != null) {
+                    output.setWrappedName(name);
+                }
+            } else if (name != null) {
+                output.setName(name);
+            }
+            output.setNamespace(namespace);
+            output.setPrefix(prefix);
+            output.setWrapped(wrapped);
+        }
+        return output;
+    }
+
+    public static void mergeTo(ObjectExample output, List<Example> examples) {
+        for(Example ex : examples) {
+            if(ex instanceof ObjectExample) {
+                ObjectExample objectExample = (ObjectExample) ex;
+                output.putAll(objectExample.getValues());
+            }
+        }
     }
 }

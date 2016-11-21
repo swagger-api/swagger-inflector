@@ -20,9 +20,11 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.swagger.converter.ModelConverters;
 import io.swagger.inflector.examples.ExampleBuilder;
 import io.swagger.inflector.examples.XmlExampleSerializer;
+import io.swagger.inflector.examples.models.AbstractExample;
 import io.swagger.inflector.examples.models.ArrayExample;
 import io.swagger.inflector.examples.models.DoubleExample;
 import io.swagger.inflector.examples.models.Example;
+import io.swagger.inflector.examples.models.ObjectExample;
 import io.swagger.inflector.examples.models.StringExample;
 import io.swagger.inflector.processors.JsonExampleDeserializer;
 import io.swagger.inflector.processors.JsonNodeExampleSerializer;
@@ -31,16 +33,7 @@ import io.swagger.models.ModelImpl;
 import io.swagger.models.Response;
 import io.swagger.models.Swagger;
 import io.swagger.models.Xml;
-import io.swagger.models.properties.ArrayProperty;
-import io.swagger.models.properties.BooleanProperty;
-import io.swagger.models.properties.DecimalProperty;
-import io.swagger.models.properties.FloatProperty;
-import io.swagger.models.properties.IntegerProperty;
-import io.swagger.models.properties.LongProperty;
-import io.swagger.models.properties.MapProperty;
-import io.swagger.models.properties.RefProperty;
-import io.swagger.models.properties.StringProperty;
-import io.swagger.parser.SwaggerParser;
+import io.swagger.models.properties.*;
 import io.swagger.test.models.User;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
@@ -297,6 +290,140 @@ public class ExampleBuilderTest {
     }
 
     @Test
+    public void testIssue126Simple() throws Exception {
+        String schema =
+            "{\n" +
+            "  \"type\": \"object\",\n" +
+            "  \"properties\": {\n" +
+            "    \"name\": {\n" +
+            "      \"type\": \"string\",\n" +
+            "      \"example\": \"hi!?\"\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+        Model model = Json.mapper().readValue(schema, Model.class);
+
+        Map<String, Model> definitions = new HashMap<>();
+        definitions.put("SimpleModel", model);
+
+        Example rep = ExampleBuilder.fromProperty(new RefProperty("SimpleModel"), definitions);
+
+        assertEquals(Json.pretty(rep),
+            "{\n" +
+            "  \"name\" : \"hi!?\"\n" +
+            "}");
+    }
+
+    @Test
+    public void testIssue126Composed() throws Exception {
+        String schema =
+            "{\n" +
+            "  \"allOf\": [\n" +
+            "    {\n" +
+            "      \"type\": \"object\",\n" +
+            "      \"properties\": {\n" +
+            "        \"id\": {\n" +
+            "          \"type\": \"integer\",\n" +
+            "          \"format\": \"int32\"\n" +
+            "        }\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"type\": \"object\",\n" +
+            "      \"properties\": {\n" +
+            "        \"name\": {\n" +
+            "          \"type\": \"string\",\n" +
+            "          \"example\": \"hi!?\"\n" +
+            "        }\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
+        Model model = Json.mapper().readValue(schema, Model.class);
+
+        Map<String, Model> definitions = new HashMap<>();
+        definitions.put("ComposedModel", model);
+
+        Example rep = ExampleBuilder.fromProperty(new RefProperty("ComposedModel"), definitions);
+
+        assertEquals(Json.pretty(rep),
+            "{\n" +
+            "  \"id\" : 0,\n" +
+            "  \"name\" : \"hi!?\"\n" +
+            "}");
+    }
+
+    @Test
+    public void testRecursiveSchema() throws Exception {
+        String schema = "{\n" +
+            "  \"type\": \"object\",\n" +
+            "  \"properties\": {\n" +
+            "    \"id\": {\n" +
+            "      \"type\": \"string\"\n" +
+            "    },\n" +
+            "    \"circular1\": {\n" +
+            "      \"$ref\": \"#/definitions/Circular\"\n" +
+            "    },\n" +
+            "    \"circular2\": {\n" +
+            "      \"$ref\": \"#/definitions/Circular\"\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+        Model model = Json.mapper().readValue(schema, Model.class);
+
+        Map<String, Model> definitions = new HashMap<>();
+        definitions.put("Circular", model);
+
+        Example rep = ExampleBuilder.fromProperty(new RefProperty("Circular"), definitions);
+
+        assertEquals(Json.pretty(rep), "{\n" +
+            "  \"id\" : \"string\",\n" +
+            "  \"circular1\" : { },\n" +
+            "  \"circular2\" : { }\n" +
+            "}");
+    }
+
+    @Test
+    public void testIssue126Inline() throws Exception {
+        String schema =
+            "{\n" +
+            "  \"type\": \"object\",\n" +
+            "  \"properties\": {\n" +
+            "    \"id\": {\n" +
+            "      \"type\": \"integer\",\n" +
+            "      \"format\": \"int32\",\n" +
+            "      \"example\": 999\n" +
+            "    },\n" +
+            "    \"inline\": {\n" +
+            "      \"type\": \"object\",\n" +
+            "      \"properties\": {\n" +
+            "        \"first\": {\n" +
+            "          \"type\": \"string\"\n" +
+            "        },\n" +
+            "        \"last\": {\n" +
+            "          \"type\": \"string\"\n" +
+            "        }\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+        Model model = Json.mapper().readValue(schema, Model.class);
+
+        Map<String, Model> definitions = new HashMap<>();
+        definitions.put("InlineModel", model);
+
+        Example rep = ExampleBuilder.fromProperty(new RefProperty("InlineModel"), definitions);
+
+        assertEquals(Json.pretty(rep), "{\n" +
+            "  \"id\" : 999,\n" +
+            "  \"inline\" : {\n" +
+            "    \"first\" : \"string\",\n" +
+            "    \"last\" : \"string\"\n" +
+            "  }\n" +
+            "}");
+    }
+
+    @Test
     public void testIssue133() throws Exception {
         IntegerProperty integerProperty = new IntegerProperty();
         integerProperty.setFormat("int64");
@@ -332,6 +459,54 @@ public class ExampleBuilderTest {
                 "{\n" +
                 "  \"unboundedInteger\" : 4321\n" +
                 "}");
+    }
+
+    @Test
+    public void testInvalidExample() throws Exception {
+        testInvalidExample( new IntegerProperty(), "asd",
+            ExampleBuilder.SAMPLE_INT_PROPERTY_VALUE, 123 );
+
+        testInvalidExample( new LongProperty(), "asd",
+            ExampleBuilder.SAMPLE_LONG_PROPERTY_VALUE, 123 );
+
+        testInvalidExample( new FloatProperty(), "asd",
+            ExampleBuilder.SAMPLE_FLOAT_PROPERTY_VALUE, 2.1f );
+
+        testInvalidExample( new DoubleProperty(), "asd",
+            ExampleBuilder.SAMPLE_DOUBLE_PROPERTY_VALUE, 3.1f );
+
+        // base types that don't implement setting a sample value
+        testInvalidExample( new DecimalProperty(), "asd",
+            ExampleBuilder.SAMPLE_DECIMAL_PROPERTY_VALUE );
+
+        testInvalidExample( new BaseIntegerProperty(), "asd",
+            ExampleBuilder.SAMPLE_BASE_INTEGER_PROPERTY_VALUE );
+    }
+
+    public void testInvalidExample(AbstractProperty property, String invalidValue, Object defaultValue ) throws Exception {
+       testInvalidExample( property, invalidValue, defaultValue, null );
+    }
+
+    public void testInvalidExample(AbstractProperty property, String invalidValue, Object defaultValue, Object sampleValue ) throws Exception {
+        property.setExample( invalidValue);
+
+        Model model = new ModelImpl().property("test", property );
+
+        Map<String, Model> definitions = new HashMap<>();
+        definitions.put("Test", model);
+
+        // validate that the internal default value is returned if an invalid value is set
+        ObjectExample rep = (ObjectExample) ExampleBuilder.fromProperty(new RefProperty("Test"), definitions);
+        AbstractExample example = (AbstractExample) rep.get( "test" );
+        assertEquals( String.valueOf(defaultValue), example.asString() );
+
+        // validate that a specified default value is returned if an invalid value is set
+        if( sampleValue != null ) {
+            property.setDefault(String.valueOf(sampleValue));
+            rep = (ObjectExample) ExampleBuilder.fromProperty(new RefProperty("Test"), definitions);
+            example = (AbstractExample) rep.get("test");
+            assertEquals(String.valueOf(sampleValue), example.asString());
+        }
     }
 
     private void assertEqualsIgnoreLineEnding(String actual, String expected) {

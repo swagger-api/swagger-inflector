@@ -24,18 +24,38 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
-
-import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BinaryProcessor implements EntityProcessor {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(BinaryProcessor.class);
+    private static List<MediaType> SUPPORTED_TYPES = new ArrayList<>();
+
+    static {
+        SUPPORTED_TYPES.add(MediaType.APPLICATION_OCTET_STREAM_TYPE);
+    }
+
+    @Override
+    public List<MediaType> getSupportedMediaTypes() {
+        return new ArrayList(SUPPORTED_TYPES);
+    }
+
+    @Override
+    public void enableType(MediaType type) {
+        MediaType t = type;
+        if(t != null) {
+            if(!SUPPORTED_TYPES.contains(t)) {
+                SUPPORTED_TYPES.add(type);
+            }
+        }
+    }
 
     @Override
     public boolean supports(MediaType mediaType) {
-        return MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(mediaType);
+        return SUPPORTED_TYPES.contains(mediaType);
     }
 
     @Override

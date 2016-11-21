@@ -55,6 +55,9 @@ public class XmlExampleSerializer {
                 // write primitive type container
                 name = getTypeName(o);
             }
+            if(name == null) {
+                name = "AnonymousModel";
+            }
 
             if( o.getNamespace() != null ){
                 writer.writeStartElement(o.getPrefix(), name, o.getNamespace());

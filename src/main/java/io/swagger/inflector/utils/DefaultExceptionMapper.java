@@ -17,6 +17,8 @@
 package io.swagger.inflector.utils;
 
 import io.swagger.inflector.models.ApiError;
+import io.swagger.inflector.processors.EntityProcessor;
+import io.swagger.inflector.processors.EntityProcessorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +32,7 @@ import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import javax.ws.rs.ext.Providers;
+import java.util.List;
 
 @Provider
 public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
@@ -50,9 +53,45 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
             }
         } else {
             LOGGER.error(error.getMessage(), exception);
-        } final Response.ResponseBuilder builder = Response.status(code).entity(error);
+        }
+
+        final Response.ResponseBuilder builder = Response.status(code).entity(error);
+
+        MediaType responseMediaType = null;
+        List<EntityProcessor> processors = EntityProcessorFactory.getProcessors();
+        for (EntityProcessor processor : processors) {
+            if(responseMediaType != null) {
+                break;
+            }
+            for (MediaType mt : headers.getAcceptableMediaTypes()) {
+                LOGGER.debug("checking type " + mt.toString() + " against " + processor.getClass().getName());
+                if (processor.supports(mt)) {
+                    builder.type(mt);
+                    responseMediaType = mt;
+                    break;
+                }
+            }
+        }
+
+        if(responseMediaType == null) {
+            // no match based on Accept header, use first processor in list
+            for (EntityProcessor processor : processors) {
+                List<MediaType> supportedTypes = processor.getSupportedMediaTypes();
+                if (supportedTypes.size() > 0) {
+                    MediaType mt = supportedTypes.get(0);
+                    builder.type(mt);
+                    responseMediaType = mt;
+                    break;
+                }
+            }
+        }
+
+        if(responseMediaType == null) {
+            responseMediaType = MediaType.WILDCARD_TYPE;
+        }
+
         final ContextResolver<ContentTypeSelector> selector = providers.getContextResolver(
-                ContentTypeSelector.class, MediaType.WILDCARD_TYPE);
+                ContentTypeSelector.class, responseMediaType);
         if (selector != null) {
             selector.getContext(getClass()).apply(headers.getAcceptableMediaTypes(), builder);
         }

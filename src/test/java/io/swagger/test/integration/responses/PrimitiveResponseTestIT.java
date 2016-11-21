@@ -16,6 +16,7 @@
 
 package io.swagger.test.integration.responses;
 
+import io.swagger.inflector.examples.ExampleBuilder;
 import io.swagger.test.client.ApiClient;
 import io.swagger.test.client.ApiException;
 
@@ -49,7 +50,7 @@ public class PrimitiveResponseTestIT {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/primitiveFloatResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        assertEquals(str, "1.1");
+        assertEquals(str, String.valueOf(ExampleBuilder.SAMPLE_FLOAT_PROPERTY_VALUE));
     }
 
     /**
@@ -60,7 +61,7 @@ public class PrimitiveResponseTestIT {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/primitiveDoubleResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        assertEquals(str, "1.23");
+        assertEquals(str, String.valueOf(ExampleBuilder.SAMPLE_DOUBLE_PROPERTY_VALUE));
     }
 
     /**
@@ -71,7 +72,11 @@ public class PrimitiveResponseTestIT {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/primitiveUUIDResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        assertEquals(str, "\"3fa85f64-5717-4562-b3fc-2c963f66afa6\"");
+        assertEquals(str, quote(ExampleBuilder.SAMPLE_UUID_PROPERTY_VALUE));
+    }
+
+    private String quote(String string) {
+        return '"' + string + '"';
     }
 
     /**
@@ -82,7 +87,7 @@ public class PrimitiveResponseTestIT {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/primitiveStringResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        assertEquals(str, "\"string\"");
+        assertEquals(str, quote(ExampleBuilder.SAMPLE_STRING_PROPERTY_VALUE));
     }
 
     /**
@@ -104,7 +109,7 @@ public class PrimitiveResponseTestIT {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/primitiveDateResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        assertEquals(str, "\"2015-07-20\"");
+        assertEquals(str, quote(ExampleBuilder.SAMPLE_DATE_PROPERTY_VALUE));
     }
 
     /**
@@ -115,7 +120,7 @@ public class PrimitiveResponseTestIT {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/primitiveDateTimeResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        assertEquals(str, "\"2015-07-20T15:49:04-07:00\"");
+        assertEquals(str, quote(ExampleBuilder.SAMPLE_DATETIME_PROPERTY_VALUE));
     }
 
     /**
@@ -126,7 +131,7 @@ public class PrimitiveResponseTestIT {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/primitiveBigDecimalResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        assertEquals(str, "1.5");
+        assertEquals(str, String.valueOf(ExampleBuilder.SAMPLE_DECIMAL_PROPERTY_VALUE ));
     }
 
     /**
@@ -137,7 +142,7 @@ public class PrimitiveResponseTestIT {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/primitiveEmailResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        assertEquals(str, "\"apiteam@swagger.io\"");
+        assertEquals(str, quote(ExampleBuilder.SAMPLE_EMAIL_PROPERTY_VALUE));
     }
 
     /**
@@ -159,7 +164,7 @@ public class PrimitiveResponseTestIT {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/issue-125", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        assertEquals(str, "0");
+        assertEquals(str, String.valueOf(ExampleBuilder.SAMPLE_BASE_INTEGER_PROPERTY_VALUE));
     }
 
     /**

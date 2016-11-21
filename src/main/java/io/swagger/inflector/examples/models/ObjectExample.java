@@ -39,6 +39,12 @@ public class ObjectExample extends AbstractExample {
         values.put(key, value);
     }
 
+    public void putAll(Map<String, Example> values) {
+        for(String key : values.keySet()) {
+            this.put(key, values.get(key));
+        }
+    }
+
     public Set<String> keySet() {
         if (values == null) {
             return new HashSet<String>();

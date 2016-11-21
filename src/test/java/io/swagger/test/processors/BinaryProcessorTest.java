@@ -16,17 +16,16 @@
 
 package io.swagger.test.processors;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
-
 import io.swagger.inflector.converters.ConversionException;
 import io.swagger.inflector.processors.BinaryProcessor;
 import io.swagger.inflector.processors.EntityProcessor;
 import org.testng.annotations.Test;
 
+import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 
-import javax.ws.rs.core.MediaType;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class BinaryProcessorTest {
 
@@ -36,6 +35,10 @@ public class BinaryProcessorTest {
     @Test
     public void supportsTest() {
         assertTrue(processor.supports(BINARY_TYPE));
+
+        MediaType zipMediaType = new MediaType("application", "zip");
+        processor.enableType(zipMediaType);
+        assertTrue( processor.supports( zipMediaType ));
     }
 
     @Test

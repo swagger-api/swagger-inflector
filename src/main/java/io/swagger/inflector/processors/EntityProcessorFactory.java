@@ -17,6 +17,8 @@
 package io.swagger.inflector.processors;
 
 import io.swagger.inflector.converters.ConversionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import java.io.InputStream;
@@ -24,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EntityProcessorFactory {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EntityProcessorFactory.class);
+
     private static List<EntityProcessor> PROCESSORS = new ArrayList<EntityProcessor>();
 
     static {
@@ -32,8 +36,21 @@ public class EntityProcessorFactory {
         PROCESSORS.add(new BinaryProcessor());
     }
 
-    public static void addProcessor(EntityProcessor processor) {
-        PROCESSORS.add(processor);
+    public static void addProcessor(Class<?> cls, MediaType type) {
+        for(EntityProcessor entityProcessor : PROCESSORS) {
+            if(entityProcessor.getClass().equals(cls)) {
+                entityProcessor.enableType(type);
+                return;
+            }
+        }
+        try {
+            EntityProcessor processor = (EntityProcessor) cls.newInstance();
+            PROCESSORS.add(processor);
+            processor.enableType(type);
+        }
+        catch (Exception e) {
+            LOGGER.debug("unable to add processor " + cls.getName());
+        }
     }
 
     public static Object readValue(MediaType mediaType, InputStream entityStream, Class<?> class1) throws ConversionException {

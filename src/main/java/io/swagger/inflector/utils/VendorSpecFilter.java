@@ -34,8 +34,10 @@ public class VendorSpecFilter extends SpecFilter {
         final Map<String, Model> filteredDefinitions = super.filterDefinitions(filter, definitions, params, cookies,
                 headers);
 
-        for (Model model : filteredDefinitions.values()) {
-            filterVendorExtensions(model.getVendorExtensions());
+        if( filteredDefinitions != null ) {
+            for (Model model : filteredDefinitions.values()) {
+                filterVendorExtensions(model.getVendorExtensions());
+            }
         }
 
         return filteredDefinitions;

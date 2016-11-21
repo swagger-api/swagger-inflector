@@ -26,7 +26,7 @@
     <artifactId>swagger-inflector</artifactId>
     <packaging>jar</packaging>
     <name>swagger-inflector</name>
-    <version>1.0.9-SNAPSHOT</version>
+    <version>1.0.11-SNAPSHOT</version>
     <url>https://github.com/swagger-api/swagger-inflector</url>
     <scm>
         <connection>scm:git:git@github.com:swagger-api/swagger-inflector.git</connection>
@@ -296,6 +296,20 @@
             <groupId>io.swagger</groupId>
             <artifactId>swagger-jersey2-jaxrs</artifactId>
             <version>${swagger-core-version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-yaml</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                    <artifactId>jackson-jaxrs-json-provider</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.datatype</groupId>
+                    <artifactId>jackson-datatype-joda</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
@@ -391,28 +405,27 @@
             <version>${commons-io-version}</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-joda</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jaxb-annotations</artifactId>
             <version>${jackson.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-xml-provider</artifactId>
@@ -434,18 +447,23 @@
             <artifactId>commons-fileupload</artifactId>
             <version>1.3.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-string-utils-version}</version>
+        </dependency>
     </dependencies>
     <properties>
-        <jackson.version>2.6.0</jackson.version>
-
-        <swagger-core-version>1.5.9</swagger-core-version>
-        <swagger-parser-version>1.0.21</swagger-parser-version>
+        <swagger-core-version>1.5.10</swagger-core-version>
+        <swagger-parser-version>1.0.24-SNAPSHOT</swagger-parser-version>
+        <jackson.version>2.7.8</jackson.version>
         <joda-time-version>2.2</joda-time-version>
         <joda-version>1.2</joda-version>
         <jetty-version>9.2.9.v20150224</jetty-version>
         <jersey2-version>2.6</jersey2-version>
         <servlet-api-version>2.5</servlet-api-version>
         <commons-io-version>2.4</commons-io-version>
+        <commons-string-utils-version>3.4</commons-string-utils-version>
         <commons-lang-version>2.4</commons-lang-version>
         <commons-csv-version>1.1</commons-csv-version>
         <json-schema-validator-version>2.2.6</json-schema-validator-version>
