@@ -456,7 +456,7 @@
     <properties>
         <swagger-core-version>1.5.10</swagger-core-version>
         <swagger-parser-version>1.0.24-SNAPSHOT</swagger-parser-version>
-        <jackson.version>2.7.8</jackson.version>
+        <jackson.version>2.8.5</jackson.version>
         <joda-time-version>2.2</joda-time-version>
         <joda-version>1.2</joda-version>
         <jetty-version>9.2.9.v20150224</jetty-version>
