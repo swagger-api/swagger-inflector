@@ -16,6 +16,8 @@
 
 package io.swagger.inflector;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider;
@@ -77,7 +79,15 @@ public class SwaggerInflector extends ResourceConfig {
     private Map<String, List<String>> missingOperations = new HashMap<String, List<String>>();
     private Set<String> unimplementedMappedModels = new TreeSet<String>();
 
+    private ObjectMapper objectMapper;
+
     public SwaggerInflector(Configuration configuration) {
+        this(configuration, Json.mapper());
+    }
+
+    public SwaggerInflector(Configuration configuration,ObjectMapper objectMapper)
+    {
+        this.objectMapper = objectMapper;
         init(configuration);
     }
 
@@ -97,7 +107,12 @@ public class SwaggerInflector extends ResourceConfig {
             // use default location
             config = Configuration.read();
         }
+        objectMapper = Json.mapper();
         init(config);
+    }
+
+    protected ObjectMapper getObjectMapper() {
+        return objectMapper;
     }
 
     protected void init(Configuration configuration) {
@@ -188,10 +203,16 @@ public class SwaggerInflector extends ResourceConfig {
         for (String item : config.getEntityProcessors()) {
             if ("json".equalsIgnoreCase(item)) {
                 // JSON
-                Json.mapper().registerModule(simpleModule);
+                getObjectMapper().registerModule(simpleModule);
                 register(JacksonJsonProvider.class);
                 register(JsonExampleProvider.class);
-                register(new JsonProvider(config.isPrettyPrint()));
+
+                // If a custom object mapper has this INDENT_OUTPUT specified already,
+                // disable the the JsonProvider as it's redundant
+                if(!getObjectMapper().isEnabled(SerializationFeature.INDENT_OUTPUT))
+                {
+                    register(new JsonProvider(config.isPrettyPrint()));
+                }
                 if (!isRegistered(DefaultContentTypeProvider.class)) {
                     register(new DefaultContentTypeProvider(MediaType.APPLICATION_JSON_TYPE),
                             ContextResolver.class);
