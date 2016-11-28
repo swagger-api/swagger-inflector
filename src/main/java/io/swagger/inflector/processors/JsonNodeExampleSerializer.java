@@ -20,16 +20,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import io.swagger.inflector.examples.models.ArrayExample;
-import io.swagger.inflector.examples.models.BooleanExample;
-import io.swagger.inflector.examples.models.DecimalExample;
-import io.swagger.inflector.examples.models.DoubleExample;
-import io.swagger.inflector.examples.models.Example;
-import io.swagger.inflector.examples.models.FloatExample;
-import io.swagger.inflector.examples.models.IntegerExample;
-import io.swagger.inflector.examples.models.LongExample;
-import io.swagger.inflector.examples.models.ObjectExample;
-import io.swagger.inflector.examples.models.StringExample;
+import io.swagger.inflector.examples.models.*;
 
 import java.io.IOException;
 
@@ -83,7 +74,7 @@ public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
             ArrayExample obj = (ArrayExample) o;
             jgen.writeArrayFieldStart(field);
             for (Example item : obj.getItems()) {
-                if (item.getName() != null) {
+                if (item.getName() != null || item instanceof ObjectExample) {
                     jgen.writeStartObject();
                     writeTo(jgen, item);
                     jgen.writeEndObject();
