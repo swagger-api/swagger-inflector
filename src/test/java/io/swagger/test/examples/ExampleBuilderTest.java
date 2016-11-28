@@ -527,12 +527,19 @@ public class ExampleBuilderTest {
 
     @Test
     public void testObjectWithAnonymousObjectArray() throws Exception {
+        Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-171.yaml");
 
-        Swagger swagger = new SwaggerParser().read("src/test/swagger/likud-liberal-swagger.yaml");
-
-        Response response = swagger.getPath("/auto-messages").getGet().getResponses().get( "200" );
+        Response response = swagger.getPath("/test").getGet().getResponses().get( "200" );
         Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
 
-        Json.pretty().writeValueAsString(example);
+        String output = Json.pretty(example);
+
+        assertEquals(output, "[ {\n" +
+                "  \"id\" : \"string\",\n" +
+                "  \"nestedArray\" : [ {\n" +
+                "    \"id\" : \"string\",\n" +
+                "    \"name\" : \"string\"\n" +
+                "  } ]\n" +
+                "} ]");
     }
 }
