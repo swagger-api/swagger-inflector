@@ -32,7 +32,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JacksonProcessor implements EntityProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(JacksonProcessor.class);

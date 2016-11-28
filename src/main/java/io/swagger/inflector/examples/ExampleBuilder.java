@@ -16,19 +16,48 @@
 
 package io.swagger.inflector.examples;
 
-import io.swagger.inflector.examples.models.*;
+import io.swagger.inflector.examples.models.ArrayExample;
+import io.swagger.inflector.examples.models.BooleanExample;
+import io.swagger.inflector.examples.models.DecimalExample;
+import io.swagger.inflector.examples.models.DoubleExample;
+import io.swagger.inflector.examples.models.Example;
+import io.swagger.inflector.examples.models.FloatExample;
+import io.swagger.inflector.examples.models.IntegerExample;
+import io.swagger.inflector.examples.models.LongExample;
+import io.swagger.inflector.examples.models.ObjectExample;
+import io.swagger.inflector.examples.models.StringExample;
 import io.swagger.models.ComposedModel;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
 import io.swagger.models.Xml;
-import io.swagger.models.properties.*;
+import io.swagger.models.properties.ArrayProperty;
+import io.swagger.models.properties.BaseIntegerProperty;
+import io.swagger.models.properties.BooleanProperty;
+import io.swagger.models.properties.DateProperty;
+import io.swagger.models.properties.DateTimeProperty;
+import io.swagger.models.properties.DecimalProperty;
+import io.swagger.models.properties.DoubleProperty;
+import io.swagger.models.properties.EmailProperty;
+import io.swagger.models.properties.FloatProperty;
+import io.swagger.models.properties.IntegerProperty;
+import io.swagger.models.properties.LongProperty;
+import io.swagger.models.properties.MapProperty;
+import io.swagger.models.properties.ObjectProperty;
+import io.swagger.models.properties.Property;
+import io.swagger.models.properties.RefProperty;
+import io.swagger.models.properties.StringProperty;
+import io.swagger.models.properties.UUIDProperty;
 import io.swagger.util.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ExampleBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExampleBuilder.class);
