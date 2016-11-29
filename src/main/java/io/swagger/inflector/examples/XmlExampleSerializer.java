@@ -98,13 +98,18 @@ public class XmlExampleSerializer {
                 }
             }
             for (Example item : ar.getItems()) {
-                if (item.getName() == null && o.getName() != null ) {
+                if (item.getName() == null  ) {
+
+                    String name = o.getName();
+                    if( name == null ){
+                       name = item.getTypeName();
+                    }
 
                     if( o.getNamespace() != null ) {
-                        writer.writeStartElement(o.getPrefix(), o.getName(), o.getNamespace());
+                        writer.writeStartElement(o.getPrefix(), name, o.getNamespace());
                     }
                     else {
-                        writer.writeStartElement(o.getName());
+                        writer.writeStartElement(name);
                     }
                 }
                 writeTo(writer, item);

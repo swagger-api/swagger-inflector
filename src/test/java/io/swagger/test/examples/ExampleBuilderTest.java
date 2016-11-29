@@ -294,11 +294,11 @@ public class ExampleBuilderTest {
     @Test
     public void testEmptyArrayXmlModel() throws Exception {
         ArrayExample example = new ArrayExample();
-        example.add(new StringExample());
+        example.add(new StringExample("test"));
         String xmlString = new XmlExampleSerializer().serialize(example);
 
-        // array of empty primitives makes no sense
-        Assert.assertNull(xmlString);
+        // array of empty primitives makes little sense in xml - but lets be nice...
+        Assert.assertEquals(xmlString, "<?xml version='1.1' encoding='UTF-8'?><string>test</string>");
     }
 
     @Test
@@ -541,5 +541,12 @@ public class ExampleBuilderTest {
                 "    \"name\" : \"string\"\n" +
                 "  } ]\n" +
                 "} ]");
+
+
+        response = swagger.getPath("/anothertest").getGet().getResponses().get( "200" );
+        example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+
+        output = new XmlExampleSerializer().serialize(example);
+        assertEquals( output, "<?xml version='1.1' encoding='UTF-8'?><string>string</string>");
     }
 }

@@ -16,6 +16,16 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Stuff'
+  /anothertest:
+    get:
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              type: string
+
 definitions:
   Stuff:
     type: object
