@@ -25,8 +25,26 @@ paths:
             type: array
             items:
               type: string
-
+  /color:
+    get:
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/ColorModel'
 definitions:
+  ColorModel:
+    type: object
+    properties:
+      color:
+        type: string
+        enum:
+          - black
+          - white
+    required:
+      - color
   Stuff:
     type: object
     properties:

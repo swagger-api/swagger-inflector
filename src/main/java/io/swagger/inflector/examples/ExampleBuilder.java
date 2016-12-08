@@ -121,6 +121,14 @@ public class ExampleBuilder {
             }
             else {
                 String defaultValue = ((EmailProperty)property).getDefault();
+
+                if( defaultValue == null ){
+                    List<String> enums = ((EmailProperty) property).getEnum();
+                    if( enums != null && !enums.isEmpty()) {
+                        defaultValue = enums.get(0);
+                    }
+                }
+
                 output = new StringExample( defaultValue == null ? SAMPLE_EMAIL_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof UUIDProperty) {
@@ -129,6 +137,14 @@ public class ExampleBuilder {
             }
             else {
                 String defaultValue = ((UUIDProperty)property).getDefault();
+
+                if( defaultValue == null ){
+                    List<String> enums = ((UUIDProperty) property).getEnum();
+                    if( enums != null && !enums.isEmpty()) {
+                        defaultValue = enums.get(0);
+                    }
+                }
+
                 output = new StringExample( defaultValue == null ? SAMPLE_UUID_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof StringProperty) {
@@ -136,6 +152,14 @@ public class ExampleBuilder {
                 output = new StringExample(example.toString());
             } else {
                 String defaultValue = ((StringProperty)property).getDefault();
+
+                if( defaultValue == null ){
+                    List<String> enums = ((StringProperty) property).getEnum();
+                    if( enums != null && !enums.isEmpty()) {
+                        defaultValue = enums.get(0);
+                    }
+                }
+
                 output = new StringExample( defaultValue == null ? SAMPLE_STRING_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof IntegerProperty) {
@@ -148,6 +172,14 @@ public class ExampleBuilder {
 
             if( output == null )  {
                 Integer defaultValue = ((IntegerProperty) property).getDefault();
+
+                if( defaultValue == null ){
+                    List<Integer> enums = ((IntegerProperty) property).getEnum();
+                    if( enums != null && !enums.isEmpty()) {
+                        defaultValue = enums.get(0);
+                    }
+                }
+
                 output = new IntegerExample( defaultValue == null ? SAMPLE_INT_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof LongProperty) {
@@ -160,6 +192,14 @@ public class ExampleBuilder {
 
             if( output == null ) {
                 Long defaultValue = ((LongProperty) property).getDefault();
+
+                if( defaultValue == null ){
+                    List<Long> enums = ((LongProperty) property).getEnum();
+                    if( enums != null && !enums.isEmpty()) {
+                        defaultValue = enums.get(0);
+                    }
+                }
+
                 output = new LongExample( defaultValue == null ? SAMPLE_LONG_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof BaseIntegerProperty) {
@@ -183,6 +223,14 @@ public class ExampleBuilder {
 
             if( output == null ) {
                 Float defaultValue = ((FloatProperty) property).getDefault();
+
+                if( defaultValue == null ){
+                    List<Float> enums = ((FloatProperty) property).getEnum();
+                    if( enums != null && !enums.isEmpty()) {
+                        defaultValue = enums.get(0);
+                    }
+                }
+
                 output = new FloatExample( defaultValue == null ? SAMPLE_FLOAT_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof DoubleProperty) {
@@ -195,6 +243,14 @@ public class ExampleBuilder {
 
             if( output == null ){
                 Double defaultValue = ((DoubleProperty) property).getDefault();
+
+                if( defaultValue == null ){
+                    List<Double> enums = ((DoubleProperty) property).getEnum();
+                    if( enums != null && !enums.isEmpty()) {
+                        defaultValue = enums.get(0);
+                    }
+                }
+
                 output = new DoubleExample( defaultValue == null ? SAMPLE_DOUBLE_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof BooleanProperty) {
@@ -211,14 +267,26 @@ public class ExampleBuilder {
             }
             else {
 
-                output = new StringExample(SAMPLE_DATE_PROPERTY_VALUE);
+                List<String> enums = ((DateProperty) property).getEnum();
+                if( enums != null && !enums.isEmpty()) {
+                    output = new StringExample(enums.get(0));
+                }
+                else {
+                    output = new StringExample(SAMPLE_DATE_PROPERTY_VALUE);
+                }
             }
         } else if (property instanceof DateTimeProperty) {
             if (example != null) {
                 output = new StringExample(example.toString());
             }
             else {
-                output = new StringExample(SAMPLE_DATETIME_PROPERTY_VALUE);
+                List<String> enums = ((DateTimeProperty) property).getEnum();
+                if( enums != null && !enums.isEmpty()) {
+                    output = new StringExample(enums.get(0));
+                }
+                else {
+                    output = new StringExample(SAMPLE_DATETIME_PROPERTY_VALUE);
+                }
             }
         } else if (property instanceof DecimalProperty) {
             if (example != null) {

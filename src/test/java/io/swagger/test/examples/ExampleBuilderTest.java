@@ -526,7 +526,7 @@ public class ExampleBuilderTest {
     }
 
     @Test
-    public void testObjectWithAnonymousObjectArray() throws Exception {
+    public void testObjectsWithAnonymousObjectArrays() throws Exception {
         Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-171.yaml");
 
         Response response = swagger.getPath("/test").getGet().getResponses().get( "200" );
@@ -548,5 +548,18 @@ public class ExampleBuilderTest {
 
         output = new XmlExampleSerializer().serialize(example);
         assertEquals( output, "<?xml version='1.1' encoding='UTF-8'?><string>string</string>");
+    }
+
+    @Test
+    public void testEnumExample() throws Exception {
+        Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-171.yaml");
+
+        Response response = swagger.getPath("/color").getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+
+        String output = Json.pretty(example);
+        assertEquals(output, "{\n" +
+                "  \"color\" : \"black\"\n" +
+                "}");
     }
 }
