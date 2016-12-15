@@ -59,7 +59,12 @@ public class XmlExampleSerializer {
             }
 
             if( o.getNamespace() != null ){
-                writer.writeStartElement(o.getPrefix(), name, o.getNamespace());
+                if( o.getPrefix() != null ) {
+                    writer.writeStartElement(o.getPrefix(), name, o.getNamespace());
+                }
+                else {
+                    writer.writeStartElement(o.getNamespace(), name );
+                }
             }
             else {
                 writer.writeStartElement(name);
@@ -82,7 +87,12 @@ public class XmlExampleSerializer {
             if (o.getWrapped() != null && o.getWrapped()) {
                 if (o.getWrappedName() != null) {
                     if( o.getNamespace() != null ){
-                        writer.writeStartElement(o.getPrefix(), o.getWrappedName(), o.getNamespace());
+                        if( o.getPrefix() != null ){
+                            writer.writeStartElement(o.getPrefix(), o.getWrappedName(), o.getNamespace());
+                        }
+                        else {
+                            writer.writeStartElement(o.getNamespace(), o.getWrappedName());
+                        }
                     }
                     else {
                         writer.writeStartElement(o.getWrappedName());
@@ -90,7 +100,12 @@ public class XmlExampleSerializer {
 
                 } else {
                     if( o.getNamespace() != null ){
-                        writer.writeStartElement(o.getPrefix(), o.getName() + "s", o.getNamespace());
+                        if( o.getPrefix() != null ) {
+                            writer.writeStartElement(o.getPrefix(), o.getName() + "s", o.getNamespace());
+                        }
+                        else {
+                            writer.writeStartElement(o.getNamespace(), o.getName() + "s");
+                        }
                     }
                     else {
                         writer.writeStartElement( o.getName() + "s");
@@ -106,7 +121,12 @@ public class XmlExampleSerializer {
                     }
 
                     if( o.getNamespace() != null ) {
-                        writer.writeStartElement(o.getPrefix(), name, o.getNamespace());
+                        if( o.getPrefix() != null ) {
+                            writer.writeStartElement(o.getPrefix(), name, o.getNamespace());
+                        }
+                        else {
+                            writer.writeStartElement(o.getNamespace(), name);
+                        }
                     }
                     else {
                         writer.writeStartElement(name);
@@ -127,12 +147,28 @@ public class XmlExampleSerializer {
                 name = getTypeName(o);
             }
             if (o.getAttribute() != null && o.getAttribute()) {
-                writer.writeAttribute(o.getPrefix(), name, o.getNamespace(), o.asString());
+
+                if( o.getNamespace() != null ){
+                   if( o.getPrefix() != null ){
+                       writer.writeAttribute( o.getPrefix(), o.getNamespace(), name, o.asString());
+                   }
+                   else {
+                       writer.writeAttribute( o.getNamespace(), name, o.asString());
+                   }
+                }
+                else {
+                    writer.writeAttribute(name, o.asString());
+                }
             } else if (name == null) {
                 writer.writeCharacters(o.asString());
             } else {
                 if( o.getNamespace() != null ){
-                    writer.writeStartElement(o.getPrefix(), name, o.getNamespace());
+                    if( o.getPrefix() != null ) {
+                        writer.writeStartElement(o.getPrefix(), name, o.getNamespace());
+                    }
+                    else {
+                        writer.writeStartElement(o.getNamespace(), name);
+                    }
                 }
                 else {
                     writer.writeStartElement(name);
