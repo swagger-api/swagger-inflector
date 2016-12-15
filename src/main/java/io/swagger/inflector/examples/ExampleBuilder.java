@@ -322,16 +322,21 @@ public class ExampleBuilder {
                 output = outputExample;
             }
         } else if (property instanceof ArrayProperty) {
-            ArrayProperty ap = (ArrayProperty) property;
-            Property inner = ap.getItems();
-            if (inner != null) {
-                Object innerExample = fromProperty(inner, definitions, processedModels);
-                if (innerExample != null) {
-                    if (innerExample instanceof Example) {
-                        ArrayExample an = new ArrayExample();
-                        an.add((Example) innerExample);
-                        an.setName(property.getName());
-                        output = an;
+            if (example != null) {
+                output = new ArrayExample();
+            }
+            else {
+                ArrayProperty ap = (ArrayProperty) property;
+                Property inner = ap.getItems();
+                if (inner != null) {
+                    Object innerExample = fromProperty(inner, definitions, processedModels);
+                    if (innerExample != null) {
+                        if (innerExample instanceof Example) {
+                            ArrayExample an = new ArrayExample();
+                            an.add((Example) innerExample);
+                            an.setName(property.getName());
+                            output = an;
+                        }
                     }
                 }
             }
@@ -540,7 +545,10 @@ public class ExampleBuilder {
         for(Example ex : examples) {
             if(ex instanceof ObjectExample) {
                 ObjectExample objectExample = (ObjectExample) ex;
-                output.putAll(objectExample.getValues());
+                Map<String, Example> values = objectExample.getValues();
+                if( values != null ) {
+                    output.putAll(values);
+                }
             }
         }
     }
