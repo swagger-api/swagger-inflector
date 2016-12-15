@@ -20,9 +20,19 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import io.swagger.inflector.examples.models.*;
+import io.swagger.inflector.examples.models.ArrayExample;
+import io.swagger.inflector.examples.models.BooleanExample;
+import io.swagger.inflector.examples.models.DecimalExample;
+import io.swagger.inflector.examples.models.DoubleExample;
+import io.swagger.inflector.examples.models.Example;
+import io.swagger.inflector.examples.models.FloatExample;
+import io.swagger.inflector.examples.models.IntegerExample;
+import io.swagger.inflector.examples.models.LongExample;
+import io.swagger.inflector.examples.models.ObjectExample;
+import io.swagger.inflector.examples.models.StringExample;
 
 import java.io.IOException;
+import java.util.List;
 
 public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
 
@@ -62,7 +72,10 @@ public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
             }
         } else if (o instanceof ArrayExample) {
             jgen.writeStartArray();
-            writeTo(jgen, o);
+            List<Example> items = ((ArrayExample) o).getItems();
+            if( !items.isEmpty()){
+                serialize( items.get(0), jgen, null );
+            }
             jgen.writeEndArray();
         } else {
             writeValue(jgen, null, o);
