@@ -562,4 +562,18 @@ public class ExampleBuilderTest {
                 "  \"color\" : \"black\"\n" +
                 "}");
     }
+
+    @Test
+    public void testIssue1261InlineSchemaExample() throws Exception {
+        Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-1261.yaml");
+
+        Response response = swagger.getPath("/user").getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "{\n" +
+                "  \"id\" : \"42\",\n" +
+                "  \"name\" : \"Arthur Dent\"\n" +
+                "}");
+    }
 }
