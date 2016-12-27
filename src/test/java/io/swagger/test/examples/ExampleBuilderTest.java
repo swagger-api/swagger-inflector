@@ -152,7 +152,7 @@ public class ExampleBuilderTest {
 
         String json = Json.pretty(rep);
 
-        assertEqualsIgnoreLineEnding("[ {\n  \"street\" : \"12345 El Monte Blvd\",\n  \"city\" : \"Los Altos Hills\",\n  \"state\" : \"CA\",\n  \"zip\" : \"94022\"\n} ]", json);
+        assertEqualsIgnoreLineEnding(json,"[ {\n  \"street\" : \"12345 El Monte Blvd\",\n  \"city\" : \"Los Altos Hills\",\n  \"state\" : \"CA\",\n  \"zip\" : \"94022\"\n} ]");
     }
 
     @Test
@@ -320,7 +320,7 @@ public class ExampleBuilderTest {
 
         Example rep = ExampleBuilder.fromProperty(new RefProperty("SimpleModel"), definitions);
 
-        assertEquals(Json.pretty(rep),
+        assertEqualsIgnoreLineEnding(Json.pretty(rep),
             "{\n" +
             "  \"name\" : \"hi!?\"\n" +
             "}");
@@ -358,7 +358,7 @@ public class ExampleBuilderTest {
 
         Example rep = ExampleBuilder.fromProperty(new RefProperty("ComposedModel"), definitions);
 
-        assertEquals(Json.pretty(rep),
+        assertEqualsIgnoreLineEnding(Json.pretty(rep),
             "{\n" +
             "  \"id\" : 0,\n" +
             "  \"name\" : \"hi!?\"\n" +
@@ -388,7 +388,7 @@ public class ExampleBuilderTest {
 
         Example rep = ExampleBuilder.fromProperty(new RefProperty("Circular"), definitions);
 
-        assertEquals(Json.pretty(rep), "{\n" +
+        assertEqualsIgnoreLineEnding(Json.pretty(rep), "{\n" +
             "  \"id\" : \"string\",\n" +
             "  \"circular1\" : { },\n" +
             "  \"circular2\" : { }\n" +
@@ -426,7 +426,7 @@ public class ExampleBuilderTest {
 
         Example rep = ExampleBuilder.fromProperty(new RefProperty("InlineModel"), definitions);
 
-        assertEquals(Json.pretty(rep), "{\n" +
+        assertEqualsIgnoreLineEnding(Json.pretty(rep), "{\n" +
             "  \"id\" : 999,\n" +
             "  \"inline\" : {\n" +
             "    \"first\" : \"string\",\n" +
@@ -447,7 +447,7 @@ public class ExampleBuilderTest {
         definitions.put("Address", model);
 
         Example rep = ExampleBuilder.fromProperty(new RefProperty("Address"), definitions);
-        assertEquals(Json.pretty(rep),
+        assertEqualsIgnoreLineEnding(Json.pretty(rep),
                 "{\n" +
                 "  \"int64\" : 4321\n" +
                 "}");
@@ -467,7 +467,7 @@ public class ExampleBuilderTest {
         Example rep = ExampleBuilder.fromProperty(new RefProperty("Address"), definitions);
 
         Json.prettyPrint(rep);
-        assertEquals(Json.pretty(rep),
+        assertEqualsIgnoreLineEnding(Json.pretty(rep),
                 "{\n" +
                 "  \"unboundedInteger\" : 4321\n" +
                 "}");
@@ -522,7 +522,7 @@ public class ExampleBuilderTest {
     }
 
     private void assertEqualsIgnoreLineEnding(String actual, String expected) {
-        assertEquals(actual.replace("\n", System.getProperty("line.separator")), expected);
+        assertEquals(actual.replace("\r\n", "\n"), expected);
     }
 
     @Test
@@ -534,7 +534,7 @@ public class ExampleBuilderTest {
 
         String output = Json.pretty(example);
 
-        assertEquals(output, "[ {\n" +
+        assertEqualsIgnoreLineEnding(output, "[ {\n" +
                 "  \"id\" : \"string\",\n" +
                 "  \"nestedArray\" : [ {\n" +
                 "    \"id\" : \"string\",\n" +
@@ -558,8 +558,22 @@ public class ExampleBuilderTest {
         Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
 
         String output = Json.pretty(example);
-        assertEquals(output, "{\n" +
+        assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"color\" : \"black\"\n" +
+                "}");
+    }
+
+    @Test
+    public void testIssue1261InlineSchemaExample() throws Exception {
+        Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-1261.yaml");
+
+        Response response = swagger.getPath("/user").getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "{\n" +
+                "  \"id\" : \"42\",\n" +
+                "  \"name\" : \"Arthur Dent\"\n" +
                 "}");
     }
 }
