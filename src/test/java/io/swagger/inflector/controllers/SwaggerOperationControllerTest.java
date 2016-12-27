@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 
 import java.util.Map;
 
+import static java.io.File.separatorChar;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
@@ -38,7 +39,7 @@ public class SwaggerOperationControllerTest {
         headers.put( "filename", "  " );
         assertNull( SwaggerOperationController.extractFilenameFromHeaders( headers ));
 
-        headers.put( "filename", "  /" );
+        headers.put( "filename", "  " + separatorChar );
         assertNull( SwaggerOperationController.extractFilenameFromHeaders( headers ));
 
         headers.put( "filename", "test.dat" );
@@ -47,10 +48,10 @@ public class SwaggerOperationControllerTest {
         headers.put( "filename", "   test.dat  " );
         assertEquals( "test.dat", SwaggerOperationController.extractFilenameFromHeaders( headers ));
 
-        headers.put( "filename", "/test/test.dat" );
+        headers.put( "filename", separatorChar + "test" + separatorChar + "test.dat" );
         assertEquals( "test.dat", SwaggerOperationController.extractFilenameFromHeaders( headers ));
 
-        headers.put( "filename", "/test.dat///" );
+        headers.put( "filename", separatorChar + "test.dat" + separatorChar + separatorChar + separatorChar );
         assertNull( SwaggerOperationController.extractFilenameFromHeaders( headers ));
     }
 }
