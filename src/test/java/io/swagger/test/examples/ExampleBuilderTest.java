@@ -72,7 +72,7 @@ public class ExampleBuilderTest {
         Object o = ExampleBuilder.fromProperty(new RefProperty("User"), definitions);
 
         String str = new XmlExampleSerializer().serialize((Example) o);
-        assertEqualsIgnoreLineEnding(str, "<?xml version='1.1' encoding='UTF-8'?><user><id>0</id><user>string</user><child><childNames>string</childNames></child></user>");
+        assertEqualsIgnoreLineEnding(str, "<?xml version='1.1' encoding='UTF-8'?><user><id>0</id><user>string</user><children><child>string</child></children></user>");
     }
 
     @Test

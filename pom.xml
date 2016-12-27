@@ -296,20 +296,6 @@
             <groupId>io.swagger</groupId>
             <artifactId>swagger-jersey2-jaxrs</artifactId>
             <version>${swagger-core-version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.dataformat</groupId>
-                    <artifactId>jackson-dataformat-yaml</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                    <artifactId>jackson-jaxrs-json-provider</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.datatype</groupId>
-                    <artifactId>jackson-datatype-joda</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
@@ -405,12 +391,6 @@
             <version>${commons-io-version}</version>
         </dependency>
 
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
@@ -419,11 +399,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-joda</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-jaxb-annotations</artifactId>
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
@@ -454,8 +429,8 @@
         </dependency>
     </dependencies>
     <properties>
-        <swagger-core-version>1.5.10</swagger-core-version>
-        <swagger-parser-version>1.0.24-SNAPSHOT</swagger-parser-version>
+        <swagger-core-version>1.5.12-SNAPSHOT</swagger-core-version>
+        <swagger-parser-version>1.0.25-SNAPSHOT</swagger-parser-version>
         <jackson.version>2.8.5</jackson.version>
         <joda-time-version>2.2</joda-time-version>
         <joda-version>1.2</joda-version>

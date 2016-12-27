@@ -26,7 +26,7 @@ public class NumericValidator implements Validator {
                 }
             };
             if(ap.getMaximum() != null) {
-                double max = ap.getMaximum();
+                double max = ap.getMaximum().doubleValue();
                 Double value;
                 try {
                     value = Double.parseDouble(o.toString());
@@ -55,7 +55,7 @@ public class NumericValidator implements Validator {
                 }
             }
             if(ap.getMinimum() != null) {
-                double min = ap.getMinimum();
+                double min = ap.getMinimum().doubleValue();
                 Double value;
                 try {
                     value = Double.parseDouble(o.toString());

@@ -190,7 +190,9 @@ public class ResolverUtil {
             property.setProperties(m.getProperties());
             property.setName(m.getName());
             property.setFormat(m.getFormat());
-            property.setDefault(m.getDefaultValue());
+            if(m.getDefaultValue() != null) {
+                property.setDefault(m.getDefaultValue().toString());
+            }
             property.setDescription(m.getDescription());
             property.setXml(m.getXml());
 
