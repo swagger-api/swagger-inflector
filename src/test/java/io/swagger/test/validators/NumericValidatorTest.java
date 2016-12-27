@@ -24,6 +24,7 @@ import io.swagger.models.properties.LongProperty;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 public class NumericValidatorTest {
@@ -40,7 +41,7 @@ public class NumericValidatorTest {
     public void testValidIntegerMinimum() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test");
-        parameter.setMinimum(10.0);
+        parameter.setMinimum(new BigDecimal("10.0"));
 
         converter.validate(new Integer(11), parameter);
     }
@@ -49,7 +50,7 @@ public class NumericValidatorTest {
     public void testInvalidIntegerMinimum() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test");
-        parameter.setMinimum(10.0);
+        parameter.setMinimum(new BigDecimal("10.0"));
 
         converter.validate(new Integer(9), parameter);
     }
@@ -58,7 +59,7 @@ public class NumericValidatorTest {
     public void testEqualIntegerMinimum() throws Exception {
         QueryParameter parameter = new QueryParameter()
                 .name("test");
-        parameter.setMinimum(10.0);
+        parameter.setMinimum(new BigDecimal("10.0"));
 
         converter.validate(new Integer(10), parameter);
     }
@@ -67,7 +68,7 @@ public class NumericValidatorTest {
     public void testValidIntegerMaximum() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test");
-        parameter.setMaximum(10.0);
+        parameter.setMaximum(new BigDecimal("10.0"));
 
         converter.validate(new Integer(9), parameter);
     }
@@ -76,7 +77,7 @@ public class NumericValidatorTest {
     public void testInvalidIntegerMaximum() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test");
-        parameter.setMaximum(10.0);
+        parameter.setMaximum(new BigDecimal("10.0"));
 
         converter.validate(new Integer(11), parameter);
     }
@@ -85,7 +86,7 @@ public class NumericValidatorTest {
     public void testValidIntegerExclusiveMinimum() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test");
-        parameter.setMinimum(10.0);
+        parameter.setMinimum(new BigDecimal("10.0"));
         parameter.setExclusiveMinimum(true);
 
         InputConverter.getInstance().validate(new Integer(11), parameter);
@@ -95,7 +96,7 @@ public class NumericValidatorTest {
     public void testInvalidIntegerExclusiveMinimumEquality() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test");
-        parameter.setMinimum(10.0);
+        parameter.setMinimum(new BigDecimal("10.0"));
         parameter.setExclusiveMinimum(true);
 
         InputConverter.getInstance().validate(new Integer(10), parameter);
@@ -105,7 +106,7 @@ public class NumericValidatorTest {
     public void testValidIntegerExclusiveMaximum() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test");
-        parameter.setMaximum(10.0);
+        parameter.setMaximum(new BigDecimal("10.0"));
         parameter.setExclusiveMaximum(true);
 
         InputConverter.getInstance().validate(new Integer(9), parameter);
@@ -115,7 +116,7 @@ public class NumericValidatorTest {
     public void testInvalidIntegerExclusiveMaximum() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test");
-        parameter.setMaximum(10.0);
+        parameter.setMaximum(new BigDecimal("10"));
         parameter.setExclusiveMaximum(true);
 
         InputConverter.getInstance().validate(new Integer(11), parameter);
@@ -125,7 +126,7 @@ public class NumericValidatorTest {
     public void testInvalidIntegerExclusiveMaximumEquality() throws Exception {
         QueryParameter parameter = new QueryParameter()
             .name("test");
-        parameter.setMaximum(10.0);
+        parameter.setMaximum(new BigDecimal("10.0"));
         parameter.setExclusiveMaximum(true);
 
         InputConverter.getInstance().validate(new Integer(10), parameter);
@@ -135,7 +136,7 @@ public class NumericValidatorTest {
     public void testIssue127_b() throws Exception {
         QueryParameter parameter = new QueryParameter()
                 .name("test");
-        parameter.setMaximum(10.0);
+        parameter.setMaximum(new BigDecimal("10.0"));
         parameter.setExclusiveMaximum(true);
 
         InputConverter.getInstance().validate("value 1", parameter);
