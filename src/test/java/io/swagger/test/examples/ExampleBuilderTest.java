@@ -572,7 +572,7 @@ public class ExampleBuilderTest {
 
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
-                "  \"id\" : \"42\",\n" +
+                "  \"id\" : 42,\n" +
                 "  \"name\" : \"Arthur Dent\"\n" +
                 "}");
     }
@@ -586,5 +586,44 @@ public class ExampleBuilderTest {
 
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "[ \"string\" ]");
+    }
+
+    @Test
+    public void testIssue1263SchemaExampleNestedObjects() throws Exception {
+        Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-1263.yaml");
+
+        Response response = swagger.getPath("/nested_object").getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "{\n" +
+                "  \"nested_object\" : {\n" +
+                "    \"foo\" : \"bar\"\n" +
+                "  }\n" +
+                "}");
+    }
+
+    @Test
+    public void testDifferentExampleTypes() throws Exception {
+        Swagger swagger = new SwaggerParser().read("src/test/swagger/example-types.yaml");
+
+        Response response = swagger.getPath("/user").getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "{\n" +
+                "  \"obj\" : {\n" +
+                "    \"b\" : \"ho\",\n" +
+                "    \"a\" : \"hey\"\n" +
+                "  },\n" +
+                "  \"arr\" : [ \"hey\", \"ho\" ],\n" +
+                "  \"double\" : 1.2,\n" +
+                "  \"int\" : 42,\n" +
+                "  \"biginteger\" : 118059162071741130342442,\n" +
+                "  \"long\" : 1099511627776,\n" +
+                "  \"null-key\" : null,\n" +
+                "  \"boolean\" : true,\n" +
+                "  \"string\" : \"Arthur Dent\"\n" +
+                "}");
     }
 }

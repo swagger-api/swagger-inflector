@@ -1,0 +1,32 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Different types in the example
+
+paths:
+  /user:
+    get:
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                format: int32
+              name:
+                type: string
+            required: [id, name]
+            example:
+              obj: {b: ho, a: hey}
+              arr: [hey, ho]
+              double: 1.2
+              int: 42
+              biginteger: 118059162071741130342442
+              long: 1099511627776
+              null-key: null
+              boolean: yes
+              string: Arthur Dent

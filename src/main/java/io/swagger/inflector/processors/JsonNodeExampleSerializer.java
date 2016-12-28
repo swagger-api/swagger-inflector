@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import io.swagger.inflector.examples.models.ArrayExample;
+import io.swagger.inflector.examples.models.BigIntegerExample;
 import io.swagger.inflector.examples.models.BooleanExample;
 import io.swagger.inflector.examples.models.DecimalExample;
 import io.swagger.inflector.examples.models.DoubleExample;
@@ -28,6 +29,7 @@ import io.swagger.inflector.examples.models.Example;
 import io.swagger.inflector.examples.models.FloatExample;
 import io.swagger.inflector.examples.models.IntegerExample;
 import io.swagger.inflector.examples.models.LongExample;
+import io.swagger.inflector.examples.models.NullExample;
 import io.swagger.inflector.examples.models.ObjectExample;
 import io.swagger.inflector.examples.models.StringExample;
 
@@ -110,6 +112,14 @@ public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
             } else {
                 jgen.writeNumber(obj.getValue());
             }
+        }  else if (o instanceof BigIntegerExample) {
+            BigIntegerExample obj = (BigIntegerExample) o;
+            if (field != null) {
+                jgen.writeFieldName(field);
+                jgen.writeNumber(obj.getValue());
+            } else {
+                jgen.writeNumber(obj.getValue());
+            }
         } else if (o instanceof DoubleExample) {
             DoubleExample obj = (DoubleExample) o;
             if (field != null) {
@@ -149,6 +159,12 @@ public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
                 jgen.writeStringField(field, obj.getValue());
             } else {
                 jgen.writeString(obj.getValue());
+            }
+        } else if (o instanceof NullExample) {
+            if (field != null) {
+                jgen.writeNullField(field);
+            } else {
+                jgen.writeNull();
             }
         }
     }

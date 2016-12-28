@@ -21,9 +21,27 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BigIntegerNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.DecimalNode;
+import com.fasterxml.jackson.databind.node.DoubleNode;
+import com.fasterxml.jackson.databind.node.FloatNode;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.LongNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.databind.node.ShortNode;
+import io.swagger.inflector.examples.models.ArrayExample;
+import io.swagger.inflector.examples.models.BigIntegerExample;
+import io.swagger.inflector.examples.models.BooleanExample;
+import io.swagger.inflector.examples.models.DecimalExample;
+import io.swagger.inflector.examples.models.DoubleExample;
 import io.swagger.inflector.examples.models.Example;
+import io.swagger.inflector.examples.models.FloatExample;
+import io.swagger.inflector.examples.models.IntegerExample;
+import io.swagger.inflector.examples.models.LongExample;
+import io.swagger.inflector.examples.models.NullExample;
 import io.swagger.inflector.examples.models.ObjectExample;
 import io.swagger.inflector.examples.models.StringExample;
 
@@ -36,23 +54,46 @@ public class JsonExampleDeserializer extends JsonDeserializer<Example> {
     @Override
     public Example deserialize(JsonParser jp, DeserializationContext ctxt)
             throws IOException, JsonProcessingException {
-        Example output = null;
         JsonNode node = jp.getCodec().readTree(jp);
+        return createExample(node);
+    }
+
+    private Example createExample(JsonNode node) {
         if (node instanceof ObjectNode) {
             ObjectExample obj = new ObjectExample();
             ObjectNode on = (ObjectNode) node;
-
             for (Iterator<Entry<String, JsonNode>> x = on.fields(); x.hasNext(); ) {
                 Entry<String, JsonNode> i = x.next();
                 String key = i.getKey();
                 JsonNode value = i.getValue();
-
-                obj.put(key, new StringExample(value.asText()));
-                output = obj;
+                obj.put(key, createExample(value));
             }
-        } else if (node instanceof TextNode) {
-            output = new StringExample(((TextNode) node).asText());
+            return obj;
+        } else if (node instanceof ArrayNode) {
+            ArrayExample arr = new ArrayExample();
+            ArrayNode an = (ArrayNode) node;
+            for (JsonNode childNode : an) {
+                arr.add(createExample(childNode));
+            }
+            return arr;
+        } else if (node instanceof DoubleNode) {
+            return new DoubleExample(node.doubleValue());
+        } else if (node instanceof IntNode || node instanceof ShortNode) {
+            return new IntegerExample(node.intValue());
+        } else if (node instanceof FloatNode) {
+            return new FloatExample(node.floatValue());
+        } else if (node instanceof BigIntegerNode) {
+            return new BigIntegerExample(node.bigIntegerValue());
+        } else if (node instanceof DecimalNode) {
+            return new DecimalExample(node.decimalValue());
+        } else if (node instanceof LongNode) {
+            return new LongExample(node.longValue());
+        } else if (node instanceof NullNode) {
+            return new NullExample();
+        } else if (node instanceof BooleanNode) {
+            return new BooleanExample(node.booleanValue());
+        } else {
+            return new StringExample(node.asText());
         }
-        return output;
     }
 }
