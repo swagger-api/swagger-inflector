@@ -26,6 +26,7 @@ import io.swagger.inflector.examples.models.IntegerExample;
 import io.swagger.inflector.examples.models.LongExample;
 import io.swagger.inflector.examples.models.ObjectExample;
 import io.swagger.inflector.examples.models.StringExample;
+import io.swagger.models.ArrayModel;
 import io.swagger.models.ComposedModel;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
@@ -522,6 +523,20 @@ public class ExampleBuilder {
             }
             mergeTo(ex, innerExamples);
             output = ex;
+        }
+        else if(model instanceof ArrayModel) {
+            ArrayModel am = (ArrayModel) model;
+            ObjectExample ex = new ObjectExample();
+
+            Property inner = am.getItems();
+            if (inner != null) {
+                Example innerExample = fromProperty(inner, definitions, processedModels);
+                if (innerExample != null) {
+                    ArrayExample an = new ArrayExample();
+                    an.add(innerExample);
+                    output = an;
+                }
+            }
         }
         if (output != null) {
             if (attribute != null) {

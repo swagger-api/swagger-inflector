@@ -1,0 +1,22 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Array Mocking Test
+
+produces:
+  - application/json
+
+paths:
+  /array:
+    get:
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/AnArray"
+
+definitions:
+  AnArray:
+    type: array
+    items:
+      type: string

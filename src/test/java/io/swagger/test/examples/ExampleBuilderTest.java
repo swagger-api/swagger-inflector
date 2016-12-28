@@ -576,4 +576,15 @@ public class ExampleBuilderTest {
                 "  \"name\" : \"Arthur Dent\"\n" +
                 "}");
     }
+
+    @Test
+    public void testIssue1177RefArrayExample() throws Exception {
+        Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-1177.yaml");
+
+        Response response = swagger.getPath("/array").getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "[ \"string\" ]");
+    }
 }
