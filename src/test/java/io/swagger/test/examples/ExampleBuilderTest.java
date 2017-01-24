@@ -621,7 +621,6 @@ public class ExampleBuilderTest {
                 "  \"int\" : 42,\n" +
                 "  \"biginteger\" : 118059162071741130342442,\n" +
                 "  \"long\" : 1099511627776,\n" +
-                "  \"null-key\" : null,\n" +
                 "  \"boolean\" : true,\n" +
                 "  \"string\" : \"Arthur Dent\"\n" +
                 "}");

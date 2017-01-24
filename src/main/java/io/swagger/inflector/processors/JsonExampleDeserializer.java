@@ -41,7 +41,6 @@ import io.swagger.inflector.examples.models.Example;
 import io.swagger.inflector.examples.models.FloatExample;
 import io.swagger.inflector.examples.models.IntegerExample;
 import io.swagger.inflector.examples.models.LongExample;
-import io.swagger.inflector.examples.models.NullExample;
 import io.swagger.inflector.examples.models.ObjectExample;
 import io.swagger.inflector.examples.models.StringExample;
 
@@ -88,8 +87,6 @@ public class JsonExampleDeserializer extends JsonDeserializer<Example> {
             return new DecimalExample(node.decimalValue());
         } else if (node instanceof LongNode) {
             return new LongExample(node.longValue());
-        } else if (node instanceof NullNode) {
-            return new NullExample();
         } else if (node instanceof BooleanNode) {
             return new BooleanExample(node.booleanValue());
         } else {

@@ -27,6 +27,5 @@ paths:
               int: 42
               biginteger: 118059162071741130342442
               long: 1099511627776
-              null-key: null
               boolean: yes
               string: Arthur Dent
