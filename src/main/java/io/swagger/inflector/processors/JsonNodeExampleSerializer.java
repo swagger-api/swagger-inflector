@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import io.swagger.inflector.examples.models.ArrayExample;
+import io.swagger.inflector.examples.models.BigIntegerExample;
 import io.swagger.inflector.examples.models.BooleanExample;
 import io.swagger.inflector.examples.models.DecimalExample;
 import io.swagger.inflector.examples.models.DoubleExample;
@@ -107,6 +108,14 @@ public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
             DecimalExample obj = (DecimalExample) o;
             if (field != null) {
                 jgen.writeNumberField(field, obj.getValue());
+            } else {
+                jgen.writeNumber(obj.getValue());
+            }
+        }  else if (o instanceof BigIntegerExample) {
+            BigIntegerExample obj = (BigIntegerExample) o;
+            if (field != null) {
+                jgen.writeFieldName(field);
+                jgen.writeNumber(obj.getValue());
             } else {
                 jgen.writeNumber(obj.getValue());
             }
