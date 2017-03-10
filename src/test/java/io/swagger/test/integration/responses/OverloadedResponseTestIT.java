@@ -40,6 +40,5 @@ public class OverloadedResponseTestIT {
         User user = Json.mapper().readValue(str, User.class);
 
         assertNotNull(user);
-        Json.prettyPrint(user);
     }
 }
