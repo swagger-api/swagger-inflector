@@ -36,6 +36,20 @@
     <prerequisites>
         <maven>2.2.0</maven>
     </prerequisites>
+
+   <distributionManagement>
+                <repository>
+                        <id>ac.maven</id>
+                        <name>Armstrong Consulting Maven Repository</name>
+                        <url>http://maven.armstrongconsulting.net:8080/nexus/content/repositories/releases</url>
+                </repository>
+                <snapshotRepository>
+                        <id>ac.maven</id>
+                        <name>Armstrong Consulting Maven Repository</name>
+                        <url>http://maven.armstrongconsulting.net:8080/nexus/content/repositories/snapshots</url>
+                </snapshotRepository>
+    </distributionManagement>
+
     <developers>
         <developer>
             <id>fehguy</id>
