@@ -16,7 +16,22 @@
 
 package io.swagger.test.examples;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.stub;
+import static org.testng.Assert.assertEquals;
+
+import java.util.Arrays;
+
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
+import org.testng.annotations.Test;
+
 import com.fasterxml.jackson.databind.module.SimpleModule;
+
 import io.swagger.inflector.config.Configuration;
 import io.swagger.inflector.controllers.SwaggerOperationController;
 import io.swagger.inflector.processors.JsonNodeExampleSerializer;
@@ -25,19 +40,6 @@ import io.swagger.models.Swagger;
 import io.swagger.parser.SwaggerParser;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
-import org.testng.annotations.Test;
-
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import java.util.Arrays;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.stub;
-import static org.testng.Assert.assertEquals;
 
 public class ResponseExamplesTest {
 
@@ -55,7 +57,7 @@ public class ResponseExamplesTest {
         Swagger swagger = new SwaggerParser().read( "src/test/swagger/sample1.yaml");
         Operation operation = swagger.getPath( "/mockResponses/responseWithExamples").getGet();
 
-        SwaggerOperationController controller = new SwaggerOperationController(
+        SwaggerOperationController controller = new SwaggerOperationController(swagger,
             config, "/mockResponses/responseWithExamples", "GET", operation, swagger.getDefinitions() );
 
         ContainerRequestContext requestContext = mock(ContainerRequestContext.class);
@@ -82,7 +84,7 @@ public class ResponseExamplesTest {
         Swagger swagger = new SwaggerParser().read( "src/test/swagger/sample1.yaml");
         Operation operation = swagger.getPath( "/mockResponses/responseWithExamples").getGet();
 
-        SwaggerOperationController controller = new SwaggerOperationController(
+        SwaggerOperationController controller = new SwaggerOperationController(swagger,
             config, "/mockResponses/responseWithExamples", "GET", operation, swagger.getDefinitions() );
 
         ContainerRequestContext requestContext = mock(ContainerRequestContext.class);
