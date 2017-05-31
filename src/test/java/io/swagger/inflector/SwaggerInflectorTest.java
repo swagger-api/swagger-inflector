@@ -15,18 +15,21 @@
  */
 package io.swagger.inflector;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import io.swagger.inflector.SwaggerInflector;
-import io.swagger.inflector.config.Configuration;
-import io.swagger.inflector.processors.JsonProvider;
-import io.swagger.util.Json;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertTrue;
+
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
-;import static org.testng.Assert.*;
+import io.swagger.inflector.config.Configuration;
+import io.swagger.inflector.processors.JsonProvider;
+import io.swagger.util.Json;
 
 
 public class SwaggerInflectorTest {

@@ -16,11 +16,32 @@
 
 package io.swagger.inflector;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.servlet.ServletContext;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.ContextResolver;
+
+import org.apache.commons.lang3.StringUtils;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.model.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider;
+
 import io.swagger.config.FilterFactory;
 import io.swagger.core.filter.SwaggerSpecFilter;
 import io.swagger.inflector.config.Configuration;
@@ -51,24 +72,6 @@ import io.swagger.parser.SwaggerParser;
 import io.swagger.parser.util.SwaggerDeserializationResult;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
-import org.apache.commons.lang3.StringUtils;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.server.model.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletContext;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.ext.ContextResolver;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class SwaggerInflector extends ResourceConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerInflector.class);
@@ -150,27 +153,27 @@ public class SwaggerInflector extends ResourceConfig {
 
                 operation = path.getGet();
                 if (operation != null) {
-                    addOperation(pathString, builder, HttpMethod.GET, operation, definitions);
+                    addOperation(swagger,pathString, builder, HttpMethod.GET, operation, definitions);
                 }
                 operation = path.getPost();
                 if (operation != null) {
-                    addOperation(pathString, builder, HttpMethod.POST, operation, definitions);
+                    addOperation(swagger,pathString, builder, HttpMethod.POST, operation, definitions);
                 }
                 operation = path.getPut();
                 if (operation != null) {
-                    addOperation(pathString, builder, HttpMethod.PUT, operation, definitions);
+                    addOperation(swagger,pathString, builder, HttpMethod.PUT, operation, definitions);
                 }
                 operation = path.getDelete();
                 if (operation != null) {
-                    addOperation(pathString, builder, HttpMethod.DELETE, operation, definitions);
+                    addOperation(swagger,pathString, builder, HttpMethod.DELETE, operation, definitions);
                 }
                 operation = path.getOptions();
                 if (operation != null) {
-                    addOperation(pathString, builder, HttpMethod.OPTIONS, operation, definitions);
+                    addOperation(swagger,pathString, builder, HttpMethod.OPTIONS, operation, definitions);
                 }
                 operation = path.getPatch();
                 if (operation != null) {
-                    addOperation(pathString, builder, "PATCH", operation, definitions);
+                    addOperation(swagger,pathString, builder, "PATCH", operation, definitions);
                 }
                 registerResources(builder.build());
             }
@@ -419,9 +422,9 @@ public class SwaggerInflector extends ResourceConfig {
         registerResources(builder.build());
     }
 
-    private void addOperation(String pathString, Resource.Builder builder, String method, Operation operation, Map<String, Model> definitions) {
+    private void addOperation(Swagger swagger, String pathString, Resource.Builder builder, String method, Operation operation, Map<String, Model> definitions) {
         LOGGER.debug("adding operation for `" + pathString + "` " + method);
-        SwaggerOperationController controller = new SwaggerOperationController(config, pathString, method, operation, definitions);
+        SwaggerOperationController controller = new SwaggerOperationController(swagger,config, pathString, method, operation, definitions);
         if (controller.getMethod() == null) {
             if (controller.getMethodName() != null) {
                 List<String> missingMethods = missingOperations.get(controller.getControllerName());
