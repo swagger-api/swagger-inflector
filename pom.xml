@@ -435,7 +435,7 @@
         <joda-time-version>2.2</joda-time-version>
         <joda-version>1.2</joda-version>
         <jetty-version>9.2.9.v20150224</jetty-version>
-        <jersey2-version>2.24</jersey2-version>
+        <jersey2-version>2.6</jersey2-version>
         <servlet-api-version>2.5</servlet-api-version>
         <commons-io-version>2.4</commons-io-version>
         <commons-string-utils-version>3.4</commons-string-utils-version>
