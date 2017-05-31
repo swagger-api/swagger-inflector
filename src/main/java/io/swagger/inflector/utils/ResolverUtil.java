@@ -1,7 +1,15 @@
 package io.swagger.inflector.utils;
 
 import io.swagger.inflector.Constants;
-import io.swagger.models.*;
+import io.swagger.models.ArrayModel;
+import io.swagger.models.ComposedModel;
+import io.swagger.models.Model;
+import io.swagger.models.ModelImpl;
+import io.swagger.models.Operation;
+import io.swagger.models.Path;
+import io.swagger.models.RefModel;
+import io.swagger.models.Response;
+import io.swagger.models.Swagger;
 import io.swagger.models.parameters.BodyParameter;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.properties.ArrayProperty;
@@ -11,7 +19,12 @@ import io.swagger.models.properties.RefProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class ResolverUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResolverUtil.class);
@@ -127,6 +140,29 @@ public class ResolverUtil {
                 return model;
             }
         }
+        if(schema instanceof ComposedModel) {
+            ComposedModel cm = (ComposedModel) schema;
+            ModelImpl model = new ModelImpl();
+            Set<String> requiredProperties = new HashSet<>();
+            for(Model innerModel : cm.getAllOf()) {
+                Model resolved = resolveFully(innerModel);
+                if(resolved instanceof ModelImpl) {
+                    if(resolved.getProperties() != null) {
+                        for(String key : resolved.getProperties().keySet()) {
+                            Property prop = resolved.getProperties().get(key);
+                            if(prop.getRequired()) {
+                                requiredProperties.add(key);
+                            }
+                            model.addProperty(key, resolveFully(prop));
+                        }
+                    }
+                }
+            }
+            if(requiredProperties.size() > 0) {
+                model.setRequired(new ArrayList<String>(requiredProperties));
+            }
+            return model;
+        }
         LOGGER.error("no type match for " + schema);
         return schema;
     }
@@ -221,6 +257,32 @@ public class ResolverUtil {
             RefModel ref = (RefModel) model;
             Model inner = models.get(ref.getSimpleRef());
             return createObjectProperty(inner);
+        }
+        if(model instanceof ComposedModel) {
+            ObjectProperty op = new ObjectProperty();
+
+            ComposedModel cm = (ComposedModel) model;
+            Set<String> requiredProperties = new HashSet<>();
+            for(Model item : cm.getAllOf()) {
+                Property itemProperty = createObjectProperty(item);
+                if(itemProperty instanceof ObjectProperty) {
+                    ObjectProperty itemPropertyObject = (ObjectProperty) itemProperty;
+                    if(itemPropertyObject.getProperties() != null) {
+                        for (String key : itemPropertyObject.getProperties().keySet()) {
+                            op.property(key, itemPropertyObject.getProperties().get(key));
+                        }
+                    }
+                    if(itemPropertyObject.getRequiredProperties() != null) {
+                        for(String req : itemPropertyObject.getRequiredProperties()) {
+                            requiredProperties.add(req);
+                        }
+                    }
+                }
+            }
+            if(requiredProperties.size() > 0) {
+                op.setRequiredProperties(new ArrayList(requiredProperties));
+            }
+            return op;
         }
         LOGGER.error("can't resolve " + model);
         return null;

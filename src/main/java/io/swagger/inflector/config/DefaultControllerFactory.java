@@ -30,8 +30,8 @@ public class DefaultControllerFactory implements ControllerFactory {
      * @param cls the class to be instantiated
      * @param operation the operation to instantiate
      * @return an instance of the provided class
-     * @throws IllegalAccessException
-     * @throws InstantiationException
+     * @throws IllegalAccessException The class cannot be initialized
+     * @throws InstantiationException The class cannot be initialized
      */
 
     @Override

@@ -613,6 +613,32 @@ paths:
           description: 'success!'
           schema:
             $ref: '#/definitions/Address'
+  '/withComposedModel':
+    post:
+      operationId: withComposedModel
+      x-swagger-router-controller: TestController
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/ExtendedAddress'
+      responses:
+        '200':
+          description: 'success!'
+  '/withComposedModelArray':
+    post:
+      operationId: withComposedModelArray
+      x-swagger-router-controller: TestController
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ExtendedAddress'
+      responses:
+        '200':
+          description: 'success!'
   '/unmappedWithModel/{id}':
     post:
       tags:
@@ -859,3 +885,14 @@ definitions:
         format: int64
       name:
         type: string
+  ExtendedAddress:
+    type: object
+    x-swagger-router-model: io.swagger.test.models.ExtendedAddress
+    allOf:
+      - $ref: '#/definitions/Address'
+      - type: object
+        required:
+        - gps
+        properties:
+          gps:
+            type: string
