@@ -239,12 +239,13 @@ public class ReflectionUtils {
         if(model instanceof ArrayModel) {
             ArrayModel am = (ArrayModel) model;
             Property inner = am.getItems();
-            JavaType innerType = getTypeFromProperty(inner.getType(), inner.getFormat(), inner, definitions);
-            if(innerType != null) {
-                return tf.constructArrayType(innerType);
-            }
-            else {
-                return tf.constructArrayType(JsonNode.class);
+            if(inner != null) {
+                JavaType innerType = getTypeFromProperty(inner.getType(), inner.getFormat(), inner, definitions);
+                if (innerType != null) {
+                    return tf.constructArrayType(innerType);
+                } else {
+                    return tf.constructArrayType(JsonNode.class);
+                }
             }
         }
         if(model instanceof ModelImpl) {

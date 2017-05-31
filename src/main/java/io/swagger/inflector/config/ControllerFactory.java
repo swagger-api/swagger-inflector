@@ -31,8 +31,8 @@ public interface ControllerFactory {
      * @param cls the class to instantiate
      * @param operation the operation to instantiate
      * @return an instance of the class
-     * @throws IllegalAccessException
-     * @throws InstantiationException
+     * @throws IllegalAccessException The class cannot be initialized
+     * @throws InstantiationException The class cannot be initialized
      */
 
     Object instantiateController(Class<? extends Object> cls, Operation operation) throws IllegalAccessException, InstantiationException;
