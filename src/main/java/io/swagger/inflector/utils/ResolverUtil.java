@@ -161,6 +161,7 @@ public class ResolverUtil {
             if(requiredProperties.size() > 0) {
                 model.setRequired(new ArrayList<String>(requiredProperties));
             }
+            model.setVendorExtensions(cm.getVendorExtensions());
             return model;
         }
         LOGGER.error("no type match for " + schema);
