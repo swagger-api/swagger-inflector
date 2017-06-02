@@ -22,6 +22,7 @@ import io.swagger.inflector.models.ResponseContext;
 import io.swagger.inflector.utils.ApiException;
 import io.swagger.sample.models.Dog;
 import io.swagger.test.models.Address;
+import io.swagger.test.models.ExtendedAddress;
 import io.swagger.test.models.User;
 
 import javax.ws.rs.core.MediaType;
@@ -90,6 +91,13 @@ public class TestController {
     public ResponseContext withModelArray(RequestContext request, String id, Address[] modelArray) {
         return new ResponseContext()
             .status(Status.OK);
+    }
+
+    public ResponseContext withValidComposedModel(RequestContext request, ExtendedAddress body) {
+        if (body == null) {
+            throw new NullPointerException();
+        }
+        return new ResponseContext().status(Status.OK);
     }
 
     public ResponseContext arrayInputTest(RequestContext request, List<String> users) {

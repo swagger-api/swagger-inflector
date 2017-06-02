@@ -613,9 +613,9 @@ paths:
           description: 'success!'
           schema:
             $ref: '#/definitions/Address'
-  '/withComposedModel':
+  '/withInvalidComposedModel':
     post:
-      operationId: withComposedModel
+      operationId: withInvalidComposedModel
       x-swagger-router-controller: TestController
       parameters:
         - name: body
@@ -625,9 +625,21 @@ paths:
       responses:
         '200':
           description: 'success!'
-  '/withComposedModelArray':
+  '/withValidComposedModel':
     post:
-      operationId: withComposedModelArray
+      operationId: withValidComposedModel
+      x-swagger-router-controller: TestController
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/ExtendedAddress'
+      responses:
+        '200':
+          description: 'success!'
+  '/withInvalidComposedModelArray':
+    post:
+      operationId: withInvalidComposedModelArray
       x-swagger-router-controller: TestController
       parameters:
         - name: body
