@@ -21,12 +21,14 @@ import io.swagger.test.client.ApiException;
 import io.swagger.test.models.Address;
 import io.swagger.test.models.ExtendedAddress;
 import org.joda.time.DateTime;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -72,18 +74,39 @@ public class RequestTestIT {
                 "application/json", null, new String[0]);
     }
 
-    @Test(expectedExceptions = ApiException.class)
+    @Test
     public void verifyComposedModelValidation() throws Exception {
-        client.invokeAPI("/withComposedModel", "POST", new HashMap<String, String>(),
-            new ExtendedAddress(), new HashMap<String, String>(), null, "application/json",
-            null, new String[0]);
+        try {
+            client.invokeAPI("/withInvalidComposedModel", "POST", new HashMap<String, String>(),
+                    new ExtendedAddress(), new HashMap<String, String>(), null, "application/json",
+                    null, new String[0]);
+            Assert.fail("No exception was thrown");
+        } catch (ApiException e) {
+            Assert.assertEquals(e.getCode(), HttpURLConnection.HTTP_BAD_REQUEST);
+        }
     }
 
-    @Test(expectedExceptions = ApiException.class)
+    @Test()
     public void verifyComposedModelArrayValidation() throws Exception {
-        client.invokeAPI("/withComposedModelArray", "POST", new HashMap<String, String>(),
-            Arrays.asList(new ExtendedAddress(), new ExtendedAddress()),
-            new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        try {
+            client.invokeAPI("/withInvalidComposedModelArray", "POST", new HashMap<String, String>(),
+
+                    Arrays.asList(new ExtendedAddress(), new ExtendedAddress()),
+                    new HashMap<String, String>(), null, "application/json", null, new String[0]);
+            Assert.fail("No exception was thrown");
+        } catch (ApiException e) {
+            Assert.assertEquals(e.getCode(), HttpURLConnection.HTTP_BAD_REQUEST);
+        }
+    }
+
+    @Test
+    public void verifyComposedModelDeserialization() throws Exception {
+        final ExtendedAddress body = new ExtendedAddress();
+        body.setGps("gps");
+        body.setStreet("street");
+        client.invokeAPI("/withValidComposedModel", "POST", new HashMap<String, String>(),
+                body, new HashMap<String, String>(), null, MediaType.APPLICATION_JSON,
+                MediaType.APPLICATION_JSON, new String[0]);
     }
 
     @Test
