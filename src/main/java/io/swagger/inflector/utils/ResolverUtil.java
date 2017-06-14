@@ -161,7 +161,6 @@ public class ResolverUtil {
             if(requiredProperties.size() > 0) {
                 model.setRequired(new ArrayList<String>(requiredProperties));
             }
-
             if(cm.getVendorExtensions() != null) {
                 for(String key : cm.getVendorExtensions().keySet()) {
                     model.setVendorExtension(key, cm.getVendorExtensions().get(key));
