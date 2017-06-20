@@ -13,6 +13,9 @@ import io.swagger.models.properties.Property;
 import io.swagger.parser.SwaggerParser;
 import io.swagger.sample.models.Dog;
 import io.swagger.util.Json;
+import org.apache.commons.io.IOUtils;
+import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertNotNull;
@@ -20,7 +23,12 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 public class ResolverUtilTest {
+    private static final String REQUIRED_PROPERTY = "requiredProperty";
+
     @Test
     public void testArrayParam() {
         Swagger swagger = new SwaggerParser().read("./src/test/swagger/sample1.yaml");
@@ -196,5 +204,38 @@ public class ResolverUtilTest {
         catch (Exception e) {
             fail("Recursive loop found");
         }
+    }
+
+    @Test(dataProvider = REQUIRED_PROPERTY)
+    public void testRequiredProperty(String yml, final String model, final String property,
+            final boolean required) throws Exception {
+        final Swagger swagger = new SwaggerParser().parse(yml);
+        final Runnable checker = new Runnable() {
+            @Override
+            public void run() {
+                final boolean actual = swagger.getDefinitions().get(model).getProperties()
+                        .get(property).getRequired();
+                if (required) {
+                    Assert.assertTrue(actual,
+                            String.format("The %s.%s is mandatory", model, property));
+                } else {
+                    Assert.assertFalse(actual,
+                            String.format("The %s.%s is optional", model, property));
+                }
+            }
+        };
+        checker.run();
+        new ResolverUtil().resolveFully(swagger);
+        checker.run();
+    }
+
+    @DataProvider(name = REQUIRED_PROPERTY)
+    private static Object[][] listRequiredProperties() throws IOException {
+        final String yml = IOUtils.toString(ResolverUtilTest.class.getResource("shared-model.yml"),
+                StandardCharsets.UTF_8);
+        return new Object[][] {
+                {yml, "One", "nested", false},
+                {yml, "Two", "nested", true}
+        };
     }
 }

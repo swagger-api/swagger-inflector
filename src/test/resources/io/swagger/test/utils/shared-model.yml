@@ -1,0 +1,54 @@
+swagger: '2.0'
+info:
+  description: Test
+  version: "1"
+  title: test
+paths:
+  '/one':
+    put:
+      operationId: one
+      parameters:
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: '#/definitions/One'
+      responses:
+        default:
+          description: successful operation
+  '/two':
+    post:
+      operationId: two
+      parameters:
+        - in: body
+          name: body
+          required: false
+          schema:
+            $ref: '#/definitions/Two'
+      responses:
+        default:
+          description: successful operation
+definitions:
+  Shared:
+    type: object
+    required:
+      - type
+    properties:
+      type:
+        type: string
+  One:
+    type: object
+    properties:
+      nested:
+        $ref: '#/definitions/Shared'
+      one:
+        type: string
+  Two:
+    type: object
+    required:
+      - nested
+    properties:
+      nested:
+        $ref: '#/definitions/Shared'
+      two:
+        type: string
