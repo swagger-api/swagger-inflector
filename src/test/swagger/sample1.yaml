@@ -826,6 +826,18 @@ paths:
           headers:
             x-thanks-alot:
               type: string
+  '/ensureNoAdditionalProperties':
+    put:
+      operationId: ensureNoAdditionalProperties
+      x-swagger-router-controller: TestController
+      parameters:
+      - name: body
+        in: body
+        schema:
+          $ref: '#/definitions/NoAdditionalProperties'
+      responses:
+        '200':
+          description: 'success!'
 definitions:
   User:
     properties:
@@ -908,3 +920,11 @@ definitions:
         properties:
           gps:
             type: string
+  NoAdditionalProperties:
+    type: object
+    properties:
+      a:
+        type: string
+      b:
+        type: string
+    additionalProperties: false

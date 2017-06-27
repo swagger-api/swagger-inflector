@@ -21,6 +21,7 @@ import io.swagger.inflector.models.RequestContext;
 import io.swagger.inflector.models.ResponseContext;
 import io.swagger.inflector.utils.ApiException;
 import io.swagger.sample.models.Dog;
+import io.swagger.sample.models.NoAdditionalProperties;
 import io.swagger.test.models.Address;
 import io.swagger.test.models.ExtendedAddress;
 import io.swagger.test.models.User;
@@ -141,5 +142,10 @@ public class TestController {
 
     public ResponseContext mappedWithDefinedModel(RequestContext request, Dog dog) {
         return new ResponseContext().status(200);
+    }
+
+    public ResponseContext ensureNoAdditionalProperties(RequestContext request,
+            NoAdditionalProperties body) {
+        return new ResponseContext();
     }
 }

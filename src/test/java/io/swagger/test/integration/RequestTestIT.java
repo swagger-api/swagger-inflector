@@ -31,6 +31,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
@@ -259,6 +260,23 @@ public class RequestTestIT {
         catch (ApiException e) {
             Object o = e.getResponseHeaders().get("foo");
             assertEquals(o.toString(), "[bar]");
+        }
+    }
+
+    @Test
+    public void ensureNoAdditionalProperties() throws Exception {
+        final Map<String, Object> body = new LinkedHashMap<>();
+        body.put("a", "A");
+        body.put("b", "B");
+        body.put("c", "C");
+        body.put("d", "D");
+        try {
+            client.invokeAPI("/ensureNoAdditionalProperties", "PUT", new HashMap<String, String>(),
+                    body, new HashMap<String, String>(), null, MediaType.APPLICATION_JSON,
+                    MediaType.APPLICATION_JSON, new String[0]);
+            fail("should have thrown a validation exception!");
+        } catch (ApiException e) {
+            assertEquals(e.getCode(), HttpURLConnection.HTTP_BAD_REQUEST);
         }
     }
 }
