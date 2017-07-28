@@ -7,7 +7,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider;
 import io.swagger.config.FilterFactory;
 import io.swagger.core.filter.SwaggerSpecFilter;
-import io.swagger.jaxrs.listing.SwaggerSerializers;
+import io.swagger.jaxrs2.listing.SwaggerSerializers;
 
 import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.controllers.InflectResultController;
@@ -26,7 +26,7 @@ import io.swagger.oas.inflector.processors.XMLExampleProvider;
 import io.swagger.oas.inflector.processors.YamlExampleProvider;
 import io.swagger.oas.inflector.utils.DefaultContentTypeProvider;
 import io.swagger.oas.inflector.utils.DefaultSpecFilter;
-import io.swagger.oas.inflector.utils.ResolverUtil;
+import io.swagger.oas.inflector.utils.ExtensionsUtil;
 import io.swagger.oas.inflector.validators.Validator;
 import io.swagger.oas.models.OpenAPI;
 import io.swagger.oas.models.Operation;
@@ -109,12 +109,13 @@ public class OpenAPIInflector extends ResourceConfig {
         config = configuration;
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
-        SwaggerParseResult swaggerParseResult = new OpenAPIV3Parser().readContents(config.getSwaggerUrl(), null, options);
+        options.setResolveFully(true);
+        SwaggerParseResult swaggerParseResult = new OpenAPIV3Parser().readLocation(config.getSwaggerUrl(), null, options);
         OpenAPI openAPI = swaggerParseResult.getOpenAPI();
 
         if(!config.getValidatePayloads().isEmpty()) {
             LOGGER.info("resolving openAPI");
-            new ResolverUtil().resolveFully(openAPI);
+            new ExtensionsUtil().addExtensions(openAPI);
         }
 
         if (openAPI != null) {
@@ -123,8 +124,8 @@ public class OpenAPIInflector extends ResourceConfig {
             if (servers != null && servers.size() > 0){
                 String url = servers.get(0).getUrl();
                 if(StringUtils.isNotBlank(servers.get(0).getUrl())) {
-                    basePath = url.substring(url.lastIndexOf("/") + 1);
-                    originalBasePath = url.substring(url.lastIndexOf("/") + 1);
+                    basePath = url.substring(url.lastIndexOf("/"));
+                    originalBasePath = url.substring(url.lastIndexOf("/"));
                 }
 
 
@@ -319,7 +320,7 @@ public class OpenAPIInflector extends ResourceConfig {
                 }
             }
             final Resource.Builder builder = Resource.builder();
-            builder.path(basePath(originalBasePath, config.getOpenAPIBase() + "debug.json"))
+            builder.path(basePath(originalBasePath, config.getSwaggerBase() + "debug.json"))
                     .addMethod(HttpMethod.GET)
                     .produces(MediaType.APPLICATION_JSON)
                     .handledBy(new InflectResultController(result))
@@ -402,7 +403,7 @@ public class OpenAPIInflector extends ResourceConfig {
 
     private void enableSwaggerJSON(OpenAPI openAPI, List<String> swaggerProcessors) {
         final Resource.Builder builder = Resource.builder();
-        builder.path(basePath(originalBasePath, StringUtils.appendIfMissing(config.getOpenAPIBase(), "/") + "swagger.json"))
+        builder.path(basePath(originalBasePath, StringUtils.appendIfMissing(config.getSwaggerBase(), "/") + "swagger.json"))
                 .addMethod(HttpMethod.GET)
                 .produces(MediaType.APPLICATION_JSON)
                 .handledBy(new OpenAPIResourceController(openAPI, swaggerProcessors))
@@ -413,7 +414,7 @@ public class OpenAPIInflector extends ResourceConfig {
 
     private void enableSwaggerYAML(OpenAPI openAPI, List<String> swaggerProcessors) {
         final Resource.Builder builder = Resource.builder();
-        builder.path(basePath(originalBasePath, StringUtils.appendIfMissing(config.getOpenAPIBase(), "/") + "swagger.yaml"))
+        builder.path(basePath(originalBasePath, StringUtils.appendIfMissing(config.getSwaggerBase(), "/") + "swagger.yaml"))
                 .addMethod(HttpMethod.GET)
                 .produces("application/yaml")
                 .handledBy(new OpenAPIResourceController(openAPI, swaggerProcessors))

@@ -27,7 +27,7 @@ import io.swagger.oas.inflector.examples.models.LongExample;
 import io.swagger.oas.inflector.examples.models.ObjectExample;
 import io.swagger.oas.inflector.examples.models.StringExample;
 
-import io.swagger.oas.models.media.AllOfSchema;
+
 import io.swagger.oas.models.media.ArraySchema;
 import io.swagger.oas.models.media.BooleanSchema;
 import io.swagger.oas.models.media.DateSchema;

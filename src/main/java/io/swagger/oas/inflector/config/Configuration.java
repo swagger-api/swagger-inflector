@@ -54,21 +54,21 @@ public class Configuration {
     private List<String> inputValidators = new ArrayList<String>();
     private List<String> entityProcessors = new ArrayList<String>();
     private ControllerFactory controllerFactory = new DefaultControllerFactory();
-    private String openAPIBase = "/";
+    private String swaggerBase = "/";
     private Set<Direction> validatePayloads = Collections.emptySet();
     private boolean prettyPrint;
 
-    public String getOpenAPIBase() {
-        if("".equals(openAPIBase) || "/".equals(openAPIBase)) {
-            return openAPIBase;
+    public String getSwaggerBase() {
+        if("".equals(swaggerBase) || "/".equals(swaggerBase)) {
+            return swaggerBase;
         }
 
-        if(openAPIBase != null) {
-            if(openAPIBase.endsWith("/")) {
-                return openAPIBase.substring(0, openAPIBase.length() - 1);
+        if(swaggerBase != null) {
+            if(swaggerBase.endsWith("/")) {
+                return swaggerBase.substring(0, swaggerBase.length() - 1);
             }
         }
-        return openAPIBase;
+        return swaggerBase;
     }
 
     public static enum Environment {
@@ -96,13 +96,13 @@ public class Configuration {
         String configLocation = System.getProperty("config", "inflector.yaml");
         System.out.println("loading inflector config from " + configLocation);
         if(configLocation != null) {
-          try {
-            return read(configLocation);
-          }
-          catch (Exception e) {
-            // continue
-            LOGGER.warn("couldn't read inflector config from system property");
-          }
+            try {
+                return read(configLocation);
+            }
+            catch (Exception e) {
+                // continue
+                LOGGER.warn("couldn't read inflector config from system property");
+            }
         }
         try {
             // try to load from resources
@@ -112,12 +112,12 @@ public class Configuration {
                     Configuration config = Yaml.mapper().readValue(new File(url.getFile()), Configuration.class);
                     return config;
                 } catch (Exception e) {
-                  LOGGER.warn("couldn't read inflector config from resource stream");
-                  // continue
+                    LOGGER.warn("couldn't read inflector config from resource stream");
+                    // continue
                 }
             }
         } catch (Exception e) {
-          LOGGER.warn("Returning default configuration!");
+            LOGGER.warn("Returning default configuration!");
         }
         // try to read from default location, inflector.yaml
         configLocation = "inflector.yaml";
@@ -135,7 +135,7 @@ public class Configuration {
     public static Configuration read(String configLocation) throws Exception {
         Configuration config = Yaml.mapper().readValue(new File(configLocation), Configuration.class);
         if(config != null && config.getExceptionMappers().size() == 0) {
-          config.setExceptionMappers(Configuration.defaultConfiguration().getExceptionMappers());
+            config.setExceptionMappers(Configuration.defaultConfiguration().getExceptionMappers());
         }
         String environment = System.getProperty("environment");
         if(environment != null) {
@@ -147,13 +147,13 @@ public class Configuration {
 
     public static Configuration defaultConfiguration() {
         return new Configuration()
-            .controllerPackage("io.swagger.sample.controllers")
-            .modelPackage("io.swagger.sample.models")
-            .swaggerUrl("swagger.yaml")
-            .exceptionMapper("DefaultExceptionMapper")
-            .defaultValidators()
-            .defaultConverters()
-            .defaultProcessors();
+                .controllerPackage("io.swagger.sample.controllers")
+                .modelPackage("io.swagger.sample.models")
+                .swaggerUrl("swagger.yaml")
+                .exceptionMapper("io.swagger.inflector.utils.DefaultExceptionMapper")
+                .defaultValidators()
+                .defaultConverters()
+                .defaultProcessors();
     }
 
     public Configuration defaultValidators() {
@@ -169,8 +169,8 @@ public class Configuration {
     public Configuration defaultProcessors() {
         InputConverter.getInstance().defaultValidators();
         return this;
-  }
-    
+    }
+
     public Configuration modelPackage(String modelPackage) {
         this.modelPackage = modelPackage;
         return this;
@@ -195,17 +195,17 @@ public class Configuration {
         this.swaggerUrl = swaggerUrl;
         return this;
     }
-    
+
     public Configuration exceptionMapper(String className) {
-      Class<?> cls;
-      try {
-          ClassLoader classLoader = Configuration.class.getClassLoader();
-          cls = classLoader.loadClass(className);
-          exceptionMappers.add(cls);
-      } catch (ClassNotFoundException e) {
-          LOGGER.error("unable to add exception mapper for `" + className + "`, " + e.getMessage());
-      }
-      return this;
+        Class<?> cls;
+        try {
+            ClassLoader classLoader = Configuration.class.getClassLoader();
+            cls = classLoader.loadClass(className);
+            exceptionMappers.add(cls);
+        } catch (ClassNotFoundException e) {
+            LOGGER.error("unable to add exception mapper for `" + className + "`, " + e.getMessage());
+        }
+        return this;
     }
 
     public Configuration() {
@@ -356,7 +356,7 @@ public class Configuration {
     }
 
     public void setSwaggerBase(String swaggerBase) {
-        this.openAPIBase = swaggerBase;
+        this.swaggerBase = swaggerBase;
     }
 
     public Set<Direction> getValidatePayloads() {
@@ -372,7 +372,7 @@ public class Configuration {
         return controllerFactory.getClass().getName();
     }
 
-	public void setControllerFactoryClass(String controllerFactoryClass) {
+    public void setControllerFactoryClass(String controllerFactoryClass) {
         if (!StringUtils.isEmpty(controllerFactoryClass)) {
             try {
                 controllerFactory = Class.forName(controllerFactoryClass).asSubclass(ControllerFactory.class)

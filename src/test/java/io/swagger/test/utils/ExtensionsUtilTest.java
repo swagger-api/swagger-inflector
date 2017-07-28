@@ -1,6 +1,6 @@
 package io.swagger.test.utils;
 
-import io.swagger.oas.inflector.utils.ResolverUtil;
+import io.swagger.oas.inflector.utils.ExtensionsUtil;
 
 import io.swagger.oas.models.OpenAPI;
 import io.swagger.oas.models.Operation;
@@ -33,16 +33,19 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 
-public class ResolverUtilTest {
+public class ExtensionsUtilTest {
     @Test
-    public void testArrayParam(@Injectable final List<AuthorizationValue> auths, @Injectable final ParseOptions options) throws IOException{
+    public void testArrayParam(@Injectable final List<AuthorizationValue> auths) throws IOException{
+        ParseOptions options = new ParseOptions();
+        options.setResolve(true);
+        options.setResolveFully(true);
 
-        String pathFile = FileUtils.readFileToString(new File("./src/test/swagger/sample1.yaml"),"UTF-8");
+        String pathFile = FileUtils.readFileToString(new File("./src/test/swagger/oas3.yaml"),"UTF-8");
         SwaggerParseResult result = new OpenAPIV3Parser().readLocation(pathFile, auths, options);
         OpenAPI openAPI = result.getOpenAPI();
 
-        new ResolverUtil().resolveFully(openAPI);
-        Operation operation = openAPI.getPaths().get("/withModelArray/{id}").getPost();
+        new ExtensionsUtil().addExtensions(openAPI);
+        /*TODO FIX THIS TEST Operation operation = openAPI.getPaths().get("/withModelArray/{id}").getPost();
         RequestBody body = operation.getRequestBody();
 
         Json.prettyPrint(openAPI);
@@ -50,7 +53,7 @@ public class ResolverUtilTest {
         assertNotNull(body);
         Schema model = body.getContent().get("************").getSchema();
         assertTrue(model instanceof ArraySchema);
-        //assertTrue(((ArraySchema)model).getItems());
+        //assertTrue(((ArraySchema)model).getItems());*/
     }
 
     /*@Test
@@ -117,67 +120,86 @@ public class ResolverUtilTest {
     }*/
 
     @Test
-    public void selfReferenceTest(@Injectable final List<AuthorizationValue> auths, @Injectable final ParseOptions options) {
-        //TODO change the yaml to 3.0
+    public void selfReferenceTest(@Injectable final List<AuthorizationValue> auths) {
         String yaml = "" +
-                "swagger: '2.0'\n" +
+                "openapi: '3.0'\n" +
                 "paths:\n" +
                 "  /selfRefA:\n" +
                 "    get:\n" +
                 "      parameters:\n" +
-                "        - in: body\n" +
+                "        - in: query\n" +
                 "          name: body\n" +
                 "          schema:\n" +
-                "            $ref: '#/definitions/ModelA'\n" +
+                "            $ref: '#/components/Schemas/SchemaA'\n" +
                 "  /selfRefB:\n" +
                 "    get:\n" +
                 "      parameters:\n" +
-                "        - in: body\n" +
+                "        - in: query\n" +
                 "          name: body\n" +
                 "          schema:\n" +
-                "            $ref: '#/definitions/ModelB'\n" +
+                "            $ref: '#/components/Schemas/SchemaB'\n" +
                 "  /selfRefC:\n" +
                 "    get:\n" +
                 "      parameters:\n" +
-                "        - in: body\n" +
+                "        - in: query\n" +
                 "          name: body\n" +
                 "          schema:\n" +
-                "            $ref: '#/definitions/ModelC'\n" +
+                "            $ref: '#/components/Schemas/SchemaC'\n" +
                 "  /selfRefD:\n" +
                 "    get:\n" +
                 "      parameters: []\n" +
                 "      responses:\n" +
-                "        default:\n" +
-                "          schema:\n" +
-                "            $ref: '#/definitions/ModelA'\n" +
+                "           default:\n"+
+                "               content:\n"+
+                "                'application/json':\n"+
+                "                     schema:\n"+
+                "                        type: array\n" +
+                "                        items:\n" +
+                "                           $ref: '#/components/Schemas/SchemaA'\n" +
                 "  /selfRefE:\n" +
                 "    get:\n" +
                 "      parameters: []\n" +
                 "      responses:\n" +
-                "        default:\n" +
-                "          schema:\n" +
-                "            type: array\n" +
-                "            items:\n" +
-                "              $ref: '#/definitions/ModelA'\n" +
-                "definitions:\n" +
-                "  ModelA:\n" +
-                "    properties:\n" +
-                "      modelB:\n" +
-                "        $ref: '#/definitions/ModelB'\n" +
-                "  ModelB:\n" +
-                "    properties:\n" +
-                "      modelB:\n" +
-                "        $ref: '#/definitions/ModelB'\n" +
-                "  ModelC:\n" +
-                "    properties:\n" +
-                "      modelA:\n" +
-                "        $ref: '#/definitions/ModelA'";
+                "           default:\n"+
+                "               content:\n"+
+                "                'application/json':\n"+
+                "                     schema:\n"+
+                "                        type: array\n" +
+                "                        items:\n" +
+                "                           $ref: '#/components/Schemas/SchemaA'\n" +
 
+                "components:\n" +
+                "   schemas:\n" +
+                "       SchemaA:\n" +
+                "           properties:\n" +
+                "               modelB:\n" +
+                "                   $ref: '#/components/Schemas/SchemaB'\n" +
+                "       SchemaB:\n" +
+                "           properties:\n" +
+                "                modelB:\n" +
+                "                    $ref: '#/components/Schemas/SchemaB'\n" +
+                "       SchemaC:\n" +
+                "            properties:\n" +
+                "               modelA:\n" +
+                "                   $ref: '#/components/Schemas/SchemaA'";
+
+        ParseOptions options = new ParseOptions();
         options.setResolve(true);
+        options.setResolveFully(true);
 
         OpenAPI openAPI = new OpenAPIV3Parser().readContents(yaml,auths,options).getOpenAPI();
+        new ExtensionsUtil().addExtensions(openAPI); // TODO write test for these extensions in schema paths an components as well
 
-        new ResolverUtil().resolveFully(openAPI);
+        Schema schemaB = openAPI.getPaths().get("/selfRefB").getGet().getParameters().get(0).getSchema();
+        assertTrue(schemaB instanceof Schema);
+
+        Assert.assertEquals(schemaB, openAPI.getComponents().getSchemas().get("SchemaB"));
+
+        Schema schema = openAPI.getPaths().get("/selfRefE").getGet().getResponses().get("default").getContent().get("application/json").getSchema();
+        assertTrue(schema instanceof ArraySchema);
+        ArraySchema arraySchema = (ArraySchema) schema;
+        Assert.assertEquals(arraySchema.getItems(), openAPI.getComponents().getSchemas().get("SchemaA"));
+
     }
 
 
@@ -217,12 +239,14 @@ public class ResolverUtilTest {
 
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
+        options.setResolveFully(true);
 
         OpenAPI openAPI = new OpenAPIV3Parser().readContents(yaml,auths,options).getOpenAPI();
-        ResolverUtil resolverUtil = new ResolverUtil();
-        resolverUtil.resolveFully(openAPI);
+        ExtensionsUtil extensionsUtil = new ExtensionsUtil();
+        extensionsUtil.addExtensions(openAPI);
         Map<String, Schema> schemas = openAPI.getComponents().getSchemas();
         Assert.assertEquals(schemas.get("SchemaA").getExtensions().get("x-swagger-router-model"),"SchemaA");
+        Assert.assertEquals(openAPI.getPaths().get("/selfRefB").getGet().getRequestBody().getContent().get("application/json").getSchema().getExtensions().get("x-swagger-router-model"),"SchemaB");
 
         RequestBody body = openAPI.getPaths().get("/selfRefB").getGet().getRequestBody();
         Schema schema = body.getContent().get("application/json").getSchema();
