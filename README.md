@@ -41,7 +41,7 @@ To add inflector via `web.xml`:
   <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
   <init-param>
     <param-name>javax.ws.rs.Application</param-name>
-    <param-value>io.swagger.inflector.SwaggerInflector</param-value>
+    <param-value>SwaggerInflector</param-value>
   </init-param>
   <load-on-startup>1</load-on-startup>
 </servlet>
@@ -136,7 +136,7 @@ with the following method:
 
 ```
 method: public Object getTest1(
-    io.swagger.inflector.models.RequestContext,
+    RequestContext,
     java.lang.Integer id,
     java.lang.String name)
 ```
@@ -221,7 +221,7 @@ The RequestWrapper and ResponseContext contain information about headers (in and
 
 #### Outputs
 
-Your controllers can return null (void response), an object (entity), or a `io.swagger.inflector.models.ResponseContext`, which allows you to send specific error codes, headers, and an optional entity.
+Your controllers can return null (void response), an object (entity), or a `ResponseContext`, which allows you to send specific error codes, headers, and an optional entity.
 
 For example, if you want to return a `Pet` from a controller:
 
