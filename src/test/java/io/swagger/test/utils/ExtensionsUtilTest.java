@@ -1,7 +1,9 @@
 package io.swagger.test.utils;
 
+//import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.utils.ExtensionsUtil;
 
+//import io.swagger.oas.inflector.utils.ReflectionUtils;
 import io.swagger.oas.models.OpenAPI;
 import io.swagger.oas.models.Operation;
 
@@ -41,19 +43,17 @@ public class ExtensionsUtilTest {
         options.setResolveFully(true);
 
         String pathFile = FileUtils.readFileToString(new File("./src/test/swagger/oas3.yaml"),"UTF-8");
-        SwaggerParseResult result = new OpenAPIV3Parser().readLocation(pathFile, auths, options);
+        SwaggerParseResult result = new OpenAPIV3Parser().readContents(pathFile, auths, options);
         OpenAPI openAPI = result.getOpenAPI();
 
         new ExtensionsUtil().addExtensions(openAPI);
-        /*TODO FIX THIS TEST Operation operation = openAPI.getPaths().get("/withModelArray/{id}").getPost();
+
+        Operation operation = openAPI.getPaths().get("/pet").getPost();
         RequestBody body = operation.getRequestBody();
 
-        Json.prettyPrint(openAPI);
-
         assertNotNull(body);
-        Schema model = body.getContent().get("************").getSchema();
-        assertTrue(model instanceof ArraySchema);
-        //assertTrue(((ArraySchema)model).getItems());*/
+        Schema model = body.getContent().get("application/json").getSchema();
+        assertEquals(model.getType(),"object");
     }
 
     /*@Test

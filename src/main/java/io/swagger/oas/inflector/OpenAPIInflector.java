@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider;
 import io.swagger.config.FilterFactory;
-import io.swagger.core.filter.SwaggerSpecFilter;
+//import io.swagger.core.filter.SwaggerSpecFilter;
 import io.swagger.jaxrs2.listing.SwaggerSerializers;
 
 import io.swagger.oas.inflector.config.Configuration;
@@ -188,7 +188,7 @@ public class OpenAPIInflector extends ResourceConfig {
         if (config.getFilterClass() != null) {
             if(!config.getFilterClass().isEmpty()) {
                 try {
-                    FilterFactory.setFilter((SwaggerSpecFilter) OpenAPIInflector.class.getClassLoader().loadClass(config.getFilterClass()).newInstance());
+                   // FilterFactory.setFilter((SwaggerSpecFilter) OpenAPIInflector.class.getClassLoader().loadClass(config.getFilterClass()).newInstance());
                 }
                 catch (Exception e) {
                     LOGGER.error("Unable to set filter class " + config.getFilterClass());

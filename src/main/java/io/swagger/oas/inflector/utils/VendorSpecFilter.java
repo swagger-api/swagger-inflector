@@ -16,8 +16,8 @@
 
 package io.swagger.oas.inflector.utils;
 
-import io.swagger.core.filter.SpecFilter;
-import io.swagger.core.filter.SwaggerSpecFilter;
+//import io.swagger.core.filter.SpecFilter;
+//import io.swagger.core.filter.SwaggerSpecFilter;
 import io.swagger.oas.inflector.Constants;
 import io.swagger.model.ApiDescription;
 import io.swagger.oas.models.Operation;
