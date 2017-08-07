@@ -38,12 +38,12 @@ import io.swagger.oas.inflector.utils.ContentTypeSelector;
 import io.swagger.oas.inflector.utils.ReflectionUtils;
 import io.swagger.oas.inflector.validators.ValidationException;
 import io.swagger.oas.inflector.validators.ValidationMessage;
-import io.swagger.oas.models.OpenAPI;
 import io.swagger.oas.models.Operation;
 import io.swagger.oas.models.headers.Header;
 import io.swagger.oas.models.media.Schema;
 import io.swagger.oas.models.parameters.Parameter;
 import io.swagger.oas.models.responses.ApiResponse;
+import io.swagger.oas.models.responses.ApiResponses;
 import io.swagger.util.Json;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -121,13 +121,13 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         this.operation = operation;
         this.definitions = definitions;
         this.validator = InputConverter.getInstance();
-        //this.method = detectMethod(operation);
+        this.method = detectMethod(operation);
         if (method == null) {
             LOGGER.debug("no method `" + methodName + "` in `" + controllerName + "` to map to, using mock response");
         }
     }
 
-    /*public Method detectMethod(Operation operation) {
+    public Method detectMethod(Operation operation) {
         controllerName = getControllerName(operation);
         methodName = getMethodName(path, httpMethod, operation);
         JavaType[] args = getOperationParameterClasses(operation, this.definitions);
@@ -201,10 +201,10 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         }
         return null;
     }
-    */
+
     @Override
     public Response apply(ContainerRequestContext ctx) {
-        /*List<Parameter> parameters = operation.getParameters();
+        List<Parameter> parameters = operation.getParameters();
         final RequestContext requestContext = createContext(ctx);
 
         String path = ctx.getUriInfo().getPath();
@@ -239,171 +239,50 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
             for (Parameter p : parameters) {
                 Map<String, String> headers = new HashMap<String, String>();
                 String name = null;
+                try {
+                    formDataString = IOUtils.toString(ctx.getEntityStream(), "UTF-8");
+                    parts = formDataString.split("&");
 
-                if (p instanceof FormParameter) {
-                    if (formDataString == null) {
-                        // can only read stream once
-                        if (mt.isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {
-                            // get the boundary
-                            String boundary = mt.getParameters().get("boundary");
-
-                            if (boundary != null) {
-                                try {
-                                    InputStream output = ctx.getEntityStream();
-
-                                    MultipartStream multipartStream = new MultipartStream(output, boundary.getBytes());
-                                    boolean nextPart = multipartStream.skipPreamble();
-                                    while (nextPart) {
-                                        String header = multipartStream.readHeaders();
-                                        // process headers
-                                        if (header != null) {
-                                            CSVFormat format = CSVFormat.DEFAULT
-                                                    .withDelimiter(';')
-                                                    .withRecordSeparator("=");
-
-                                            Iterable<CSVRecord> records = format.parse(new StringReader(header));
-                                            for (CSVRecord r : records) {
-                                                for (int j = 0; j < r.size(); j++) {
-                                                    String string = r.get(j);
-
-                                                    Iterable<CSVRecord> outerString = CSVFormat.DEFAULT
-                                                            .withDelimiter('=')
-                                                            .parse(new StringReader(string));
-                                                    for (CSVRecord outerKvPair : outerString) {
-                                                        if (outerKvPair.size() == 2) {
-                                                            String key = outerKvPair.get(0).trim();
-                                                            String value = outerKvPair.get(1).trim();
-                                                            if ("name".equals(key)) {
-                                                                name = value;
-                                                            }
-                                                            headers.put(key, value);
-                                                        } else {
-                                                            Iterable<CSVRecord> innerString = CSVFormat.DEFAULT
-                                                                    .withDelimiter(':')
-                                                                    .parse(new StringReader(string));
-                                                            for (CSVRecord innerKVPair : innerString) {
-                                                                if (innerKVPair.size() == 2) {
-                                                                    String key = innerKVPair.get(0).trim();
-                                                                    String value = innerKVPair.get(1).trim();
-                                                                    if ("name".equals(key)) {
-                                                                        name = value;
-                                                                    }
-                                                                    headers.put(key, value);
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                    if (name != null) {
-                                                        formMap.put(name, headers);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        String filename = extractFilenameFromHeaders( headers ) ;
-                                        if (filename != null) {
-                                            try {
-                                                File file = new File(Files.createTempDir(), filename);
-                                                file.deleteOnExit();
-                                                file.getParentFile().deleteOnExit();
-                                                FileOutputStream fo = new FileOutputStream(file);
-                                                multipartStream.readBodyData(fo);
-                                                inputStreams.put(name, file);
-                                            }
-                                            catch( Exception e){
-                                                LOGGER.error("Failed to extract uploaded file", e );
-                                            }
-                                        } else {
-                                            ByteArrayOutputStream bo = new ByteArrayOutputStream();
-                                            multipartStream.readBodyData(bo);
-                                            String value = bo.toString();
-                                            headers.put(name, value);
-                                        }
-                                        if(name != null) {
-                                            formMap.put(name, headers);
-                                        }
-                                        headers = new HashMap<>();
-                                        name = null;
-                                        nextPart = multipartStream.readBoundary();
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        } else {
-                            try {
-                                formDataString = IOUtils.toString(ctx.getEntityStream(), "UTF-8");
-                                parts = formDataString.split("&");
-
-                                for (String part : parts) {
-                                    String[] kv = part.split("=");
-                                    existingKeys.add(kv[0] + ": fp");
-                                }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
+                    for (String part : parts) {
+                        String[] kv = part.split("=");
+                        existingKeys.add(kv[0] + ": fp");
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
+
             for (Parameter parameter : parameters) {
                 String in = parameter.getIn();
                 Object o = null;
 
                 try {
-                    if ("formData".equals(in)) {
-                        SerializableParameter sp = (SerializableParameter) parameter;
-                        String name = parameter.getName();
-                        if (mt.isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {
-                            // look in the form map
-                            Map<String, String> headers = formMap.get(name);
-                            if (headers != null && headers.size() > 0) {
-                                if ("file".equals(sp.getType())) {
-                                    o = inputStreams.get(name);
-                                } else {
-                                    Object obj = headers.get(parameter.getName());
-                                    if (obj != null) {
-                                        JavaType jt = parameterClasses[i];
-                                        Class<?> cls = jt.getRawClass();
 
-                                        List<String> os = Arrays.asList(obj.toString());
-                                        try {
-                                            o = validator.convertAndValidate(os, parameter, cls, definitions);
-                                        } catch (ConversionException e) {
-                                            missingParams.add(e.getError());
-                                        } catch (ValidationException e) {
-                                            missingParams.add(e.getValidationMessage());
-                                        }
-                                    }
+                    if (formDataString != null) {
+                        for (String part : parts) {
+                            String[] kv = part.split("=");
+                            if (kv != null) {
+                                if (kv.length > 0) {
+                                    existingKeys.remove(kv[0] + ": fp");
                                 }
-                            }
-                        } else {
-                            if (formDataString != null) {
-                                for (String part : parts) {
-                                    String[] kv = part.split("=");
-                                    if (kv != null) {
-                                        if (kv.length > 0) {
-                                            existingKeys.remove(kv[0] + ": fp");
-                                        }
-                                        if (kv.length == 2) {
-                                            // TODO how to handle arrays here?
-                                            String key = kv[0];
+                                if (kv.length == 2) {
+                                    // TODO how to handle arrays here?
+                                    String key = kv[0];
+                                    try {
+                                        String value = URLDecoder.decode(kv[1], "utf-8");
+                                        if (parameter.getName().equals(key)) {
+                                            JavaType jt = parameterClasses[i];
+                                            Class<?> cls = jt.getRawClass();
                                             try {
-                                                String value = URLDecoder.decode(kv[1], "utf-8");
-                                                if (parameter.getName().equals(key)) {
-                                                    JavaType jt = parameterClasses[i];
-                                                    Class<?> cls = jt.getRawClass();
-                                                    try {
-                                                        o = validator.convertAndValidate(Arrays.asList(value), parameter, cls, definitions);
-                                                    } catch (ConversionException e) {
-                                                        missingParams.add(e.getError());
-                                                    } catch (ValidationException e) {
-                                                        missingParams.add(e.getValidationMessage());
-                                                    }
-                                                }
-                                            } catch (UnsupportedEncodingException e) {
-                                                LOGGER.error("unable to decode value for " + key);
+                                                o = validator.convertAndValidate(Arrays.asList(value), parameter, cls, definitions);
+                                            } catch (ConversionException e) {
+                                                missingParams.add(e.getError());
+                                            } catch (ValidationException e) {
+                                                missingParams.add(e.getValidationMessage());
                                             }
                                         }
+                                    } catch (UnsupportedEncodingException e) {
+                                        LOGGER.error("unable to decode value for " + key);
                                     }
                                 }
                             }
@@ -419,20 +298,6 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                             }
                             JavaType jt = parameterClasses[i];
                             Class<?> cls = jt.getRawClass();
-                            if ("body".equals(in)) {
-                                if (ctx.hasEntity()) {
-                                    BodyParameter body = (BodyParameter) parameter;
-                                    o = EntityProcessorFactory.readValue(ctx.getMediaType(), ctx.getEntityStream(), cls);
-                                    if (o != null) {
-                                        validate(o, body.getSchema(), SchemaValidator.Direction.INPUT);
-                                    }
-                                } else if (parameter.getRequired()) {
-                                    ValidationException e = new ValidationException();
-                                    e.message(new ValidationMessage()
-                                            .message("The input body `" + paramName + "` is required"));
-                                    throw e;
-                                }
-                            }
                             if ("query".equals(in)) {
                                 o = validator.convertAndValidate(uri.getQueryParameters().get(parameter.getName()), parameter, cls, definitions);
                             } else if ("path".equals(in)) {
@@ -524,8 +389,14 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                     // try default response schema
                                     responseSchema = operation.getResponses().get("default");
                                 }
-                                if (responseSchema != null && responseSchema.getSchema() != null) {
-                                    validate(wrapper.getEntity(), responseSchema.getSchema(), SchemaValidator.Direction.OUTPUT);
+                                if (responseSchema != null ) {
+                                    if(responseSchema.getContent() != null) {
+                                        for(String name: responseSchema.getContent().keySet()) {
+                                            if(responseSchema.getContent().get(name).getSchema() != null) {
+                                                validate(wrapper.getEntity(), responseSchema.getContent().get(name).getSchema(), SchemaValidator.Direction.OUTPUT);
+                                            }
+                                        }
+                                    }
                                 } else {
                                     LOGGER.debug("no response schema for code " + responseCode + " to validate against");
                                 }
@@ -575,9 +446,19 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     ApiResponse response = responses.get(defaultKey);
 
                     if(response.getHeaders() != null && response.getHeaders().size() > 0) {
+                        Schema property = null;
+                        Object output = null;
                         for(String key: response.getHeaders().keySet()) {
                             Header headerProperty = response.getHeaders().get(key);
-                            Object output = ExampleBuilder.fromProperty(headerProperty, definitions);
+                            if(headerProperty.getContent()!= null){
+                                for (String name : headerProperty.getContent().keySet()){
+                                    if (headerProperty.getContent().get(name) != null) {
+                                        if(headerProperty.getContent().get(name).getSchema() != null)
+                                            property = headerProperty.getContent().get(name).getSchema();
+                                            output = ExampleBuilder.fromProperty(property, definitions);
+                                    }
+
+
                             if(output instanceof ArrayExample) {
                                 output = ((ArrayExample)output).asString();
                             }
@@ -588,25 +469,34 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                 output = ((Example)output).asString();
                             }
                             builder.header(key, output);
-                        }
-                    }
-
-                    Map<String, io.swagger.oas.models.examples.Example> examples = response.getContent().get("f").getExamples();
-                    if (examples != null) {
-                        for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
-                            for (String key : examples.keySet()) {
-                                if (MediaType.valueOf(key).isCompatible(mediaType)) {
-                                    builder.entity(examples.get(key))
-                                            .type(mediaType);
-
-                                    return builder.build();
                                 }
                             }
                         }
                     }
 
-                    Object output = ExampleBuilder.fromProperty(response.getSchema(), definitions);
+                    Map<String, io.swagger.oas.models.examples.Example> examples = new HashMap<>();
+                    Object output = null;
+                    for (String name: response.getContent().keySet()){
+                         if (response.getContent().get(name).getExamples() != null){
+                             examples = response.getContent().get(name).getExamples();
+                         }
 
+                        if (examples != null) {
+                            for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
+                                for (String key : examples.keySet()) {
+                                    if (MediaType.valueOf(key).isCompatible(mediaType)) {
+                                        builder.entity(examples.get(key))
+                                                .type(mediaType);
+
+                                        return builder.build();
+                                    }
+                                }
+                            }
+                        }
+
+
+                         output = ExampleBuilder.fromProperty(response.getContent().get(name).getSchema(), definitions);
+                    }
                     if (output != null) {
                         ResponseContext resp = new ResponseContext().entity(output);
                         setContentType(requestContext, resp, operation);
@@ -667,8 +557,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     file.delete();
                 }
             }
-        }*/
-        return null; //TODO added bye grace to test the resolved fully first
+        }
     }
 
     static String extractFilenameFromHeaders(Map<String, String> headers) {
@@ -696,12 +585,12 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
     public void setContentType(RequestContext res, ResponseContext resp, Operation operation) {
         // honor what has been set, it may be determined by business logic in the controller
-       /* if (resp.getContentType() != null) {
+       if (resp.getContentType() != null) {
             return;
         }
-        List<String> available = operation.getResponses();//getProduces();//TODO who replaces produces?
+        ApiResponses available = operation.getResponses();
         if (available != null) {
-            for (String a : available) {
+            for (String a : available.keySet()) {
                 MediaType mt = MediaType.valueOf(a);
                 for (MediaType acceptable : res.getAcceptableMediaTypes()) {
                     if (mt.isCompatible(acceptable)) {
@@ -711,9 +600,11 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                 }
             }
             if (available.size() > 0) {
-                resp.setContentType(MediaType.valueOf(available.get(0)));
+                for (String a : available.keySet()) {
+                    resp.setContentType(MediaType.valueOf(available.get(a).toString()));
+                }
             }
-        }*/
+        }
     }
 
     public String getOperationSignature() {

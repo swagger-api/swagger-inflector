@@ -16,7 +16,7 @@
 
 package io.swagger.oas.inflector.controllers;
 
-import io.swagger.config.FilterFactory;
+//import io.swagger.config.FilterFactory;
 //import io.swagger.core.filter.SwaggerSpecFilter;
 import io.swagger.oas.inflector.config.OpenAPIProcessor;
 import io.swagger.oas.inflector.utils.VendorSpecFilter;

@@ -30,7 +30,9 @@ import io.swagger.oas.inflector.examples.models.StringExample;
 
 import io.swagger.oas.models.media.ArraySchema;
 import io.swagger.oas.models.media.BooleanSchema;
+import io.swagger.oas.models.media.ComposedSchema;
 import io.swagger.oas.models.media.DateSchema;
+import io.swagger.oas.models.media.DateTimeSchema;
 import io.swagger.oas.models.media.EmailSchema;
 import io.swagger.oas.models.media.IntegerSchema;
 import io.swagger.oas.models.media.NumberSchema;
@@ -42,15 +44,17 @@ import io.swagger.util.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.swagger.oas.models.media.XML;
-import v2.io.swagger.models.properties.DateTimeProperty;
+
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class ExampleBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExampleBuilder.class);
@@ -68,11 +72,11 @@ public class ExampleBuilder {
     public static final String SAMPLE_DATETIME_PROPERTY_VALUE = "2015-07-20T15:49:04-07:00";
     public static final double SAMPLE_DECIMAL_PROPERTY_VALUE = 1.5;
 
-    /*public static Example fromProperty(Schema property, Map<String, Schema> definitions) {
+    public static Example fromProperty(Schema property, Map<String, Schema> definitions) {
         return fromProperty(property, definitions, new HashSet<String>());
     }
 
-    /*public static Example fromProperty(Schema property, Map<String, Schema> definitions, Set<String> processedModels) {
+    public static Example fromProperty(Schema property, Map<String, Schema> definitions, Set<String> processedModels) {
         if (property == null) {
             return null;
         }
@@ -130,16 +134,17 @@ public class ExampleBuilder {
                 output = new StringExample(example.toString());
             }
             else {
-                String defaultValue = ((UUIDSchema)property).getDefault();
+                UUID defaultValue = ((UUIDSchema)property).getDefault();
+
 
                 if( defaultValue == null ){
-                    List<String> enums = ((UUIDSchema) property).getEnum();
+                    List<UUID> enums = ((UUIDSchema) property).getEnum();
                     if( enums != null && !enums.isEmpty()) {
                         defaultValue = enums.get(0);
                     }
                 }
 
-                output = new StringExample( defaultValue == null ? SAMPLE_UUID_PROPERTY_VALUE : defaultValue );
+                output = new StringExample( defaultValue.toString() == null ? SAMPLE_UUID_PROPERTY_VALUE : defaultValue.toString() );
             }
         } else if (property instanceof StringSchema) {
             if (example != null) {
@@ -185,18 +190,18 @@ public class ExampleBuilder {
             }
 
             if( output == null ) {
-                Long defaultValue = ((NumberSchema) property).getDefault();
+                BigDecimal defaultValue = ((NumberSchema) property).getDefault();
 
                 if( defaultValue == null ){
-                    List<Long> enums = ((NumberSchema) property).getEnum();
+                    List<BigDecimal> enums = ((NumberSchema) property).getEnum();
                     if( enums != null && !enums.isEmpty()) {
                         defaultValue = enums.get(0);
                     }
                 }
 
-                output = new LongExample( defaultValue == null ? SAMPLE_LONG_PROPERTY_VALUE : defaultValue );
+                output = new LongExample( defaultValue == null ? SAMPLE_LONG_PROPERTY_VALUE : defaultValue.longValue() );
             }
-        } else if (property instanceof BaseIntegerProperty) {
+        } else if (property instanceof IntegerSchema) {
             if (example != null) {
                 try {
                     output = new IntegerExample(Integer.parseInt(example.toString()));
@@ -207,7 +212,7 @@ public class ExampleBuilder {
             if( output == null ) {
                 output = new IntegerExample(SAMPLE_BASE_INTEGER_PROPERTY_VALUE);
             }
-        } else if (property instanceof FloatProperty) {
+        } else if (property instanceof NumberSchema) {
             if (example != null) {
                 try {
                     output = new FloatExample(Float.parseFloat(example.toString()));
@@ -216,18 +221,18 @@ public class ExampleBuilder {
             }
 
             if( output == null ) {
-                Float defaultValue = ((FloatProperty) property).getDefault();
+                BigDecimal defaultValue = ((NumberSchema) property).getDefault();
 
                 if( defaultValue == null ){
-                    List<Float> enums = ((FloatProperty) property).getEnum();
+                    List<BigDecimal> enums = ((NumberSchema) property).getEnum();
                     if( enums != null && !enums.isEmpty()) {
                         defaultValue = enums.get(0);
                     }
                 }
 
-                output = new FloatExample( defaultValue == null ? SAMPLE_FLOAT_PROPERTY_VALUE : defaultValue );
+                output = new FloatExample( defaultValue == null ? SAMPLE_FLOAT_PROPERTY_VALUE : defaultValue.floatValue() );
             }
-        } else if (property instanceof DoubleProperty) {
+        } else if (property instanceof NumberSchema) {
             if (example != null) {
                 try {
                     output = new DoubleExample(Double.parseDouble(example.toString()));
@@ -236,23 +241,23 @@ public class ExampleBuilder {
             }
 
             if( output == null ){
-                Double defaultValue = ((DoubleProperty) property).getDefault();
+                BigDecimal defaultValue = ((NumberSchema) property).getDefault();
 
                 if( defaultValue == null ){
-                    List<Double> enums = ((DoubleProperty) property).getEnum();
+                    List<BigDecimal> enums = ((NumberSchema) property).getEnum();
                     if( enums != null && !enums.isEmpty()) {
                         defaultValue = enums.get(0);
                     }
                 }
 
-                output = new DoubleExample( defaultValue == null ? SAMPLE_DOUBLE_PROPERTY_VALUE : defaultValue );
+                output = new DoubleExample( defaultValue == null ? SAMPLE_DOUBLE_PROPERTY_VALUE : defaultValue.doubleValue() );
             }
         } else if (property instanceof BooleanSchema) {
             if (example != null) {
                 output = new BooleanExample(Boolean.valueOf(example.toString()));
             }
             else {
-                Boolean defaultValue = ((BooleanSchema)property).getDefault();
+                Boolean defaultValue = (Boolean) property.getDefault();
                 output = new BooleanExample( defaultValue == null ? SAMPLE_BOOLEAN_PROPERTY_VALUE : defaultValue.booleanValue());
             }
         } else if (property instanceof DateSchema) {
@@ -261,28 +266,28 @@ public class ExampleBuilder {
             }
             else {
 
-                List<String> enums = ((DateSchema) property).getEnum();
+                List<Date> enums = ((DateSchema) property).getEnum();
                 if( enums != null && !enums.isEmpty()) {
-                    output = new StringExample(enums.get(0));
+                    output = new StringExample(enums.get(0).toString());
                 }
                 else {
                     output = new StringExample(SAMPLE_DATE_PROPERTY_VALUE);
                 }
             }
-        } else if (property instanceof DateTimeProperty) {
+        } else if (property instanceof DateTimeSchema) {
             if (example != null) {
                 output = new StringExample(example.toString());
             }
             else {
-                List<String> enums = ((DateTimeProperty) property).getEnum();
+                List<Date> enums = ((DateTimeSchema) property).getEnum();
                 if( enums != null && !enums.isEmpty()) {
-                    output = new StringExample(enums.get(0));
+                    output = new StringExample(enums.get(0).toString());
                 }
                 else {
                     output = new StringExample(SAMPLE_DATETIME_PROPERTY_VALUE);
                 }
             }
-        } else if (property instanceof DecimalProperty) {
+        } else if (property instanceof NumberSchema) {
             if (example != null) {
                 try {
                     output = new DecimalExample(new BigDecimal(example.toString()));
@@ -307,10 +312,10 @@ public class ExampleBuilder {
                 outputExample.setName( property.getName() );
                 ObjectSchema op = (ObjectSchema) property;
                 if(op.getProperties() != null) {
-                    for(String propertyname : op.getProperties().keySet()) {
-                        Schema inner = op.getProperties().get(propertyname);
+                    for(String propertyName : op.getProperties().keySet()) {
+                        Schema inner = op.getProperties().get(propertyName);
                         Example innerExample = fromProperty(inner, definitions);
-                        outputExample.put(propertyname, innerExample);
+                        outputExample.put(propertyName, innerExample);
                     }
                 }
                 output = outputExample;
@@ -328,7 +333,7 @@ public class ExampleBuilder {
                         if (innerExample instanceof Example) {
                             ArrayExample an = new ArrayExample();
                             an.add((Example) innerExample);
-                            an.setName(property.getName());//TODO who replaces this field?
+                            an.setName(property.getName());
                             output = an;
                         }
                     }
@@ -496,22 +501,25 @@ public class ExampleBuilder {
         }
         output = ex;
 
-        if (model instanceof AllOfSchema) {
-            AllOfSchema allOfSchema = (AllOfSchema) model;
-            List<Schema> models = allOfSchema.getAllOf();
-            ObjectExample example = new ObjectExample();
+        if (model instanceof ComposedSchema) {
+            ComposedSchema composedSchema = (ComposedSchema) model;
+            if(composedSchema.getAllOf() != null) {
 
-            List<Example> innerExamples = new ArrayList<>();
-            if(models != null) {
-                for (Schema im : models) {
-                    Example innerExample = fromModel(null, im, definitions, processedModels);
-                    if(innerExample != null) {
-                        innerExamples.add(innerExample);
+                List<Schema> models = composedSchema.getAllOf();
+                ObjectExample example = new ObjectExample();
+
+                List<Example> innerExamples = new ArrayList<>();
+                if (models != null) {
+                    for (Schema im : models) {
+                        Example innerExample = fromModel(null, im, definitions, processedModels);
+                        if (innerExample != null) {
+                            innerExamples.add(innerExample);
+                        }
                     }
                 }
+                mergeTo(ex, innerExamples);
+                output = example;
             }
-            mergeTo(ex, innerExamples);
-            output = example;
         }
         else if(model instanceof ArraySchema) {
             ArraySchema am = (ArraySchema) model;
@@ -555,5 +563,5 @@ public class ExampleBuilder {
                 }
             }
         }
-    }*/
+    }
 }

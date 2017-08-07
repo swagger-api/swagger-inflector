@@ -24,6 +24,20 @@ import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.models.RequestContext;
 
 import io.swagger.oas.models.Operation;
+import io.swagger.oas.models.media.ArraySchema;
+import io.swagger.oas.models.media.BooleanSchema;
+import io.swagger.oas.models.media.ByteArraySchema;
+import io.swagger.oas.models.media.DateSchema;
+import io.swagger.oas.models.media.DateTimeSchema;
+import io.swagger.oas.models.media.EmailSchema;
+import io.swagger.oas.models.media.FileSchema;
+import io.swagger.oas.models.media.IntegerSchema;
+import io.swagger.oas.models.media.MediaType;
+import io.swagger.oas.models.media.NumberSchema;
+import io.swagger.oas.models.media.ObjectSchema;
+import io.swagger.oas.models.media.Schema;
+import io.swagger.oas.models.media.StringSchema;
+import io.swagger.oas.models.media.UUIDSchema;
 import io.swagger.oas.models.parameters.Parameter;
 import io.swagger.util.Json;
 import org.apache.commons.lang.StringUtils;
@@ -33,7 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import v2.io.swagger.models.apideclaration.Model;
 
-import javax.xml.validation.Schema;
+
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.*;
@@ -43,7 +57,7 @@ public class ReflectionUtils {
 
     protected Configuration config;
     protected Set<String> unimplementedMappedModels = new TreeSet<String>();
-    /*private ClassNameValidator classNameValidator = new ClassNameValidator() {
+    private ClassNameValidator classNameValidator = new ClassNameValidator() {
         @Override
         public boolean isValidClassname(String classname) {
             try {
@@ -53,7 +67,7 @@ public class ReflectionUtils {
                 return false;
             }
         }
-    };*/
+    };
 
     public void setConfiguration(Configuration config) {
         this.config = config;
@@ -63,7 +77,7 @@ public class ReflectionUtils {
         return config;
     }
 
-    public JavaType[] getOperationParameterClasses(Operation operation, Map<String, Model> definitions) {
+    public JavaType[] getOperationParameterClasses(Operation operation, Map<String, Schema> definitions) {
         TypeFactory tf = Json.mapper().getTypeFactory();
 
         JavaType[] jt = new JavaType[operation.getParameters().size() + 1];
@@ -80,48 +94,75 @@ public class ReflectionUtils {
         return jt;
     }
 
-    public JavaType getTypeFromParameter(Parameter parameter, Map<String, Model> definitions) {
-      /*if (parameter instanceof SerializableParameter) {
-          SerializableParameter sp = (SerializableParameter) parameter;
-          Property inner = sp.getItems();
-          
-          JavaType tp = getTypeFromProperty(sp.getType(), sp.getFormat(), inner, definitions);
-          if(tp != null) {
-              return tp;
+    public JavaType getTypeFromParameter(Parameter parameter, Map<String, Schema> definitions) {
+      if (parameter.getSchema() != null) {
+         if (parameter.getSchema() instanceof ArraySchema) {
+             ArraySchema arraySchema = ((ArraySchema) parameter.getSchema());
+             Schema inner = arraySchema.getItems();
+
+             JavaType parameterType = getTypeFromProperty(arraySchema.getType(), arraySchema.getFormat(), inner, definitions);
+             if (parameterType != null) {
+                 return parameterType;
+             }
+         }
+      }
+      else if (parameter.getContent() != null) {
+          Map<String,MediaType> content   = parameter.getContent();
+          for (String mediaType : content.keySet()){
+              if (content.get(mediaType).getSchema() != null) {
+                  Schema model = content.get(mediaType).getSchema();
+                  return getTypeFromModel("", model, definitions);
+              }
           }
       }
-      else if (parameter instanceof BodyParameter) {
-          BodyParameter bp = (BodyParameter) parameter;
-          Model model = bp.getSchema();
-
-          return getTypeFromModel("", model, definitions);
-      }*/
       
       return null;
     }
 
-    /*public JavaType getTypeFromProperty(String type, String format, Property property, Map<String, Model> definitions) {
+    public JavaType getTypeFromParameter(Parameter parameter, Map<String, Model> definitions) {
+        if (parameter instanceof SerializableParameter) {
+            SerializableParameter sp = (SerializableParameter) parameter;
+            Property inner = sp.getItems();
+
+            JavaType tp = getTypeFromProperty(sp.getType(), sp.getFormat(), inner, definitions);
+            if(tp != null) {
+                return tp;
+            }
+        }
+        else if (parameter instanceof BodyParameter) {
+            BodyParameter bp = (BodyParameter) parameter;
+            Model model = bp.getSchema();
+
+            return getTypeFromModel("", model, definitions);
+        }
+
+        return null;
+    }
+
+
+
+    public JavaType getTypeFromProperty(String type, String format, Schema property, Map<String, Schema> definitions) {
         TypeFactory tf = Json.mapper().getTypeFactory();
 
 
-        if(property instanceof ArrayProperty) {
-            ArrayProperty ap = (ArrayProperty)property;
-            Property inner = ap.getItems();
+        if(property instanceof ArraySchema) {
+            ArraySchema arraySchema = (ArraySchema)property;
+            Schema inner = arraySchema.getItems();
             JavaType innerType = getTypeFromProperty(null, null, inner, definitions);
             return tf.constructCollectionType(List.class, innerType);
         }
-        if(property instanceof MapProperty) {
-            MapProperty mp = (MapProperty) property;
-            Property inner = mp.getAdditionalProperties();
+        if(property.getAdditionalProperties() != null) {
+            Schema inner = property.getAdditionalProperties();
             JavaType innerType = getTypeFromProperty(null, null, inner, definitions);
             return tf.constructMapLikeType(Map.class, getTypeFromProperty("string", null, null, definitions), innerType);
         }
-        if(property instanceof RefProperty) {
-            RefProperty ref = (RefProperty) property;
+        if(property.get$ref() != null) {
             if(definitions != null) {
-                Model model = definitions.get(ref.getSimpleRef());
+                String ref= property.get$ref();
+                ref = ref.substring(ref.lastIndexOf("/") + 1);
+                Schema model = definitions.get(ref);
                 if(model != null) {
-                    JavaType mt = getTypeFromModel(ref.getSimpleRef(), model, definitions);
+                    JavaType mt = getTypeFromModel(ref, model, definitions);
                     if(mt != null) {
                         return mt;
                     }
@@ -132,43 +173,43 @@ public class ReflectionUtils {
             JavaType innerType = getTypeFromProperty(null, null, property, definitions);
             return tf.constructCollectionType(List.class, innerType);
         }
-        if(("byte".equals(type)) || property instanceof ByteArrayProperty) {
+        if(("byte".equals(type)) || property instanceof ByteArraySchema) {
             return tf.constructType(Byte[].class);
         }
-        if(("boolean".equals(type)) || property instanceof BooleanProperty) {
+        if(("boolean".equals(type)) || property instanceof BooleanSchema) {
             return tf.constructType(Boolean.class);
         }
-        if(("string".equals(type) && "date".equals(format)) || property instanceof DateProperty) {
+        if(("string".equals(type) && "date".equals(format)) || property instanceof DateSchema) {
             return tf.constructType(LocalDate.class);
         }
-        if(("string".equals(type) && "date-time".equals(format)) || property instanceof DateTimeProperty) {
+        if(("string".equals(type) && "date-time".equals(format)) || property instanceof DateTimeSchema) {
           return tf.constructType(DateTime.class);
         }
-        if(("string".equals(type) && format == null) || property instanceof StringProperty) {
+        if(("string".equals(type) && format == null) || property instanceof StringSchema) {
           return tf.constructType(String.class);
         }
-        if(("number".equals(type) && format == null) || property instanceof DecimalProperty) {
+        if(("number".equals(type) && format == null) || property instanceof NumberSchema) {
             return tf.constructType(BigDecimal.class);
         }
-        if(("number".equals(type) && "double".equals(format)) || property instanceof DoubleProperty) {
+        if(("number".equals(type) && "double".equals(format)) || property instanceof NumberSchema) {
             return tf.constructType(Double.class);
         }
-        if(("string".equals(type) && "email".equals(format)) || property instanceof EmailProperty) {
+        if(("string".equals(type) && "email".equals(format)) || property instanceof EmailSchema) {
             return tf.constructType(String.class);
         }
-        if(("number".equals(type) && "float".equals(format)) || property instanceof FloatProperty) {
+        if(("number".equals(type) && "float".equals(format)) || property instanceof NumberSchema) {
             return tf.constructType(Float.class);
         }
-        if(("string".equals(type) && "uuid".equals(format)) || property instanceof UUIDProperty) {
+        if(("string".equals(type) && "uuid".equals(format)) || property instanceof UUIDSchema) {
             return tf.constructType(UUID.class);
         }
-        if(("file".equals(type)) || property instanceof FileProperty) {
+        if(("file".equals(type)) || property instanceof FileSchema) {
             return tf.constructType(File.class);
         }
-        if(("integer".equals(type) && "int32".equals(format)) || property instanceof IntegerProperty) {
+        if(("integer".equals(type) && "int32".equals(format)) || property instanceof IntegerSchema) {
             return tf.constructType(Integer.class);
         }
-        if(("integer".equals(type) && "int64".equals(format)) || property instanceof LongProperty) {
+        if(("integer".equals(type) && "int64".equals(format)) || property instanceof NumberSchema) {
             return tf.constructType(Long.class);
         }
         if("integer".equals(type)) {
@@ -176,13 +217,13 @@ public class ReflectionUtils {
             LOGGER.warn("falling back to `string` with format `" + format + "`");
             return tf.constructType(Long.class);
         }
-        if("string".equals(type) || property instanceof StringProperty) {
+        if("string".equals(type) || property instanceof StringSchema) {
             // fallback
             LOGGER.warn("falling back to `string` with format `" + format + "`");
             return tf.constructType(String.class);
         }
-        if(property instanceof ObjectProperty) {
-            final String name = (String) property.getVendorExtensions()
+        if(property instanceof ObjectSchema) {
+            final String name = (String) property.getExtensions()
                     .get(Constants.X_SWAGGER_ROUTER_MODEL);
             if (name != null) {
                 final JavaType modelType = getTypeFromModelName(name);
@@ -193,29 +234,31 @@ public class ReflectionUtils {
             return tf.constructType(JsonNode.class);
         }
         return null;
-    }*/
+    }
     
-    /*public JavaType getTypeFromModel(String name, Model model, Map<String, Model> definitions) {
+    public JavaType getTypeFromModel(String name, Schema model, Map<String, Schema> definitions) {
         TypeFactory tf = Json.mapper().getTypeFactory();
 
-        if(model instanceof RefModel && "".equals(name)) {
-            RefModel ref = (RefModel) model;
-            name = ref.getSimpleRef();
+        if(model.get$ref() != null && "".equals(name)) {
+            String ref= model.get$ref();
+            ref = ref.substring(ref.lastIndexOf("/") + 1);
+            name = ref;
         }
         if(config != null && config.getModelMapping(name) != null) {
             return tf.constructType(config.getModelMapping(name));
         }
 
-        if(model.getVendorExtensions() != null && model.getVendorExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL) != null) {
+        if(model.getExtensions() != null && model.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL) != null) {
             final JavaType modelType = getTypeFromModelName(
-                    (String) model.getVendorExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL));
+                    (String) model.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL));
             if (modelType != null) {
                 return modelType;
             }
         }
-        if(model instanceof RefModel) {
-            RefModel ref = (RefModel) model;
-            Model inner = definitions.get(ref.getSimpleRef());
+        if(model.get$ref() != null) {
+            String ref= model.get$ref();
+            ref = ref.substring(ref.lastIndexOf("/") + 1);
+            Schema inner = definitions.get(ref);
             if(inner != null) {
                 return getTypeFromModel(name, inner, definitions);
             }
@@ -231,14 +274,14 @@ public class ReflectionUtils {
                 return tf.constructType(cls);
             }
             // check to avoid double-counting
-            if(model.getVendorExtensions() == null || model.getVendorExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL) == null) {
+            if(model.getExtensions() == null || model.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL) == null) {
                 // add to unimplemented models
                 unimplementedMappedModels.add(modelName);
             }
         }
-        if(model instanceof ArrayModel) {
-            ArrayModel am = (ArrayModel) model;
-            Property inner = am.getItems();
+        if(model instanceof ArraySchema) {
+            ArraySchema arraySchema = (ArraySchema) model;
+            Schema inner = arraySchema.getItems();
             if(inner != null) {
                 JavaType innerType = getTypeFromProperty(inner.getType(), inner.getFormat(), inner, definitions);
                 if (innerType != null) {
@@ -248,33 +291,31 @@ public class ReflectionUtils {
                 }
             }
         }
-        if(model instanceof ModelImpl) {
-            ModelImpl mi = (ModelImpl) model;
-            String type = mi.getType();
+        if(model.getProperties() != null) {
 
-            Property property = propertyFromModel(mi);
+            String type = model.getType();
+
+            Schema property = propertyFromModel(model);
             if(property != null) {
-                return getTypeFromProperty(mi.getType(), mi.getFormat(), property, definitions);
+                return getTypeFromProperty(model.getType(), model.getFormat(), property, definitions);
             }
         }
 
         return tf.constructType(JsonNode.class);
-    }*/
+    }
 
-    /*public Schema propertyFromModel(Schema model) {
+    public Schema propertyFromModel(Schema model) {
         if(model.getType() == null) {
             return null;
         }
-        // construct property map
-        Map<PropertyBuilder.PropertyId, Object> map = new HashMap<PropertyBuilder.PropertyId, Object>();
-        if(model.getTitle() != null) map.put(PropertyBuilder.PropertyId.TITLE, model.getTitle());
-        if(model.getDescription() != null) map.put(PropertyBuilder.PropertyId.DESCRIPTION, model.getDescription());
-        if(model.getDefaultValue() != null) map.put(PropertyBuilder.PropertyId.DEFAULT, model.getDefaultValue());
-        if(model.getExample() != null) map.put(PropertyBuilder.PropertyId.EXAMPLE, model.getExample());
-        if(model.getFormat() != null) map.put(PropertyBuilder.PropertyId.FORMAT, model.getFormat());
-        if(model.getVendorExtensions() != null) map.put(PropertyBuilder.PropertyId.VENDOR_EXTENSIONS, model.getVendorExtensions());
-
-        return PropertyBuilder.build(model.getType(), model.getFormat(), map);
+        Schema property = null;
+        if (model.getProperties() != null){
+            Map<String, Schema> properties = model.getProperties();
+            for (String name: properties.keySet()){
+                property = properties.get(name);
+            }
+        }
+        return property;
     }
     
     public Class<?> loadClass(String className) {
@@ -293,9 +334,9 @@ public class ReflectionUtils {
             return "nullId";
         }
         return op;
-    }*/
+    }
 
-   /* // TODO move to core
+    // TODO move to core
     public String getMethodName(String path, String httpMethod, Operation operation) {
         String output = operation.getOperationId();
         if (output != null) {
@@ -368,13 +409,13 @@ public class ReflectionUtils {
         }
 
         return config.getControllerPackage() + "." + controllerClass;
-    }*/
+    }
 
     public Set<String> getUnimplementedMappedModels() {
         return unimplementedMappedModels;
     }
 
-    /*public void setUnimplementedMappedModels(Set<String> unimplementedMappedModels) {
+    public void setUnimplementedMappedModels(Set<String> unimplementedMappedModels) {
         this.unimplementedMappedModels = unimplementedMappedModels;
     }
 
@@ -407,5 +448,5 @@ public class ReflectionUtils {
 
     public interface ClassNameValidator {
         boolean isValidClassname( String classname );
-    }*/
+    }
 }
