@@ -147,10 +147,10 @@ public class Configuration {
 
     public static Configuration defaultConfiguration() {
         return new Configuration()
-                .controllerPackage("io.swagger.sample.controllers")
-                .modelPackage("io.swagger.sample.models")
+                .controllerPackage("io.swagger.oas.sample.controllers")
+                .modelPackage("io.swagger.oas.sample.models")
                 .swaggerUrl("swagger.yaml")
-                .exceptionMapper("io.swagger.inflector.utils.DefaultExceptionMapper")
+                .exceptionMapper("io.swagger.oas.inflector.utils.DefaultExceptionMapper")
                 .defaultValidators()
                 .defaultConverters()
                 .defaultProcessors();

@@ -16,8 +16,8 @@
 
 package io.swagger.oas.inflector.controllers;
 
-//import io.swagger.config.FilterFactory;
-//import io.swagger.core.filter.SwaggerSpecFilter;
+import io.swagger.oas.inflector.config.FilterFactory;
+import io.swagger.core.filter.SwaggerSpecFilter;
 import io.swagger.oas.inflector.config.OpenAPIProcessor;
 import io.swagger.oas.inflector.utils.VendorSpecFilter;
 import io.swagger.oas.models.OpenAPI;
@@ -59,8 +59,8 @@ public class OpenAPIResourceController implements Inflector<ContainerRequestCont
 
     @Override
     public Response apply(ContainerRequestContext arg0) {
-        //SwaggerSpecFilter filter = FilterFactory.getFilter();
-        /*if(filter != null) {
+        SwaggerSpecFilter filter = FilterFactory.getFilter();
+        if(filter != null) {
             // Map<String, List<String>> params, Map<String, String> cookies, Map<String, List<String>> headers
             Map<String, Cookie> cookiesvalue = arg0.getCookies();
             Map<String, String> cookies = new HashMap<String, String>();
@@ -71,11 +71,10 @@ public class OpenAPIResourceController implements Inflector<ContainerRequestCont
             }
 
             MultivaluedMap<String, String> headers = arg0.getHeaders();
-           // return Response.ok().entity(new VendorSpecFilter().filter(getOpenAPI(), filter, null, cookies, headers)).build();
-             //added by grace to test resolvedFully Functionality TODO remove it
+            return Response.ok().entity(new VendorSpecFilter().filter(getOpenAPI(), filter, null, cookies, headers)).build();
+
         }
-        return Response.ok().entity(getOpenAPI()).build();*/
-        return null;
+        return Response.ok().entity(getOpenAPI()).build();
     }
 
     private OpenAPI getOpenAPI() {

@@ -1,6 +1,8 @@
-package io.swagger.test.utils;
+package io.swagger.oas.test.utils;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.sun.org.apache.xerces.internal.xs.StringList;
+import io.swagger.oas.sample.models.Dog;
 import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.utils.ExtensionsUtil;
 
@@ -19,9 +21,6 @@ import io.swagger.parser.models.ParseOptions;
 import io.swagger.parser.models.SwaggerParseResult;
 import io.swagger.parser.v3.OpenAPIV3Parser;
 
-//import io.swagger.sample.models.Dog;
-
-
 import mockit.Injectable;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
@@ -31,6 +30,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -60,7 +60,7 @@ public class ExtensionsUtilTest {
     }
 
     @Test
-    public void testResolveBodyParam(@Injectable final List<AuthorizationValue> auths) throws Exception {
+    public void testResolveParam(@Injectable final List<AuthorizationValue> auths) throws Exception {
         ReflectionUtils utils = new ReflectionUtils();
         utils.setConfiguration( Configuration.read("src/test/config/config1.yaml"));
 
@@ -76,65 +76,15 @@ public class ExtensionsUtilTest {
         new ExtensionsUtil().addExtensions(openAPI);
 
         Operation operation = openAPI.getPaths().get("/pet").getPost();
-        Parameter param = operation.getParameters().get(0);
+        Parameter param = operation.getParameters().get(1);
 
         JavaType jt = utils.getTypeFromParameter(param, openAPI.getComponents().getSchemas());
         System.out.println(jt.getRawClass());
-        //assertEquals(jt.getRawClass(), Dog.class);
+        assertEquals(jt.getRawClass(), Dog.class);
     }
 
-    @Test
-    public void testIssue85(@Injectable final List<AuthorizationValue> auths) {
-        String yaml =
-                "openapi: '3.0'\n" +
-                "paths: \n" +
-                "  /test/method: \n" +
-                "    post: \n" +
-                "      parameters: \n" +
-                "        - \n" +
-                "          in: \"body\"\n" +
-                "          name: \"body\"\n" +
-                "          required: false\n" +
-                "          schema: \n" +
-                "            $ref: '#/definitions/StructureA'\n" +
-                "components:          \n"+
-                "    schemas: \n" +
-                "       StructureA: \n" +
-                "           type: object\n" +
-                "           properties: \n" +
-                "               someProperty: \n" +
-                "                   type: string\n" +
-                "               arrayOfOtherType: \n" +
-                "                   type: array\n" +
-                "                   items: \n" +
-                "                   $ref: '#/definitions/StructureB'\n" +
-                "       StructureB: \n" +
-                "           type: object\n" +
-                "           properties: \n" +
-                "               someProperty: \n" +
-                "                   type: string\n";
+    //TODO test Resolve RequestBody
 
-        ParseOptions options = new ParseOptions();
-        options.setResolve(true);
-        options.setResolveFully(true);
-
-        OpenAPI openAPI = new OpenAPIV3Parser().readContents(yaml,auths,options).getOpenAPI();
-        ExtensionsUtil extensionsUtil = new ExtensionsUtil();
-        extensionsUtil.addExtensions(openAPI);
-
-        Parameter param = openAPI.getPaths().get("/test/method").getPost().getParameters().get(0);
-        /*assertTrue(param instanceof BodyParameter);
-        BodyParameter bp = (BodyParameter) param;
-        Schema schema = bp.getSchema();
-
-        assertTrue(schema instanceof ModelImpl);
-        assertNotNull(schema.getProperties().get("someProperty"));
-
-        ArrayProperty am = (ArrayProperty) schema.getProperties().get("arrayOfOtherType");
-        assertNotNull(am);
-        Property prop = am.getItems();
-        assertTrue(prop instanceof ObjectProperty);*/
-    }
 
     @Test
     public void selfReferenceTest(@Injectable final List<AuthorizationValue> auths) {

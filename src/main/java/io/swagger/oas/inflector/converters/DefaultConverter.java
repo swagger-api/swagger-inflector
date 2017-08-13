@@ -6,8 +6,10 @@ import io.swagger.oas.inflector.utils.ReflectionUtils;
 import io.swagger.oas.inflector.validators.ValidationError;
 import io.swagger.oas.inflector.validators.ValidationMessage;
 
+import io.swagger.oas.models.media.ArraySchema;
 import io.swagger.oas.models.media.Schema;
 import io.swagger.oas.models.parameters.Parameter;
+import io.swagger.oas.models.parameters.QueryParameter;
 import io.swagger.util.Json;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -29,40 +31,43 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
     public DefaultConverter(){}
 
     public Object convert(List<String> value, Parameter parameter, Class<?> cls, Map<String, Schema> definitions, Iterator<Converter> chain) throws ConversionException {
-      //return coerceValue(value, parameter, cls);
-      return null; //added by Grace to test ResolvedFully Functionallity TODO remove it afterwards
+
+        return coerceValue(value, parameter, cls);
+
     }
     
     
 
-    /*public Object coerceValue(List<String> o, Parameter parameter, Class<?> cls) throws ConversionException {
+    public Object coerceValue(List<String> o, Parameter parameter, Class<?> cls) throws ConversionException {
         if (o == null || o.size() == 0) {
             return null;
         }
 
         LOGGER.debug("casting `" + o + "` to " + cls);
         if (List.class.equals(cls)) {
-            if (parameter instanceof SerializableParameter) {
-                List<Object> output = new ArrayList<Object>();
-                SerializableParameter sp = (SerializableParameter) parameter;
-                if (sp.getItems() != null) {
-                    Property inner = sp.getItems();
+            if (parameter.getSchema() != null) {
+                List<Object> output = new ArrayList<>();
+                if (parameter.getSchema() instanceof ArraySchema) {
+                    ArraySchema arraySchema = ((ArraySchema) parameter.getSchema());
+                    Schema inner = arraySchema.getItems();
+
 
                     // TODO: this does not need to be done this way, update the helper method
-                    Parameter innerParam = new QueryParameter().property(inner);
+                    Parameter innerParam = new QueryParameter();
+                    innerParam.setSchema(inner);
                     JavaType innerClass = getTypeFromParameter(innerParam, definitions);
                     for (String obj : o) {
                         String[] parts = new String[0];
-                        if ("csv".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
+                        if (Parameter.StyleEnum.FORM.equals(parameter.getStyle()) && !StringUtils.isEmpty(obj) && parameter.getExplode() == false ) {
                             parts = obj.split(",");
                         }
-                        if ("pipes".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
+                        if (Parameter.StyleEnum.PIPEDELIMITED.equals(parameter.getStyle()) && !StringUtils.isEmpty(obj)) {
                             parts = obj.split("|");
                         }
-                        if ("ssv".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
+                        if (Parameter.StyleEnum.SPACEDELIMITED.equals(parameter.getStyle()) && !StringUtils.isEmpty(obj)) {
                             parts = obj.split(" ");
                         }
-                        if ("multi".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
+                        if (Parameter.StyleEnum.FORM.equals(parameter.getStyle()) && !StringUtils.isEmpty(obj) && parameter.getExplode() == true) {
                             parts = new String[1];
                             parts[0]= obj;
                         }
@@ -76,15 +81,16 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
                 }
                 return output;
             }
-        } else if (parameter instanceof SerializableParameter) {
+        } else if (parameter.getSchema() != null) {
             TypeFactory tf = Json.mapper().getTypeFactory();
-            SerializableParameter sp = (SerializableParameter) parameter;
-            return cast(o.get(0), sp.getItems(), tf.constructType(cls));
+
+            return cast(o.get(0), parameter.getSchema(), tf.constructType(cls));
+
         }
         return null;
     }
 
-    public Object cast(List<String> o, Parameter parameter, JavaType javaType, Map<String, Model> definitions) throws ConversionException {
+    public Object cast(List<String> o, Parameter parameter, JavaType javaType, Map<String, Schema> definitions) throws ConversionException {
         if (o == null || o.size() == 0) {
             return null;
         }
@@ -92,24 +98,24 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
 
         LOGGER.debug("converting array `" + o + "` to `" + cls + "`");
         if (javaType.isArrayType()) {
-            if (parameter instanceof SerializableParameter) {
-                List<Object> output = new ArrayList<Object>();
-                SerializableParameter sp = (SerializableParameter) parameter;
-                if (sp.getItems() != null) {
-                    if (sp.getItems() instanceof ArrayProperty) {
-                        Property inner = ((ArrayProperty) sp.getItems()).getItems();
+            if (parameter.getSchema() != null) {
+                List<Object> output = new ArrayList<>();
+                if (parameter.getSchema() instanceof ArraySchema) {
+                    ArraySchema arraySchema = (ArraySchema) parameter.getSchema();
+                    if (arraySchema.getItems() != null) {
+                        Schema inner = arraySchema.getItems();
 
                         // TODO: this does not need to be done this way, update the helper method
-                        Parameter innerParam = new QueryParameter().property(inner);
+                        Parameter innerParam = new QueryParameter().schema(inner);
                         JavaType innerClass = getTypeFromParameter(innerParam, definitions);
                         for (String obj : o) {
                             String[] parts = new String[0];
                             CSVFormat format = null;
-                            if ("csv".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
+                            if (Parameter.StyleEnum.FORM.equals(parameter.getStyle()) && !StringUtils.isEmpty(obj) && parameter.getExplode() == false) {
                                 format = CSVFormat.DEFAULT;
-                            } else if ("pipes".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
+                            } else if (Parameter.StyleEnum.PIPEDELIMITED.equals(parameter.getStyle()) && !StringUtils.isEmpty(obj)) {
                                 format = CSVFormat.newFormat('|').withQuote('"');
-                            } else if ("ssv".equals(sp.getCollectionFormat()) && !StringUtils.isEmpty(obj)) {
+                            } else if (Parameter.StyleEnum.SPACEDELIMITED.equals(parameter.getStyle()) && !StringUtils.isEmpty(obj)) {
                                 format = CSVFormat.newFormat(' ').withQuote('"');
                             }
                             if (format != null) {
@@ -133,19 +139,20 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
                                     output.add(ob);
                                 }
                             }
+
                         }
+
+                        return output;
                     }
                 }
-                return output;
             }
-        } else if (parameter instanceof SerializableParameter) {
-            SerializableParameter sp = (SerializableParameter) parameter;
-            return cast(o.get(0), sp.getItems(), javaType);
+        } else if (parameter != null) {
+            return cast(o.get(0), parameter.getSchema(), javaType);
         }
         return null;
     }
 
-    public Object cast(String o, Property property, JavaType javaType) throws ConversionException {
+    public Object cast(String o, Schema property, JavaType javaType) throws ConversionException {
         if (o == null || javaType == null) {
             return null;
         }
@@ -199,5 +206,5 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
                 .message("couldn't convert `" + o + "` to type `" + cls + "`"));
         }
         return null;
-    }*/
+    }
 }

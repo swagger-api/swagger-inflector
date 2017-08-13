@@ -11,9 +11,9 @@ import io.swagger.oas.models.parameters.Parameter;
 import java.util.List;
 import java.util.Map;
 
-public class DefaultSpecFilter /*extends AbstractSpecFilter */{
+public class DefaultSpecFilter extends AbstractSpecFilter {
 
-    /*@Override
+    @Override
     public boolean isOperationAllowed(Operation operation, ApiDescription api, Map<String, List<String>> params, Map<String, String> cookies, Map<String, List<String>> headers) {
         if(operation.getExtensions() != null && operation.getExtensions().containsKey(Constants.X_INFLECTOR_HIDDEN)) {
             return false;
@@ -40,5 +40,5 @@ public class DefaultSpecFilter /*extends AbstractSpecFilter */{
     @Override
     public boolean isRemovingUnreferencedDefinitions() {
         return false;
-    }*/
+    }
 }

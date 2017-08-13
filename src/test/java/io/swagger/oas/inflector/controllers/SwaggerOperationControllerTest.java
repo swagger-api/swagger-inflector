@@ -17,7 +17,6 @@
 package io.swagger.oas.inflector.controllers;
 
 import com.google.common.collect.Maps;
-import io.swagger.oas.models.OpenAPI;
 import org.testng.annotations.Test;
 
 import java.util.Map;
@@ -26,13 +25,13 @@ import static java.io.File.separatorChar;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
-public class OpenAPIOperationControllerTest {
+public class SwaggerOperationControllerTest {
 
     @Test
     public void testFilenameExtraction() throws Exception {
 
         Map<String, String> headers = Maps.newConcurrentMap();
-        assertNull(OpenAPIOperationController.extractFilenameFromHeaders( headers ));
+        assertNull( OpenAPIOperationController.extractFilenameFromHeaders( headers ));
 
         headers.put( "filename", "" );
         assertNull( OpenAPIOperationController.extractFilenameFromHeaders( headers ));

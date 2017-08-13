@@ -41,7 +41,7 @@ To add inflector via `web.xml`:
   <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
   <init-param>
     <param-name>javax.ws.rs.Application</param-name>
-    <param-value>SwaggerInflector</param-value>
+    <param-value>io.swagger.oas.inflector.OpenAPIInflector</param-value>
   </init-param>
   <load-on-startup>1</load-on-startup>
 </servlet>
@@ -69,17 +69,17 @@ The configuration supports the following:
 environment: development
 
 # configure your default controller package for method discovery
-controllerPackage: io.swagger.sample.controllers
+controllerPackage: io.swagger.oas.sample.controllers
 
 # configure the default model package for model discovery
-modelPackage: io.swagger.sample.models
+modelPackage: io.swagger.oas.sample.models
 
 # the path to the swagger definition (Note! this can be overridden with -DswaggerUrl as a system property
 swaggerUrl: swagger.yaml
 
 # specific mappings for models, used to locate models in the `#/definitions/${model}`
 modelMappings:
-  User: io.swagger.sample.models.User
+  User: io.swagger.oas.sample.models.User
 
 # HTTP response code when required parameters are missing
 invalidRequestCode: 400

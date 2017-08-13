@@ -68,6 +68,7 @@ paths:
     summary: summary
     description: description
     post:
+      x-swagger-router-controller: TestController
       externalDocs:
         description: Find out more
         url: http://swagger.io
@@ -119,6 +120,10 @@ paths:
           - pending
           - sold
           default: available
+    - name: animal
+      in: query
+      schema:
+        $ref: '#/definitions/Dog'
     - "$ref": "#/components/parameters/skipParam"
     put:
       tags:
@@ -332,6 +337,15 @@ externalDocs:
   url: http://swagger.io
 components:
   schemas:
+    Dog:
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        dogType:
+          type: string
     VeryComplexType:
       type: integer
       format: int32

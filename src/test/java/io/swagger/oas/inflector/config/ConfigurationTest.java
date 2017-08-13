@@ -17,7 +17,6 @@ package io.swagger.oas.inflector.config;
 
 import io.swagger.oas.inflector.OpenAPIInflector;
 import io.swagger.oas.models.Operation;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -49,7 +48,7 @@ public class ConfigurationTest {
     public void testSlashBasePath() {
         String basePath = "/";
         String swaggerBase = "/bar";
-        Assert.assertEquals(OpenAPIInflector.basePath(basePath, swaggerBase), "/bar/");
+        assertEquals(OpenAPIInflector.basePath(basePath, swaggerBase), "/bar/");
     }
 
     @Test

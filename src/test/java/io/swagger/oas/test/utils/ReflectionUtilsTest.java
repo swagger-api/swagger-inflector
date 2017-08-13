@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package io.swagger.test.utils;
+package io.swagger.oas.test.utils;
 
 import com.google.common.collect.Lists;
 import io.swagger.oas.inflector.Constants;
@@ -33,7 +33,7 @@ import static org.testng.Assert.assertEquals;
 public class ReflectionUtilsTest {
     ReflectionUtils utils = new ReflectionUtils();
 
-    /*@BeforeClass
+    @BeforeClass
     public void setup() throws Exception {
         utils.setConfiguration(Configuration.defaultConfiguration());
         utils.setClassNameValidator(new ReflectionUtils.ClassNameValidator() {
@@ -65,7 +65,7 @@ public class ReflectionUtilsTest {
     @Test
     public void testGetOperationName() throws Exception {
         Operation operation = new Operation()
-          .tag("myTag");
+          .addTagsItem("myTag");
 
         String controllerName = utils.getControllerName(operation);
         assertEquals(controllerName, "io.swagger.sample.controllers.MyTag");
@@ -74,7 +74,7 @@ public class ReflectionUtilsTest {
     @Test
     public void testGetOperationNameWithSpace() throws Exception {
         Operation operation = new Operation()
-          .tag("my tag");
+          .addTagsItem("my tag");
 
         String controllerName = utils.getControllerName(operation);
         assertEquals(controllerName, "io.swagger.sample.controllers.My_tag");
@@ -83,7 +83,7 @@ public class ReflectionUtilsTest {
     @Test
     public void testGetOperationNameWithPunctuation() throws Exception {
         Operation operation = new Operation()
-          .tag("my-tags");
+          .addTagsItem("my-tags");
 
         String controllerName = utils.getControllerName(operation);
         assertEquals(controllerName, "io.swagger.sample.controllers.My_tags");
@@ -92,7 +92,7 @@ public class ReflectionUtilsTest {
     @Test
     public void testGetOperationNameWithWhitespace() throws Exception {
         Operation operation = new Operation()
-          .tag(" myTags ");
+          .addTagsItem(" myTags ");
 
         String controllerName = utils.getControllerName(operation);
         assertEquals(controllerName, "io.swagger.sample.controllers.MyTags");
@@ -148,5 +148,5 @@ public class ReflectionUtilsTest {
         operation = new Operation().tags(Lists.newArrayList("one", " two "));
         controllerName = utils.getControllerName(operation);
         assertEquals(controllerName, "io.swagger.sample.controllers.Default");
-    }*/
+    }
 }

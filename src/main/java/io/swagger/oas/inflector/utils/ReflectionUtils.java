@@ -96,16 +96,9 @@ public class ReflectionUtils {
 
     public JavaType getTypeFromParameter(Parameter parameter, Map<String, Schema> definitions) {
       if (parameter.getSchema() != null) {
-         if (parameter.getSchema() instanceof ArraySchema) {
-             ArraySchema arraySchema = ((ArraySchema) parameter.getSchema());
-             Schema inner = arraySchema.getItems();
-
-             JavaType parameterType = getTypeFromProperty(arraySchema.getType(), arraySchema.getFormat(), inner, definitions);
-             if (parameterType != null) {
-                 return parameterType;
-             }
+            return  getTypeFromModel("", parameter.getSchema(), definitions);
          }
-      }
+
       else if (parameter.getContent() != null) {
           Map<String,MediaType> content   = parameter.getContent();
           for (String mediaType : content.keySet()){
@@ -119,25 +112,6 @@ public class ReflectionUtils {
       return null;
     }
 
-    public JavaType getTypeFromParameter(Parameter parameter, Map<String, Model> definitions) {
-        if (parameter instanceof SerializableParameter) {
-            SerializableParameter sp = (SerializableParameter) parameter;
-            Property inner = sp.getItems();
-
-            JavaType tp = getTypeFromProperty(sp.getType(), sp.getFormat(), inner, definitions);
-            if(tp != null) {
-                return tp;
-            }
-        }
-        else if (parameter instanceof BodyParameter) {
-            BodyParameter bp = (BodyParameter) parameter;
-            Model model = bp.getSchema();
-
-            return getTypeFromModel("", model, definitions);
-        }
-
-        return null;
-    }
 
 
 
@@ -300,6 +274,19 @@ public class ReflectionUtils {
                 return getTypeFromProperty(model.getType(), model.getFormat(), property, definitions);
             }
         }
+        if(model instanceof StringSchema) {
+
+            StringSchema stringSchema = (StringSchema) model;
+            Schema inner = (Schema) stringSchema.getEnum();
+            if(inner != null) {
+                JavaType innerType = getTypeFromProperty(inner.getType(), inner.getFormat(), inner, definitions);
+                if (innerType != null) {
+                    return tf.constructArrayType(innerType);
+                } else {
+                    return tf.constructArrayType(JsonNode.class);
+                }
+            }
+        }
 
         return tf.constructType(JsonNode.class);
     }
@@ -368,7 +355,10 @@ public class ReflectionUtils {
     }
 
     public String getControllerName(Operation operation) {
-        String name = (String) operation.getExtensions().get(Constants.X_SWAGGER_ROUTER_CONTROLLER);
+        String name = null;
+        if (operation.getExtensions() != null){
+            name = (String) operation.getExtensions().get(Constants.X_SWAGGER_ROUTER_CONTROLLER);
+        }
         if (name != null) {
             name = name.replaceAll("^\"|\"$", "");
             if (name.indexOf(".") == -1 && config.getControllerPackage() != null) {

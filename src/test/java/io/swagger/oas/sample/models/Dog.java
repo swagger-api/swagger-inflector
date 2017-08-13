@@ -1,4 +1,4 @@
-package io.swagger.sample.models;
+package io.swagger.oas.sample.models;
 
 import javax.xml.bind.annotation.XmlElement;
 

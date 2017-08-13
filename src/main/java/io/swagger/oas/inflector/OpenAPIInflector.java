@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider;
-//import io.swagger.config.FilterFactory;
-//import io.swagger.core.filter.SwaggerSpecFilter;
+import io.swagger.oas.inflector.config.FilterFactory;
+import io.swagger.core.filter.SwaggerSpecFilter;
 import io.swagger.jaxrs2.SwaggerSerializers;
 
 import io.swagger.oas.inflector.config.Configuration;
@@ -188,7 +188,7 @@ public class OpenAPIInflector extends ResourceConfig {
         if (config.getFilterClass() != null) {
             if(!config.getFilterClass().isEmpty()) {
                 try {
-                   // FilterFactory.setFilter((SwaggerSpecFilter) OpenAPIInflector.class.getClassLoader().loadClass(config.getFilterClass()).newInstance());
+                    FilterFactory.setFilter((SwaggerSpecFilter) OpenAPIInflector.class.getClassLoader().loadClass(config.getFilterClass()).newInstance());
                 }
                 catch (Exception e) {
                     LOGGER.error("Unable to set filter class " + config.getFilterClass());
@@ -196,7 +196,7 @@ public class OpenAPIInflector extends ResourceConfig {
             }
         }
         else {
-            //FilterFactory.setFilter(new DefaultSpecFilter());
+            FilterFactory.setFilter(new DefaultSpecFilter());
         }
 
         if(openAPI == null) {
@@ -258,13 +258,13 @@ public class OpenAPIInflector extends ResourceConfig {
                 try {
                     String clsName = inputValidator;
                     if ("requiredFieldValidator".equalsIgnoreCase(inputValidator)) {
-                        clsName = "DefaultValidator";
+                        clsName = "io.swagger.oas.inflector.validators.DefaultValidator";
                     }
                     if ("numericValidator".equalsIgnoreCase(inputValidator)) {
-                        clsName = "NumericValidator";
+                        clsName = "io.swagger.oas.inflector.validators.NumericValidator";
                     }
                     if ("stringValidator".equalsIgnoreCase(inputValidator)) {
-                        clsName = "StringTypeValidator";
+                        clsName = "io.swagger.oas.inflector.validators.StringTypeValidator";
                     }
                     InputConverter.getInstance().addValidator((Validator) Class.forName(clsName).newInstance());
                 } catch (Exception e) {
@@ -283,7 +283,7 @@ public class OpenAPIInflector extends ResourceConfig {
                 try {
                     String clsName = converter;
                     if ("defaultConverter".equalsIgnoreCase(converter)) {
-                        clsName = "DefaultConverter";
+                        clsName = "io.swagger.oas.inflector.converters.DefaultConverter";
                     }
                     LOGGER.debug("adding converter `" + clsName + "`");
                     InputConverter.getInstance().addConverter((Converter) Class.forName(clsName).newInstance());

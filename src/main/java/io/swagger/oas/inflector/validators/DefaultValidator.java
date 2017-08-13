@@ -8,8 +8,7 @@ import java.util.Iterator;
 
 public class DefaultValidator implements Validator {
     public void validate(Object o, Parameter parameter, Iterator<Validator> chain) throws ValidationException {
-        if(parameter.getSchema().getRequired() != null) {
-            //TODO Validar si el parametro esta dentro de los requeridos?
+        if(parameter.getRequired()) {
             if(o == null) {
                 throw new ValidationException()
                   .message(new ValidationMessage()

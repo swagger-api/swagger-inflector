@@ -24,46 +24,43 @@ import java.util.Map;
 import java.util.Set;
 
 public class ExtensionsUtil {
-   // private static final Logger LOGGER = LoggerFactory.getLogger(ResolverUtil.class);
 
     private Map<String, Schema> schemas;
 
-
-
-
     public void addExtensions(OpenAPI openAPI) {
-
-        if (openAPI.getComponents().getSchemas() != null) {
-            schemas = openAPI.getComponents().getSchemas();
-            if (schemas == null) {
-                schemas = new HashMap<>();
+        if (openAPI.getComponents() != null) {
+            if (openAPI.getComponents().getSchemas() != null) {
+                schemas = openAPI.getComponents().getSchemas();
+                if (schemas == null) {
+                    schemas = new HashMap<>();
+                }
             }
-        }
 
-
-        for (String name : schemas.keySet()) {
-            Schema schema = schemas.get(name);
-            if (schema.getExtensions() != null) {
-                if (!schema.getExtensions().containsKey(Constants.X_SWAGGER_ROUTER_MODEL)) {
+            for (String name : schemas.keySet()) {
+                Schema schema = schemas.get(name);
+                if (schema.getExtensions() != null) {
+                    if (!schema.getExtensions().containsKey(Constants.X_SWAGGER_ROUTER_MODEL)) {
+                        schema.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, name);
+                    }
+                } else {
                     schema.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, name);
                 }
-            } else {
-                schema.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, name);
             }
         }
-        if(openAPI.getPaths() != null) {
+        if (openAPI.getPaths() != null) {
             for (String pathname : openAPI.getPaths().keySet()) {
                 PathItem pathItem = openAPI.getPaths().get(pathname);
                 resolvePath(pathItem);
             }
         }
+
     }
 
      public void resolvePath(PathItem pathItem){
-        for(Operation op : pathItem.readOperations()) {
+        for(Operation operation : pathItem.readOperations()) {
             // inputs
-            if (op.getParameters() != null) {
-                for (Parameter parameter : op.getParameters()) {
+            if (operation.getParameters() != null) {
+                for (Parameter parameter : operation.getParameters()) {
                     if (parameter.getSchema() != null) {
                         Schema resolved = parameter.getSchema();
                         if (resolved != null) {
@@ -103,8 +100,8 @@ public class ExtensionsUtil {
                 }
             }
 
-            if (op.getCallbacks() != null){
-                Map<String,Callback> callbacks = op.getCallbacks();
+            if (operation.getCallbacks() != null){
+                Map<String,Callback> callbacks = operation.getCallbacks();
                 for (String name : callbacks.keySet()) {
                     Callback callback = callbacks.get(name);
                     if (callback != null) {
@@ -119,8 +116,8 @@ public class ExtensionsUtil {
                 }
             }
 
-            if (op.getRequestBody() != null && op.getRequestBody().getContent() != null){
-                Map<String,MediaType> content = op.getRequestBody().getContent();
+            if (operation.getRequestBody() != null && operation.getRequestBody().getContent() != null){
+                Map<String,MediaType> content = operation.getRequestBody().getContent();
                 for (String key: content.keySet()){
                     if (content.get(key) != null && content.get(key).getSchema() != null ){
                         Schema resolved = content.get(key).getSchema();
@@ -140,9 +137,9 @@ public class ExtensionsUtil {
                 }
             }
             // responses
-            if(op.getResponses() != null) {
-                for(String code : op.getResponses().keySet()) {
-                    ApiResponse response = op.getResponses().get(code);
+            if(operation.getResponses() != null) {
+                for(String code : operation.getResponses().keySet()) {
+                    ApiResponse response = operation.getResponses().get(code);
                     if (response.getContent() != null) {
                         Map<String, MediaType> content = response.getContent();
                         for(String mediaType: content.keySet()){
