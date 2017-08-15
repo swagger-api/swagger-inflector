@@ -99,7 +99,7 @@ public class ExampleBuilder {
         Example output = null;
 
         Object example = property.getExample();
-        if (property != null) {
+        if (property.get$ref() != null) {
             String ref = property.get$ref();
             ref = ref.substring(ref.lastIndexOf("/") + 1);
             if(processedModels.contains(ref)) {

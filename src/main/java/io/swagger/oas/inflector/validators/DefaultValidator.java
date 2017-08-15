@@ -8,7 +8,7 @@ import java.util.Iterator;
 
 public class DefaultValidator implements Validator {
     public void validate(Object o, Parameter parameter, Iterator<Validator> chain) throws ValidationException {
-        if(parameter.getRequired()) {
+        if (Boolean.TRUE.equals(parameter.getRequired())) {
             if(o == null) {
                 throw new ValidationException()
                   .message(new ValidationMessage()

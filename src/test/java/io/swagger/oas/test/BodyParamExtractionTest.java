@@ -27,7 +27,7 @@ import io.swagger.oas.models.media.Schema;
 import io.swagger.oas.models.media.StringSchema;
 import io.swagger.oas.models.parameters.Parameter;
 
-import io.swagger.oas.models.parameters.RequestBody;
+
 import io.swagger.oas.test.models.Person;
 import io.swagger.oas.test.models.User;
 import org.junit.Before;
@@ -47,7 +47,7 @@ public class BodyParamExtractionTest {
     @Before
     public void setup() {
         Configuration config = new Configuration();
-        config.setModelPackage("io.swagger.test.models");
+        config.setModelPackage("io.swagger.oas.test.models");
         config.addModelMapping("User", User.class);
 
         utils.setConfiguration(config);
@@ -65,7 +65,7 @@ public class BodyParamExtractionTest {
 
     @org.junit.Test
     public void testUUIDBodyParam() throws Exception {
-        Map<String, Schema> definitions = new HashMap<String, Schema>();
+        Map<String, Schema> definitions = new HashMap<>();
 
         Parameter parameter = new Parameter().schema(new Schema().type("string").format("uuid"));
         JavaType jt = utils.getTypeFromParameter(parameter, definitions);
@@ -75,7 +75,7 @@ public class BodyParamExtractionTest {
 
     @Test
     public void testConvertComplexBodyParamWithConfigMapping() throws Exception {
-        Map<String, Schema> definitions = new HashMap<String, Schema>();
+        Map<String, Schema> definitions = new HashMap<>();
 
         Parameter parameter = new Parameter().schema(new Schema().$ref("#/definitions/User"));
         JavaType jt = utils.getTypeFromParameter(parameter, definitions);
@@ -124,7 +124,7 @@ public class BodyParamExtractionTest {
 
         Parameter parameter = new Parameter()
             .schema(new ArraySchema()
-                .items(new ArraySchema()));
+                .items(new ArraySchema().items(new StringSchema())));
 
         JavaType jt = utils.getTypeFromParameter(parameter, definitions);
         assertEquals(jt.getRawClass(), String[][].class);

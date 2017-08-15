@@ -96,7 +96,10 @@ public class ReflectionUtils {
 
     public JavaType getTypeFromParameter(Parameter parameter, Map<String, Schema> definitions) {
       if (parameter.getSchema() != null) {
-            return  getTypeFromModel("", parameter.getSchema(), definitions);
+          JavaType parameterType =  getTypeFromModel("", parameter.getSchema(), definitions);
+          if (parameterType != null){
+              return parameterType;
+          }
          }
 
       else if (parameter.getContent() != null) {
@@ -277,17 +280,68 @@ public class ReflectionUtils {
         if(model instanceof StringSchema) {
 
             StringSchema stringSchema = (StringSchema) model;
-            Schema inner = (Schema) stringSchema.getEnum();
-            if(inner != null) {
-                JavaType innerType = getTypeFromProperty(inner.getType(), inner.getFormat(), inner, definitions);
-                if (innerType != null) {
-                    return tf.constructArrayType(innerType);
-                } else {
-                    return tf.constructArrayType(JsonNode.class);
-                }
+            JavaType innerType = getTypeFromProperty(stringSchema.getType(), stringSchema.getFormat(), stringSchema, definitions);
+            if (innerType != null) {
+                return tf.constructType(innerType);
+            } else {
+                return tf.constructType(JsonNode.class);
             }
         }
+        if(model instanceof DateSchema) {
 
+            DateSchema dateSchema = (DateSchema) model;
+            JavaType innerType = getTypeFromProperty(dateSchema.getType(), dateSchema.getFormat(), dateSchema, definitions);
+            if (innerType != null) {
+                return tf.constructType(innerType);
+            } else {
+                return tf.constructType(JsonNode.class);
+            }
+        }
+        if(model instanceof BooleanSchema) {
+
+            BooleanSchema booleanSchema = (BooleanSchema) model;
+            JavaType innerType = getTypeFromProperty(booleanSchema.getType(), booleanSchema.getFormat(), booleanSchema, definitions);
+            if (innerType != null) {
+                return tf.constructType(innerType);
+            } else {
+                return tf.constructType(JsonNode.class);
+            }
+        }
+        if(model instanceof DateTimeSchema) {
+
+            DateTimeSchema dateTimeSchema = (DateTimeSchema) model;
+            JavaType innerType = getTypeFromProperty(dateTimeSchema.getType(), dateTimeSchema.getFormat(), dateTimeSchema, definitions);
+            if (innerType != null) {
+                return tf.constructType(innerType);
+            } else {
+                return tf.constructType(JsonNode.class);
+            }
+        }
+        if(model instanceof IntegerSchema) {
+
+            IntegerSchema integerSchema = (IntegerSchema) model;
+            JavaType innerType = getTypeFromProperty(integerSchema.getType(), integerSchema.getFormat(), integerSchema, definitions);
+            if (innerType != null) {
+                return tf.constructType(innerType);
+            } else {
+                return tf.constructType(JsonNode.class);
+            }
+        }
+        if(model instanceof NumberSchema) {
+
+            NumberSchema numberSchema = (NumberSchema) model;
+            JavaType innerType = getTypeFromProperty(numberSchema.getType(), numberSchema.getFormat(), numberSchema, definitions);
+            if (innerType != null) {
+                return tf.constructType(innerType);
+            } else {
+                return tf.constructType(JsonNode.class);
+            }
+        }else {
+            Schema property = propertyFromModel(model);
+            if(property != null) {
+                return getTypeFromProperty(model.getType(), model.getFormat(), property, definitions);
+            }
+        }
         return tf.constructType(JsonNode.class);
     }
 
@@ -295,13 +349,30 @@ public class ReflectionUtils {
         if(model.getType() == null) {
             return null;
         }
-        Schema property = null;
-        if (model.getProperties() != null){
-            Map<String, Schema> properties = model.getProperties();
-            for (String name: properties.keySet()){
-                property = properties.get(name);
-            }
+        Schema property = new Schema();
+        if(model.getType() != null){
+            property.setType(model.getType());
         }
+        if(model.getTitle() != null){
+            property.setTitle(model.getTitle());
+        }
+        if(model.getDescription() != null) {
+            property.setDescription(model.getDescription());
+        }
+        if(model.getDefault() != null){
+             property.setDefault(model.getDefault());
+        }
+        if(model.getExample() != null){
+            property.setExample(model.getExample());
+        }
+        if(model.getFormat() != null) {
+            property.setFormat(model.getFormat());
+        }
+        if(model.getExtensions() != null) {
+             property.setExample(model.getExtensions());
+        }
+
+
         return property;
     }
     

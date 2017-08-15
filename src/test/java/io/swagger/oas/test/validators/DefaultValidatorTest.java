@@ -44,7 +44,6 @@ public class DefaultValidatorTest {
     public void testOptionalParameter() throws Exception {
         Parameter parameter = new QueryParameter()
             .name("test")
-                .required(false) //TODO check with core
             .schema(new StringSchema());
 
         converter.validate(null, parameter);

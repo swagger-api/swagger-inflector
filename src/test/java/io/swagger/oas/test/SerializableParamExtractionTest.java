@@ -18,7 +18,6 @@ package io.swagger.oas.test;
 
 import io.swagger.oas.inflector.converters.DefaultConverter;
 import io.swagger.oas.models.Operation;
-import io.swagger.oas.models.media.ArraySchema;
 import io.swagger.oas.models.media.BooleanSchema;
 import io.swagger.oas.models.media.DateSchema;
 import io.swagger.oas.models.media.DateTimeSchema;

@@ -18,6 +18,7 @@ package io.swagger.oas.test;
 
 import io.swagger.oas.inflector.converters.DefaultConverter;
 import io.swagger.oas.models.media.ArraySchema;
+import io.swagger.oas.models.media.BooleanSchema;
 import io.swagger.oas.models.media.IntegerSchema;
 import io.swagger.oas.models.media.StringSchema;
 import io.swagger.oas.models.parameters.Parameter;
@@ -39,7 +40,7 @@ public class ArraySerializableParamExtractionTest {
     DefaultConverter utils = new DefaultConverter();
     TypeFactory tf = Json.mapper().getTypeFactory();
 
-    @org.junit.Test
+    @Test
     public void testConvertStringArray() throws Exception {
         List<String> values = Arrays.asList("a", "b");
 
@@ -172,9 +173,8 @@ public class ArraySerializableParamExtractionTest {
 
         Parameter parameter = new QueryParameter()
                 .style(Parameter.StyleEnum.SPACEDELIMITED)
-                .explode(false)//("csv")
                 .schema(new ArraySchema()
-                        .items(new IntegerSchema()));
+                        .items(new BooleanSchema()));
 
         Object o = utils.cast(values, parameter, tf.constructArrayType(Boolean.class), null);
 

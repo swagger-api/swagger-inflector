@@ -68,7 +68,7 @@ public class ReflectionUtilsTest {
           .addTagsItem("myTag");
 
         String controllerName = utils.getControllerName(operation);
-        assertEquals(controllerName, "io.swagger.sample.controllers.MyTag");
+        assertEquals(controllerName, "io.swagger.oas.sample.controllers.MyTag");
     }
 
     @Test
@@ -77,7 +77,7 @@ public class ReflectionUtilsTest {
           .addTagsItem("my tag");
 
         String controllerName = utils.getControllerName(operation);
-        assertEquals(controllerName, "io.swagger.sample.controllers.My_tag");
+        assertEquals(controllerName, "io.swagger.oas.sample.controllers.My_tag");
     }
 
     @Test
@@ -86,7 +86,7 @@ public class ReflectionUtilsTest {
           .addTagsItem("my-tags");
 
         String controllerName = utils.getControllerName(operation);
-        assertEquals(controllerName, "io.swagger.sample.controllers.My_tags");
+        assertEquals(controllerName, "io.swagger.oas.sample.controllers.My_tags");
     }
     
     @Test
@@ -95,7 +95,7 @@ public class ReflectionUtilsTest {
           .addTagsItem(" myTags ");
 
         String controllerName = utils.getControllerName(operation);
-        assertEquals(controllerName, "io.swagger.sample.controllers.MyTags");
+        assertEquals(controllerName, "io.swagger.oas.sample.controllers.MyTags");
     }
 
     @Test
@@ -112,12 +112,12 @@ public class ReflectionUtilsTest {
         Operation operation = new Operation();
 
         String controllerName = utils.getControllerName(operation);
-        assertEquals(controllerName, "io.swagger.sample.controllers.Default");
+        assertEquals(controllerName, "io.swagger.oas.sample.controllers.Default");
 
         utils.getConfiguration().setControllerClass( "MyController");
 
         controllerName = utils.getControllerName(operation);
-        assertEquals(controllerName, "io.swagger.sample.controllers.MyController");
+        assertEquals(controllerName, "io.swagger.oas.sample.controllers.MyController");
     }
 
     @Test
@@ -134,19 +134,19 @@ public class ReflectionUtilsTest {
 
         Operation operation = new Operation().tags(Lists.newArrayList("one", " two "));
         String controllerName = utils.getControllerName(operation);
-        assertEquals(controllerName, "io.swagger.sample.controllers.Two");
+        assertEquals(controllerName, "io.swagger.oas.sample.controllers.Two");
 
         when( verifier.isValidClassname( configuration.getControllerPackage() + ".Two")).thenReturn( false );
         when( verifier.isValidClassname( configuration.getControllerPackage() + ".OneController")).thenReturn( true );
 
         operation = new Operation().tags(Lists.newArrayList("one", " two "));
         controllerName = utils.getControllerName(operation);
-        assertEquals(controllerName, "io.swagger.sample.controllers.OneController");
+        assertEquals(controllerName, "io.swagger.oas.sample.controllers.OneController");
 
         when( verifier.isValidClassname( configuration.getControllerPackage() + ".OneController")).thenReturn( false );
 
         operation = new Operation().tags(Lists.newArrayList("one", " two "));
         controllerName = utils.getControllerName(operation);
-        assertEquals(controllerName, "io.swagger.sample.controllers.Default");
+        assertEquals(controllerName, "io.swagger.oas.sample.controllers.Default");
     }
 }
