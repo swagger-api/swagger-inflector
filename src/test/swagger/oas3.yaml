@@ -1,7 +1,7 @@
 openapi: 3.0.0-RC1
 servers:
-- url: http://petstore.swagger.io/v2
-- url: https://development.gigantic-server.com/v1
+- url: http://petstore.swagger.io/api
+- url: https://development.gigantic-server.com/api
   description: Development server
 - url: https://{username}.gigantic-server.com:{port}/{basePath}
   x-server: server extension
@@ -123,7 +123,7 @@ paths:
     - name: animal
       in: query
       schema:
-        $ref: '#/definitions/Dog'
+        $ref: '#/components/schemas/Dog'
     - "$ref": "#/components/parameters/skipParam"
     put:
       tags:
@@ -332,11 +332,105 @@ paths:
               responses:
                 '200':
                   description: webhook successfully processed operation
+  "/withModel/{id}":
+      get:
+        tags:
+        - test2
+        operationId: withModel
+        x-swagger-router-controller: TestController
+        parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        responses:
+          '200':
+            description: success!
+            content:
+              "*/*":
+                schema:
+                  "$ref": "#/components/schemas/Animal"
+      post:
+        tags:
+        - test2
+        operationId: withModel
+        x-swagger-router-controller: TestController
+        parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        requestBody:
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/Address"
+          required: false
+        responses:
+          '200':
+            description: success!
+            content:
+              "*/*":
+                schema:
+                  "$ref": "#/components/schemas/Address"
 externalDocs:
   description: Find out more about Swagger
   url: http://swagger.io
 components:
   schemas:
+    Water:
+      properties:
+        clear:
+          type: boolean
+        name:
+          type: string
+        prices:
+          type: array
+        id:
+          type: string
+          format: uuid
+    ExtendedAddress: {}
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+      description: the name!
+    Address:
+      required:
+      - street
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+    UnmappedModel:
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+    Animal:
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        address:
+          "$ref": "#/components/schemas/Address"
+      description: the name!
     Dog:
       properties:
         id:
@@ -425,30 +519,6 @@ components:
           type: string
       xml:
         name: Category
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        username:
-          type: string
-        firstName:
-          type: string
-        lastName:
-          type: string
-        email:
-          type: string
-        password:
-          type: string
-        phone:
-          type: string
-        userStatus:
-          type: integer
-          format: int32
-          description: User Status
-      xml:
-        name: User
     Tag:
       type: object
       properties:

@@ -33,7 +33,6 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JavaType;
 
-import java.util.ArrayList;
 
 import static org.testng.Assert.assertEquals;
 
@@ -72,21 +71,20 @@ public class SerializableParamExtractionTest {
 
     @Test
     public void getLongParameterClassTest() throws Exception {
-        JavaType jt = utils.getTypeFromParameter(new QueryParameter().schema(new NumberSchema()), null);
+        JavaType jt = utils.getTypeFromParameter(new QueryParameter().schema(new IntegerSchema().format("int64")), null);
         assertEquals(jt.getRawClass(), Long.class);
     }
 
 
-
     @Test
     public void getFloatParameterClassTest() throws Exception {
-        JavaType jt = utils.getTypeFromParameter(new QueryParameter().schema(new NumberSchema()), null);
+        JavaType jt = utils.getTypeFromParameter(new QueryParameter().schema(new NumberSchema().format("float")), null);
         assertEquals(jt.getRawClass(), Float.class);
     }
 
     @Test
     public void getDoubleParameterClassTest() throws Exception {
-        JavaType jt = utils.getTypeFromParameter(new QueryParameter().schema(new NumberSchema()), null);
+        JavaType jt = utils.getTypeFromParameter(new QueryParameter().schema(new NumberSchema().format("double")), null);
         assertEquals(jt.getRawClass(), Double.class);
     }
 

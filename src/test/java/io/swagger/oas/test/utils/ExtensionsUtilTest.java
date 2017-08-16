@@ -79,7 +79,6 @@ public class ExtensionsUtilTest {
         Parameter param = operation.getParameters().get(1);
 
         JavaType jt = utils.getTypeFromParameter(param, openAPI.getComponents().getSchemas());
-        System.out.println(jt.getRawClass());
         assertEquals(jt.getRawClass(), Dog.class);
     }
 

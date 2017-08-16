@@ -165,16 +165,16 @@ public class ReflectionUtils {
         if(("string".equals(type) && format == null) || property instanceof StringSchema) {
           return tf.constructType(String.class);
         }
-        if(("number".equals(type) && format == null) || property instanceof NumberSchema) {
+        if(("number".equals(type) && format == null) && property instanceof NumberSchema) {
             return tf.constructType(BigDecimal.class);
         }
-        if(("number".equals(type) && "double".equals(format)) || property instanceof NumberSchema) {
+        if(("number".equals(type) && "double".equals(format)) && property instanceof NumberSchema) {
             return tf.constructType(Double.class);
         }
         if(("string".equals(type) && "email".equals(format)) || property instanceof EmailSchema) {
             return tf.constructType(String.class);
         }
-        if(("number".equals(type) && "float".equals(format)) || property instanceof NumberSchema) {
+        if(("number".equals(type) && "float".equals(format)) && property instanceof NumberSchema) {
             return tf.constructType(Float.class);
         }
         if(("string".equals(type) && "uuid".equals(format)) || property instanceof UUIDSchema) {
@@ -183,10 +183,10 @@ public class ReflectionUtils {
         if(("file".equals(type)) || property instanceof FileSchema) {
             return tf.constructType(File.class);
         }
-        if(("integer".equals(type) && "int32".equals(format)) || property instanceof IntegerSchema) {
+        if(("integer".equals(type) && "int32".equals(format)) && property instanceof IntegerSchema) {
             return tf.constructType(Integer.class);
         }
-        if(("integer".equals(type) && "int64".equals(format)) || property instanceof NumberSchema) {
+        if(("integer".equals(type) && "int64".equals(format)) && property instanceof IntegerSchema) {
             return tf.constructType(Long.class);
         }
         if("integer".equals(type)) {
