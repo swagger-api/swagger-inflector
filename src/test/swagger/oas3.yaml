@@ -375,6 +375,19 @@ paths:
               "*/*":
                 schema:
                   "$ref": "#/components/schemas/Address"
+  "/producesTest":
+      get:
+        parameters: []
+        responses:
+          '200':
+            description: it works
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    name:
+                      type: string
 externalDocs:
   description: Find out more about Swagger
   url: http://swagger.io

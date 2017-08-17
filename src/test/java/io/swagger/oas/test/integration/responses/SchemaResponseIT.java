@@ -104,7 +104,7 @@ public class SchemaResponseIT {
         String response = client.invokeAPI("/producesTest", "GET", new HashMap<String, String>(), new HashMap<String, Object>(),
                 new HashMap<String, String>(), null, null, null, new String[0]);
 
-        assertEquals("{\"name\":\"string\"}", response);
+        assertEquals(response, "{\"name\":\"string\"}");
     }
 
     /**

@@ -58,7 +58,8 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
                     JavaType innerClass = getTypeFromParameter(innerParam, definitions);
                     for (String obj : o) {
                         String[] parts = new String[0];
-                        if (Parameter.StyleEnum.FORM.equals(parameter.getStyle()) && !StringUtils.isEmpty(obj) && parameter.getExplode() == false ) {
+
+                        if (Parameter.StyleEnum.FORM.equals(parameter.getStyle().toString()) && !StringUtils.isEmpty(obj) && parameter.getExplode() == false ) {
                             parts = obj.split(",");
                         }
                         if (Parameter.StyleEnum.PIPEDELIMITED.equals(parameter.getStyle()) && !StringUtils.isEmpty(obj)) {
