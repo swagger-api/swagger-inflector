@@ -80,7 +80,7 @@ public class ResponseModelTest {
 
     @Test
     public void testComplexModel() throws Exception {
-        /*RefProperty p = new RefProperty("User");
+        /*TODO RefProperty p = new RefProperty("User");
         Map<String, Schema> definitions = ModelConverters.getInstance().readAll(User.class);
         Object o = ExampleBuilder.fromProperty(p, definitions);
 

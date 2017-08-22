@@ -111,7 +111,10 @@ public class ResponseExamplesTest {
         Response response = controller.apply( requestContext );
 
         assertEquals( 200, response.getStatus() );
-        System.out.println(Yaml.mapper().writeValueAsString(response.getEntity()));
-        assertEquals(  Yaml.mapper().writeValueAsString(response.getEntity()), "value: '{\"test\":\"yamlvalue\"}'");
+        assertEqualsIgnoreLineEnding(  Yaml.mapper().writeValueAsString(response.getEntity()), "value: '{\"test\":\"yamlvalue\"}'");
+    }
+
+    private void assertEqualsIgnoreLineEnding(String actual, String expected) {
+        assertEquals(actual.replace("\n", ""), expected);
     }
 }
