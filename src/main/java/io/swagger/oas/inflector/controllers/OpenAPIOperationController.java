@@ -476,26 +476,28 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
                     Map<String, io.swagger.oas.models.examples.Example> examples = new HashMap<>();
                     Object output = null;
-                    for (String name: response.getContent().keySet()){
-                         if (response.getContent().get(name).getExamples() != null){
-                             examples = response.getContent().get(name).getExamples();
-                         }
+                    if (response.getContent() != null) {
+                        for (String name : response.getContent().keySet()) {
+                            if (response.getContent().get(name).getExamples() != null) {
+                                examples = response.getContent().get(name).getExamples();
+                            }
 
-                        if (examples != null) {
-                            for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
-                                for (String key : examples.keySet()) {
-                                    if (MediaType.valueOf(key).isCompatible(mediaType)) {
-                                        builder.entity(examples.get(key))
-                                                .type(mediaType);
+                            if (examples != null) {
+                                for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
+                                    for (String key : examples.keySet()) {
+                                        if (MediaType.valueOf(key).isCompatible(mediaType)) {
+                                            builder.entity(examples.get(key))
+                                                    .type(mediaType);
 
-                                        return builder.build();
+                                            return builder.build();
+                                        }
                                     }
                                 }
                             }
+
+
+                            output = ExampleBuilder.fromProperty(response.getContent().get(name).getSchema(), definitions);
                         }
-
-
-                         output = ExampleBuilder.fromProperty(response.getContent().get(name).getSchema(), definitions);
                     }
                     if (output != null) {
                         ResponseContext resp = new ResponseContext().entity(output);

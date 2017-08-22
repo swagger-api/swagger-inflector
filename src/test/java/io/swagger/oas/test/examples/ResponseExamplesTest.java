@@ -19,13 +19,18 @@ package io.swagger.oas.test.examples;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.controllers.OpenAPIOperationController;
+import io.swagger.oas.inflector.examples.models.Example;
 import io.swagger.oas.inflector.processors.JsonNodeExampleSerializer;
 import io.swagger.oas.models.Operation;
 import io.swagger.oas.models.OpenAPI;
-import io.swagger.parser.OpenAPIParser;
+
+import io.swagger.parser.models.ParseOptions;
+import io.swagger.parser.v3.OpenAPIV3Parser;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
+import mockit.Injectable;
 import org.testng.annotations.Test;
+import v2.io.swagger.models.auth.AuthorizationValue;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.MediaType;
@@ -34,6 +39,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.stub;
@@ -49,10 +55,13 @@ public class ResponseExamplesTest {
         Yaml.mapper().registerModule(simpleModule);
     }
 
-    /*@Test
-    public void testResponseJsonExample() throws Exception {
+    @Test
+    public void testResponseJsonExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
         Configuration config = new Configuration();
-        OpenAPI openAPI = new OpenAPIParser().readLocation( "src/test/swagger/sample1.yaml");
+        ParseOptions options = new ParseOptions();
+        options.setResolve(true);
+
+        OpenAPI openAPI = new OpenAPIV3Parser().readLocation( "src/test/swagger/oas3.yaml",auths, options).getOpenAPI();
         Operation operation = openAPI.getPaths().get( "/mockResponses/responseWithExamples").getGet();
 
        OpenAPIOperationController controller = new OpenAPIOperationController(
@@ -72,14 +81,17 @@ public class ResponseExamplesTest {
         Response response = controller.apply( requestContext );
 
         assertEquals( 200, response.getStatus() );
-        assertEquals( "{\"test\":\"jsonvalue\"}", Json.mapper().writeValueAsString(response.getEntity()));
+        assertEquals(  Json.mapper().writeValueAsString(response.getEntity()), "{\"value\":\"{\\\"test\\\":\\\"jsonvalue\\\"}\"}");
     }
 
     @Test
-    public void testResponseYamlExample() throws Exception {
+    public void testResponseYamlExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
 
         Configuration config = new Configuration();
-        OpenAPI openAPI = new OpenAPIParser().readLocation( "src/test/swagger/sample1.yaml");
+        ParseOptions options = new ParseOptions();
+        options.setResolve(true);
+
+        OpenAPI openAPI = new OpenAPIV3Parser().readLocation( "src/test/swagger/oas3.yaml",auths, options).getOpenAPI();
         Operation operation = openAPI.getPaths().get( "/mockResponses/responseWithExamples").getGet();
 
         OpenAPIOperationController controller = new OpenAPIOperationController(
@@ -99,6 +111,7 @@ public class ResponseExamplesTest {
         Response response = controller.apply( requestContext );
 
         assertEquals( 200, response.getStatus() );
-        assertEquals( "---\ntest: \"yamlvalue\"\n", Yaml.mapper().writeValueAsString(response.getEntity()));
-    }*/
+        System.out.println(Yaml.mapper().writeValueAsString(response.getEntity()));
+        assertEquals(  Yaml.mapper().writeValueAsString(response.getEntity()), "value: '{\"test\":\"yamlvalue\"}'");
+    }
 }

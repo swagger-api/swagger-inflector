@@ -1,4 +1,4 @@
-package io.swagger.test.oas.integration;
+package io.swagger.oas.test.integration;
 
 import io.swagger.oas.test.client.ApiClient;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;

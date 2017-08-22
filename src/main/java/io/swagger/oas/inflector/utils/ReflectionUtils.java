@@ -80,6 +80,10 @@ public class ReflectionUtils {
     public JavaType[] getOperationParameterClasses(Operation operation, Map<String, Schema> definitions) {
         TypeFactory tf = Json.mapper().getTypeFactory();
 
+        if (operation.getParameters() == null){
+            operation.setParameters(new ArrayList<Parameter>());
+        }
+
         JavaType[] jt = new JavaType[operation.getParameters().size() + 1];
         int i = 0;
         jt[i] = tf.constructType(RequestContext.class);
