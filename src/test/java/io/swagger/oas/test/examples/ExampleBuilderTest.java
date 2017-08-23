@@ -62,14 +62,14 @@ public class ExampleBuilderTest {
         Yaml.mapper().registerModule(simpleModule);
     }
 
-   /* @Test
+    @Test
     public void testReadModel() throws Exception {
         Map<String, Schema> definitions = ModelConverters.getInstance().readAll(User.class);
         Object o = ExampleBuilder.fromProperty(new Schema().name("User"), definitions);
 
         String str = new XmlExampleSerializer().serialize((Example) o);
         assertEqualsIgnoreLineEnding(str, "<?xml version='1.1' encoding='UTF-8'?><user><id>0</id><user>string</user><children><child>string</child></children></user>");
-    }*/
+    }
 
     @Test
     public void testXmlJackson() throws Exception {
@@ -243,21 +243,21 @@ public class ExampleBuilderTest {
         assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><boolean>true</boolean>");
     }
 
-    /*@Test
+    @Test
     public void testXmlDecimal() throws Exception {
         NumberSchema sp = new NumberSchema();
         Example ex = ExampleBuilder.fromProperty(sp, null);
         String xmlString = new XmlExampleSerializer().serialize(ex);
         assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><decimal>1.5</decimal>");
-    }*/
+    }
 
-    /*@Test
+    @Test
     public void testXmlFloat() throws Exception {
         NumberSchema sp = new NumberSchema();
         Example ex = ExampleBuilder.fromProperty(sp.format("float"), null);
         String xmlString = new XmlExampleSerializer().serialize(ex);
         assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><float>1.1</float>");
-    }*/
+    }
 
     @Test
     public void testXmlInteger() throws Exception {
@@ -267,13 +267,13 @@ public class ExampleBuilderTest {
         assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><integer>0</integer>");
     }
 
-    /*@Test
+    @Test
     public void testXmlLong() throws Exception {
         IntegerSchema sp = new IntegerSchema();
         Example ex = ExampleBuilder.fromProperty(sp.format("int64"), null);
         String xmlString = new XmlExampleSerializer().serialize(ex);
         assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><long>0</long>");
-    }*/
+    }
 
     @Test
     public void testXmlString() throws Exception {
@@ -357,7 +357,7 @@ public class ExampleBuilderTest {
             "}");
     }
 
-    /*@Test
+    @Test
     public void testIssue126Composed() throws Exception {
         String schema =
             "{\n" +
@@ -394,7 +394,7 @@ public class ExampleBuilderTest {
             "  \"id\" : 0,\n" +
             "  \"name\" : \"hi!?\"\n" +
             "}");
-    }*/
+    }
 
     @Test
     public void testRecursiveSchema() throws Exception {
@@ -504,7 +504,7 @@ public class ExampleBuilderTest {
                 "}");
     }
 
-    /*@Test
+    @Test
     public void testInvalidExample() throws Exception {
         testInvalidExample( new IntegerSchema(), "asd",
             ExampleBuilder.SAMPLE_INT_PROPERTY_VALUE, 123 );
@@ -524,7 +524,7 @@ public class ExampleBuilderTest {
 
         testInvalidExample( new IntegerSchema(), "asd",
             ExampleBuilder.SAMPLE_BASE_INTEGER_PROPERTY_VALUE );
-    }*/
+    }
 
     public void testInvalidExample(Schema property, String invalidValue, Object defaultValue ) throws Exception {
        testInvalidExample( property, invalidValue, defaultValue, null );

@@ -162,44 +162,46 @@ public class ExampleBuilder {
                 output = new StringExample( defaultValue == null ? SAMPLE_STRING_PROPERTY_VALUE : defaultValue );
             }
         } else if (property instanceof IntegerSchema) {
-            if (example != null) {
-                try {
-                    output = new IntegerExample(Integer.parseInt(example.toString()));
-                }
-                catch( NumberFormatException e ){}
-            }
-
-            if( output == null )  {
-                Integer defaultValue = ((IntegerSchema) property).getDefault();
-
-                if( defaultValue == null ){
-                    List<Integer> enums = ((IntegerSchema) property).getEnum();
-                    if( enums != null && !enums.isEmpty()) {
-                        defaultValue = enums.get(0);
+            if(property.getFormat().equals("int32")){
+                if (example != null) {
+                    try {
+                        output = new IntegerExample(Integer.parseInt(example.toString()));
                     }
+                    catch( NumberFormatException e ){}
                 }
 
-                output = new IntegerExample( defaultValue == null ? SAMPLE_INT_PROPERTY_VALUE : defaultValue );
-            }
-        } else if (property instanceof NumberSchema) {
-            if (example != null) {
-                try {
-                    output = new LongExample(Long.parseLong(example.toString()));
-                }
-                catch( NumberFormatException e ) {}
-            }
+                if( output == null )  {
+                    Integer defaultValue = ((IntegerSchema) property).getDefault();
 
-            if( output == null ) {
-                BigDecimal defaultValue = ((NumberSchema) property).getDefault();
-
-                if( defaultValue == null ){
-                    List<BigDecimal> enums = ((NumberSchema) property).getEnum();
-                    if( enums != null && !enums.isEmpty()) {
-                        defaultValue = enums.get(0);
+                    if( defaultValue == null ){
+                        List<Integer> enums = ((IntegerSchema) property).getEnum();
+                        if( enums != null && !enums.isEmpty()) {
+                            defaultValue = enums.get(0);
+                        }
                     }
+
+                    output = new IntegerExample( defaultValue == null ? SAMPLE_INT_PROPERTY_VALUE : defaultValue );
+                }
+            }else if(property.getFormat().equals("int64")){
+                if (example != null) {
+                    try {
+                        output = new LongExample(Long.parseLong(example.toString()));
+                    }
+                    catch( NumberFormatException e ) {}
                 }
 
-                output = new LongExample( defaultValue == null ? SAMPLE_LONG_PROPERTY_VALUE : defaultValue.longValue() );
+                if( output == null ) {
+                    BigDecimal defaultValue = ((NumberSchema) property).getDefault();
+
+                    if( defaultValue == null ){
+                        List<BigDecimal> enums = ((NumberSchema) property).getEnum();
+                        if( enums != null && !enums.isEmpty()) {
+                            defaultValue = enums.get(0);
+                        }
+                    }
+
+                    output = new LongExample( defaultValue == null ? SAMPLE_LONG_PROPERTY_VALUE : defaultValue.longValue() );
+                }
             }
         } else if (property instanceof IntegerSchema) {
             if (example != null) {
@@ -213,44 +215,46 @@ public class ExampleBuilder {
                 output = new IntegerExample(SAMPLE_BASE_INTEGER_PROPERTY_VALUE);
             }
         } else if (property instanceof NumberSchema) {
-            if (example != null) {
-                try {
-                    output = new FloatExample(Float.parseFloat(example.toString()));
-                }
-                catch( NumberFormatException e ){}
-            }
-
-            if( output == null ) {
-                BigDecimal defaultValue = ((NumberSchema) property).getDefault();
-
-                if( defaultValue == null ){
-                    List<BigDecimal> enums = ((NumberSchema) property).getEnum();
-                    if( enums != null && !enums.isEmpty()) {
-                        defaultValue = enums.get(0);
+            if(property.getFormat().equals("double")) {
+                if (example != null) {
+                    try {
+                        output = new DoubleExample(Double.parseDouble(example.toString()));
+                    } catch (NumberFormatException e) {
                     }
                 }
 
-                output = new FloatExample( defaultValue == null ? SAMPLE_FLOAT_PROPERTY_VALUE : defaultValue.floatValue() );
-            }
-        } else if (property instanceof NumberSchema) {
-            if (example != null) {
-                try {
-                    output = new DoubleExample(Double.parseDouble(example.toString()));
-                }
-                catch( NumberFormatException e ){}
-            }
+                if (output == null) {
+                    BigDecimal defaultValue = ((NumberSchema) property).getDefault();
 
-            if( output == null ){
-                BigDecimal defaultValue = ((NumberSchema) property).getDefault();
-
-                if( defaultValue == null ){
-                    List<BigDecimal> enums = ((NumberSchema) property).getEnum();
-                    if( enums != null && !enums.isEmpty()) {
-                        defaultValue = enums.get(0);
+                    if (defaultValue == null) {
+                        List<BigDecimal> enums = ((NumberSchema) property).getEnum();
+                        if (enums != null && !enums.isEmpty()) {
+                            defaultValue = enums.get(0);
+                        }
                     }
+
+                    output = new DoubleExample(defaultValue == null ? SAMPLE_DOUBLE_PROPERTY_VALUE : defaultValue.doubleValue());
+                }
+            }else if (property.getFormat().equals("format")){
+                if (example != null) {
+                    try {
+                        output = new FloatExample(Float.parseFloat(example.toString()));
+                    }
+                    catch( NumberFormatException e ){}
                 }
 
-                output = new DoubleExample( defaultValue == null ? SAMPLE_DOUBLE_PROPERTY_VALUE : defaultValue.doubleValue() );
+                if( output == null ) {
+                    BigDecimal defaultValue = ((NumberSchema) property).getDefault();
+
+                    if( defaultValue == null ){
+                        List<BigDecimal> enums = ((NumberSchema) property).getEnum();
+                        if( enums != null && !enums.isEmpty()) {
+                            defaultValue = enums.get(0);
+                        }
+                    }
+
+                    output = new FloatExample( defaultValue == null ? SAMPLE_FLOAT_PROPERTY_VALUE : defaultValue.floatValue() );
+                }
             }
         } else if (property instanceof BooleanSchema) {
             if (example != null) {
