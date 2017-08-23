@@ -45,7 +45,7 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import v2.io.swagger.models.apideclaration.Model;
+
 
 
 import java.io.File;

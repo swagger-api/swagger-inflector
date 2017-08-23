@@ -80,11 +80,11 @@ public class ResponseModelTest {
 
     @Test
     public void testComplexModel() throws Exception {
-        /*TODO RefProperty p = new RefProperty("User");
+        Schema property = new Schema().$ref("User");
         Map<String, Schema> definitions = ModelConverters.getInstance().readAll(User.class);
-        Object o = ExampleBuilder.fromProperty(p, definitions);
+        Object o = ExampleBuilder.fromProperty(property, definitions);
 
         ObjectExample n = Json.mapper().convertValue(o, ObjectExample.class);
-        assertNotNull(n);*/
+        assertNotNull(n);
     }
 }

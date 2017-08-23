@@ -164,10 +164,14 @@ public class ExampleBuilder {
         } else if (property instanceof IntegerSchema) {
             if (example != null) {
                 try {
-                    if (property.getFormat().equals("int32")) {
+                    if (property.getFormat() != null) {
+                        if (property.getFormat().equals("int32")) {
+                            output = new IntegerExample(Integer.parseInt(example.toString()));
+                        } else if (property.getFormat().equals("int64")) {
+                            output = new LongExample(Long.parseLong(example.toString()));
+                        }
+                    }else{
                         output = new IntegerExample(Integer.parseInt(example.toString()));
-                    } else if (property.getFormat().equals("int64")) {
-                        output = new LongExample(Long.parseLong(example.toString()));
                     }
                 } catch (NumberFormatException e) {
                 }
@@ -182,26 +186,16 @@ public class ExampleBuilder {
                         defaultValue = enums.get(0);
                     }
                 }
-                if (property.getFormat().equals("int32")) {
-                    output = new IntegerExample(defaultValue == null ? SAMPLE_INT_PROPERTY_VALUE : defaultValue);
-                } else if (property.getFormat().equals("int64")) {
-                    output = new LongExample( defaultValue == null ? SAMPLE_LONG_PROPERTY_VALUE : defaultValue.longValue() );
+                if (property.getFormat() != null) {
+                    if (property.getFormat().equals("int32")) {
+                        output = new IntegerExample(defaultValue == null ? SAMPLE_INT_PROPERTY_VALUE : defaultValue);
+                    } else if (property.getFormat().equals("int64")) {
+                        output = new LongExample(defaultValue == null ? SAMPLE_LONG_PROPERTY_VALUE : defaultValue.longValue());
+                    }
+                }else {
+                    output = new IntegerExample(SAMPLE_BASE_INTEGER_PROPERTY_VALUE);
                 }
             }
-
-
-
-        /*} else if (property instanceof IntegerSchema) {
-            if (example != null) {
-                try {
-                    output = new IntegerExample(Integer.parseInt(example.toString()));
-                }
-                catch( NumberFormatException e ){}
-            }
-
-            if( output == null ) {
-                output = new IntegerExample(SAMPLE_BASE_INTEGER_PROPERTY_VALUE);
-            }*/
         } else if (property instanceof NumberSchema) {
 
                     if (example != null) {
@@ -212,6 +206,8 @@ public class ExampleBuilder {
                                 }else if (property.getFormat().equals("float")) {
                                     output = new FloatExample(Float.parseFloat(example.toString()));
                                 }
+                            }else{
+                                output = new DecimalExample(new BigDecimal(example.toString()));
                             }
                         } catch (NumberFormatException e) {
                         }
@@ -226,11 +222,15 @@ public class ExampleBuilder {
                                 defaultValue = enums.get(0);
                             }
                         }
-                        if (property.getFormat().equals("double")) {
-                            output = new DoubleExample(defaultValue == null ? SAMPLE_DOUBLE_PROPERTY_VALUE : defaultValue.doubleValue());
-                        }
-                        if (property.getFormat().equals("float")) {
-                            output = new FloatExample(defaultValue == null ? SAMPLE_FLOAT_PROPERTY_VALUE : defaultValue.floatValue());
+                        if (property.getFormat() != null) {
+                            if (property.getFormat().equals("double")) {
+                                output = new DoubleExample(defaultValue == null ? SAMPLE_DOUBLE_PROPERTY_VALUE : defaultValue.doubleValue());
+                            }
+                            if (property.getFormat().equals("float")) {
+                                output = new FloatExample(defaultValue == null ? SAMPLE_FLOAT_PROPERTY_VALUE : defaultValue.floatValue());
+                            }
+                        }else {
+                            output = new DecimalExample(new BigDecimal(SAMPLE_DECIMAL_PROPERTY_VALUE));
                         }
                     }
 
@@ -269,17 +269,6 @@ public class ExampleBuilder {
                     output = new StringExample(SAMPLE_DATETIME_PROPERTY_VALUE);
                 }
             }
-        /*} else if (property instanceof NumberSchema) {
-            if (example != null) {
-                try {
-                    output = new DecimalExample(new BigDecimal(example.toString()));
-                }
-                catch( NumberFormatException e ){}
-            }
-
-            if( output == null ){
-                output = new DecimalExample(new BigDecimal(SAMPLE_DECIMAL_PROPERTY_VALUE));
-            }*/
         } else if (property instanceof ObjectSchema) {
             if (example != null) {
                 try {
@@ -488,7 +477,7 @@ public class ExampleBuilder {
             if(composedSchema.getAllOf() != null) {
 
                 List<Schema> models = composedSchema.getAllOf();
-                ObjectExample example = new ObjectExample();
+                ex = new ObjectExample();
 
                 List<Example> innerExamples = new ArrayList<>();
                 if (models != null) {
@@ -500,7 +489,7 @@ public class ExampleBuilder {
                     }
                 }
                 mergeTo(ex, innerExamples);
-                output = example;
+                output = ex;
             }
         }
         else if(model instanceof ArraySchema) {

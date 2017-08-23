@@ -19,7 +19,7 @@ package io.swagger.oas.test.examples;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.controllers.OpenAPIOperationController;
-import io.swagger.oas.inflector.examples.models.Example;
+
 import io.swagger.oas.inflector.processors.JsonNodeExampleSerializer;
 import io.swagger.oas.models.Operation;
 import io.swagger.oas.models.OpenAPI;
@@ -30,7 +30,7 @@ import io.swagger.util.Json;
 import io.swagger.util.Yaml;
 import mockit.Injectable;
 import org.testng.annotations.Test;
-import v2.io.swagger.models.auth.AuthorizationValue;
+
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.MediaType;

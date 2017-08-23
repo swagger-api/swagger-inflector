@@ -65,7 +65,7 @@ public class ExampleBuilderTest {
     @Test
     public void testReadModel() throws Exception {
         Map<String, Schema> definitions = ModelConverters.getInstance().readAll(User.class);
-        Object o = ExampleBuilder.fromProperty(new Schema().name("User"), definitions);
+        Object o = ExampleBuilder.fromProperty(new Schema().$ref("User"), definitions);
 
         String str = new XmlExampleSerializer().serialize((Example) o);
         assertEqualsIgnoreLineEnding(str, "<?xml version='1.1' encoding='UTF-8'?><user><id>0</id><user>string</user><children><child>string</child></children></user>");
@@ -387,7 +387,7 @@ public class ExampleBuilderTest {
         Map<String, Schema> definitions = new HashMap<>();
         definitions.put("ComposedModel", model);
 
-        Example rep = ExampleBuilder.fromProperty(new Schema().$ref("ComposedModel"), definitions);
+        Example rep = ExampleBuilder.fromProperty(new Schema().$ref("ComposedModel").name("ComposedModel"), definitions);
 
         assertEqualsIgnoreLineEnding(Json.pretty(rep),
             "{\n" +

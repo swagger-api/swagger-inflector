@@ -34,7 +34,7 @@ public class ObjectExample extends AbstractExample {
 
     public void put(String key, Example value) {
         if (values == null) {
-            values = new LinkedHashMap<String, Example>();
+            values = new LinkedHashMap<>();
         }
         values.put(key, value);
     }
@@ -47,7 +47,7 @@ public class ObjectExample extends AbstractExample {
 
     public Set<String> keySet() {
         if (values == null) {
-            return new HashSet<String>();
+            return new HashSet<>();
         }
         return values.keySet();
     }
