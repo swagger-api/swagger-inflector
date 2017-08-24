@@ -40,6 +40,7 @@ import io.swagger.oas.inflector.validators.ValidationException;
 import io.swagger.oas.inflector.validators.ValidationMessage;
 import io.swagger.oas.models.Operation;
 import io.swagger.oas.models.headers.Header;
+import io.swagger.oas.models.media.Content;
 import io.swagger.oas.models.media.Schema;
 import io.swagger.oas.models.parameters.Parameter;
 import io.swagger.oas.models.responses.ApiResponse;
@@ -76,6 +77,7 @@ import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -590,20 +592,24 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
        if (resp.getContentType() != null) {
             return;
         }
-        ApiResponses available = operation.getResponses();
-        if (available != null) {
-            for (String a : available.keySet()) {
-                MediaType mt = MediaType.valueOf(a);
-                for (MediaType acceptable : res.getAcceptableMediaTypes()) {
-                    if (mt.isCompatible(acceptable)) {
-                        resp.setContentType(mt);
+        ApiResponses responses = operation.getResponses();
+        if (responses != null) {
+            for (String responseCode : responses.keySet()) {
+                final ApiResponse response = responses.get(responseCode);
+                Content content = response.getContent();
+                if(content == null) {
+                    return;
+                }
+
+                for(String contentType : content.keySet()) {
+                    MediaType mediaType = MediaType.valueOf(contentType);
+                    for (MediaType acceptable : res.getAcceptableMediaTypes()) {
+                        if (!mediaType.isCompatible(acceptable)) {
+                            continue;
+                        }
+                        resp.setContentType(mediaType);
                         return;
                     }
-                }
-            }
-            if (available.size() > 0) {
-                for (String a : available.keySet()) {
-                    resp.setContentType(MediaType.valueOf(available.get(a).toString()));
                 }
             }
         }
