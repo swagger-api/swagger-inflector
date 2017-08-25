@@ -101,10 +101,12 @@ public class SchemaResponseIT {
      */
     @Test
     public void testProducesType() throws Exception {
-        String response = client.invokeAPI("/producesTest", "GET", new HashMap<String, String>(), new HashMap<String, Object>(),
-                new HashMap<String, String>(), null, null, null, new String[0]);
 
-        assertEquals(response, "{\"name\":\"string\"}");
+        String response = client.invokeAPI("/producesTest", "GET", new HashMap<String, String>(), new HashMap<String, Object>(),
+                    new HashMap<String, String>(), null, null, null, new String[0]);
+
+            assertEquals(response, "{\"name\":\"string\"}");
+
     }
 
     /**

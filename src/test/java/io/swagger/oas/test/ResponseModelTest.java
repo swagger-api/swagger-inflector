@@ -40,7 +40,7 @@ public class ResponseModelTest {
     public void testConvertStringProperty() throws Exception {
         StringSchema p = new StringSchema();
 
-        Object o = ExampleBuilder.fromProperty(p, null);
+        Object o = ExampleBuilder.fromSchema(p, null);
         assertNotNull(o);
         assertTrue(o instanceof StringExample);
         assertEquals(((StringExample) o).textValue(), "string");
@@ -51,7 +51,7 @@ public class ResponseModelTest {
         Schema p = new StringSchema()
                 .example("fun");
 
-        Object o = ExampleBuilder.fromProperty(p, null);
+        Object o = ExampleBuilder.fromSchema(p, null);
         assertNotNull(o);
         assertTrue(o instanceof StringExample);
         assertEquals(((StringExample) o).textValue(), "fun");
@@ -61,7 +61,7 @@ public class ResponseModelTest {
     public void testConvertIntegerProperty() throws Exception {
         IntegerSchema p = new IntegerSchema();
 
-        Object o = ExampleBuilder.fromProperty(p, null);
+        Object o = ExampleBuilder.fromSchema(p, null);
         assertNotNull(o);
         assertTrue(o instanceof IntegerExample);
         assertEquals(((IntegerExample) o).asInt(), new Integer(0));
@@ -72,7 +72,7 @@ public class ResponseModelTest {
         Schema p = new IntegerSchema()
                 .example(3);
 
-        Object o = ExampleBuilder.fromProperty(p, null);
+        Object o = ExampleBuilder.fromSchema(p, null);
         assertNotNull(o);
         assertTrue(o instanceof IntegerExample);
         assertEquals(((IntegerExample) o).asInt(), new Integer(3));
@@ -82,7 +82,7 @@ public class ResponseModelTest {
     public void testComplexModel() throws Exception {
         Schema property = new Schema().$ref("User");
         Map<String, Schema> definitions = ModelConverters.getInstance().readAll(User.class);
-        Object o = ExampleBuilder.fromProperty(property, definitions);
+        Object o = ExampleBuilder.fromSchema(property, definitions);
 
         ObjectExample n = Json.mapper().convertValue(o, ObjectExample.class);
         assertNotNull(n);

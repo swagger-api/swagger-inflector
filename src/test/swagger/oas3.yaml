@@ -347,6 +347,7 @@ paths:
                       type: string
   "/fileUpload":
       post:
+        x-swagger-router-controller: TestController
         operationId: uploadFile
         requestBody:
           content:
@@ -370,6 +371,7 @@ paths:
                   type: string
   "/primitiveBody/inline":
     post:
+      x-swagger-router-controller: TestController
       operationId: inlineRequiredBody
       requestBody:
         content:
@@ -385,6 +387,7 @@ paths:
           description: ok!
   "/primitiveBody/string":
     post:
+      x-swagger-router-controller: TestController
       operationId: stringBody
       requestBody:
         content:
@@ -397,6 +400,7 @@ paths:
           description: ok!
   "/primitiveBody/integer":
     post:
+      x-swagger-router-controller: TestController
       operationId: integerBody
       requestBody:
         content:
@@ -410,6 +414,7 @@ paths:
           description: ok!
   "/primitiveBody/binary":
     post:
+      x-swagger-router-controller: TestController
       operationId: binaryBody
       requestBody:
         content:
@@ -428,12 +433,16 @@ paths:
                 format: binary
   "/hidden":
     get:
+      x-inflector-hidden: true
       responses:
         default:
           description: ok
   "/arrayInputTest":
     get:
+      x-swagger-router-controller: TestController
       operationId: arrayInputTest
+      tags:
+      - inputTest
       parameters:
       - name: users
         in: query
@@ -448,6 +457,7 @@ paths:
   "/formTest":
     post:
       operationId: formTest
+      x-swagger-router-controller: TestController
       requestBody:
         content:
           x-www-form-urlencoded:
@@ -478,6 +488,7 @@ paths:
       parameters:
       - name: user
         in: query
+        required: false
         schema:
           type: string
       responses:
@@ -495,6 +506,7 @@ paths:
       parameters:
       - name: user
         in: query
+        required: false
         schema:
           type: string
       responses:
@@ -512,6 +524,7 @@ paths:
       parameters:
       - name: user
         in: query
+        required: false
         schema:
           type: string
       responses:
@@ -528,6 +541,7 @@ paths:
       parameters:
       - name: user
         in: query
+        required: false
         schema:
           type: string
       responses:
@@ -537,6 +551,7 @@ paths:
             application/json:
               schema:
                 type: string
+                example: fun
   "/mockResponses/responseWithExamples":
     get:
       tags:
@@ -561,6 +576,7 @@ paths:
       parameters:
       - name: user
         in: query
+        required: false
         schema:
           type: string
       responses:
@@ -578,6 +594,7 @@ paths:
       parameters:
       - name: user
         in: query
+        required: false
         schema:
           type: string
       responses:
@@ -595,6 +612,7 @@ paths:
       parameters:
       - name: user
         in: query
+        required: false
         schema:
           type: string
       responses:
@@ -611,6 +629,7 @@ paths:
       parameters:
       - name: user
         in: query
+        required: false
         schema:
           type: string
       responses:
@@ -628,6 +647,7 @@ paths:
       parameters:
       - name: user
         in: query
+        required: false
         schema:
           type: string
       responses:
@@ -645,6 +665,7 @@ paths:
       parameters:
       - name: user
         in: query
+        required: false
         schema:
           type: string
       responses:
@@ -663,6 +684,7 @@ paths:
       parameters:
       - name: user
         in: query
+        required: false
         schema:
           type: string
       responses:
@@ -690,6 +712,7 @@ paths:
       parameters:
       - name: user
         in: query
+        required: false
         schema:
           type: string
       responses:
@@ -699,6 +722,8 @@ paths:
             application/json:
               schema:
                 type: array
+                items:
+                  "$ref": "#/components/schemas/Address"
   "/mockResponses/complexArrayResponseWithExample":
     get:
       tags:
@@ -706,6 +731,7 @@ paths:
       parameters:
       - name: user
         in: query
+        required: false
         schema:
           type: string
       responses:
@@ -715,6 +741,8 @@ paths:
             application/json:
               schema:
                 type: array
+                items:
+                  $ref: '#/components/schemas/User'
   "/issue-125":
       get:
         responses:
@@ -735,6 +763,7 @@ paths:
               schema:
                 type: string
                 format: url
+              example: 'http://foo.bar/other'
   "/issue-130":
     get:
       responses:
@@ -749,12 +778,26 @@ paths:
                     type: array
                   anIntegerArray:
                     type: array
+                    items:
+                      type: string
+                      example: a string value
+                    items:
+                      type: integer
+                      format: int32
+                      example: 99
                 description: an object with array properties
   "/issue-132":
     get:
       responses:
         '303':
           description: issue 132
+          headers:
+            Location:
+              schema:
+                type: string
+                format: url
+              example: 'http://foo.bar/other'
+              description: URI of the entity affected by the property change
   "/issue-132.2":
     get:
       responses:
@@ -762,6 +805,7 @@ paths:
           description: issue 133, alternate example
   "/form":
     post:
+      x-swagger-router-controller: TestController
       operationId: postFormData
       requestBody:
         content: {}
@@ -771,6 +815,7 @@ paths:
   "/goodbye":
     get:
       operationId: goodbye
+      x-swagger-router-controller: TestController
       parameters:
       - name: happy
         in: query
@@ -788,6 +833,8 @@ paths:
                 "$ref": "#/components/schemas/User"
   "/hello":
     get:
+      tags:
+      - test1
       operationId: testMe
       parameters:
       - name: limit
@@ -814,6 +861,7 @@ paths:
   "/withModelArray/{id}":
     post:
       operationId: withModelArray
+      x-swagger-router-controller: TestController
       parameters:
       - name: id
         in: path
@@ -821,10 +869,10 @@ paths:
         schema:
           type: string
       requestBody:
-        content:
-          "*/*":
-            schema:
-              type: array
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
         required: true
       responses:
         '200':
@@ -835,7 +883,10 @@ paths:
                 "$ref": "#/components/schemas/Animal"
   "/withModel/{id}":
     get:
+      tags:
+        - test2
       operationId: withModel
+      x-swagger-router-controller: TestController
       parameters:
       - name: id
         in: path
@@ -850,7 +901,10 @@ paths:
               schema:
                 "$ref": "#/components/schemas/Animal"
     post:
+      tags:
+        - test2
       operationId: withModel
+      x-swagger-router-controller: TestController
       parameters:
       - name: id
         in: path
@@ -873,6 +927,7 @@ paths:
   "/withInvalidComposedModel":
     post:
       operationId: withInvalidComposedModel
+      x-swagger-router-controller: TestController
       requestBody:
         content:
           "*/*":
@@ -885,6 +940,7 @@ paths:
   "/withValidComposedModel":
     post:
       operationId: withValidComposedModel
+      x-swagger-router-controller: TestController
       requestBody:
         content:
           "*/*":
@@ -897,18 +953,24 @@ paths:
   "/withInvalidComposedModelArray":
     post:
       operationId: withInvalidComposedModelArray
+      x-swagger-router-controller: TestController
       requestBody:
         content:
           "*/*":
             schema:
               type: array
+              items:
+                $ref: '#/components/schemas/ExtendedAddress'
         required: false
       responses:
         '200':
           description: success!
   "/unmappedWithModel/{id}":
     post:
+      tags:
+      - test2
       operationId: unmappedWithModelInput
+      x-swagger-router-controller: TestController
       parameters:
       - name: id
         in: path
@@ -930,7 +992,10 @@ paths:
                 "$ref": "#/components/schemas/Address"
   "/mappedWithDefinedModel/{id}":
     post:
+      tags:
+      - test2
       operationId: mappedWithDefinedModel
+      x-swagger-router-controller: TestController
       parameters:
       - name: id
         in: path
@@ -952,7 +1017,10 @@ paths:
                 "$ref": "#/components/schemas/Dog"
   "/unmappedWithUndefinedModel/{id}":
     post:
+      tags:
+      - test2
       operationId: unmappedWithUndefinedModel
+      x-swagger-router-controller: TestController
       parameters:
       - name: id
         in: path
@@ -970,7 +1038,10 @@ paths:
           description: success!
   "/withPath/{id}":
     get:
+      tags:
+      - test1
       operationId: withPath
+      x-swagger-router-controller: TestController
       parameters:
       - name: id
         in: path
@@ -986,7 +1057,10 @@ paths:
                 "$ref": "#/components/schemas/User"
   "/withDate/{date}":
     get:
+      tags:
+      - test1
       operationId: withDateTime
+      x-swagger-router-controller: TestController
       parameters:
       - name: date
         in: path
@@ -1003,7 +1077,10 @@ paths:
                 "$ref": "#/components/schemas/User"
   "/withIntegerEnum/{stage}":
     get:
+      tags:
+        - test1
       operationId: withDateTime
+      x-swagger-router-controller: TestController
       parameters:
       - name: stage
         in: path
@@ -1024,7 +1101,10 @@ paths:
                 "$ref": "#/components/schemas/User"
   "/overloaded":
     get:
+      tags:
+      - overloaded
       operationId: overloadedResponse
+      x-swagger-router-controller: TestController
       parameters:
       - name: arg1
         in: query
@@ -1039,31 +1119,46 @@ paths:
                 "$ref": "#/components/schemas/User"
   "/throwApiException":
     get:
+      tags:
+      - throw
       operationId: throwApiException
+      x-swagger-router-controller: TestController
       responses:
         '200':
           description: success!
   "/throwApiExceptionAsCause":
     get:
+      tags:
+      - throw
       operationId: throwApiExceptionAsCause
+      x-swagger-router-controller: TestController
       responses:
         '200':
           description: success!
   "/throwNonApiException":
     get:
+      tags:
+      - throw
       operationId: throwNonApiException
+      x-swagger-router-controller: TestController
       responses:
         '200':
           description: success!
   "/returnNonRfc2616Status":
     get:
+      tags:
+        - throw
       operationId: returnNonRfc2616Status
+      x-swagger-router-controller: TestController
       responses:
         '200':
           description: success!
   "/responseHeaders":
     get:
+      tags:
+        - response
       operationId: returnWithResponseHeaders
+      x-swagger-router-controller: TestController
       responses:
         '200':
           description: success

@@ -72,7 +72,7 @@ public class ExampleBuilder {
     public static final String SAMPLE_DATETIME_PROPERTY_VALUE = "2015-07-20T15:49:04-07:00";
     public static final double SAMPLE_DECIMAL_PROPERTY_VALUE = 1.5;
 
-    public static Example fromProperty(Schema property, Map<String, Schema> definitions) {
+    public static Example fromSchema(Schema property, Map<String, Schema> definitions) {
         return fromProperty(property, definitions, new HashSet<String>());
     }
 
@@ -110,7 +110,7 @@ public class ExampleBuilder {
             if( definitions != null ) {
                 Schema model = definitions.get(ref);
                 if (model != null) {
-                    output = fromModel(ref, model, definitions, processedModels);
+                    output = fromProperty(model, definitions, processedModels);
                 }
             }
         } else if (property instanceof EmailSchema) {
@@ -285,7 +285,7 @@ public class ExampleBuilder {
                 if(op.getProperties() != null) {
                     for(String propertyName : op.getProperties().keySet()) {
                         Schema inner = op.getProperties().get(propertyName);
-                        Example innerExample = fromProperty(inner, definitions);
+                        Example innerExample = fromProperty(inner, definitions,processedModels);
                         outputExample.put(propertyName, innerExample);
                     }
                 }
@@ -309,6 +309,25 @@ public class ExampleBuilder {
                         }
                     }
                 }
+            }
+        } if (property instanceof ComposedSchema) {
+            ComposedSchema composedSchema = (ComposedSchema) property;
+            if(composedSchema.getAllOf() != null) {
+
+                List<Schema> models = composedSchema.getAllOf();
+                ObjectExample ex = new ObjectExample();
+
+                List<Example> innerExamples = new ArrayList<>();
+                if (models != null) {
+                    for (Schema im : models) {
+                        Example innerExample = fromProperty(im, definitions, processedModels);
+                        if (innerExample != null) {
+                            innerExamples.add(innerExample);
+                        }
+                    }
+                }
+                mergeTo(ex, innerExamples);
+                output = ex;
             }
         } else if (property.getAdditionalProperties() != null) {
             Schema inner = property.getAdditionalProperties();
@@ -429,97 +448,6 @@ public class ExampleBuilder {
             else if("double".equals(model.getType())) {
                 return new DoubleExample(0);
             }
-        }
-
-
-        return output;
-    }
-
-    public static Example fromModel(String name, Schema model, Map<String, Schema> definitions, Set<String> processedModels) {
-        String namespace = null;
-        String prefix = null;
-        Boolean attribute = false;
-        Boolean wrapped = false;
-
-        Example output = null;
-        if (model.getExample() != null) {
-            try {
-                String str = model.getExample().toString();
-                output = Json.mapper().readValue(str, ObjectExample.class);
-            } catch (IOException e) {
-                return null;
-            }
-        }
-
-        if (model.getXml() != null) {
-            XML xml = model.getXml();
-            name = xml.getName();
-            namespace = xml.getNamespace();
-            prefix = xml.getPrefix();
-            attribute = xml.getAttribute();
-            wrapped = xml.getWrapped() != null ? xml.getWrapped() : false;
-        }
-
-        ObjectExample ex = new ObjectExample();
-
-        if(model.getProperties() != null) {
-            Map<String,Schema> properties = model.getProperties();
-            for(String key : properties.keySet()) {
-                Schema property = (Schema)model.getProperties().get(key);
-                Example propExample = fromProperty(property, definitions, processedModels);
-                ex.put(key, propExample);
-            }
-        }
-        output = ex;
-
-        if (model instanceof ComposedSchema) {
-            ComposedSchema composedSchema = (ComposedSchema) model;
-            if(composedSchema.getAllOf() != null) {
-
-                List<Schema> models = composedSchema.getAllOf();
-                ex = new ObjectExample();
-
-                List<Example> innerExamples = new ArrayList<>();
-                if (models != null) {
-                    for (Schema im : models) {
-                        Example innerExample = fromModel(null, im, definitions, processedModels);
-                        if (innerExample != null) {
-                            innerExamples.add(innerExample);
-                        }
-                    }
-                }
-                mergeTo(ex, innerExamples);
-                output = ex;
-            }
-        }
-        else if(model instanceof ArraySchema) {
-            ArraySchema am = (ArraySchema) model;
-            ObjectExample sample = new ObjectExample();
-
-            Schema inner = am.getItems();
-            if (inner != null) {
-                Example innerExample = fromProperty(inner, definitions, processedModels);
-                if (innerExample != null) {
-                    ArrayExample an = new ArrayExample();
-                    an.add(innerExample);
-                    output = an;
-                }
-            }
-        }
-        if (output != null) {
-            if (attribute != null) {
-                output.setAttribute(attribute);
-            }
-            if (wrapped != null && wrapped) {
-                if (name != null) {
-                    output.setWrappedName(name);
-                }
-            } else if (name != null) {
-                output.setName(name);
-            }
-            output.setNamespace(namespace);
-            output.setPrefix(prefix);
-            output.setWrapped(wrapped);
         }
         return output;
     }

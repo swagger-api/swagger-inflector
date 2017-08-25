@@ -457,7 +457,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                     if (headerProperty.getContent().get(name) != null) {
                                         if(headerProperty.getContent().get(name).getSchema() != null)
                                             property = headerProperty.getContent().get(name).getSchema();
-                                            output = ExampleBuilder.fromProperty(property, definitions);
+                                            output = ExampleBuilder.fromSchema(property, definitions);
                                     }
 
 
@@ -498,7 +498,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                             }
 
 
-                            output = ExampleBuilder.fromProperty(response.getContent().get(name).getSchema(), definitions);
+                            output = ExampleBuilder.fromSchema(response.getContent().get(name).getSchema(), definitions);
                         }
                     }
                     if (output != null) {
