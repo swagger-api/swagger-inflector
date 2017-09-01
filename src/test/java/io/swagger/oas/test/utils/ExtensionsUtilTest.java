@@ -56,7 +56,7 @@ public class ExtensionsUtilTest {
 
         assertNotNull(body);
         Schema model = body.getContent().get("application/json").getSchema();
-        assertEquals(model.getType(),"object");
+        assertEquals("object", model.getType());
     }
 
     @Test

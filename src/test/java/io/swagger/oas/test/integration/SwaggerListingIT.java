@@ -59,8 +59,10 @@ public class SwaggerListingIT {
     }
 
     private void testVendorSpecExtensionDelete(OpenAPI openAPI) throws Exception {
-        for (PathItem path : openAPI.getPaths().values()) {
-            for (Operation operation : path.readOperations()) {
+        //System.out.println("***********************************"+openAPI);
+        for (String path : openAPI.getPaths().keySet()) {
+            PathItem pathItem = openAPI.getPaths().get(path);
+            for (Operation operation : pathItem.readOperations()) {
                 final Constants.VendorExtension filteredVendorExtension =
                         getFilteredVendorExtensions(operation.getExtensions());
                 if (filteredVendorExtension != null) {
@@ -69,11 +71,12 @@ public class SwaggerListingIT {
                 }
             }
         }
-        for (Map.Entry<String, Schema> definition : openAPI.getComponents().getSchemas().entrySet()) {
+        Map<String,Schema> definition = openAPI.getComponents().getSchemas();
+        for (String key : definition.keySet()) {
             final Constants.VendorExtension filteredVendorExtension =
-                    getFilteredVendorExtensions(definition.getValue().getExtensions());
+                    getFilteredVendorExtensions(definition.get(key).getExtensions());
             if (filteredVendorExtension != null) {
-                Assert.fail("Model " + definition.getKey() + " contains " +
+                Assert.fail("Model " + definition.get(key) + " contains " +
                         filteredVendorExtension.getValue());
             }
         }

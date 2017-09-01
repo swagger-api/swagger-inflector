@@ -144,7 +144,7 @@ public class ExampleBuilder {
                     }
                 }
 
-                output = new StringExample( defaultValue.toString() == null ? SAMPLE_UUID_PROPERTY_VALUE : defaultValue.toString() );
+                output = new StringExample( defaultValue == null ? SAMPLE_UUID_PROPERTY_VALUE : defaultValue.toString() );
             }
         } else if (property instanceof StringSchema) {
             if (example != null) {

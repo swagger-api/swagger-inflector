@@ -212,7 +212,7 @@ public class RequestTestIT {
                 "application/json",             // contentType
                 new String[0]);
 
-        assertEquals("success!", str);
+        assertEquals(str,"success!");
     }
 
     @Test

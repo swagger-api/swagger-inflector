@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider;
-import io.swagger.oas.inflector.config.FilterFactory;
 import io.swagger.core.filter.SwaggerSpecFilter;
+import io.swagger.oas.inflector.config.FilterFactory;
 import io.swagger.jaxrs2.SwaggerSerializers;
 
 import io.swagger.oas.inflector.config.Configuration;

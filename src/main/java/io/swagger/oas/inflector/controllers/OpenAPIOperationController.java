@@ -43,6 +43,7 @@ import io.swagger.oas.models.headers.Header;
 import io.swagger.oas.models.media.Content;
 import io.swagger.oas.models.media.Schema;
 import io.swagger.oas.models.parameters.Parameter;
+import io.swagger.oas.models.parameters.RequestBody;
 import io.swagger.oas.models.responses.ApiResponse;
 import io.swagger.oas.models.responses.ApiResponses;
 import io.swagger.util.Json;
@@ -105,6 +106,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
     private Object controller = null;
     private Method method = null;
     private JavaType[] parameterClasses = null;
+    private JavaType[] requestBodyClass = null;
     private Map<String, Schema> definitions;
     private InputConverter validator;
     private String controllerName;
@@ -133,6 +135,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         controllerName = getControllerName(operation);
         methodName = getMethodName(path, httpMethod, operation);
         JavaType[] args = getOperationParameterClasses(operation, this.definitions);
+        JavaType[] args2 = getOperationRequestBodyClasses(operation, this.definitions);
 
         StringBuilder builder = new StringBuilder();
 
@@ -162,6 +165,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
         LOGGER.info("looking for method: `" + operationSignature + "` in class `" + controllerName + "`");
         this.parameterClasses = args;
+        this.requestBodyClass = args2;
 
         if (controllerName != null && methodName != null) {
             try {
@@ -210,109 +214,89 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         final RequestContext requestContext = createContext(ctx);
 
         String path = ctx.getUriInfo().getPath();
-        Map<String, Map<String, String>> formMap = new HashMap<String, Map<String, String>>();
-        Map<String, File> inputStreams = new HashMap<String, File>();
+        Map<String, Map<String, String>> formMap = new HashMap<>();
+        Map<String, File> inputStreams = new HashMap<>();
 
         Object[] args = new Object[parameters.size() + 1];
-        if (parameters != null) {
-            int i = 0;
 
-            args[i] = requestContext;
-            i += 1;
-            List<ValidationMessage> missingParams = new ArrayList<ValidationMessage>();
-            UriInfo uri = ctx.getUriInfo();
-            String formDataString = null;
-            String[] parts = null;
-            Set<String> existingKeys = new HashSet<String>();
+        int i = 0;
 
-            for (Iterator<String> x = uri.getQueryParameters().keySet().iterator(); x.hasNext(); ) {
-                existingKeys.add(x.next() + ": qp");
-            }
-            for (Iterator<String> x = uri.getPathParameters().keySet().iterator(); x.hasNext(); ) {
-                existingKeys.add(x.next() + ": pp");
-            }
-            for (Iterator<String> x = ctx.getHeaders().keySet().iterator(); x.hasNext(); ) {
-                String key = x.next();
-//              if(!commonHeaders.contains(key))
-//                existingKeys.add(key);
-            }
-            MediaType mt = requestContext.getMediaType();
+        args[i] = requestContext;
+        i += 1;
+        List<ValidationMessage> missingParams = new ArrayList<>();
+        UriInfo uri = ctx.getUriInfo();
+        Set<String> existingKeys = new HashSet<>();
 
-            for (Parameter p : parameters) {
-                Map<String, String> headers = new HashMap<String, String>();
-                String name = null;
+        for (Iterator<String> x = uri.getQueryParameters().keySet().iterator(); x.hasNext(); ) {
+            existingKeys.add(x.next() + ": qp");
+        }
+        for (Iterator<String> x = uri.getPathParameters().keySet().iterator(); x.hasNext(); ) {
+            existingKeys.add(x.next() + ": pp");
+        }
+
+
+        if (operation.getRequestBody() != null) {
+            Object o = null;
+            JavaType jt = requestBodyClass[i];
+            Class<?> cls = jt.getRawClass();
+            if (ctx.hasEntity()) {
+                RequestBody body = operation.getRequestBody();
                 try {
-                    formDataString = IOUtils.toString(ctx.getEntityStream(), "UTF-8");
-                    parts = formDataString.split("&");
+                    o = EntityProcessorFactory.readValue(ctx.getMediaType(), ctx.getEntityStream(), cls);
+                    if (o != null) {
+                        if (body.getContent() != null) {
+                            Content content = body.getContent();
+                            for (String key : content.keySet()) {
+                                io.swagger.oas.models.media.MediaType mediaType = content.get(key);
+                                if (mediaType.getSchema() != null) {
+                                    validate(o, mediaType.getSchema(), SchemaValidator.Direction.INPUT);
+                                }
+                            }
 
-                    for (String part : parts) {
-                        String[] kv = part.split("=");
-                        existingKeys.add(kv[0] + ": fp");
+                        }
+
                     }
-                } catch (IOException e) {
+                } catch (ConversionException e) {
                     e.printStackTrace();
                 }
-            }
 
+            } /*else if (parameter.getRequired()) {
+               ValidationException e = new ValidationException();
+               e.message(new ValidationMessage()
+                       .message("The input body `" + paramName + "` is required"));
+               throw e;*/
+        }
+
+
+        if (parameters != null) {
             for (Parameter parameter : parameters) {
                 String in = parameter.getIn();
                 Object o = null;
 
                 try {
-
-                    if (formDataString != null) {
-                        for (String part : parts) {
-                            String[] kv = part.split("=");
-                            if (kv != null) {
-                                if (kv.length > 0) {
-                                    existingKeys.remove(kv[0] + ": fp");
-                                }
-                                if (kv.length == 2) {
-                                    // TODO how to handle arrays here?
-                                    String key = kv[0];
-                                    try {
-                                        String value = URLDecoder.decode(kv[1], "utf-8");
-                                        if (parameter.getName().equals(key)) {
-                                            JavaType jt = parameterClasses[i];
-                                            Class<?> cls = jt.getRawClass();
-                                            try {
-                                                o = validator.convertAndValidate(Arrays.asList(value), parameter, cls, definitions);
-                                            } catch (ConversionException e) {
-                                                missingParams.add(e.getError());
-                                            } catch (ValidationException e) {
-                                                missingParams.add(e.getValidationMessage());
-                                            }
-                                        }
-                                    } catch (UnsupportedEncodingException e) {
-                                        LOGGER.error("unable to decode value for " + key);
-                                    }
-                                }
-                            }
+                    try {
+                        String paramName = parameter.getName();
+                        if ("query".equals(in)) {
+                            existingKeys.remove(paramName + ": qp");
                         }
-                    } else {
-                        try {
-                            String paramName = parameter.getName();
-                            if ("query".equals(in)) {
-                                existingKeys.remove(paramName + ": qp");
-                            }
-                            if ("path".equals(in)) {
-                                existingKeys.remove(paramName + ": pp");
-                            }
-                            JavaType jt = parameterClasses[i];
-                            Class<?> cls = jt.getRawClass();
-                            if ("query".equals(in)) {
-                                o = validator.convertAndValidate(uri.getQueryParameters().get(parameter.getName()), parameter, cls, definitions);
-                            } else if ("path".equals(in)) {
-                                o = validator.convertAndValidate(uri.getPathParameters().get(parameter.getName()), parameter, cls, definitions);
-                            } else if ("header".equals(in)) {
-                                o = validator.convertAndValidate(ctx.getHeaders().get(parameter.getName()), parameter, cls, definitions);
-                            }
-                        } catch (ConversionException e) {
-                            missingParams.add(e.getError());
-                        } catch (ValidationException e) {
-                            missingParams.add(e.getValidationMessage());
+                        if ("path".equals(in)) {
+                            existingKeys.remove(paramName + ": pp");
                         }
+                        JavaType jt = parameterClasses[i];
+                        Class<?> cls = jt.getRawClass();
+                        if ("query".equals(in)) {
+                            o = validator.convertAndValidate(uri.getQueryParameters().get(parameter.getName()), parameter, cls, definitions);
+                        } else if ("path".equals(in)) {
+                            o = validator.convertAndValidate(uri.getPathParameters().get(parameter.getName()), parameter, cls, definitions);
+                        } else if ("header".equals(in)) {
+                            o = validator.convertAndValidate(ctx.getHeaders().get(parameter.getName()), parameter, cls, definitions);
+                        }
+                    } catch (ConversionException e) {
+                        missingParams.add(e.getError());
+                    } catch (ValidationException e) {
+                        missingParams.add(e.getValidationMessage());
                     }
+
                 } catch (NumberFormatException e) {
                     LOGGER.error("Couldn't find " + parameter.getName() + " (" + in + ") to " + parameterClasses[i], e);
                 }
@@ -452,26 +436,20 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                         Object output = null;
                         for(String key: response.getHeaders().keySet()) {
                             Header headerProperty = response.getHeaders().get(key);
-                            if(headerProperty.getContent()!= null){
-                                for (String name : headerProperty.getContent().keySet()){
-                                    if (headerProperty.getContent().get(name) != null) {
-                                        if(headerProperty.getContent().get(name).getSchema() != null)
-                                            property = headerProperty.getContent().get(name).getSchema();
-                                            output = ExampleBuilder.fromSchema(property, definitions);
-                                    }
+                            if(headerProperty.getSchema()!= null){
+                                output = ExampleBuilder.fromSchema(headerProperty.getSchema(), definitions);
 
-
-                            if(output instanceof ArrayExample) {
-                                output = ((ArrayExample)output).asString();
-                            }
-                            else if(output instanceof ObjectExample) {
-                                LOGGER.debug("not serializing output example, only primitives or arrays of primitives are supported");
-                            }
-                            else {
-                                output = ((Example)output).asString();
-                            }
-                            builder.header(key, output);
+                                if(output instanceof ArrayExample) {
+                                    output = ((ArrayExample)output).asString();
                                 }
+                                else if(output instanceof ObjectExample) {
+                                    LOGGER.debug("not serializing output example, only primitives or arrays of primitives are supported");
+                                }
+                                else {
+                                    output = ((Example)output).asString();
+                                }
+                                builder.header(key, output);
+
                             }
                         }
                     }

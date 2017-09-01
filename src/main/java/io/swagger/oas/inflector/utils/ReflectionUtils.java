@@ -39,6 +39,7 @@ import io.swagger.oas.models.media.Schema;
 import io.swagger.oas.models.media.StringSchema;
 import io.swagger.oas.models.media.UUIDSchema;
 import io.swagger.oas.models.parameters.Parameter;
+import io.swagger.oas.models.parameters.RequestBody;
 import io.swagger.util.Json;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
@@ -96,6 +97,42 @@ public class ReflectionUtils {
             i += 1;
         }
         return jt;
+    }
+
+    public JavaType[] getOperationRequestBodyClasses(Operation operation, Map<String, Schema> definitions) {
+        TypeFactory tf = Json.mapper().getTypeFactory();
+
+        if (operation.getRequestBody() != null) {
+
+            JavaType[] jt = new JavaType[2];
+            int i = 0;
+            jt[i] = tf.constructType(RequestContext.class);
+
+            i += 1;
+
+            JavaType argumentClass = getTypeFromRequestBody(operation.getRequestBody(), definitions);
+            jt[i] = argumentClass;
+
+            return jt;
+        }
+
+        return  null;
+
+    }
+
+    public JavaType getTypeFromRequestBody(RequestBody body,Map<String, Schema> definitions ){
+
+        if (body.getContent() != null) {
+            Map<String,MediaType> content   = body.getContent();
+            for (String mediaType : content.keySet()){
+                if (content.get(mediaType).getSchema() != null) {
+                    Schema model = content.get(mediaType).getSchema();
+                    return getTypeFromModel("", model, definitions);
+                }
+            }
+        }
+
+        return null;
     }
 
     public JavaType getTypeFromParameter(Parameter parameter, Map<String, Schema> definitions) {

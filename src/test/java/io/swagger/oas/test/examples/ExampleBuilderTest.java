@@ -41,14 +41,13 @@ import io.swagger.oas.models.media.XML;
 
 import io.swagger.oas.models.responses.ApiResponse;
 import io.swagger.oas.test.models.User;
-import io.swagger.parser.OpenAPIParser;
+import io.swagger.parser.v3.OpenAPIV3Parser;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
@@ -559,13 +558,13 @@ public class ExampleBuilderTest {
         assertEquals(actual.replace("\r\n", "\n"), expected);
     }
 
-    /*@Test
+    @Test
     public void testObjectsWithAnonymousObjectArrays() throws Exception {
 
-        OpenAPI openAPI = new OpenAPIParser().readLocation("src/test/swagger/issue-171.yaml", auths, options );
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/issue-171.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/test").getGet().getResponses().get( "200" );
-        Example example = ExampleBuilder.fromSchema(response.getSchema(), openAPI.getComponents().getSchemas());
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas());
 
         String output = Json.pretty(example);
 
@@ -579,7 +578,7 @@ public class ExampleBuilderTest {
 
 
         response = openAPI.getPaths().get("/anothertest").getGet().getResponses().get( "200" );
-        example = ExampleBuilder.fromSchema(response.getSchema(), swagger.getDefinitions());
+        example = ExampleBuilder.fromSchema(response.getContent().get("*/*").getSchema(), openAPI.getComponents().getSchemas());
 
         output = new XmlExampleSerializer().serialize(example);
         assertEquals( output, "<?xml version='1.1' encoding='UTF-8'?><string>string</string>");
@@ -587,10 +586,10 @@ public class ExampleBuilderTest {
 
     @Test
     public void testEnumExample() throws Exception {
-        OpenAPI openAPI = new OpenAPIParser().readLocation("src/test/swagger/issue-171.yaml");
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/issue-171.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/color").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getSchema(), openAPI.getComponents().getSchemas());
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas());
 
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
@@ -600,10 +599,10 @@ public class ExampleBuilderTest {
 
     @Test
     public void testIssue1261InlineSchemaExample() throws Exception {
-        OpenAPI openAPI = new OpenAPIParser().readLocation("src/test/swagger/issue-1261.yaml");
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/issue-1261.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/user").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getSchema(), openAPI.getComponents().getSchemas());
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null);
 
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
@@ -614,10 +613,10 @@ public class ExampleBuilderTest {
 
     @Test
     public void testIssue1177RefArrayExample() throws Exception {
-        OpenAPI openAPI = new OpenAPIParser().readLocation("src/test/swagger/issue-1177.yaml");
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/issue-1177.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/array").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getSchema(), openAPI.getComponents().getSchemas());
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas());
 
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "[ \"string\" ]");
@@ -625,10 +624,10 @@ public class ExampleBuilderTest {
 
     @Test
     public void testIssue1263SchemaExampleNestedObjects() throws Exception {
-        OpenAPI openAPI = new OpenAPIParser().readLocation("src/test/swagger/issue-1263.yaml");
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/issue-1263.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/nested_object").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getSchema(), openAPI.getComponents().getSchemas());
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas());
 
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
@@ -640,10 +639,10 @@ public class ExampleBuilderTest {
 
     @Test
     public void testDifferentExampleTypes() throws Exception {
-        OpenAPI openAPI = new OpenAPIParser().readLocation("src/test/swagger/example-types.yaml");
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/example-types.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/user").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getSchema(), openAPI.getComponents().getSchemas());
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null);
 
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
@@ -659,5 +658,5 @@ public class ExampleBuilderTest {
                 "  \"boolean\" : true,\n" +
                 "  \"string\" : \"Arthur Dent\"\n" +
                 "}");
-    }*/
+    }
 }

@@ -16,8 +16,8 @@
 
 package io.swagger.oas.inflector.controllers;
 
-import io.swagger.oas.inflector.config.FilterFactory;
 import io.swagger.core.filter.SwaggerSpecFilter;
+import io.swagger.oas.inflector.config.FilterFactory;
 import io.swagger.oas.inflector.config.OpenAPIProcessor;
 import io.swagger.oas.inflector.utils.VendorSpecFilter;
 import io.swagger.oas.models.OpenAPI;
@@ -44,6 +44,7 @@ public class OpenAPIResourceController implements Inflector<ContainerRequestCont
     private List<OpenAPIProcessor> openAPIProcessors;
 
     public OpenAPIResourceController(OpenAPI openAPI, List<String> swaggerProcessors) {
+
         this.openAPI = openAPI;
 
         this.openAPIProcessors = new ArrayList<>(swaggerProcessors.size());

@@ -1,4 +1,4 @@
-openapi: 3.0.0-RC1
+openapi: 3.0
 servers:
 - url: http://petstore.swagger.io/api
 - url: https://development.gigantic-server.com/api
@@ -37,7 +37,7 @@ security:
 info:
   description: 'This is a sample server Petstore'
   version: 1.0.0
-  title: Sample Pet Store App
+  title: testing source file
   termsOfService: http://swagger.io/terms/
   x-info: info extension
   contact:
@@ -103,7 +103,7 @@ paths:
         content:
           'application/json':
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/Dog'
     servers:
     - url: http://petstore.swagger.io/v2
     parameters:
@@ -151,187 +151,6 @@ paths:
         - read:pets
       requestBody:
         "$ref": "#/components/requestBodies/requestBody1"
-  "/pet/findByStatus":
-    get:
-      tags:
-      - pet
-      summary: Finds Pets by status
-      description: Multiple status values can be provided with comma separated strings
-      operationId: findPetsByStatus
-      parameters:
-      - name: status
-        in: query
-        description: Status values that need to be considered for filter
-        required: true
-        example: "example"
-        schema:
-          title: title test
-          format: int64
-          minimum: 1
-          maximum: 10
-          allOf:
-          - $ref: '#/components/schemas/Pet'
-          - type: object
-            properties:
-              huntingSkill:
-                type: string
-                description: The measured skill for hunting
-                enum:
-                - clueless
-                - lazy
-                - adventurous
-                - aggressive
-          xml:
-            namespace: http://example.com/schema/sample
-            prefix: sample
-          enum:
-          - available
-          - pending
-          - sold
-          type: object
-          properties:
-            id:
-              type: integer
-              format: int64
-            name:
-              type: string
-              xml:
-                namespace: http://inside/properties/schema
-                prefix: inside properties schema
-          required:
-          - name
-          - pet
-          example:
-            name: Puma
-            id: 1
-          externalDocs:
-            description: External Docs Inside Schema
-            url: http://swagger.io inside Schema
-          items:
-            type: string
-            enum:
-            - available
-            - pending
-            - sold
-            default: available
-        content:
-          'application/json':
-            schema:
-              type: array
-              items:
-                type: string
-            example: example string
-            examples:
-              list:
-                summary: List of Names
-                value:
-                  - Bob
-                  - Diane
-                  - Mary
-                  - Bill
-              empty:
-                summary: Empty
-                value: {}
-            encoding:
-              historyMetadata:
-                # require XML Content-Type in utf-8 encoding
-                contentType: application/xml; charset=utf-8
-              profileImage:
-                # only accept png/jpeg
-                contentType: image/png, image/jpeg
-                headers:
-                  X-Rate-Limit:
-                    description: calls per hour allowed by the user
-                    schema:
-                      type: integer
-                      format: int32
-          'application/xml':
-            examples:
-              list:
-                summary: List of names
-                value: "<Users><User name='Bob'/><User name='Diane'/><User name='Mary'/><User name='Bill'/></Users>"
-              empty:
-                summary: Empty list
-                value: "<Users/>"
-          'text/plain':
-            examples:
-              list:
-                summary: List of names
-                value: "Bob,Diane,Mary,Bill"
-              empty:
-                summary: Empty
-                value: ""
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/xml:
-              schema:
-                type: array
-                items:
-                  "$ref": "#/components/schemas/Pet"
-            application/json:
-              schema:
-                type: array
-                items:
-                  "$ref": "#/components/schemas/Pet"
-        '400':
-          description: Invalid status value
-      security:
-      - petstore_auth:
-        - write:pets
-        - read:pets
-      requestBody:
-        description: pet store to add to the system
-        required: true
-        content:
-          multipart/mixed:
-            schema:
-              type: object
-              properties:
-                id:
-                  # default is text/plain
-                  type: string
-                  format: uuid
-                  "$ref": "#/components/schemas/Pet"
-                address:
-                  # default is application/json
-                  type: object
-                  properties: {}
-                historyMetadata:
-                  # need to declare XML format!
-                  description: metadata in XML format
-                  type: object
-                  properties: {}
-                profileImage:
-                  # default is application/octet-stream, need to declare an image type only!
-                  type: string
-                  format: binary
-            encoding:
-              historyMetadata:
-                # require XML Content-Type in utf-8 encoding
-                contentType: application/xml; charset=utf-8
-              profileImage:
-                # only accept png/jpeg
-                contentType: image/png, image/jpeg
-                headers:
-                  X-Rate-Limit:
-                    description: calls per hour allowed by the user
-                    schema:
-                      type: integer
-                      format: int32
-                  X-Expires-After:
-                    description: date in UTC when token expires
-                    schema:
-                      type: string
-                      format: date-time
-      callbacks:
-        mainHook:
-          '$request.body#/url':
-            post:
-              responses:
-                '200':
-                  description: webhook successfully processed operation
   "/producesTest":
       get:
         parameters: []
@@ -447,6 +266,7 @@ paths:
       - name: users
         in: query
         required: true
+        style: form
         schema:
           type: array
           items:
@@ -708,7 +528,7 @@ paths:
   "/mockResponses/complexArrayResponse":
     get:
       tags:
-        - mockResponses
+      - mockResponses
       parameters:
       - name: user
         in: query
@@ -745,6 +565,7 @@ paths:
                   $ref: '#/components/schemas/User'
   "/issue-125":
       get:
+        parameters: []
         responses:
           '200':
             description: int16
@@ -763,7 +584,7 @@ paths:
               schema:
                 type: string
                 format: url
-              example: 'http://foo.bar/other'
+                example: 'http://foo.bar/other'
   "/issue-130":
     get:
       responses:
@@ -803,6 +624,15 @@ paths:
       responses:
         '303':
           description: issue 133, alternate example
+          headers:
+            _links:
+              description: array of locations
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: url
+                  example: 'http://foo.bar/other'
   "/form":
     post:
       x-swagger-router-controller: TestController
@@ -820,6 +650,7 @@ paths:
       - name: happy
         in: query
         required: true
+        style: form
         schema:
           type: array
           items:
@@ -1178,7 +1009,17 @@ components:
         id:
           type: string
           format: uuid
-    ExtendedAddress: {}
+    ExtendedAddress:
+      type: object
+      x-swagger-router-model: io.swagger.oas.test.models.ExtendedAddress
+      allOf:
+        - $ref: '#/components/schemas/Address'
+        - type: object
+          required:
+          - gps
+          properties:
+            gps:
+              type: string
     User:
       type: object
       properties:
@@ -1188,19 +1029,28 @@ components:
         name:
           type: string
       description: the name!
+      example: |
+            {
+              "foo":"bar"
+            }
     Address:
       required:
       - street
       type: object
+      x-swagger-router-model: io.swagger.oas.test.models.Address
       properties:
         street:
           type: string
+          example: 12345 El Monte Road
         city:
           type: string
+          example: Los Altos Hills
         state:
           type: string
+          example: CA
         zip:
           type: string
+          example: '94022'
     UnmappedModel:
       properties:
         id:
@@ -1219,6 +1069,7 @@ components:
           "$ref": "#/components/schemas/Address"
       description: the name!
     Dog:
+      type: object
       properties:
         id:
           type: integer

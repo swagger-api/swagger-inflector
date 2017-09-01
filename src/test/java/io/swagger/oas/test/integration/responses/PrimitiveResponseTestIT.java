@@ -159,13 +159,13 @@ public class PrimitiveResponseTestIT {
     /**
      * test for https://github.com/swagger-api/swagger-inflector/issues/125
      */
-    @org.junit.Test
+    /*This is no longer support by OAS @org.junit.Test
     public void verifyBaseIntegerResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/issue-125", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
         assertEquals(str, String.valueOf(ExampleBuilder.SAMPLE_BASE_INTEGER_PROPERTY_VALUE));
-    }
+    }*/
 
     /**
      * test for https://github.com/swagger-api/swagger-inflector/issues/128
@@ -180,6 +180,7 @@ public class PrimitiveResponseTestIT {
         }
         catch (ApiException e) {
             assertTrue(e.getCode() == 303);
+            //System.out.println("***** "+e.getMessage());
             assertEquals(e.getMessage(), "\"http://foo.bar/other\"");
         }
     }
