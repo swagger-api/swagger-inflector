@@ -213,15 +213,15 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         List<Parameter> parameters = operation.getParameters();
         final RequestContext requestContext = createContext(ctx);
 
-        String path = ctx.getUriInfo().getPath();
-        Map<String, Map<String, String>> formMap = new HashMap<>();
         Map<String, File> inputStreams = new HashMap<>();
 
         Object[] args = new Object[parameters.size() + 1];
+        Object[] args2 = new Object[2];
 
         int i = 0;
 
         args[i] = requestContext;
+        args2[i] = requestContext;
         i += 1;
         List<ValidationMessage> missingParams = new ArrayList<>();
         UriInfo uri = ctx.getUriInfo();

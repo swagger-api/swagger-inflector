@@ -60,7 +60,7 @@ public class ExtensionsUtilTest {
     }
 
     @Test
-    public void testResolveParam(@Injectable final List<AuthorizationValue> auths) throws Exception {
+    public void testResolveRequestBody(@Injectable final List<AuthorizationValue> auths) throws Exception {
         ReflectionUtils utils = new ReflectionUtils();
         utils.setConfiguration( Configuration.read("src/test/config/config1.yaml"));
 
@@ -75,14 +75,14 @@ public class ExtensionsUtilTest {
 
         new ExtensionsUtil().addExtensions(openAPI);
 
-        Operation operation = openAPI.getPaths().get("/pet").getPost();
-        Parameter param = operation.getParameters().get(1);
+        Operation operation = openAPI.getPaths().get("/mappedWithDefinedModel/{id}").getPost();
+        RequestBody body = operation.getRequestBody();
 
-        JavaType jt = utils.getTypeFromParameter(param, openAPI.getComponents().getSchemas());
+        JavaType jt = utils.getTypeFromRequestBody(body, openAPI.getComponents().getSchemas());
         assertEquals(jt.getRawClass(), Dog.class);
     }
 
-    //TODO test Resolve RequestBody
+    
 
 
     @Test

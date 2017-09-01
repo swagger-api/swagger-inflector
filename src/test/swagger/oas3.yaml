@@ -79,6 +79,12 @@ paths:
       operationId: addPet
       parameters: []
       responses:
+        '200':
+          description: party time!
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Dog"
         '405':
           description: Invalid input
           headers:
@@ -106,25 +112,6 @@ paths:
               $ref: '#/components/schemas/Dog'
     servers:
     - url: http://petstore.swagger.io/v2
-    parameters:
-    - name: status
-      in: query
-      description: Status values that need to be considered for filter
-      required: true
-      schema:
-        type: array
-        items:
-          type: string
-          enum:
-          - available
-          - pending
-          - sold
-          default: available
-    - name: animal
-      in: query
-      schema:
-        $ref: '#/components/schemas/Dog'
-    - "$ref": "#/components/parameters/skipParam"
     put:
       tags:
       - pet
