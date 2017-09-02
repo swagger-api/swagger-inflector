@@ -148,14 +148,15 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
             } else {
                 builder.append(", ");
                 if (args[i] == null) {
-                    LOGGER.error("didn't expect a null class for " + operation.getParameters().get(i - 1).getName());
+                    LOGGER.error("didn't expect a null class for " + args[i]);
                 } else if (args[i].getRawClass() != null) {
                     String className = args[i].getRawClass().getName();
                     if (className.startsWith("java.lang.")) {
                         className = className.substring("java.lang.".length());
                     }
                     builder.append(className);
-                    builder.append(" ").append(operation.getParameters().get(i - 1).getName());
+                    builder.append(" ").append(args[1]);
+
                 }
             }
         }
@@ -211,17 +212,21 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
     @Override
     public Response apply(ContainerRequestContext ctx) {
         List<Parameter> parameters = operation.getParameters();
+        int requestBody = 0;
+        if(operation.getRequestBody() != null){
+            requestBody = 1;
+        }
+        int arguments = parameters.size() + requestBody;
         final RequestContext requestContext = createContext(ctx);
 
         Map<String, File> inputStreams = new HashMap<>();
 
-        Object[] args = new Object[parameters.size() + 1];
-        Object[] args2 = new Object[2];
+        Object[] args = new Object[arguments + 1];
 
         int i = 0;
 
         args[i] = requestContext;
-        args2[i] = requestContext;
+
         i += 1;
         List<ValidationMessage> missingParams = new ArrayList<>();
         UriInfo uri = ctx.getUriInfo();

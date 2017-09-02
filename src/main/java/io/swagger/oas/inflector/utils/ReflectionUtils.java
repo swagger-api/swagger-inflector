@@ -85,7 +85,12 @@ public class ReflectionUtils {
             operation.setParameters(new ArrayList<Parameter>());
         }
 
-        JavaType[] jt = new JavaType[operation.getParameters().size() + 1];
+        int body = 0;
+        if (operation.getRequestBody() != null){
+            body = 1;
+        }
+
+        JavaType[] jt = new JavaType[operation.getParameters().size() + 1 + body];
         int i = 0;
         jt[i] = tf.constructType(RequestContext.class);
 
@@ -95,6 +100,10 @@ public class ReflectionUtils {
             JavaType argumentClass = getTypeFromParameter(parameter, definitions);
             jt[i] = argumentClass;
             i += 1;
+        }
+        if (operation.getRequestBody() != null) {
+            JavaType argumentClass = getTypeFromRequestBody(operation.getRequestBody(), definitions);
+            jt[i] = argumentClass;
         }
         return jt;
     }

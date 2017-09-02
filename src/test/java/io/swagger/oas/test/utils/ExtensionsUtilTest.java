@@ -82,7 +82,7 @@ public class ExtensionsUtilTest {
         assertEquals(jt.getRawClass(), Dog.class);
     }
 
-    
+
 
 
     @Test
