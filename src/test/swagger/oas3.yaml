@@ -687,10 +687,12 @@ paths:
         schema:
           type: string
       requestBody:
-        schema:
-          type: array
-          items:
-            $ref: '#/components/schemas/Address'
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Address'
         required: true
       responses:
         '200':
