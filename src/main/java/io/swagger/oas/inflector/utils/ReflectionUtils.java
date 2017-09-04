@@ -40,7 +40,9 @@ import io.swagger.oas.models.media.StringSchema;
 import io.swagger.oas.models.media.UUIDSchema;
 import io.swagger.oas.models.parameters.Parameter;
 import io.swagger.oas.models.parameters.RequestBody;
+import io.swagger.parser.v3.util.SchemaTypeUtil;
 import io.swagger.util.Json;
+import jdk.nashorn.internal.ir.ObjectNode;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -250,8 +252,10 @@ public class ReflectionUtils {
             return tf.constructType(String.class);
         }
         if(property instanceof ObjectSchema) {
-            final String name = (String) property.getExtensions()
-                    .get(Constants.X_SWAGGER_ROUTER_MODEL);
+                String name = null;
+            if (property.getExtensions() != null) {
+                name = (String) property.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
+            }
             if (name != null) {
                 final JavaType modelType = getTypeFromModelName(name);
                 if (modelType != null) {
@@ -399,7 +403,9 @@ public class ReflectionUtils {
         if(model.getType() == null) {
             return null;
         }
-        Schema property = new Schema();
+
+
+        Schema property = SchemaTypeUtil.createSchema(model.getType(), model.getFormat());
         if(model.getType() != null){
             property.setType(model.getType());
         }

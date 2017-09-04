@@ -72,7 +72,7 @@ public class OpenAPIResourceController implements Inflector<ContainerRequestCont
             }
 
             MultivaluedMap<String, String> headers = arg0.getHeaders();
-            return Response.ok().entity(new VendorSpecFilter().filter(getOpenAPI(), filter, null, cookies, headers)).build();
+            return Response.ok().entity(new VendorSpecFilter().filter(getOpenAPI(), /*filter*/null, null, cookies, headers)).build();
 
         }
         return Response.ok().entity(getOpenAPI()).build();

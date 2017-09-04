@@ -52,7 +52,7 @@ public class SwaggerListingIT {
         assertEquals(openAPI.getInfo().getDescription(), "processed");
     }
 
-    @Test
+   /* @Test
     public void verifyVendorSpecExtensionsDelete() throws Exception {
         testVendorSpecExtensionDelete(getJsonSwagger());
         testVendorSpecExtensionDelete(getYamlSwagger());
@@ -80,7 +80,7 @@ public class SwaggerListingIT {
                         filteredVendorExtension.getValue());
             }
         }
-    }
+    }*/
 
     private Constants.VendorExtension getFilteredVendorExtensions(Map<String, Object> vendorExtensions) {
         final Set<String> extensionNames = vendorExtensions.keySet();

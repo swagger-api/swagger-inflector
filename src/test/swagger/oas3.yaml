@@ -181,7 +181,7 @@ paths:
       operationId: inlineRequiredBody
       requestBody:
         content:
-          "*/*":
+          "application/json":
             schema:
               type: object
               properties:
@@ -197,7 +197,7 @@ paths:
       operationId: stringBody
       requestBody:
         content:
-          "*/*":
+          "application/json":
             schema:
               type: string
         required: false
@@ -698,7 +698,7 @@ paths:
         '200':
           description: success!
           content:
-            "*/*":
+            "application/json":
               schema:
                 "$ref": "#/components/schemas/Animal"
   "/withModel/{id}":
@@ -750,7 +750,7 @@ paths:
       x-swagger-router-controller: TestController
       requestBody:
         content:
-          "*/*":
+          "application/json":
             schema:
               "$ref": "#/components/schemas/ExtendedAddress"
         required: false
@@ -763,7 +763,7 @@ paths:
       x-swagger-router-controller: TestController
       requestBody:
         content:
-          "*/*":
+          "application/json":
             schema:
               "$ref": "#/components/schemas/ExtendedAddress"
         required: false
@@ -776,7 +776,7 @@ paths:
       x-swagger-router-controller: TestController
       requestBody:
         content:
-          "*/*":
+          "application/json":
             schema:
               type: array
               items:
@@ -799,7 +799,7 @@ paths:
           type: string
       requestBody:
         content:
-          "*/*":
+          "application/json":
             schema:
               "$ref": "#/components/schemas/Address"
         required: false
@@ -824,7 +824,7 @@ paths:
           type: string
       requestBody:
         content:
-          "*/*":
+          "application/json":
             schema:
               "$ref": "#/components/schemas/Dog"
         required: false
@@ -832,7 +832,7 @@ paths:
         '200':
           description: success!
           content:
-            "*/*":
+            "application/json":
               schema:
                 "$ref": "#/components/schemas/Dog"
   "/unmappedWithUndefinedModel/{id}":
@@ -849,7 +849,7 @@ paths:
           type: string
       requestBody:
         content:
-          "*/*":
+          "application/json":
             schema:
               "$ref": "#/components/schemas/UnmappedModel"
         required: false

@@ -17,7 +17,7 @@ import static org.testng.Assert.assertEquals;
 public class FileUploadTestIT {
     ApiClient client = new ApiClient();
 
-    @Test
+    /*@Test
     public void verifyStringMetadata() throws Exception {
         String path = "/fileUpload";
         final FormDataMultiPart multipart = new FormDataMultiPart()
@@ -76,5 +76,5 @@ public class FileUploadTestIT {
                 file.delete();
             }
         }
-    }
+    }*/
 }
