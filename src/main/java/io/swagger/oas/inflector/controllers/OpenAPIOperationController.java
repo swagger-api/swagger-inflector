@@ -148,7 +148,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
             } else {
                 builder.append(", ");
                 if (args[i] == null) {
-                    LOGGER.error("didn't expect a null class for " + args[i]);
+                    LOGGER.error("didn't expect a null class for the argument" + args[i]);
                 } else if (args[i].getRawClass() != null) {
                     String className = args[i].getRawClass().getName();
                     if (className.startsWith("java.lang.")) {
@@ -260,16 +260,24 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
                         }
 
+                        if (parameters == null || parameters.size() == 0){
+                            args[i] = o;
+                            i += 1;
+                        }
+
                     }
                 } catch (ConversionException e) {
                     e.printStackTrace();
                 }
+
+
 
             } /*else if (parameter.getRequired()) {
                ValidationException e = new ValidationException();
                e.message(new ValidationMessage()
                        .message("The input body `" + paramName + "` is required"));
                throw e;*/
+
         }
 
 

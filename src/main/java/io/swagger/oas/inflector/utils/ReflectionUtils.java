@@ -324,8 +324,6 @@ public class ReflectionUtils {
         }
         if(model.getProperties() != null) {
 
-            String type = model.getType();
-
             Schema property = propertyFromModel(model);
             if(property != null) {
                 return getTypeFromProperty(model.getType(), model.getFormat(), property, definitions);
@@ -404,7 +402,6 @@ public class ReflectionUtils {
             return null;
         }
 
-
         Schema property = SchemaTypeUtil.createSchema(model.getType(), model.getFormat());
         if(model.getType() != null){
             property.setType(model.getType());
@@ -427,7 +424,6 @@ public class ReflectionUtils {
         if(model.getExtensions() != null) {
              property.setExample(model.getExtensions());
         }
-
 
         return property;
     }

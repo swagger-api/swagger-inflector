@@ -197,7 +197,7 @@ paths:
       operationId: stringBody
       requestBody:
         content:
-          "application/json":
+          "application/yaml":
             schema:
               type: string
         required: false
