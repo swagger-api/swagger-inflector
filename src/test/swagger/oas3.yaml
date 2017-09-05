@@ -567,33 +567,33 @@ paths:
         '303':
           description: issue 128
           content:
-            "*/*":
+            "application/json":
               schema:
                 type: string
                 format: url
-                example: 'http://foo.bar/other'
+                example: http://foo.bar/other
   "/issue-130":
     get:
       responses:
         '200':
           description: issue 130
           content:
-            "*/*":
+            "application/json":
               schema:
                 type: object
+                description: an object with array properties
                 properties:
                   aStringArray:
-                    type: array
-                  anIntegerArray:
                     type: array
                     items:
                       type: string
                       example: a string value
+                  anIntegerArray:
+                    type: array
                     items:
                       type: integer
                       format: int32
                       example: 99
-                description: an object with array properties
   "/issue-132":
     get:
       responses:

@@ -239,6 +239,14 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
             existingKeys.add(x.next() + ": pp");
         }
 
+        for (Iterator<String> x = ctx.getHeaders().keySet().iterator(); x.hasNext(); ) {
+            String key = x.next();
+//              if(!commonHeaders.contains(key))
+//                existingKeys.add(key);
+        }
+        //MediaType mt = requestContext.getMediaType();
+
+
 
         if (operation.getRequestBody() != null) {
             Object o = null;
@@ -592,17 +600,22 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     return;
                 }
 
-                for(String contentType : content.keySet()) {
-                    MediaType mediaType = MediaType.valueOf(contentType);
+                for(String key : content.keySet()) {
+                    MediaType mediaType = MediaType.valueOf(key);
                     for (MediaType acceptable : res.getAcceptableMediaTypes()) {
-                        if (!mediaType.isCompatible(acceptable)) {
-                            continue;
+                        if (mediaType.isCompatible(acceptable)) {
+                            resp.setContentType(mediaType);
+                            return;
                         }
-                        resp.setContentType(mediaType);
-                        return;
+                        else{
+                            resp.setContentType(mediaType);
+                        }
                     }
+
                 }
+
             }
+
         }
     }
 
