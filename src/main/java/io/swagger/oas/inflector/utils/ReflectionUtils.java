@@ -148,7 +148,7 @@ public class ReflectionUtils {
 
     public JavaType getTypeFromParameter(Parameter parameter, Map<String, Schema> definitions) {
       if (parameter.getSchema() != null) {
-          JavaType parameterType =  getTypeFromModel("", parameter.getSchema(), definitions);
+          JavaType parameterType =  getTypeFromProperty(parameter.getSchema().getType(),parameter.getSchema().getFormat(), parameter.getSchema(), definitions);
           if (parameterType != null){
               return parameterType;
           }
@@ -312,9 +312,9 @@ public class ReflectionUtils {
         }
         if(model instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema) model;
-            Schema inner = arraySchema.getItems();
-            if(inner != null) {
-                JavaType innerType = getTypeFromProperty(inner.getType(), inner.getFormat(), inner, definitions);
+            //Schema inner = arraySchema.getItems();
+            if(arraySchema.getItems() != null) {
+                JavaType innerType = getTypeFromProperty(arraySchema.getItems().getType(), arraySchema.getItems().getFormat(), arraySchema.getItems(), definitions);
                 if (innerType != null) {
                     return tf.constructArrayType(innerType);
                 } else {
@@ -323,6 +323,8 @@ public class ReflectionUtils {
             }
         }
         if(model.getProperties() != null) {
+
+            String type = model.getType();
 
             Schema property = propertyFromModel(model);
             if(property != null) {

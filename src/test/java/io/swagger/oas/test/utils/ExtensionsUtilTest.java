@@ -2,6 +2,7 @@ package io.swagger.oas.test.utils;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.sun.org.apache.xerces.internal.xs.StringList;
+import io.swagger.oas.models.media.ObjectSchema;
 import io.swagger.oas.sample.models.Dog;
 import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.utils.ExtensionsUtil;
@@ -21,6 +22,7 @@ import io.swagger.parser.models.ParseOptions;
 import io.swagger.parser.models.SwaggerParseResult;
 import io.swagger.parser.v3.OpenAPIV3Parser;
 
+import io.swagger.parser.v3.util.ResolverFully;
 import mockit.Injectable;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
@@ -39,6 +41,24 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertEquals;
 
 public class ExtensionsUtilTest {
+
+    @Test
+    public void resolveComposedReferenceSchema(@Injectable final List<AuthorizationValue> auths){
+
+        ParseOptions options = new ParseOptions();
+        options.setResolve(true);
+        options.setResolveFully(true);
+
+        OpenAPI openAPI = new OpenAPIV3Parser().readLocation("./src/test/swagger/oas3.yaml",auths,options).getOpenAPI();
+        ResolverFully resolverUtil = new ResolverFully();
+        resolverUtil.resolveFully(openAPI);
+
+        assertTrue(openAPI.getPaths().get("/withInvalidComposedModelArray").getPost().getRequestBody().getContent().get("*/*").getSchema() instanceof ArraySchema);
+        ArraySchema arraySchema = (ArraySchema) openAPI.getPaths().get("/withInvalidComposedModelArray").getPost().getRequestBody().getContent().get("*/*").getSchema();
+        assertTrue(arraySchema.getItems() instanceof ObjectSchema);
+
+    }
+
     @Test
     public void testArrayParam(@Injectable final List<AuthorizationValue> auths) throws IOException{
         ParseOptions options = new ParseOptions();

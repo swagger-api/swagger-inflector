@@ -23,11 +23,14 @@ import io.swagger.oas.inflector.utils.ReflectionUtils;
 
 
 import io.swagger.oas.models.media.ArraySchema;
+import io.swagger.oas.models.media.Content;
+import io.swagger.oas.models.media.MediaType;
 import io.swagger.oas.models.media.Schema;
 import io.swagger.oas.models.media.StringSchema;
 import io.swagger.oas.models.parameters.Parameter;
 
 
+import io.swagger.oas.models.parameters.RequestBody;
 import io.swagger.oas.test.models.Person;
 import io.swagger.oas.test.models.User;
 import org.junit.Before;
@@ -57,8 +60,12 @@ public class BodyParamExtractionTest {
     public void testStringBodyParam() throws Exception {
         Map<String, Schema> definitions = new HashMap<String, Schema>();
 
-        Parameter parameter = new Parameter().schema(new Schema().type("string"));
-        JavaType jt = utils.getTypeFromParameter(parameter, definitions);
+        RequestBody body = new RequestBody().
+                content(new Content()
+                        .addMediaType("application/json",new MediaType()
+                            .schema(new Schema().type("string"))));
+
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
 
         assertEquals(jt.getRawClass(), String.class);
     }
@@ -67,8 +74,12 @@ public class BodyParamExtractionTest {
     public void testUUIDBodyParam() throws Exception {
         Map<String, Schema> definitions = new HashMap<>();
 
-        Parameter parameter = new Parameter().schema(new Schema().type("string").format("uuid"));
-        JavaType jt = utils.getTypeFromParameter(parameter, definitions);
+        RequestBody body = new RequestBody().
+                content(new Content()
+                        .addMediaType("application/json",new MediaType()
+                            .schema(new Schema().type("string").format("uuid"))));
+
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
 
         assertEquals(jt.getRawClass(), UUID.class);
     }
@@ -77,8 +88,12 @@ public class BodyParamExtractionTest {
     public void testConvertComplexBodyParamWithConfigMapping() throws Exception {
         Map<String, Schema> definitions = new HashMap<>();
 
-        Parameter parameter = new Parameter().schema(new Schema().$ref("#/definitions/User"));
-        JavaType jt = utils.getTypeFromParameter(parameter, definitions);
+        RequestBody body = new RequestBody().
+                content(new Content()
+                        .addMediaType("application/json",new MediaType()
+                                .schema(new Schema().$ref("#/components/schema/User"))));
+
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
 
         assertEquals(jt.getRawClass(), User.class);
     }
@@ -87,8 +102,12 @@ public class BodyParamExtractionTest {
     public void testConvertComplexBodyParamWithoutConfigMapping() throws Exception {
         Map<String, Schema> definitions = new HashMap<>();
 
-        Parameter parameter = new Parameter().schema(new Schema().$ref("#/definitions/Person"));
-        JavaType jt = utils.getTypeFromParameter(parameter, definitions);
+        RequestBody body = new RequestBody().
+                content(new Content()
+                        .addMediaType("application/json",new MediaType()
+                                .schema(new Schema().$ref("#/components/schemas/Person"))));
+
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
 
         // will look up from the config model package and ref.simpleName of Person
         assertEquals(jt.getRawClass(), Person.class);
@@ -98,11 +117,14 @@ public class BodyParamExtractionTest {
     public void testConvertComplexArrayBodyParam() throws Exception {
         Map<String, Schema> definitions = ModelConverters.getInstance().read(Person.class);
 
-        Parameter parameter = new Parameter()
-            .schema(new ArraySchema()
-                .items(new Schema().$ref("#/definitions/Person")));
+        RequestBody body = new RequestBody().
+                content(new Content()
+                        .addMediaType("application/json",new MediaType().schema(new ArraySchema()
+                                .items(new Schema().$ref("#/components/schemas/Person")))));
+
+
     
-        JavaType jt = utils.getTypeFromParameter(parameter, definitions);
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
         assertEquals(jt.getRawClass(), Person[].class);
     }
 
@@ -110,11 +132,13 @@ public class BodyParamExtractionTest {
     public void testConvertPrimitiveArrayBodyParam() throws Exception {
         Map<String, Schema> definitions = ModelConverters.getInstance().read(Person.class);
 
-        Parameter parameter = new Parameter()
-            .schema(new ArraySchema()
-                .items(new StringSchema()));
+        RequestBody body = new RequestBody().
+                content(new Content()
+                        .addMediaType("application/json",new MediaType().schema(new ArraySchema()
+                                .items(new StringSchema()))));
 
-        JavaType jt = utils.getTypeFromParameter(parameter, definitions);
+
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
         assertEquals(jt.getRawClass(), String[].class);
     }
 
@@ -122,11 +146,13 @@ public class BodyParamExtractionTest {
     public void testConvertDoubleArrayBodyParam() throws Exception {
         Map<String, Schema> definitions = ModelConverters.getInstance().read(Person.class);
 
-        Parameter parameter = new Parameter()
-            .schema(new ArraySchema()
-                .items(new ArraySchema().items(new StringSchema())));
+        RequestBody body = new RequestBody().
+                content(new Content()
+                        .addMediaType("application/json",new MediaType().schema(new ArraySchema()
+                                .items(new ArraySchema().items(new StringSchema())))));
 
-        JavaType jt = utils.getTypeFromParameter(parameter, definitions);
+
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
         assertEquals(jt.getRawClass(), String[][].class);
     }
 }

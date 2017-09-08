@@ -776,7 +776,7 @@ paths:
       x-swagger-router-controller: TestController
       requestBody:
         content:
-          "application/json":
+          "*/*":
             schema:
               type: array
               items:
@@ -807,7 +807,7 @@ paths:
         '200':
           description: success!
           content:
-            "*/*":
+            "application/json":
               schema:
                 "$ref": "#/components/schemas/Address"
   "/mappedWithDefinedModel/{id}":
@@ -892,7 +892,7 @@ paths:
         '200':
           description: success!
           content:
-            "*/*":
+            "application/json":
               schema:
                 "$ref": "#/components/schemas/User"
   "/withIntegerEnum/{stage}":

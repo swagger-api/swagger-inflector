@@ -118,6 +118,7 @@ public class RequestTestIT {
 
         queryParameters.put("users", "a,b,c");
         String str = client.invokeAPI(path, "GET", queryParameters, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+
         assertEquals(str, "[\"a\",\"b\",\"c\"]");
     }
 

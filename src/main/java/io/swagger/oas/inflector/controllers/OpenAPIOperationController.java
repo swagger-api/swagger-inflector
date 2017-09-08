@@ -268,25 +268,30 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
                         }
 
-                        if (parameters == null || parameters.size() == 0){
+                        if (parameters == null || parameters.size() == 0) {
                             args[i] = o;
                             i += 1;
                         }
 
                     }
                 } catch (ConversionException e) {
-                    e.printStackTrace();
+                    missingParams.add(e.getError());
                 }
 
+            } else if (operation.getRequestBody().getRequired()) {
+                ValidationException e = new ValidationException();
+                e.message(new ValidationMessage()
+                        .message("The input body `" + operation.getRequestBody() + "` is required"));
+                try {
+                    throw e;
+                } catch (ValidationException e1) {
+                    missingParams.add(e.getValidationMessage());
+                }
 
-
-            } /*else if (parameter.getRequired()) {
-               ValidationException e = new ValidationException();
-               e.message(new ValidationMessage()
-                       .message("The input body `" + paramName + "` is required"));
-               throw e;*/
-
+            }
         }
+
+
 
 
         if (parameters != null) {

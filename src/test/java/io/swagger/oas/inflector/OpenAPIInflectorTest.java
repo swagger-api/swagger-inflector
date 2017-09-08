@@ -44,6 +44,7 @@ public class OpenAPIInflectorTest {
         OpenAPIInflector inflector = new OpenAPIInflector(config);
         assertEquals(Json.mapper(),inflector.getObjectMapper());
         assertTrue(inflector.isRegistered(JsonProvider.class));
+
     }
 
 
