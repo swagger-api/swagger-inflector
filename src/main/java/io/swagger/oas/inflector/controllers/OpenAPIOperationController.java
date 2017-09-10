@@ -148,7 +148,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
             } else {
                 builder.append(", ");
                 if (args[i] == null) {
-                    LOGGER.error("didn't expect a null class for the argument" + args[i]);
+                    LOGGER.error("didn't expect a null class for the argument in operation " + operation.getOperationId());
                 } else if (args[i].getRawClass() != null) {
                     String className = args[i].getRawClass().getName();
                     if (className.startsWith("java.lang.")) {

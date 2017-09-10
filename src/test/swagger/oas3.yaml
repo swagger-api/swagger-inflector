@@ -750,7 +750,7 @@ paths:
       x-swagger-router-controller: TestController
       requestBody:
         content:
-          "application/json":
+          "*/*":
             schema:
               "$ref": "#/components/schemas/ExtendedAddress"
         required: false
