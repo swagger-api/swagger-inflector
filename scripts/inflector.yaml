@@ -1,5 +1,5 @@
-controllerPackage: io.swagger.sample.controllers
-modelPackage: io.swagger.sample.models
+controllerPackage: io.swagger.oas.sample.controllers
+modelPackage: io.swagger.oas.sample.models
 swaggerUrl: ./src/main/swagger/swagger.yaml
 
 # add any model mappings you like if you have existing models to use
