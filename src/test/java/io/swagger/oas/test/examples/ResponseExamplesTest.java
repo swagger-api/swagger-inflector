@@ -81,7 +81,7 @@ public class ResponseExamplesTest {
         Response response = controller.apply( requestContext );
 
         assertEquals( 200, response.getStatus() );
-        assertEquals(  Json.mapper().writeValueAsString(response.getEntity()), "{\"value\":\"{\\\"test\\\":\\\"jsonvalue\\\"}\"}");
+        assertEquals(  Json.mapper().writeValueAsString(response.getEntity()), "{\"value\":{\"test\":\"jsonvalue\"}}");
     }
 
     @Test
@@ -111,7 +111,7 @@ public class ResponseExamplesTest {
         Response response = controller.apply( requestContext );
 
         assertEquals( 200, response.getStatus() );
-        assertEqualsIgnoreLineEnding(  Yaml.mapper().writeValueAsString(response.getEntity()), "value: '{\"test\":\"yamlvalue\"}'");
+        assertEqualsIgnoreLineEnding(  Yaml.mapper().writeValueAsString(response.getEntity()), "value:  test: yamlvalue");
     }
 
     private void assertEqualsIgnoreLineEnding(String actual, String expected) {
