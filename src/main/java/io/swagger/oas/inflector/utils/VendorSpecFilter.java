@@ -18,7 +18,7 @@ package io.swagger.oas.inflector.utils;
 
 
 import io.swagger.core.filter.SpecFilter;
-import io.swagger.core.filter.SwaggerSpecFilter;
+import io.swagger.core.filter.OpenAPISpecFilter;
 import io.swagger.oas.inflector.Constants;
 import io.swagger.model.ApiDescription;
 import io.swagger.oas.models.Operation;
@@ -29,7 +29,7 @@ import java.util.Map;
 
 public class VendorSpecFilter extends SpecFilter {
 
-    /*@Override
+    @Override
     public Map<String, Schema> filterDefinitions(OpenAPISpecFilter filter, Map<String, Schema> definitions,
                                                  Map<String, List<String>> params, Map<String, String> cookies, Map<String, List<String>> headers) {
         final Map<String, Schema> filteredDefinitions = super.filterDefinitions(filter, definitions, params, cookies,
@@ -45,7 +45,7 @@ public class VendorSpecFilter extends SpecFilter {
     }
 
     @Override
-    public Operation filterOperation(SwaggerSpecFilter filter, Operation op, ApiDescription api,
+    public Operation filterOperation(OpenAPISpecFilter filter, Operation op, ApiDescription api,
                                      Map<String, List<String>> params, Map<String, String> cookies, Map<String, List<String>> headers) {
         final Operation operation = super.filterOperation(filter, op, api, params, cookies, headers);
 
@@ -58,5 +58,5 @@ public class VendorSpecFilter extends SpecFilter {
         for (Constants.VendorExtension vendorExtension : Constants.VendorExtension.values()) {
             vendorExtensions.remove(vendorExtension.getValue());
         }
-    }*/
+    }
 }
