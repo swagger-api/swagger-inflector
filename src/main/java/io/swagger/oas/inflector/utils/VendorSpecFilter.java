@@ -48,7 +48,9 @@ public class VendorSpecFilter extends SpecFilter {
                                      Map<String, List<String>> params, Map<String, String> cookies, Map<String, List<String>> headers) {
         final Operation operation = super.filterOperation(filter, op, path, key, params, cookies, headers);
 
-        filterVendorExtensions(operation.getExtensions());
+        if(operation.getExtensions() != null) {
+            filterVendorExtensions(operation.getExtensions());
+        }
 
         return operation;
     }
