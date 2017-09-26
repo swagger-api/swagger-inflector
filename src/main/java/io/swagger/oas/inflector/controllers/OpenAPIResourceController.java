@@ -62,9 +62,8 @@ public class OpenAPIResourceController implements Inflector<ContainerRequestCont
     public Response apply(ContainerRequestContext arg0) {
         OpenAPISpecFilter filter = FilterFactory.getFilter();
         if(filter != null) {
-            Map<String, List<String>> params;
             Map<String, Cookie> cookiesvalue = arg0.getCookies();
-            Map<String, String> cookies = new HashMap<String, String>();
+            Map<String, String> cookies = new HashMap<>();
             if(cookiesvalue != null) {
                 for(String key: cookiesvalue.keySet()) {
                     cookies.put(key, cookiesvalue.get(key).getValue());

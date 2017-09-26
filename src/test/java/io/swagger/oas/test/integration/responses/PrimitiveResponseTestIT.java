@@ -159,7 +159,7 @@ public class PrimitiveResponseTestIT {
     /**
      * test for https://github.com/swagger-api/swagger-inflector/issues/125
      */
-    /*This is no longer support by OAS @org.junit.Test
+    /*This is no longer supported by OAS @org.junit.Test
     public void verifyBaseIntegerResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 

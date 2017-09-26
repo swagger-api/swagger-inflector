@@ -73,7 +73,7 @@ public class ComplexResponseTestIT {
     /**
      * verifies that the return value uses the schema example in an array
      */
-//    @Test
+    @Test
     public void complexArrayResponseWithExample() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
