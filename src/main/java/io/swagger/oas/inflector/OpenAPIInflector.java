@@ -196,7 +196,7 @@ public class OpenAPIInflector extends ResourceConfig {
             }
         }
         else {
-           /* FilterFactory.setFilter(new DefaultSpecFilter());*/
+           FilterFactory.setFilter(new DefaultSpecFilter());
         }
 
         if(openAPI == null) {
