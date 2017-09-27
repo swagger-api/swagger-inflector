@@ -19,7 +19,7 @@ public class DefaultSpecFilter extends AbstractSpecFilter {
         if(operation.getExtensions() != null && operation.getExtensions().containsKey(Constants.X_INFLECTOR_HIDDEN)) {
             return Optional.of(operation);
         }
-        return Optional.of(operation);
+        return Optional.empty();
     }
 
     @Override
@@ -27,7 +27,7 @@ public class DefaultSpecFilter extends AbstractSpecFilter {
         if(parameter.getExtensions() != null && parameter.getExtensions().containsKey(Constants.X_INFLECTOR_HIDDEN)) {
             return Optional.of(parameter);
         }
-        return Optional.of(parameter);
+        return Optional.empty();
     }
 
     @Override
@@ -35,7 +35,7 @@ public class DefaultSpecFilter extends AbstractSpecFilter {
         if(property.getExtensions() != null && property.getExtensions().containsKey(Constants.X_INFLECTOR_HIDDEN)) {
             return  Optional.of(property);
         }
-        return  Optional.of(property);
+        return  Optional.empty();
     }
 
     @Override
