@@ -52,35 +52,37 @@ public class SwaggerListingIT {
         assertEquals(openAPI.getInfo().getDescription(), "processed");
     }
 
-   /* @Test
+    @Test
     public void verifyVendorSpecExtensionsDelete() throws Exception {
         testVendorSpecExtensionDelete(getJsonSwagger());
         testVendorSpecExtensionDelete(getYamlSwagger());
     }
 
     private void testVendorSpecExtensionDelete(OpenAPI openAPI) throws Exception {
-        //System.out.println("***********************************"+openAPI);
         for (String path : openAPI.getPaths().keySet()) {
             PathItem pathItem = openAPI.getPaths().get(path);
             for (Operation operation : pathItem.readOperations()) {
-                final Constants.VendorExtension filteredVendorExtension =
-                        getFilteredVendorExtensions(operation.getExtensions());
-                if (filteredVendorExtension != null) {
-                    Assert.fail("Operation " + operation.getOperationId() + " contains " +
-                            filteredVendorExtension.getValue());
+                if (operation.getExtensions() != null) {
+                    final Constants.VendorExtension filteredVendorExtension = getFilteredVendorExtensions(operation.getExtensions());
+                    if (filteredVendorExtension != null) {
+                        Assert.fail("Operation " + operation.getOperationId() + " contains " +
+                                filteredVendorExtension.getValue());
+                    }
                 }
             }
         }
         Map<String,Schema> definition = openAPI.getComponents().getSchemas();
         for (String key : definition.keySet()) {
-            final Constants.VendorExtension filteredVendorExtension =
-                    getFilteredVendorExtensions(definition.get(key).getExtensions());
-            if (filteredVendorExtension != null) {
-                Assert.fail("Model " + definition.get(key) + " contains " +
-                        filteredVendorExtension.getValue());
+            if (definition.get(key).getExtensions() != null){
+                final Constants.VendorExtension filteredVendorExtension =
+                        getFilteredVendorExtensions(definition.get(key).getExtensions());
+                if (filteredVendorExtension != null) {
+                    Assert.fail("Model " + definition.get(key) + " contains " +
+                            filteredVendorExtension.getValue());
+                }
             }
         }
-    }*/
+    }
 
     private Constants.VendorExtension getFilteredVendorExtensions(Map<String, Object> vendorExtensions) {
         final Set<String> extensionNames = vendorExtensions.keySet();

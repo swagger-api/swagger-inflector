@@ -18,9 +18,8 @@ package io.swagger.oas.inflector.utils;
 
 
 import io.swagger.core.filter.SpecFilter;
-import io.swagger.core.filter.SwaggerSpecFilter;
+import io.swagger.core.filter.OpenAPISpecFilter;
 import io.swagger.oas.inflector.Constants;
-import io.swagger.model.ApiDescription;
 import io.swagger.oas.models.Operation;
 import io.swagger.oas.models.media.Schema;
 
@@ -29,10 +28,10 @@ import java.util.Map;
 
 public class VendorSpecFilter extends SpecFilter {
 
-    /*@Override
-    public Map<String, Schema> filterDefinitions(OpenAPISpecFilter filter, Map<String, Schema> definitions,
+    @Override
+    public Map<String, Schema> filterComponentsSchema(OpenAPISpecFilter filter, Map<String, Schema> definitions,
                                                  Map<String, List<String>> params, Map<String, String> cookies, Map<String, List<String>> headers) {
-        final Map<String, Schema> filteredDefinitions = super.filterDefinitions(filter, definitions, params, cookies,
+        final Map<String, Schema> filteredDefinitions = super.filterComponentsSchema(filter, definitions, params, cookies,
                 headers);
 
         if( filteredDefinitions != null ) {
@@ -45,11 +44,15 @@ public class VendorSpecFilter extends SpecFilter {
     }
 
     @Override
-    public Operation filterOperation(SwaggerSpecFilter filter, Operation op, ApiDescription api,
+    public Operation filterOperation(OpenAPISpecFilter filter, Operation op, String path, String key ,
                                      Map<String, List<String>> params, Map<String, String> cookies, Map<String, List<String>> headers) {
-        final Operation operation = super.filterOperation(filter, op, api, params, cookies, headers);
+        final Operation operation = super.filterOperation(filter, op, path, key, params, cookies, headers);
 
-        filterVendorExtensions(operation.getExtensions());
+        if(operation != null) {
+            if (operation.getExtensions() != null) {
+                filterVendorExtensions(operation.getExtensions());
+            }
+        }
 
         return operation;
     }
@@ -58,5 +61,5 @@ public class VendorSpecFilter extends SpecFilter {
         for (Constants.VendorExtension vendorExtension : Constants.VendorExtension.values()) {
             vendorExtensions.remove(vendorExtension.getValue());
         }
-    }*/
+    }
 }
