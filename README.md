@@ -24,10 +24,10 @@ This will download everything you need to start editing and running a swagger-in
 
 Inflector uses the following libraries:
 
- - Swagger models for the swagger definition
+ - swagger models for the swagger definition
  - Jackson for JSON processing
- - Jersey 2.6 for REST
- - Minimum Java 7 
+ - Jersey 2.26 for REST
+ - Minimum Java 8
 
 ### Integration
 
