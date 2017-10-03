@@ -909,9 +909,9 @@ paths:
           type: integer
           format: int32
           enum:
-          - '1'
-          - '2'
-          - '3'
+          - 1
+          - 2
+          - 3
       responses:
         '200':
           description: success!
@@ -1340,7 +1340,8 @@ components:
           schema:
             $ref: '#/components/schemas/ExtendedErrorModel'
       examples:
-      - $ref: "#/components/examples/dog"
+        dog:
+          $ref: "#/components/examples/dog"
   links:
     referenced:
       "$ref": "#/components/links/unsubscribe"
@@ -1351,7 +1352,8 @@ components:
       x-link: link extension
   callbacks:
     referenced:
-      "$ref": "#/components/callbacks/failed"
+      '$response.body#/failedUrl':
+        "$ref": "#/components/callbacks/failed"
     heartbeat:
       '$request.query.heartbeat-url':
         post:
