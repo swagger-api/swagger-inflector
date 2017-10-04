@@ -17,25 +17,27 @@ public class DefaultSpecFilter extends AbstractSpecFilter {
     @Override
     public Optional<Operation> filterOperation(Operation operation, ApiDescription api, Map<String, List<String>> params, Map<String, String> cookies, Map<String, List<String>> headers) {
         if(operation.getExtensions() != null && operation.getExtensions().containsKey(Constants.X_INFLECTOR_HIDDEN)) {
-            return Optional.of(operation);
+            return Optional.empty();
         }
-        return Optional.empty();
+        return Optional.of(operation);
+
     }
 
     @Override
     public Optional<Parameter> filterParameter(Parameter parameter, Operation operation, ApiDescription api, Map<String, List<String>> params, Map<String, String> cookies, Map<String, List<String>> headers) {
         if(parameter.getExtensions() != null && parameter.getExtensions().containsKey(Constants.X_INFLECTOR_HIDDEN)) {
-            return Optional.of(parameter);
+            return Optional.empty();
         }
-        return Optional.empty();
+        return Optional.of(parameter);
+
     }
 
     @Override
     public Optional<Schema> filterSchemaProperty(Schema model, Schema property, String propertyName, Map<String, List<String>> params, Map<String, String> cookies, Map<String, List<String>> headers) {
         if(property.getExtensions() != null && property.getExtensions().containsKey(Constants.X_INFLECTOR_HIDDEN)) {
-            return  Optional.of(property);
+            return Optional.empty();
         }
-        return  Optional.empty();
+        return Optional.of(property);
     }
 
     @Override

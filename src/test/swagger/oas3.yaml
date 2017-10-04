@@ -895,6 +895,30 @@ paths:
             "application/json":
               schema:
                 "$ref": "#/components/schemas/User"
+  "/withIntegerEnum/{stage}":
+    get:
+      tags:
+        - test1
+      operationId: withDateTime
+      x-swagger-router-controller: TestController
+      parameters:
+      - name: stage
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+          enum:
+          - 1
+          - 2
+          - 3
+      responses:
+        '200':
+          description: success!
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/User"
   "/overloaded":
     get:
       tags:
@@ -1316,7 +1340,8 @@ components:
           schema:
             $ref: '#/components/schemas/ExtendedErrorModel'
       examples:
-      - $ref: "#/components/examples/dog"
+        dog:
+          $ref: "#/components/examples/dog"
   links:
     referenced:
       "$ref": "#/components/links/unsubscribe"
@@ -1327,7 +1352,8 @@ components:
       x-link: link extension
   callbacks:
     referenced:
-      "$ref": "#/components/callbacks/failed"
+      '$response.body#/failedUrl':
+        "$ref": "#/components/callbacks/failed"
     heartbeat:
       '$request.query.heartbeat-url':
         post:
