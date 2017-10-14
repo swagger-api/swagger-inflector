@@ -355,6 +355,10 @@ paths:
         '200':
           description: success!
           content:
+            application/xml:
+              schema:
+                type: string
+                example: fun
             application/json:
               schema:
                 type: string
