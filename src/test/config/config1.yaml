@@ -17,6 +17,11 @@ entityProcessors:
   - xml
   - yaml
 
+# Allows to configure the examples
+exampleProcessor:
+  - random
+  - sequence
+
 # loads all by default, or pick and choose
 inputValidators:
   - requiredFieldValidator

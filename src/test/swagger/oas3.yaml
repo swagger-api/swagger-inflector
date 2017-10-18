@@ -64,6 +64,24 @@ tags:
     description: Find out more about our store
     url: http://swagger.io
 paths:
+  /mockResponses/primitiveStringMultipleExamples:
+    get:
+      responses:
+        '200':
+          description: A string
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                singleLine:
+                  description: Single-line string
+                  value: Hello, world!
+                multiLine:
+                  description: Multi-line string
+                  value: >
+                    A long time ago
+                    in a galaxy far, far away....
   "/pet":
     summary: summary
     description: description

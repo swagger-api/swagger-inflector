@@ -490,12 +490,14 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
                             if (examples != null) {
                                 for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
-                                    for (String key : examples.keySet()) {
-                                        if (MediaType.valueOf(key).isCompatible(mediaType)) {
-                                            builder.entity(examples.get(key))
-                                                    .type(mediaType);
-
-                                            return builder.build();
+                                    for (String key : response.getContent().keySet()) {
+                                        MediaType media = MediaType.valueOf(key);
+                                        if (media.isCompatible(mediaType)) {
+                                            for (String sample: examples.keySet()) {
+                                                builder.entity(examples.get(sample))
+                                                        .type(media);
+                                                return builder.build();
+                                            }
                                         }
                                     }
                                 }
@@ -610,7 +612,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     if (res.getHeaders().get("Content-Type")!= null) {
                         for (String acceptable : res.getHeaders().get("Content-Type")) {
                             String subtype = acceptable.substring(acceptable.lastIndexOf("/") + 1);
-                            //String type =
+
                             if (subtype.equals(mediaType.getSubtype())) {
                                 resp.setContentType(mediaType);
                                 return;
