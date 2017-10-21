@@ -64,6 +64,38 @@ tags:
     description: Find out more about our store
     url: http://swagger.io
 paths:
+  /mockResponses/objectMultipleExamples:
+    get:
+      responses:
+        '200':
+          description: A string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User1'
+              examples:
+                ArthurDent:
+                  value:
+                    id: 4
+                    name: Arthur Dent
+                Trillian:
+                  $ref: '#/components/examples/Trillian'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/User1'
+              examples:
+                ArthurDent:
+                  $ref: '#/components/examples/Arthur'
+                Trillian:
+                  $ref: '#/components/examples/Trillian'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User1'
+              examples:
+                ArthurDent:
+                  $ref: '#/components/examples/Arthur'
+                Trillian:
+                  $ref: '#/components/examples/Trillian'
   /mockResponses/primitiveStringMultipleExamples:
     get:
       responses:
@@ -1044,6 +1076,23 @@ components:
             {
               "foo":"bar"
             }
+    User1:
+      type: object
+      xml:
+        name: USER
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 4
+          xml:
+            attribute: true
+            name: ID
+        name:
+          type: string
+          example: Arthur Dent
+          xml:
+            name: NAME
     Address:
       required:
       - street
@@ -1288,6 +1337,14 @@ components:
         type: integer
         format: int32
   examples:
+    Arthur:
+      value:
+        id: 4
+        name: Arthur Dent
+    Trillian:
+      value:
+        id: 3
+        name: Tricia McMillan
     cat:
       summary: An example of a cat
       value:
