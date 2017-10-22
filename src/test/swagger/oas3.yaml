@@ -75,9 +75,7 @@ paths:
                 $ref: '#/components/schemas/User1'
               examples:
                 ArthurDent:
-                  value:
-                    id: 4
-                    name: Arthur Dent
+                   $ref: '#/components/examples/Arthur'
                 Trillian:
                   $ref: '#/components/examples/Trillian'
             application/yaml:
@@ -423,11 +421,11 @@ paths:
           content:
             application/json:
               examples:
-                application/json:
+                samplejson:
                   value: {"test":"jsonvalue"}
             application/yaml:
               examples:
-                application/yaml:
+                sampleyaml:
                   value:
                     test: yamlvalue
   "/mockResponses/primitiveDateResponse":

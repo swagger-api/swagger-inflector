@@ -197,14 +197,6 @@ paths:
                 type: string
   "/mockResponses/primitiveStringResponseWithExample":
     get:
-<<<<<<< Updated upstream
-=======
-      tags:
-        - mockResponses
-      produces:
-        - text/plain
-        - application/json
->>>>>>> Stashed changes
       parameters:
       - name: user
         in: query

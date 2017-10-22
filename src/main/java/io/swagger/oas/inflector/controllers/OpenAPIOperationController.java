@@ -497,8 +497,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                 io.swagger.oas.models.examples.Example outputExample = null;
                                 int sequence = 0;
                                 for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
-                                    for (String key : response.getContent().keySet()) {
-                                        MediaType media = MediaType.valueOf(key);
+                                    MediaType media = MediaType.valueOf(name);
+                                    for (String sample: examples.keySet()) {
                                         if (requestContext.getHeaders().get("Content-Type") != null) {
                                             for (String acceptable : requestContext.getHeaders().get("Content-Type")) {
                                                 String subtype = acceptable.substring(acceptable.lastIndexOf("/") + 1);
@@ -509,31 +509,40 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                                     resp.setContentType(media);
                                                 }
                                             }
-                                            if (media.isCompatible(mediaType)) {
-                                                if (exampleProcessorList != null && exampleProcessorList.size() > 0) {
-                                                    for (String mode : exampleProcessorList) {
-                                                        if (mode.equals(RANDOM_EXAMPLE)) {
-                                                            Random generator = new Random();
-                                                            Object[] values = examples.values().toArray();
-                                                            outputExample = (io.swagger.oas.models.examples.Example) values[generator.nextInt(values.length)];
+                                                if (media.isCompatible(mediaType)) {
+                                                    if (exampleProcessorList != null && exampleProcessorList.size() > 0) {
+                                                        for (String mode : exampleProcessorList) {
+                                                            if (mode.equals(RANDOM_EXAMPLE)) {
+                                                                Random generator = new Random();
+                                                                Object[] values = examples.values().toArray();
+                                                                outputExample = (io.swagger.oas.models.examples.Example) values[generator.nextInt(values.length)];
 
-                                                        } else if (mode.equals(SEQUENCIAL_EXAMPLE)) {
-                                                            if (sequence > examples.size()) {
-                                                                sequence = 0;
+                                                            } else if (mode.equals(SEQUENCIAL_EXAMPLE)) {
+                                                                if (sequence > examples.size()) {
+                                                                    sequence = 0;
+                                                                }
+                                                                Object[] values = examples.values().toArray();
+                                                                outputExample = (io.swagger.oas.models.examples.Example) values[sequence];
+                                                                sequence++;
                                                             }
-                                                            Object[] values = examples.values().toArray();
-                                                            outputExample = (io.swagger.oas.models.examples.Example) values[sequence];
-                                                            sequence++;
+                                                            builder.entity(outputExample)
+                                                                    .type(resp.getContentType());
+
+                                                            return builder.build();
+
                                                         }
-                                                        builder.entity(outputExample)
-                                                                .type(resp.getContentType());
-
-                                                        return builder.build();
-
                                                     }
-                                                }
 
+                                                }
+                                        }else{
+
+                                            if (media.isCompatible(mediaType)) {
+                                                builder.entity(examples.get(sample))
+                                                        .type(media);
+
+                                                return builder.build();
                                             }
+
                                         }
                                     }
                                 }
