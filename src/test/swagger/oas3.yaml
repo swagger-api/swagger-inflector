@@ -74,14 +74,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/User1'
               examples:
+                Queen Victoria:
+                  $ref: '#/components/examples/Victoria'
+                Grace:
+                  $ref: '#/components/examples/Grace'
                 ArthurDent:
-                   $ref: '#/components/examples/Arthur'
+                  $ref: '#/components/examples/Arthur'
                 Trillian:
                   $ref: '#/components/examples/Trillian'
             application/yaml:
               schema:
                 $ref: '#/components/schemas/User1'
               examples:
+                Queen Victoria:
+                   $ref: '#/components/examples/Victoria'
+                Grace:
+                   $ref: '#/components/examples/Grace'
                 ArthurDent:
                   $ref: '#/components/examples/Arthur'
                 Trillian:
@@ -90,6 +98,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/User1'
               examples:
+                Queen Victoria:
+                  $ref: '#/components/examples/Victoria'
+                Grace:
+                  $ref: '#/components/examples/Grace'
                 ArthurDent:
                   $ref: '#/components/examples/Arthur'
                 Trillian:
@@ -1335,6 +1347,14 @@ components:
         type: integer
         format: int32
   examples:
+    Victoria:
+      value:
+        id: 6
+        name: Queen Victoria
+    Grace:
+      value:
+        id: 5
+        name: Grace Gonzalez
     Arthur:
       value:
         id: 4
