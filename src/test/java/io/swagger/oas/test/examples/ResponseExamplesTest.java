@@ -38,6 +38,7 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -58,6 +59,9 @@ public class ResponseExamplesTest {
     @Test
     public void testResponseJsonExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
         Configuration config = new Configuration();
+        List<String> exampleProcessor = new ArrayList<>();
+        exampleProcessor.add("sequence");
+        config.setExampleProcessors(exampleProcessor);
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
 
@@ -88,6 +92,9 @@ public class ResponseExamplesTest {
     public void testResponseYamlExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
 
         Configuration config = new Configuration();
+        List<String> exampleProcessor = new ArrayList<>();
+        exampleProcessor.add("random");
+        config.setExampleProcessors(exampleProcessor);
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
 

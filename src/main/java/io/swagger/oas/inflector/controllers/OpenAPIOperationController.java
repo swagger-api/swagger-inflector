@@ -486,71 +486,86 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
                     Map<String, io.swagger.oas.models.examples.Example> examples = new HashMap<>();
                     Object output = null;
+                    List<String> exampleProcessorList = config.getExampleProcessors();
+                    io.swagger.oas.models.examples.Example outputExample = null;
 
                     if (response.getContent() != null) {
-                        for (String name : response.getContent().keySet()) {
-                            if (response.getContent().get(name).getExamples() != null) {
-                                examples = response.getContent().get(name).getExamples();
-                            }
+                        //1. ask if I'm being ask for a media type at all
+                        //2. If I don't answer
+                        //3. Checkout If I'm being ask for a media type I have
+                        //4. If I Do: I fetch the examples inside it and answer with the mediaType asked
+                                //2.1: Before answering I check the example processor of Inflector Random or Sequence
+                        //5. If I Don't response with 500 error
+                        if (requestContext.getHeaders().get("Content-Type") != null) {
+                            for (String acceptable : requestContext.getHeaders().get("Content-Type")) {
+                                if (response.getContent().get(acceptable) != null) {
+                                    if (response.getContent().get(acceptable).getExamples() != null) {
+                                        examples = response.getContent().get(acceptable).getExamples();
+                                    }
+                                }
 
-                            if (examples != null) {
-                                List<String> exampleProcessorList = config.getExampleProcessors();
-                                ResponseContext resp = new ResponseContext();
-                                io.swagger.oas.models.examples.Example outputExample = null;
+                                if (examples != null && examples.size() > 0) {
+                                    for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
+                                        MediaType media = MediaType.valueOf(acceptable);
+                                        if (media.isCompatible(mediaType)) {
+                                            if (exampleProcessorList != null && exampleProcessorList.size() > 0) {
+                                                for (String mode : exampleProcessorList) {
+                                                    if (mode.equals(RANDOM_EXAMPLE)) {
+                                                        Random generator = new Random();
+                                                        Object[] values = examples.values().toArray();
+                                                        outputExample = (io.swagger.oas.models.examples.Example) values[generator.nextInt(values.length)];
 
-                                for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
-                                        MediaType media = MediaType.valueOf(name);
-                                        for (String sample: examples.keySet()) {
-                                            if (requestContext.getHeaders().get("Content-Type") != null) {
-                                                for (String acceptable : requestContext.getHeaders().get("Content-Type")) {
-                                                    String subtype = acceptable.substring(acceptable.lastIndexOf("/") + 1);
-
-                                                    if (subtype.equals(media.getSubtype())) {
-                                                        resp.setContentType(media);
-                                                    } else {
-                                                        resp.setContentType(media);
-                                                    }
-                                                }
-                                                    if (media.isCompatible(mediaType)) {
-                                                        if (exampleProcessorList != null && exampleProcessorList.size() > 0) {
-                                                            for (String mode : exampleProcessorList) {
-                                                                if (mode.equals(RANDOM_EXAMPLE)) {
-                                                                    Random generator = new Random();
-                                                                    Object[] values = examples.values().toArray();
-                                                                    outputExample = (io.swagger.oas.models.examples.Example) values[generator.nextInt(values.length)];
-
-                                                                } else if (mode.equals(SEQUENCIAL_EXAMPLE)) {
-                                                                    if (sequence >= examples.size()) {
-                                                                        sequence = 0;
-                                                                    }
-                                                                    Object[] values = examples.values().toArray();
-                                                                    outputExample = (io.swagger.oas.models.examples.Example) values[sequence];
-                                                                    sequence++;
-                                                                }
-                                                                builder.entity(outputExample)
-                                                                        .type(resp.getContentType());
-
-                                                                return builder.build();
-
-                                                            }
+                                                    } else if (mode.equals(SEQUENCIAL_EXAMPLE)) {
+                                                        if (sequence >= examples.size()) {
+                                                            sequence = 0;
                                                         }
-
+                                                        Object[] values = examples.values().toArray();
+                                                        outputExample = (io.swagger.oas.models.examples.Example) values[sequence];
+                                                        sequence++;
                                                     }
-                                            }else{
-
-                                                if (media.isCompatible(mediaType)) {
-                                                    builder.entity(examples.get(sample))
-                                                            .type(media);
-
+                                                    builder.entity(outputExample)
+                                                            .type(acceptable);
                                                     return builder.build();
                                                 }
-
                                             }
                                         }
+                                    }
                                 }
+                                output = ExampleBuilder.fromSchema(response.getContent().get(acceptable).getSchema(), definitions);
                             }
+                        }else{
+                            for (String key: response.getContent().keySet()) {
+                                if (response.getContent().get(key).getExamples() != null) {
+                                    examples = response.getContent().get(key).getExamples();
+                                }
+                                if (examples != null && examples.size() > 0) {
+                                    for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
+                                        if (MediaType.valueOf(key).isCompatible(mediaType)) {
+                                            if (exampleProcessorList != null && exampleProcessorList.size() > 0) {
+                                                for (String mode : exampleProcessorList) {
+                                                    if (mode.equals(RANDOM_EXAMPLE)) {
+                                                        Random generator = new Random();
+                                                        Object[] values = examples.values().toArray();
+                                                        outputExample = (io.swagger.oas.models.examples.Example) values[generator.nextInt(values.length)];
 
-                            output = ExampleBuilder.fromSchema(response.getContent().get(name).getSchema(), definitions);
+                                                    } else if (mode.equals(SEQUENCIAL_EXAMPLE)) {
+                                                        if (sequence >= examples.size()) {
+                                                            sequence = 0;
+                                                        }
+                                                        Object[] values = examples.values().toArray();
+                                                        outputExample = (io.swagger.oas.models.examples.Example) values[sequence];
+                                                        sequence++;
+                                                    }
+                                                    builder.entity(outputExample)
+                                                            .type(MediaType.valueOf(key));
+                                                    return builder.build();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                output = ExampleBuilder.fromSchema(response.getContent().get(key).getSchema(), definitions);
+                            }
                         }
                     }
                     if (output != null) {
