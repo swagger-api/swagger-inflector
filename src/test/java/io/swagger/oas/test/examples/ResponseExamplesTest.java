@@ -43,13 +43,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.stub;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 public class ResponseExamplesTest {
+    private int equal = 0;
+    private int different = 0;
 
     static {
         // register the JSON serializer
@@ -128,7 +133,6 @@ public class ResponseExamplesTest {
         assertEquals(actual.replace("\n", ""), expected);
     }
 
-    @Test
     public void testRandomJsonExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
         Configuration config = new Configuration();
         List<String> exampleProcessor = new ArrayList<>();
@@ -159,17 +163,33 @@ public class ResponseExamplesTest {
         assertEquals( 200, response.getStatus() );
         io.swagger.oas.models.examples.Example example1 = (Example) response.getEntity();
         assertNotNull( Json.mapper().writeValueAsString(example1));
-        System.out.println(example1);
 
         Response response1 = controller.apply( requestContext );
 
         assertEquals( 200, response1.getStatus() );
         io.swagger.oas.models.examples.Example example2 = (Example) response1.getEntity();
         assertNotNull( Json.mapper().writeValueAsString(example2));
-        System.out.println(example2);
 
-        assertNotEquals(example1, example2);
 
+        if(example1 != example2) {
+            different++;
+            assertNotEquals(example1, example2);
+        }else{
+            equal++;
+            assertEquals(example1, example2);
+        }
+    }
+
+    @Test
+    public void testRandom(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths)throws Exception{
+        for (int i = 0;i <1000; i++) {
+            testRandomJsonExample(auths);
+        }
+        if(different>equal) {
+            assertTrue(different > equal);
+        }else if(different<equal) {
+            fail("different:" + different + " equal: " + equal);
+        }
     }
 
     @Test
