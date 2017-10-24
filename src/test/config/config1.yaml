@@ -16,6 +16,7 @@ entityProcessors:
   - json
   - xml
   - yaml
+  - plain
 
 # Allows to configure the examples
 exampleProcessors:

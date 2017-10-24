@@ -415,7 +415,7 @@ paths:
         '200':
           description: success!
           content:
-            application/xml:
+            text/plain:
               schema:
                 type: string
                 example: fun
