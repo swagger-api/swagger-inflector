@@ -490,48 +490,43 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     io.swagger.oas.models.examples.Example outputExample = null;
 
                     if (response.getContent() != null) {
-                        //1. ask if I'm being ask for a media type at all
-                        //2. If I don't answer
-                        //3. Checkout If I'm being ask for a media type I have
-                        //4. If I Do: I fetch the examples inside it and answer with the mediaType asked
-                                //2.1: Before answering I check the example processor of Inflector Random or Sequence
-                        //5. If I Don't response with 500 error
                         if (requestContext.getHeaders().get("Content-Type") != null) {
                             for (String acceptable : requestContext.getHeaders().get("Content-Type")) {
                                 if (response.getContent().get(acceptable) != null) {
                                     if (response.getContent().get(acceptable).getExamples() != null) {
                                         examples = response.getContent().get(acceptable).getExamples();
                                     }
-                                }
+                                    if (examples != null && examples.size() > 0) {
+                                        for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
+                                            MediaType media = MediaType.valueOf(acceptable);
+                                            if (media.isCompatible(mediaType)) {
+                                                if (exampleProcessorList != null && exampleProcessorList.size() > 0) {
+                                                    for (String mode : exampleProcessorList) {
+                                                        if (mode.equals(RANDOM_EXAMPLE)) {
+                                                            Random generator = new Random();
+                                                            Object[] values = examples.values().toArray();
+                                                            outputExample = (io.swagger.oas.models.examples.Example) values[generator.nextInt(values.length)];
 
-                                if (examples != null && examples.size() > 0) {
-                                    for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
-                                        MediaType media = MediaType.valueOf(acceptable);
-                                        if (media.isCompatible(mediaType)) {
-                                            if (exampleProcessorList != null && exampleProcessorList.size() > 0) {
-                                                for (String mode : exampleProcessorList) {
-                                                    if (mode.equals(RANDOM_EXAMPLE)) {
-                                                        Random generator = new Random();
-                                                        Object[] values = examples.values().toArray();
-                                                        outputExample = (io.swagger.oas.models.examples.Example) values[generator.nextInt(values.length)];
-
-                                                    } else if (mode.equals(SEQUENCIAL_EXAMPLE)) {
-                                                        if (sequence >= examples.size()) {
-                                                            sequence = 0;
+                                                        } else if (mode.equals(SEQUENCIAL_EXAMPLE)) {
+                                                            if (sequence >= examples.size()) {
+                                                                sequence = 0;
+                                                            }
+                                                            Object[] values = examples.values().toArray();
+                                                            outputExample = (io.swagger.oas.models.examples.Example) values[sequence];
+                                                            sequence++;
                                                         }
-                                                        Object[] values = examples.values().toArray();
-                                                        outputExample = (io.swagger.oas.models.examples.Example) values[sequence];
-                                                        sequence++;
+                                                        builder.entity(outputExample)
+                                                                .type(acceptable);
+                                                        return builder.build();
                                                     }
-                                                    builder.entity(outputExample)
-                                                            .type(acceptable);
-                                                    return builder.build();
                                                 }
                                             }
                                         }
                                     }
+                                    output = ExampleBuilder.fromSchema(response.getContent().get(acceptable).getSchema(), definitions);
+                                }else{
+                                    throw new ApiException(ApiErrorUtils.createInternalError());
                                 }
-                                output = ExampleBuilder.fromSchema(response.getContent().get(acceptable).getSchema(), definitions);
                             }
                         }else{
                             for (String key: response.getContent().keySet()) {

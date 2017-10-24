@@ -24,6 +24,7 @@ import io.swagger.oas.inflector.processors.JsonNodeExampleSerializer;
 import io.swagger.oas.models.Operation;
 import io.swagger.oas.models.OpenAPI;
 
+import io.swagger.oas.models.examples.Example;
 import io.swagger.parser.models.ParseOptions;
 import io.swagger.parser.v3.OpenAPIV3Parser;
 import io.swagger.util.Json;
@@ -45,6 +46,8 @@ import java.util.List;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.stub;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotNull;
 
 public class ResponseExamplesTest {
 
@@ -123,5 +126,179 @@ public class ResponseExamplesTest {
 
     private void assertEqualsIgnoreLineEnding(String actual, String expected) {
         assertEquals(actual.replace("\n", ""), expected);
+    }
+
+    @Test
+    public void testRandomJsonExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
+        Configuration config = new Configuration();
+        List<String> exampleProcessor = new ArrayList<>();
+        exampleProcessor.add("random");
+        config.setExampleProcessors(exampleProcessor);
+        ParseOptions options = new ParseOptions();
+        options.setResolveFully(true);
+
+        OpenAPI openAPI = new OpenAPIV3Parser().readLocation( "src/test/swagger/oas3.yaml",auths, options).getOpenAPI();
+        Operation operation = openAPI.getPaths().get( "/mockResponses/objectMultipleExamples").getGet();
+
+        OpenAPIOperationController controller = new OpenAPIOperationController(
+                config, "/mockResponses/objectMultipleExamples", "GET", operation, openAPI.getComponents().getSchemas() );
+
+        ContainerRequestContext requestContext = mock(ContainerRequestContext.class);
+        UriInfo uriInfo = mock( UriInfo.class );
+
+        stub( uriInfo.getPath()).toReturn( "/mockResponses/responseWithExamples");
+        stub( uriInfo.getQueryParameters()).toReturn( new MultivaluedHashMap<String, String>());
+        stub( uriInfo.getPathParameters()).toReturn( new MultivaluedHashMap<String, String>());
+
+        stub( requestContext.getAcceptableMediaTypes()).toReturn(Arrays.asList(MediaType.APPLICATION_JSON_TYPE));
+        stub( requestContext.getHeaders()).toReturn( new MultivaluedHashMap<String, String>());
+        stub( requestContext.getUriInfo()).toReturn( uriInfo );
+
+        Response response = controller.apply( requestContext );
+
+        assertEquals( 200, response.getStatus() );
+        io.swagger.oas.models.examples.Example example1 = (Example) response.getEntity();
+        assertNotNull( Json.mapper().writeValueAsString(example1));
+        System.out.println(example1);
+
+        Response response1 = controller.apply( requestContext );
+
+        assertEquals( 200, response1.getStatus() );
+        io.swagger.oas.models.examples.Example example2 = (Example) response1.getEntity();
+        assertNotNull( Json.mapper().writeValueAsString(example2));
+        System.out.println(example2);
+
+        assertNotEquals(example1, example2);
+
+    }
+
+    @Test
+    public void testSecuenceJsonExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
+        Configuration config = new Configuration();
+        List<String> exampleProcessor = new ArrayList<>();
+        exampleProcessor.add("sequence");
+        config.setExampleProcessors(exampleProcessor);
+        ParseOptions options = new ParseOptions();
+        options.setResolveFully(true);
+
+        OpenAPI openAPI = new OpenAPIV3Parser().readLocation( "src/test/swagger/oas3.yaml",auths, options).getOpenAPI();
+        Operation operation = openAPI.getPaths().get( "/mockResponses/objectMultipleExamples").getGet();
+
+        OpenAPIOperationController controller = new OpenAPIOperationController(
+                config, "/mockResponses/objectMultipleExamples", "GET", operation, openAPI.getComponents().getSchemas() );
+
+        ContainerRequestContext requestContext = mock(ContainerRequestContext.class);
+        UriInfo uriInfo = mock( UriInfo.class );
+
+        stub( uriInfo.getPath()).toReturn( "/mockResponses/responseWithExamples");
+        stub( uriInfo.getQueryParameters()).toReturn( new MultivaluedHashMap<String, String>());
+        stub( uriInfo.getPathParameters()).toReturn( new MultivaluedHashMap<String, String>());
+
+        stub( requestContext.getAcceptableMediaTypes()).toReturn(Arrays.asList(MediaType.APPLICATION_JSON_TYPE));
+        stub( requestContext.getHeaders()).toReturn( new MultivaluedHashMap<String, String>());
+        stub( requestContext.getUriInfo()).toReturn( uriInfo );
+
+        Response response = controller.apply( requestContext );
+
+        assertEquals( 200, response.getStatus() );
+        io.swagger.oas.models.examples.Example example1 = (Example) response.getEntity();
+        assertEquals( Json.mapper().writeValueAsString(example1), "{\"value\":{\"id\":6,\"name\":\"Queen Victoria\"}}");
+
+        Response response1 = controller.apply( requestContext );
+
+        assertEquals( 200, response1.getStatus() );
+        io.swagger.oas.models.examples.Example example2 = (Example) response1.getEntity();
+        assertEquals( Json.mapper().writeValueAsString(example2), "{\"value\":{\"id\":5,\"name\":\"Grace Gonzalez\"}}");
+
+        Response response2 = controller.apply( requestContext );
+
+        assertEquals( 200, response2.getStatus() );
+        io.swagger.oas.models.examples.Example example3 = (Example) response2.getEntity();
+        assertEquals( Json.mapper().writeValueAsString(example3), "{\"value\":{\"id\":4,\"name\":\"Arthur Dent\"}}");
+
+        Response response3 = controller.apply( requestContext );
+
+        assertEquals( 200, response3.getStatus() );
+        io.swagger.oas.models.examples.Example example4 = (Example) response3.getEntity();
+        assertEquals( Json.mapper().writeValueAsString(example4), "{\"value\":{\"id\":3,\"name\":\"Tricia McMillan\"}}");
+
+        Response response4 = controller.apply( requestContext );
+
+        assertEquals( 200, response4.getStatus() );
+        io.swagger.oas.models.examples.Example example5 = (Example) response.getEntity();
+        assertEquals( Json.mapper().writeValueAsString(example5), "{\"value\":{\"id\":6,\"name\":\"Queen Victoria\"}}");
+
+    }
+
+    @Test
+    public void testRandomRequestedJsonExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
+        Configuration config = new Configuration();
+        List<String> exampleProcessor = new ArrayList<>();
+        exampleProcessor.add("random");
+        config.setExampleProcessors(exampleProcessor);
+        ParseOptions options = new ParseOptions();
+        options.setResolveFully(true);
+
+        OpenAPI openAPI = new OpenAPIV3Parser().readLocation( "src/test/swagger/oas3.yaml",auths, options).getOpenAPI();
+        Operation operation = openAPI.getPaths().get( "/mockResponses/objectMultipleExamples").getGet();
+
+        OpenAPIOperationController controller = new OpenAPIOperationController(
+                config, "/mockResponses/objectMultipleExamples", "GET", operation, openAPI.getComponents().getSchemas() );
+
+        ContainerRequestContext requestContext = mock(ContainerRequestContext.class);
+        UriInfo uriInfo = mock( UriInfo.class );
+
+        stub( uriInfo.getPath()).toReturn( "/mockResponses/responseWithExamples");
+        stub( uriInfo.getQueryParameters()).toReturn( new MultivaluedHashMap<String, String>());
+        stub( uriInfo.getPathParameters()).toReturn( new MultivaluedHashMap<String, String>());
+
+
+        stub( requestContext.getHeaders()).toReturn( new MultivaluedHashMap<String, String>());
+        requestContext.getHeaders().add("Content-Type","application/json");
+        stub( requestContext.getUriInfo()).toReturn( uriInfo );
+
+        Response response = controller.apply( requestContext );
+
+        assertEquals( 200, response.getStatus() );
+        assertEquals( "json", response.getMediaType().getSubtype() );
+
+        assertNotNull( response.getEntity());
+
+    }
+
+    @Test
+    public void testRandomRequestedXmlExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
+        Configuration config = new Configuration();
+        List<String> exampleProcessor = new ArrayList<>();
+        exampleProcessor.add("random");
+        config.setExampleProcessors(exampleProcessor);
+        ParseOptions options = new ParseOptions();
+        options.setResolveFully(true);
+
+        OpenAPI openAPI = new OpenAPIV3Parser().readLocation( "src/test/swagger/oas3.yaml",auths, options).getOpenAPI();
+        Operation operation = openAPI.getPaths().get( "/mockResponses/objectMultipleExamples").getGet();
+
+        OpenAPIOperationController controller = new OpenAPIOperationController(
+                config, "/mockResponses/objectMultipleExamples", "GET", operation, openAPI.getComponents().getSchemas() );
+
+        ContainerRequestContext requestContext = mock(ContainerRequestContext.class);
+        UriInfo uriInfo = mock( UriInfo.class );
+
+        stub( uriInfo.getPath()).toReturn( "/mockResponses/responseWithExamples");
+        stub( uriInfo.getQueryParameters()).toReturn( new MultivaluedHashMap<String, String>());
+        stub( uriInfo.getPathParameters()).toReturn( new MultivaluedHashMap<String, String>());
+
+
+        stub( requestContext.getHeaders()).toReturn( new MultivaluedHashMap<String, String>());
+        requestContext.getHeaders().add("Content-Type","application/xml");
+        stub( requestContext.getUriInfo()).toReturn( uriInfo );
+
+        Response response = controller.apply( requestContext );
+
+        assertEquals( 200, response.getStatus() );
+        assertEquals( "xml", response.getMediaType().getSubtype() );
+
+        assertNotNull( response.getEntity());
+
     }
 }
