@@ -7,8 +7,8 @@ import io.swagger.oas.inflector.validators.NumericValidator;
 import io.swagger.oas.inflector.validators.StringTypeValidator;
 import io.swagger.oas.inflector.validators.ValidationException;
 import io.swagger.oas.inflector.validators.Validator;
-import io.swagger.oas.models.media.Schema;
-import io.swagger.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

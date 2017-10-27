@@ -19,12 +19,12 @@ package io.swagger.oas.test.validators;
 import io.swagger.oas.inflector.converters.ConversionException;
 import io.swagger.oas.inflector.converters.InputConverter;
 import io.swagger.oas.inflector.validators.*;
-import io.swagger.oas.models.media.IntegerSchema;
-import io.swagger.oas.models.media.StringSchema;
-import io.swagger.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.parameters.Parameter;
 
 
-import io.swagger.oas.models.parameters.QueryParameter;
+import io.swagger.v3.oas.models.parameters.QueryParameter;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 

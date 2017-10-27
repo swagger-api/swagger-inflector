@@ -16,7 +16,7 @@
 package io.swagger.oas.inflector.config;
 
 import io.swagger.oas.inflector.OpenAPIInflector;
-import io.swagger.oas.models.Operation;
+import io.swagger.v3.oas.models.Operation;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;

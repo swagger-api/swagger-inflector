@@ -17,7 +17,7 @@
 package io.swagger.oas.inflector.config;
 
 
-import io.swagger.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.OpenAPI;
 
 public interface OpenAPIProcessor {
 

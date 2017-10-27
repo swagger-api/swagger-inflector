@@ -18,18 +18,18 @@ package io.swagger.oas.test;
 
 import io.swagger.oas.inflector.converters.ConversionException;
 import io.swagger.oas.inflector.converters.DefaultConverter;
-import io.swagger.oas.models.media.BooleanSchema;
-import io.swagger.oas.models.media.DateSchema;
-import io.swagger.oas.models.media.DateTimeSchema;
-import io.swagger.oas.models.media.EmailSchema;
-import io.swagger.oas.models.media.IntegerSchema;
-import io.swagger.oas.models.media.NumberSchema;
-import io.swagger.oas.models.media.StringSchema;
-import io.swagger.oas.models.media.UUIDSchema;
-import io.swagger.oas.models.parameters.Parameter;
-import io.swagger.oas.models.parameters.QueryParameter;
+import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.DateSchema;
+import io.swagger.v3.oas.models.media.DateTimeSchema;
+import io.swagger.v3.oas.models.media.EmailSchema;
+import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.media.UUIDSchema;
+import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.parameters.QueryParameter;
 
-import io.swagger.util.Json;
+import io.swagger.v3.core.util.Json;
 
 import org.testng.annotations.Test;
 import org.joda.time.DateTime;

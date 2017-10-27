@@ -17,7 +17,6 @@
 package io.swagger.oas.test.examples;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import io.swagger.converter.ModelConverters;
 import io.swagger.oas.inflector.examples.ExampleBuilder;
 import io.swagger.oas.inflector.examples.XmlExampleSerializer;
 import io.swagger.oas.inflector.examples.models.AbstractExample;
@@ -29,21 +28,22 @@ import io.swagger.oas.inflector.examples.models.StringExample;
 import io.swagger.oas.inflector.processors.JsonExampleDeserializer;
 import io.swagger.oas.inflector.processors.JsonNodeExampleSerializer;
 
-import io.swagger.oas.models.OpenAPI;
-import io.swagger.oas.models.media.ArraySchema;
-import io.swagger.oas.models.media.BooleanSchema;
-import io.swagger.oas.models.media.IntegerSchema;
-import io.swagger.oas.models.media.NumberSchema;
-import io.swagger.oas.models.media.Schema;
-import io.swagger.oas.models.media.StringSchema;
-import io.swagger.oas.models.media.XML;
+import io.swagger.v3.core.converter.ModelConverters;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.media.XML;
 
 
-import io.swagger.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.oas.test.models.User;
-import io.swagger.parser.v3.OpenAPIV3Parser;
-import io.swagger.util.Json;
-import io.swagger.util.Yaml;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.core.util.Yaml;
+import io.swagger.v3.parser.OpenAPIV3Parser;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

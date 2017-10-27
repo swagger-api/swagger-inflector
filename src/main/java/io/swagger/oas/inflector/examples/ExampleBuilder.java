@@ -27,23 +27,22 @@ import io.swagger.oas.inflector.examples.models.LongExample;
 import io.swagger.oas.inflector.examples.models.ObjectExample;
 import io.swagger.oas.inflector.examples.models.StringExample;
 
-
-import io.swagger.oas.models.media.ArraySchema;
-import io.swagger.oas.models.media.BooleanSchema;
-import io.swagger.oas.models.media.ComposedSchema;
-import io.swagger.oas.models.media.DateSchema;
-import io.swagger.oas.models.media.DateTimeSchema;
-import io.swagger.oas.models.media.EmailSchema;
-import io.swagger.oas.models.media.IntegerSchema;
-import io.swagger.oas.models.media.NumberSchema;
-import io.swagger.oas.models.media.ObjectSchema;
-import io.swagger.oas.models.media.Schema;
-import io.swagger.oas.models.media.StringSchema;
-import io.swagger.oas.models.media.UUIDSchema;
-import io.swagger.util.Json;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.ComposedSchema;
+import io.swagger.v3.oas.models.media.DateSchema;
+import io.swagger.v3.oas.models.media.DateTimeSchema;
+import io.swagger.v3.oas.models.media.EmailSchema;
+import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.media.UUIDSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.swagger.oas.models.media.XML;
+import io.swagger.v3.oas.models.media.XML;
 
 
 import java.io.IOException;
