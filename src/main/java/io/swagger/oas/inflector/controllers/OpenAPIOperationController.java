@@ -408,24 +408,29 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                 Schema schema = media.getSchema();
                                 if (mt.isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {
                                     // look in the form map
-                                    headers = formMap.get("");
-                                    if (headers != null && headers.size() > 0) {
+                                    if (schema.getProperties() != null) {
+                                        Map<String,Schema> properties = schema.getProperties();
+                                        for (String key: properties.keySet()) {
+                                            headers = formMap.get(key);
+                                            if (headers != null && headers.size() > 0) {
 
-                                        if ("binary".equals(schema.getType())) {
-                                            o = inputStreams.get(name);
-                                        } else {
-                                            Object obj = headers.get("body");
-                                            if (obj != null) {
-                                                jt = parameterClasses[i];
-                                                cls = jt.getRawClass();
+                                                if ("binary".equals(properties.get(key).getFormat())) {
+                                                    o = inputStreams.get(key);
+                                                } else {
+                                                    Object obj = headers.get(key);
+                                                    if (obj != null) {
+                                                        jt = requestBodyClass[i];
+                                                        cls = jt.getRawClass();
 
-                                                List<String> os = Arrays.asList(obj.toString());
-                                                try {
-                                                    o = validator.convertAndValidate(os, body, cls, definitions);
-                                                } catch (ConversionException e) {
-                                                    missingParams.add(e.getError());
-                                                } catch (ValidationException e) {
-                                                    missingParams.add(e.getValidationMessage());
+                                                        List<String> os = Arrays.asList(obj.toString());
+                                                        try {
+                                                            o = validator.convertAndValidate(os, body, cls, definitions);
+                                                        } catch (ConversionException e) {
+                                                            missingParams.add(e.getError());
+                                                        } catch (ValidationException e) {
+                                                            missingParams.add(e.getValidationMessage());
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }

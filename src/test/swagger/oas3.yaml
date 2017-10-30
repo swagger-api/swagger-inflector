@@ -625,8 +625,19 @@ paths:
     post:
       x-swagger-router-controller: TestController
       operationId: postFormData
+      tags:
+      - test2
       requestBody:
-        content: {}
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                stringMetadata:
+                  type: string
+                intMetadata:
+                  type: integer
+                  format: int64
       responses:
         '200':
           description: ok
