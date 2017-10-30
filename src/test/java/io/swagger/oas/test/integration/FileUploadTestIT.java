@@ -17,7 +17,7 @@ import static org.testng.Assert.assertEquals;
 public class FileUploadTestIT {
     ApiClient client = new ApiClient();
 
-    /*@Test
+    @Test
     public void verifyStringMetadata() throws Exception {
         String path = "/fileUpload";
         final FormDataMultiPart multipart = new FormDataMultiPart()
@@ -27,9 +27,9 @@ public class FileUploadTestIT {
         String str = client.invokeAPI(
                 path,                           // path
                 "POST",                         // method
-                new HashMap<String, String>(),  // query params
+                new HashMap<>(),  // query params
                 null,                           // body
-                new HashMap<String, String>(),  // header params
+                new HashMap<>(),  // header params
                 formParams,                     // form params
                 "multipart/form-data",          // accept
                 null,                           // content-type
@@ -62,9 +62,9 @@ public class FileUploadTestIT {
             String str = client.invokeAPI(
                     path,                           // path
                     "POST",                         // method
-                    new HashMap<String, String>(),  // query params
+                    new HashMap<>(),  // query params
                     null,                           // body
-                    new HashMap<String, String>(),  // header params
+                    new HashMap<>(),  // header params
                     formParams,                     // form params
                     "multipart/form-data",          // accept
                     null,                           // content-type
@@ -76,5 +76,5 @@ public class FileUploadTestIT {
                 file.delete();
             }
         }
-    }*/
+    }
 }

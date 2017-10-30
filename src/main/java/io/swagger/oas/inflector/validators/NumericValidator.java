@@ -1,8 +1,11 @@
 package io.swagger.oas.inflector.validators;
 
 
+import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 
+import java.awt.*;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -86,6 +89,93 @@ public class NumericValidator implements Validator {
         }
         if(chain.hasNext()) {
             chain.next().validate(o, parameter, chain);
+            return;
+        }
+
+        return;
+    }
+
+    public void validate(Object o, RequestBody body, Iterator<Validator> chain) throws ValidationException {
+        if (body.getContent() != null) {
+            for(String media: body.getContent().keySet()) {
+                if (body.getContent().get(media) != null) {
+                    MediaType mediaType = body.getContent().get(media);
+                    if (o != null && mediaType.getSchema() != null) {
+                        if (mediaType.getSchema().getEnum() != null && mediaType.getSchema().getEnum().size() > 0) {
+                            List<?> values = mediaType.getSchema().getEnum();
+                            Set<String> allowable = new LinkedHashSet<String>();
+                            for (Object obj : values) {
+                                allowable.add(obj.toString());
+                            }
+                            if (!allowable.contains(o.toString())) {
+                                throw new ValidationException()
+                                        .message(new ValidationMessage()
+                                                .code(ValidationError.UNACCEPTABLE_VALUE)
+                                                .message( " request body `"  + " value `" + o + "` is not in the allowable values `" + allowable + "`"));
+                            }
+                        }
+                        ;
+                        if (mediaType.getSchema().getMaximum() != null) {
+                            double max = mediaType.getSchema().getMaximum().doubleValue();
+                            Double value;
+                            try {
+                                value = Double.parseDouble(o.toString());
+                            } catch (NumberFormatException e) {
+                                throw new ValidationException()
+                                        .message(new ValidationMessage()
+                                                .code(ValidationError.INVALID_FORMAT)
+                                                .message(" parameter `" +  " is not a compatible number"));
+                            }
+                            if (mediaType.getSchema().getExclusiveMaximum() != null && mediaType.getSchema().getExclusiveMaximum()) {
+                                if (value >= max) {
+                                    throw new ValidationException()
+                                            .message(new ValidationMessage()
+                                                    .code(ValidationError.VALUE_OVER_MAXIMUM)
+                                                    .message(" parameter `"  + " value `" + o + "` is greater than maximum allowed value `" + max + "`"));
+                                }
+                            } else {
+                                if (value > max) {
+                                    throw new ValidationException()
+                                            .message(new ValidationMessage()
+                                                    .code(ValidationError.VALUE_OVER_MAXIMUM)
+                                                    .message(" parameter `" + " value `" + o + "` is greater or equal to maximum allowed value `" + max + "`"));
+                                }
+                            }
+                        }
+                        if (mediaType.getSchema().getMinimum() != null) {
+                            double min = mediaType.getSchema().getMinimum().doubleValue();
+                            Double value;
+                            try {
+                                value = Double.parseDouble(o.toString());
+                            } catch (NumberFormatException e) {
+                                throw new ValidationException()
+                                        .message(new ValidationMessage()
+                                                .code(ValidationError.INVALID_FORMAT)
+                                                .message( " parameter `" + " is not a compatible number"));
+                            }
+                            if (mediaType.getSchema().getExclusiveMinimum() != null && mediaType.getSchema().getExclusiveMinimum()) {
+                                if (value <= min) {
+                                    throw new ValidationException()
+                                            .message(new ValidationMessage()
+                                                    .code(ValidationError.VALUE_UNDER_MINIMUM)
+                                                    .message(" parameter `" + " value `" + o + "` is less than minimum allowed value `" + min + "`"));
+                                }
+                            } else {
+                                if (value < min) {
+                                    throw new ValidationException()
+                                            .message(new ValidationMessage()
+                                                    .code(ValidationError.VALUE_UNDER_MINIMUM)
+                                                    .message(" parameter `" + " value `" + o + "` is less or equal to the minimum allowed value `" + min + "`"));
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        if(chain.hasNext()) {
+            chain.next().validate(o, body, chain);
             return;
         }
 

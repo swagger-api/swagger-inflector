@@ -7,10 +7,12 @@ import io.swagger.oas.inflector.validators.ValidationError;
 import io.swagger.oas.inflector.validators.ValidationMessage;
 
 import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.QueryParameter;
 import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -34,6 +36,47 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
 
         return coerceValue(value, parameter, cls);
 
+    }
+
+    public Object convert(List<String> value, RequestBody body, Class<?> cls, Map<String, Schema> definitions, Iterator<Converter> chain) throws ConversionException {
+
+        return coerceValue(value, body, cls);
+
+    }
+
+    public Object coerceValue(List<String> o, RequestBody body, Class<?> cls) throws ConversionException {
+        if (o == null || o.size() == 0) {
+            return null;
+        }
+
+        LOGGER.debug("casting `" + o + "` to " + cls);
+        if (List.class.equals(cls)) {
+            if (body.getContent() != null){
+                for (String mediaType: body.getContent().keySet()) {
+                    MediaType media = body.getContent().get(mediaType);
+                    if (media.getSchema() != null) {
+                        List<Object> output = new ArrayList<>();
+                        if (media.getSchema() instanceof ArraySchema) {
+                            ArraySchema arraySchema = ((ArraySchema) media.getSchema());
+                            Schema inner = arraySchema.getItems();
+
+                        }
+                        return output;
+                    }
+                }
+            }
+        } else if (body.getContent() != null){
+                for (String mediaType: body.getContent().keySet()) {
+                    MediaType media = body.getContent().get(mediaType);
+                    if (media.getSchema() != null) {
+                        TypeFactory tf = Json.mapper().getTypeFactory();
+
+                        return cast(o.get(0), media.getSchema(), tf.constructType(cls));
+                    }
+                }
+
+        }
+        return null;
     }
     
     

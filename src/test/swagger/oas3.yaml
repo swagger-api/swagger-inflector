@@ -159,6 +159,7 @@ paths:
           content:
             multipart/form-data:
               schema:
+                type: object
                 properties:
                   theFile:
                     type: string
