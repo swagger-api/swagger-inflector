@@ -18,9 +18,9 @@ package io.swagger.oas.test.validators;
 
 import io.swagger.oas.inflector.converters.InputConverter;
 import io.swagger.oas.inflector.validators.ValidationException;
-import io.swagger.oas.models.media.NumberSchema;
-import io.swagger.oas.models.media.Schema;
-import io.swagger.oas.models.parameters.QueryParameter;
+import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.QueryParameter;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

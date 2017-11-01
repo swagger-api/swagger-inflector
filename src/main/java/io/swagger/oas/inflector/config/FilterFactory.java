@@ -1,6 +1,6 @@
 package io.swagger.oas.inflector.config;
 
-import io.swagger.core.filter.OpenAPISpecFilter;
+import io.swagger.v3.core.filter.OpenAPISpecFilter;
 
 public class FilterFactory {
     protected static OpenAPISpecFilter FILTER = null;

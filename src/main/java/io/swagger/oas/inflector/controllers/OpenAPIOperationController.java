@@ -38,15 +38,15 @@ import io.swagger.oas.inflector.utils.ContentTypeSelector;
 import io.swagger.oas.inflector.utils.ReflectionUtils;
 import io.swagger.oas.inflector.validators.ValidationException;
 import io.swagger.oas.inflector.validators.ValidationMessage;
-import io.swagger.oas.models.Operation;
-import io.swagger.oas.models.headers.Header;
-import io.swagger.oas.models.media.Content;
-import io.swagger.oas.models.media.Schema;
-import io.swagger.oas.models.parameters.Parameter;
-import io.swagger.oas.models.parameters.RequestBody;
-import io.swagger.oas.models.responses.ApiResponse;
-import io.swagger.oas.models.responses.ApiResponses;
-import io.swagger.util.Json;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.headers.Header;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.parameters.RequestBody;
+import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.responses.ApiResponses;
+import io.swagger.v3.core.util.Json;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.fileupload.MultipartStream;
@@ -260,7 +260,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                         if (body.getContent() != null) {
                             Content content = body.getContent();
                             for (String key : content.keySet()) {
-                                io.swagger.oas.models.media.MediaType mediaType = content.get(key);
+                                io.swagger.v3.oas.models.media.MediaType mediaType = content.get(key);
                                 if (mediaType.getSchema() != null) {
                                     validate(o, mediaType.getSchema(), SchemaValidator.Direction.INPUT);
                                 }
@@ -480,7 +480,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                         }
                     }
 
-                    Map<String, io.swagger.oas.models.examples.Example> examples = new HashMap<>();
+                    Map<String, io.swagger.v3.oas.models.examples.Example> examples = new HashMap<>();
                     Object output = null;
                     if (response.getContent() != null) {
                         for (String name : response.getContent().keySet()) {

@@ -17,11 +17,11 @@
 package io.swagger.oas.inflector.utils;
 
 
-import io.swagger.core.filter.SpecFilter;
-import io.swagger.core.filter.OpenAPISpecFilter;
 import io.swagger.oas.inflector.Constants;
-import io.swagger.oas.models.Operation;
-import io.swagger.oas.models.media.Schema;
+import io.swagger.v3.core.filter.OpenAPISpecFilter;
+import io.swagger.v3.core.filter.SpecFilter;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.media.Schema;
 
 import java.util.List;
 import java.util.Map;
@@ -30,7 +30,7 @@ public class VendorSpecFilter extends SpecFilter {
 
     @Override
     public Map<String, Schema> filterComponentsSchema(OpenAPISpecFilter filter, Map<String, Schema> definitions,
-                                                 Map<String, List<String>> params, Map<String, String> cookies, Map<String, List<String>> headers) {
+                                                      Map<String, List<String>> params, Map<String, String> cookies, Map<String, List<String>> headers) {
         final Map<String, Schema> filteredDefinitions = super.filterComponentsSchema(filter, definitions, params, cookies,
                 headers);
 

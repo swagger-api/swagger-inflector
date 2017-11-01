@@ -17,7 +17,7 @@
 package io.swagger.oas.inflector.processors;
 
 import io.swagger.oas.inflector.examples.models.Example;
-import io.swagger.util.Yaml;
+import io.swagger.v3.core.util.Yaml;
 
 import java.io.IOException;
 import java.io.OutputStream;

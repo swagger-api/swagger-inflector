@@ -2,27 +2,25 @@ package io.swagger.oas.test.utils;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.sun.org.apache.xerces.internal.xs.StringList;
-import io.swagger.oas.models.media.ObjectSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.oas.sample.models.Dog;
 import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.utils.ExtensionsUtil;
 
 import io.swagger.oas.inflector.utils.ReflectionUtils;
-import io.swagger.oas.models.OpenAPI;
-import io.swagger.oas.models.Operation;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
 
 
-import io.swagger.oas.models.media.ArraySchema;
-import io.swagger.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.Schema;
 
-import io.swagger.oas.models.parameters.Parameter;
-import io.swagger.oas.models.parameters.RequestBody;
-import io.swagger.parser.models.AuthorizationValue;
-import io.swagger.parser.models.ParseOptions;
-import io.swagger.parser.models.SwaggerParseResult;
-import io.swagger.parser.v3.OpenAPIV3Parser;
-
-import io.swagger.parser.v3.util.ResolverFully;
+import io.swagger.v3.oas.models.parameters.RequestBody;
+import io.swagger.v3.parser.OpenAPIV3Parser;
+import io.swagger.v3.parser.core.models.AuthorizationValue;
+import io.swagger.v3.parser.core.models.ParseOptions;
+import io.swagger.v3.parser.core.models.SwaggerParseResult;
+import io.swagger.v3.parser.util.ResolverFully;
 import mockit.Injectable;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;

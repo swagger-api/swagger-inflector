@@ -21,13 +21,13 @@ import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.controllers.OpenAPIOperationController;
 
 import io.swagger.oas.inflector.processors.JsonNodeExampleSerializer;
-import io.swagger.oas.models.Operation;
-import io.swagger.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.OpenAPI;
 
-import io.swagger.parser.models.ParseOptions;
-import io.swagger.parser.v3.OpenAPIV3Parser;
-import io.swagger.util.Json;
-import io.swagger.util.Yaml;
+import io.swagger.v3.parser.OpenAPIV3Parser;
+import io.swagger.v3.parser.core.models.ParseOptions;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.core.util.Yaml;
 import mockit.Injectable;
 import org.testng.annotations.Test;
 
@@ -56,7 +56,7 @@ public class ResponseExamplesTest {
     }
 
     @Test
-    public void testResponseJsonExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
+    public void testResponseJsonExample(@Injectable final List<io.swagger.v3.parser.core.models.AuthorizationValue> auths) throws Exception {
         Configuration config = new Configuration();
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
@@ -85,7 +85,7 @@ public class ResponseExamplesTest {
     }
 
     @Test
-    public void testResponseYamlExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
+    public void testResponseYamlExample(@Injectable final List<io.swagger.v3.parser.core.models.AuthorizationValue> auths) throws Exception {
 
         Configuration config = new Configuration();
         ParseOptions options = new ParseOptions();

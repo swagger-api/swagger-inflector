@@ -18,11 +18,11 @@ package io.swagger.oas.test.validators;
 
 import io.swagger.oas.inflector.converters.InputConverter;
 import io.swagger.oas.inflector.validators.ValidationException;
-import io.swagger.oas.models.media.Schema;
-import io.swagger.oas.models.parameters.QueryParameter;
-import io.swagger.oas.models.media.DateSchema;
-import io.swagger.oas.models.media.DateTimeSchema;
-import io.swagger.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.QueryParameter;
+import io.swagger.v3.oas.models.media.DateSchema;
+import io.swagger.v3.oas.models.media.DateTimeSchema;
+import io.swagger.v3.oas.models.media.StringSchema;
 
 import java.util.ArrayList;
 import java.util.List;

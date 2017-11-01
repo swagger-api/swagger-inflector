@@ -16,12 +16,12 @@
 
 package io.swagger.oas.inflector.controllers;
 
-import io.swagger.core.filter.OpenAPISpecFilter;
 import io.swagger.oas.inflector.config.FilterFactory;
 import io.swagger.oas.inflector.config.OpenAPIProcessor;
 import io.swagger.oas.inflector.utils.VendorSpecFilter;
-import io.swagger.oas.models.OpenAPI;
-import io.swagger.util.Json;
+import io.swagger.v3.core.filter.OpenAPISpecFilter;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.models.OpenAPI;
 import org.glassfish.jersey.process.Inflector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
