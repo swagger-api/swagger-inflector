@@ -153,17 +153,17 @@ public class RequestTestIT {
         assertEquals(str.getBytes(), new byte[]{42, 0, 1});
     }
 
-    /*@Test
+    @Test
     public void verifyPostFormData() throws Exception {
         String path = "/formTest";
 
-        MultivaluedMap<String, String> formData = new MultivaluedHashMap<String, String>();
+        MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
         formData.add("user", "tony,the tam");
 
         String str = client.invokeAPI(
             path,               // path
             "POST",             // method
-            new HashMap<String, String>(),  // query
+            new HashMap<>(),  // query
             null,               // body
             new HashMap<String, String>(), // header
             Entity.form(formData),         // form
@@ -172,7 +172,7 @@ public class RequestTestIT {
             new String[0]);
 
         assertEquals(str, "tony,the tam");
-    }*/
+    }
 
     @Test
     public void verifyMissingRequiredPostBody() throws Exception {

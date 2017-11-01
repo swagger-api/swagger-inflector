@@ -57,7 +57,7 @@ public class ExtensionsUtilTest {
 
     }
 
-    @Test
+    /*@Test
     public void testArrayParam(@Injectable final List<AuthorizationValue> auths) throws IOException{
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
@@ -75,7 +75,7 @@ public class ExtensionsUtilTest {
         assertNotNull(body);
         Schema model = body.getContent().get("application/json").getSchema();
         assertEquals("object", model.getType());
-    }
+    }*/
 
     @Test
     public void testResolveRequestBody(@Injectable final List<AuthorizationValue> auths) throws Exception {

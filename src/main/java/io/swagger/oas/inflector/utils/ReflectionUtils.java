@@ -231,7 +231,7 @@ public class ReflectionUtils {
         if(("string".equals(type) && "uuid".equals(format)) || property instanceof UUIDSchema) {
             return tf.constructType(UUID.class);
         }
-        if(("file".equals(type)) || property instanceof FileSchema) {
+        if(("binary".equals(type)) || property instanceof FileSchema) {
             return tf.constructType(File.class);
         }
         if(("integer".equals(type) && "int32".equals(format)) && property instanceof IntegerSchema) {
@@ -251,7 +251,7 @@ public class ReflectionUtils {
             return tf.constructType(String.class);
         }
         if(property instanceof ObjectSchema) {
-                String name = null;
+            String name = null;
             if (property.getExtensions() != null) {
                 name = (String) property.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
             }
@@ -321,11 +321,10 @@ public class ReflectionUtils {
                 }
             }
         }
-        if(model.getProperties() != null) {
+        if(model instanceof  ObjectSchema) {
 
-            String type = model.getType();
 
-            Schema property = propertyFromModel(model);
+            Schema property = SchemaTypeUtil.createSchema(model.getType(), model.getFormat());
             if(property != null) {
                 return getTypeFromProperty(model.getType(), model.getFormat(), property, definitions);
             }
