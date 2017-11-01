@@ -302,176 +302,178 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     for (String mediaType : body.getContent().keySet()) {
                         if (formDataString == null) {
                             // can only read stream once
-                            if (mt.isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {
-                                // get the boundary
-                                String boundary = mt.getParameters().get("boundary");
+                            if (mt != null) {
+                                if (mt.isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {
+                                    // get the boundary
+                                    String boundary = mt.getParameters().get("boundary");
 
-                                if (boundary != null) {
-                                    try {
-                                        InputStream output = ctx.getEntityStream();
+                                    if (boundary != null) {
+                                        try {
+                                            InputStream output = ctx.getEntityStream();
 
-                                        MultipartStream multipartStream = new MultipartStream(output, boundary.getBytes());
-                                        boolean nextPart = multipartStream.skipPreamble();
-                                        while (nextPart) {
-                                            String header = multipartStream.readHeaders();
-                                            // process headers
-                                            if (header != null) {
-                                                CSVFormat format = CSVFormat.DEFAULT
-                                                        .withDelimiter(';')
-                                                        .withRecordSeparator("=");
+                                            MultipartStream multipartStream = new MultipartStream(output, boundary.getBytes());
+                                            boolean nextPart = multipartStream.skipPreamble();
+                                            while (nextPart) {
+                                                String header = multipartStream.readHeaders();
+                                                // process headers
+                                                if (header != null) {
+                                                    CSVFormat format = CSVFormat.DEFAULT
+                                                            .withDelimiter(';')
+                                                            .withRecordSeparator("=");
 
-                                                Iterable<CSVRecord> records = format.parse(new StringReader(header));
-                                                for (CSVRecord r : records) {
-                                                    for (int j = 0; j < r.size(); j++) {
-                                                        String string = r.get(j);
+                                                    Iterable<CSVRecord> records = format.parse(new StringReader(header));
+                                                    for (CSVRecord r : records) {
+                                                        for (int j = 0; j < r.size(); j++) {
+                                                            String string = r.get(j);
 
-                                                        Iterable<CSVRecord> outerString = CSVFormat.DEFAULT
-                                                                .withDelimiter('=')
-                                                                .parse(new StringReader(string));
-                                                        for (CSVRecord outerKvPair : outerString) {
-                                                            if (outerKvPair.size() == 2) {
-                                                                String key = outerKvPair.get(0).trim();
-                                                                String value = outerKvPair.get(1).trim();
-                                                                if ("name".equals(key)) {
-                                                                    name = value;
-                                                                }
-                                                                headers.put(key, value);
-                                                            } else {
-                                                                Iterable<CSVRecord> innerString = CSVFormat.DEFAULT
-                                                                        .withDelimiter(':')
-                                                                        .parse(new StringReader(string));
-                                                                for (CSVRecord innerKVPair : innerString) {
-                                                                    if (innerKVPair.size() == 2) {
-                                                                        String key = innerKVPair.get(0).trim();
-                                                                        String value = innerKVPair.get(1).trim();
-                                                                        if ("name".equals(key)) {
-                                                                            name = value;
+                                                            Iterable<CSVRecord> outerString = CSVFormat.DEFAULT
+                                                                    .withDelimiter('=')
+                                                                    .parse(new StringReader(string));
+                                                            for (CSVRecord outerKvPair : outerString) {
+                                                                if (outerKvPair.size() == 2) {
+                                                                    String key = outerKvPair.get(0).trim();
+                                                                    String value = outerKvPair.get(1).trim();
+                                                                    if ("name".equals(key)) {
+                                                                        name = value;
+                                                                    }
+                                                                    headers.put(key, value);
+                                                                } else {
+                                                                    Iterable<CSVRecord> innerString = CSVFormat.DEFAULT
+                                                                            .withDelimiter(':')
+                                                                            .parse(new StringReader(string));
+                                                                    for (CSVRecord innerKVPair : innerString) {
+                                                                        if (innerKVPair.size() == 2) {
+                                                                            String key = innerKVPair.get(0).trim();
+                                                                            String value = innerKVPair.get(1).trim();
+                                                                            if ("name".equals(key)) {
+                                                                                name = value;
+                                                                            }
+                                                                            headers.put(key, value);
                                                                         }
-                                                                        headers.put(key, value);
                                                                     }
                                                                 }
                                                             }
-                                                        }
-                                                        if (name != null) {
-                                                            formMap.put(name, headers);
+                                                            if (name != null) {
+                                                                formMap.put(name, headers);
+                                                            }
                                                         }
                                                     }
                                                 }
-                                            }
-                                            String filename = extractFilenameFromHeaders(headers);
-                                            if (filename != null) {
-                                                try {
-                                                    File file = new File(Files.createTempDir(), filename);
-                                                    file.deleteOnExit();
-                                                    file.getParentFile().deleteOnExit();
-                                                    FileOutputStream fo = new FileOutputStream(file);
-                                                    multipartStream.readBodyData(fo);
-                                                    inputStreams.put(name, file);
-                                                } catch (Exception e) {
-                                                    LOGGER.error("Failed to extract uploaded file", e);
+                                                String filename = extractFilenameFromHeaders(headers);
+                                                if (filename != null) {
+                                                    try {
+                                                        File file = new File(Files.createTempDir(), filename);
+                                                        file.deleteOnExit();
+                                                        file.getParentFile().deleteOnExit();
+                                                        FileOutputStream fo = new FileOutputStream(file);
+                                                        multipartStream.readBodyData(fo);
+                                                        inputStreams.put(name, file);
+                                                    } catch (Exception e) {
+                                                        LOGGER.error("Failed to extract uploaded file", e);
+                                                    }
+                                                } else {
+                                                    ByteArrayOutputStream bo = new ByteArrayOutputStream();
+                                                    multipartStream.readBodyData(bo);
+                                                    String value = bo.toString();
+                                                    headers.put(name, value);
                                                 }
-                                            } else {
-                                                ByteArrayOutputStream bo = new ByteArrayOutputStream();
-                                                multipartStream.readBodyData(bo);
-                                                String value = bo.toString();
-                                                headers.put(name, value);
+                                                if (name != null) {
+                                                    formMap.put(name, headers);
+                                                }
+                                                headers = new HashMap<>();
+                                                name = null;
+                                                nextPart = multipartStream.readBoundary();
                                             }
-                                            if (name != null) {
-                                                formMap.put(name, headers);
-                                            }
-                                            headers = new HashMap<>();
-                                            name = null;
-                                            nextPart = multipartStream.readBoundary();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                } else {
+                                    try {
+                                        formDataString = IOUtils.toString(ctx.getEntityStream(), "UTF-8");
+                                        parts = formDataString.split("&");
+
+                                        for (String part : parts) {
+                                            String[] kv = part.split("=");
+                                            existingKeys.add(kv[0] + ": fp");
                                         }
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
                                 }
-                            } else {
+                                //TODO HERE
                                 try {
-                                    formDataString = IOUtils.toString(ctx.getEntityStream(), "UTF-8");
-                                    parts = formDataString.split("&");
+                                    io.swagger.v3.oas.models.media.MediaType media = body.getContent().get(mediaType);
+                                    //name ?
+                                    if (media.getSchema() != null) {
+                                        Schema schema = media.getSchema();
+                                        if (mt.isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {
+                                            // look in the form map
+                                            if (schema.getProperties() != null) {
+                                                Map<String, Schema> properties = schema.getProperties();
+                                                for (String key : properties.keySet()) {
+                                                    headers = formMap.get(key);
+                                                    if (headers != null && headers.size() > 0) {
 
-                                    for (String part : parts) {
-                                        String[] kv = part.split("=");
-                                        existingKeys.add(kv[0] + ": fp");
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            //TODO HERE
-                            try {
-                                io.swagger.v3.oas.models.media.MediaType media = body.getContent().get(mediaType);
-                                //name ?
-                                if (media.getSchema() != null) {
-                                    Schema schema = media.getSchema();
-                                    if (mt.isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {
-                                        // look in the form map
-                                        if (schema.getProperties() != null) {
-                                            Map<String, Schema> properties = schema.getProperties();
-                                            for (String key : properties.keySet()) {
-                                                headers = formMap.get(key);
-                                                if (headers != null && headers.size() > 0) {
-
-                                                    if ("binary".equals(properties.get(key).getFormat())) {
-                                                        o = inputStreams.get(key);
-                                                    } else {
-                                                        Object obj = headers.get(key);
-                                                        if (obj != null) {
-                                                            jt = requestBodyClass[i];
-                                                            cls = jt.getRawClass();
-
-                                                            List<String> os = Arrays.asList(obj.toString());
-                                                            try {
-                                                                o = validator.convertAndValidate(os, body, cls, definitions);
-                                                            } catch (ConversionException e) {
-                                                                missingParams.add(e.getError());
-                                                            } catch (ValidationException e) {
-                                                                missingParams.add(e.getValidationMessage());
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        if (formDataString != null) {
-                                            for (String part : parts) {
-                                                String[] kv = part.split("=");
-                                                if (kv != null) {
-                                                    if (kv.length > 0) {
-                                                        existingKeys.remove(kv[0] + ": fp");
-                                                    }
-                                                    if (kv.length == 2) {
-                                                        // TODO how to handle arrays here?
-                                                        String key = kv[0];
-                                                        try {
-                                                            String value = URLDecoder.decode(kv[1], "utf-8");
-                                                            if ("body".equals(key)) {
-                                                                jt = parameterClasses[i];
+                                                        if ("binary".equals(properties.get(key).getFormat())) {
+                                                            o = inputStreams.get(key);
+                                                        } else {
+                                                            Object obj = headers.get(key);
+                                                            if (obj != null) {
+                                                                jt = requestBodyClass[i];
                                                                 cls = jt.getRawClass();
+
+                                                                List<String> os = Arrays.asList(obj.toString());
                                                                 try {
-                                                                    o = validator.convertAndValidate(Arrays.asList(value), body, cls, definitions);
+                                                                    o = validator.convertAndValidate(os, body, cls, definitions);
                                                                 } catch (ConversionException e) {
                                                                     missingParams.add(e.getError());
                                                                 } catch (ValidationException e) {
                                                                     missingParams.add(e.getValidationMessage());
                                                                 }
                                                             }
-                                                        } catch (UnsupportedEncodingException e) {
-                                                            LOGGER.error("unable to decode value for " + key);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            if (formDataString != null) {
+                                                for (String part : parts) {
+                                                    String[] kv = part.split("=");
+                                                    if (kv != null) {
+                                                        if (kv.length > 0) {
+                                                            existingKeys.remove(kv[0] + ": fp");
+                                                        }
+                                                        if (kv.length == 2) {
+                                                            // TODO how to handle arrays here?
+                                                            String key = kv[0];
+                                                            try {
+                                                                String value = URLDecoder.decode(kv[1], "utf-8");
+                                                                if ("body".equals(key)) {
+                                                                    jt = parameterClasses[i];
+                                                                    cls = jt.getRawClass();
+                                                                    try {
+                                                                        o = validator.convertAndValidate(Arrays.asList(value), body, cls, definitions);
+                                                                    } catch (ConversionException e) {
+                                                                        missingParams.add(e.getError());
+                                                                    } catch (ValidationException e) {
+                                                                        missingParams.add(e.getValidationMessage());
+                                                                    }
+                                                                }
+                                                            } catch (UnsupportedEncodingException e) {
+                                                                LOGGER.error("unable to decode value for " + key);
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
                                         }
+
+
                                     }
-
-
+                                } catch (NumberFormatException e) {
+                                    LOGGER.error("Couldn't find body ( ) to " + parameterClasses[i], e);
                                 }
-                            } catch (NumberFormatException e) {
-                                LOGGER.error("Couldn't find body ( ) to " + parameterClasses[i], e);
                             }
                         }
                     }
