@@ -2,6 +2,7 @@ package io.swagger.oas.inflector.validators;
 
 
 import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 
@@ -9,6 +10,7 @@ import java.awt.*;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class NumericValidator implements Validator {
@@ -101,11 +103,11 @@ public class NumericValidator implements Validator {
                 if (body.getContent().get(media) != null) {
                     MediaType mediaType = body.getContent().get(media);
                     if (o != null && mediaType.getSchema() != null) {
-                        if (mediaType.getSchema().getEnum() != null && mediaType.getSchema().getEnum().size() > 0) {
-                            List<?> values = mediaType.getSchema().getEnum();
+                        if (mediaType.getSchema().getProperties() != null) {
+                            Map<String,Schema> values = mediaType.getSchema().getProperties();
                             Set<String> allowable = new LinkedHashSet<String>();
-                            for (Object obj : values) {
-                                allowable.add(obj.toString());
+                            for (String name : values.keySet()) {
+                                allowable.add(name);
                             }
                             if (!allowable.contains(o.toString())) {
                                 throw new ValidationException()
@@ -114,7 +116,7 @@ public class NumericValidator implements Validator {
                                                 .message( " request body `"  + " value `" + o + "` is not in the allowable values `" + allowable + "`"));
                             }
                         }
-                        ;
+
                         if (mediaType.getSchema().getMaximum() != null) {
                             double max = mediaType.getSchema().getMaximum().doubleValue();
                             Double value;

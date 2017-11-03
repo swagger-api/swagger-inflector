@@ -64,6 +64,20 @@ tags:
     description: Find out more about our store
     url: http://swagger.io
 paths:
+  "/formTest":
+    post:
+      operationId: formTest
+      x-swagger-router-controller: TestController
+      requestBody:
+        content:
+          x-www-form-urlencoded:
+            schema:
+              properties:
+                user:
+                  type: string
+      responses:
+        '200':
+          description: success!
   "/fileUpload":
       post:
         x-swagger-router-controller: TestController
@@ -279,20 +293,6 @@ paths:
           type: array
           items:
             type: string
-      responses:
-        '200':
-          description: success!
-  "/formTest":
-    post:
-      operationId: formTest
-      x-swagger-router-controller: TestController
-      requestBody:
-        content:
-          x-www-form-urlencoded:
-            schema:
-              properties:
-                user:
-                  type: string
       responses:
         '200':
           description: success!

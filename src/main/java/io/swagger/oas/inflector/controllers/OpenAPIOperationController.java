@@ -260,13 +260,12 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
             Map<String, String> headers = new HashMap<>();
             String name = null;
 
-            JavaType jt = parameterClasses[i];
-            Class<?> cls = null;
-            if(jt != null) {
-                cls  = jt.getRawClass();
-            }
-
             if (ctx.hasEntity()) {
+                JavaType jt = parameterClasses[i];
+                Class<?> cls = null;
+                if(jt != null) {
+                    cls  = jt.getRawClass();
+                }
                 try {
                     o = EntityProcessorFactory.readValue(ctx.getMediaType(), ctx.getEntityStream(), cls);
                     if (o != null) {
