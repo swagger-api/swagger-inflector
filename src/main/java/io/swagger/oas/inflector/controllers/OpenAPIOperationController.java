@@ -261,7 +261,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
             String name = null;
 
             if (ctx.hasEntity()) {
-                JavaType jt = parameterClasses[i];
+                JavaType jt = requestBodyClass[i];
                 Class<?> cls = null;
                 if(jt != null) {
                     cls  = jt.getRawClass();
@@ -389,7 +389,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                                 e.printStackTrace();
                                             }
                                         }
-                                        //TODO HERE
+
                                         try {
                                             io.swagger.v3.oas.models.media.MediaType media = body.getContent().get(mediaType);
                                             //name ?
@@ -408,7 +408,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                                                 } else {
                                                                     Object obj = headers.get(key);
                                                                     if (obj != null) {
-                                                                        jt = parameterClasses[i];
+                                                                        jt = requestBodyClass[i];
                                                                         cls = jt.getRawClass();
 
                                                                         List<String> os = Arrays.asList(obj.toString());
@@ -441,7 +441,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                                                             try {
                                                                                 String value = URLDecoder.decode(kv[1], "utf-8");
                                                                                 if (property.equals(key)) {
-                                                                                    jt = parameterClasses[i];
+                                                                                    jt = requestBodyClass[i];
                                                                                     cls = jt.getRawClass();
                                                                                     try {
                                                                                         o = validator.convertAndValidate(Arrays.asList(value), body, cls, definitions);
@@ -470,6 +470,10 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                     }
                                 }
                             }
+                            if (parameters == null || parameters.size() == 0) {
+                                args[i] = o;
+                                i += 1;
+                            }
                         }
                     }
                 } catch (ConversionException e) {
@@ -486,13 +490,11 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     missingParams.add(e.getValidationMessage());
                 }
 
-            } else {
-
-
             }
+
         }
 
-        if (parameters != null) {
+        if (parameters != null && parameters.size() > 0) {
             for (Parameter parameter : parameters) {
                 String in = parameter.getIn();
 

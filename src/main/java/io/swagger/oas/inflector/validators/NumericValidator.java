@@ -103,19 +103,19 @@ public class NumericValidator implements Validator {
                 if (body.getContent().get(media) != null) {
                     MediaType mediaType = body.getContent().get(media);
                     if (o != null && mediaType.getSchema() != null) {
-                        if (mediaType.getSchema().getProperties() != null) {
-                            Map<String,Schema> values = mediaType.getSchema().getProperties();
+                        if(mediaType.getSchema().getEnum() != null && mediaType.getSchema().getEnum().size() > 0) {
+                            List<?> values = mediaType.getSchema().getEnum();
                             Set<String> allowable = new LinkedHashSet<String>();
-                            for (String name : values.keySet()) {
-                                allowable.add(name);
+                            for(Object obj : values) {
+                                allowable.add(obj.toString());
                             }
-                            if (!allowable.contains(o.toString())) {
+                            if(!allowable.contains(o.toString())) {
                                 throw new ValidationException()
                                         .message(new ValidationMessage()
                                                 .code(ValidationError.UNACCEPTABLE_VALUE)
-                                                .message( " request body `"  + " value `" + o + "` is not in the allowable values `" + allowable + "`"));
+                                                .message( " parameter  value `" + o + "` is not in the allowable values `" + allowable + "`"));
                             }
-                        }
+                        };
 
                         if (mediaType.getSchema().getMaximum() != null) {
                             double max = mediaType.getSchema().getMaximum().doubleValue();
