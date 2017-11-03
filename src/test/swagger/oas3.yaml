@@ -64,6 +64,51 @@ tags:
     description: Find out more about our store
     url: http://swagger.io
 paths:
+  "/fileUpload":
+      post:
+        x-swagger-router-controller: TestController
+        operationId: uploadFile
+        requestBody:
+          content:
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  theFile:
+                    type: string
+                    format: binary
+                  stringMetadata:
+                    type: string
+                  intMetadata:
+                    type: integer
+                    format: int32
+        responses:
+          '200':
+            description: the stringMetadata passed in
+            content:
+              "*/*":
+                schema:
+                  type: string
+  "/form":
+    post:
+      x-swagger-router-controller: TestController
+      operationId: postFormData
+      tags:
+      - test2
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                stringMetadata:
+                  type: string
+                intMetadata:
+                  type: integer
+                  format: int64
+      responses:
+        '200':
+          description: ok
   "/pet":
     summary: summary
     description: description
@@ -151,31 +196,6 @@ paths:
                   properties:
                     name:
                       type: string
-  "/fileUpload":
-      post:
-        x-swagger-router-controller: TestController
-        operationId: uploadFile
-        requestBody:
-          content:
-            multipart/form-data:
-              schema:
-                type: object
-                properties:
-                  theFile:
-                    type: string
-                    format: binary
-                  stringMetadata:
-                    type: string
-                  intMetadata:
-                    type: integer
-                    format: int32
-        responses:
-          '200':
-            description: the stringMetadata passed in
-            content:
-              "*/*":
-                schema:
-                  type: string
   "/primitiveBody/inline":
     post:
       x-swagger-router-controller: TestController
@@ -621,26 +641,6 @@ paths:
                   type: string
                   format: url
                   example: 'http://foo.bar/other'
-  "/form":
-    post:
-      x-swagger-router-controller: TestController
-      operationId: postFormData
-      tags:
-      - test2
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                stringMetadata:
-                  type: string
-                intMetadata:
-                  type: integer
-                  format: int64
-      responses:
-        '200':
-          description: ok
   "/goodbye":
     get:
       operationId: goodbye

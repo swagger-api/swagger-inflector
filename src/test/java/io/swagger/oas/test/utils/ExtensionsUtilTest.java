@@ -96,7 +96,7 @@ public class ExtensionsUtilTest {
         Operation operation = openAPI.getPaths().get("/mappedWithDefinedModel/{id}").getPost();
         RequestBody body = operation.getRequestBody();
 
-        JavaType jt = utils.getTypeFromRequestBody(body, openAPI.getComponents().getSchemas());
+        JavaType jt = utils.getTypeFromRequestBody(body, openAPI.getComponents().getSchemas())[0];
         assertEquals(jt.getRawClass(), Dog.class);
     }
 

@@ -66,7 +66,7 @@ public class BodyParamExtractionTest {
                         .addMediaType("application/json",new MediaType()
                             .schema(new Schema().type("string"))));
 
-        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions)[0];
 
         assertEquals(jt.getRawClass(), String.class);
     }
@@ -80,7 +80,7 @@ public class BodyParamExtractionTest {
                         .addMediaType("application/json",new MediaType()
                             .schema(new Schema().type("string").format("uuid"))));
 
-        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions)[0];
 
         assertEquals(jt.getRawClass(), UUID.class);
     }
@@ -94,7 +94,7 @@ public class BodyParamExtractionTest {
                         .addMediaType("application/json",new MediaType()
                                 .schema(new Schema().$ref("#/components/schema/User"))));
 
-        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions)[0];
 
         assertEquals(jt.getRawClass(), User.class);
     }
@@ -108,7 +108,7 @@ public class BodyParamExtractionTest {
                         .addMediaType("application/json",new MediaType()
                                 .schema(new Schema().$ref("#/components/schemas/Person"))));
 
-        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions)[0];
 
         // will look up from the config model package and ref.simpleName of Person
         assertEquals(jt.getRawClass(), Person.class);
@@ -125,7 +125,7 @@ public class BodyParamExtractionTest {
 
 
     
-        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions)[0];
         assertEquals(jt.getRawClass(), Person[].class);
     }
 
@@ -139,7 +139,7 @@ public class BodyParamExtractionTest {
                                 .items(new StringSchema()))));
 
 
-        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions)[0];
         assertEquals(jt.getRawClass(), String[].class);
     }
 
@@ -153,7 +153,7 @@ public class BodyParamExtractionTest {
                                 .items(new ArraySchema().items(new StringSchema())))));
 
 
-        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions)[0];
         assertEquals(jt.getRawClass(), String[][].class);
     }
 }

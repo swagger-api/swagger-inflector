@@ -85,10 +85,13 @@ public class ReflectionUtils {
         if (operation.getParameters() == null){
             operation.setParameters(new ArrayList<Parameter>());
         }
-
         int body = 0;
+        JavaType[] bodyArgumentClass = null;
         if (operation.getRequestBody() != null){
-            body = 1;
+            bodyArgumentClass = getTypeFromRequestBody(operation.getRequestBody(), definitions);
+            if (bodyArgumentClass != null) {
+                body = bodyArgumentClass.length;
+            }
         }
 
         JavaType[] jt = new JavaType[operation.getParameters().size() + 1 + body];
@@ -102,9 +105,12 @@ public class ReflectionUtils {
             jt[i] = argumentClass;
             i += 1;
         }
-        if (operation.getRequestBody() != null) {
-            JavaType argumentClass = getTypeFromRequestBody(operation.getRequestBody(), definitions);
-            jt[i] = argumentClass;
+        if (operation.getRequestBody() != null && bodyArgumentClass != null) {
+            for(int y = 0; y < bodyArgumentClass.length; y++) {
+                jt[i] = bodyArgumentClass[y];
+                i += 1;
+            }
+
         }
         return jt;
     }
@@ -113,36 +119,57 @@ public class ReflectionUtils {
         TypeFactory tf = Json.mapper().getTypeFactory();
 
         if (operation.getRequestBody() != null) {
+            JavaType[] argumentClass = getTypeFromRequestBody(operation.getRequestBody(), definitions);
+            if (argumentClass != null) {
+                JavaType[] jt = new JavaType[argumentClass.length + 1];
+                int i = 0;
+                jt[i] = tf.constructType(RequestContext.class);
 
-            JavaType[] jt = new JavaType[2];
-            int i = 0;
-            jt[i] = tf.constructType(RequestContext.class);
+                i += 1;
 
-            i += 1;
+                for (int y = 0; y < argumentClass.length; y++) {
+                    jt[i] = argumentClass[y];
+                    i += 1;
+                }
 
-            JavaType argumentClass = getTypeFromRequestBody(operation.getRequestBody(), definitions);
-            jt[i] = argumentClass;
-
-            return jt;
+                return jt;
+            }
         }
 
         return  null;
 
     }
 
-    public JavaType getTypeFromRequestBody(RequestBody body,Map<String, Schema> definitions ){
-
+    public JavaType[] getTypeFromRequestBody(RequestBody body,Map<String, Schema> definitions ){
+        JavaType[] jt = null;
+        int i = 0;
         if (body.getContent() != null) {
             Map<String,MediaType> content   = body.getContent();
             for (String mediaType : content.keySet()){
                 if (content.get(mediaType).getSchema() != null) {
                     Schema model = content.get(mediaType).getSchema();
-                    return getTypeFromModel("", model, definitions);
+                    if (mediaType.equals("multipart/form-data")) {
+                        if (model.getProperties() != null) {
+                            Map<String, Schema> properties = model.getProperties();
+                            jt = new JavaType[properties.size()];
+                            for (String key : properties.keySet()) {
+                                Schema property = properties.get(key);
+                                JavaType javaType = getTypeFromProperty(property.getType(), property.getFormat(), property, definitions);
+                                if (javaType != null) {
+                                    jt[i] = javaType;
+                                }
+                                i++;
+                            }
+                        }
+                    }else {
+                        jt = new JavaType[1];
+                        jt[i] = getTypeFromModel("", model, definitions);
+                    }
                 }
             }
         }
 
-        return null;
+        return jt;
     }
 
     public JavaType getTypeFromParameter(Parameter parameter, Map<String, Schema> definitions) {
@@ -231,7 +258,7 @@ public class ReflectionUtils {
         if(("string".equals(type) && "uuid".equals(format)) || property instanceof UUIDSchema) {
             return tf.constructType(UUID.class);
         }
-        if(("binary".equals(type)) || property instanceof FileSchema) {
+        if(("string".equals(type)) && ("binary".equals(format)) || property instanceof FileSchema) {
             return tf.constructType(File.class);
         }
         if(("integer".equals(type) && "int32".equals(format)) && property instanceof IntegerSchema) {
@@ -261,6 +288,7 @@ public class ReflectionUtils {
                     return modelType;
                 }
             }
+
             return tf.constructType(JsonNode.class);
         }
         return null;
@@ -322,12 +350,8 @@ public class ReflectionUtils {
             }
         }
         if(model instanceof  ObjectSchema) {
+            return getTypeFromProperty(model.getType(), model.getFormat(), model, definitions);
 
-
-            Schema property = SchemaTypeUtil.createSchema(model.getType(), model.getFormat());
-            if(property != null) {
-                return getTypeFromProperty(model.getType(), model.getFormat(), property, definitions);
-            }
         }
         if(model instanceof StringSchema) {
 
@@ -388,16 +412,15 @@ public class ReflectionUtils {
             } else {
                 return tf.constructType(JsonNode.class);
             }
-        }else {
-            Schema property = propertyFromModel(model);
-            if(property != null) {
-                return getTypeFromProperty(model.getType(), model.getFormat(), property, definitions);
-            }
+        }else if (model instanceof Schema){
+
+            return getTypeFromProperty(model.getType(), model.getFormat(), model, definitions);
+
         }
         return tf.constructType(JsonNode.class);
     }
 
-    public Schema propertyFromModel(Schema model) {
+   /* public Schema propertyFromModel(Schema model) {
         if(model.getType() == null) {
             return null;
         }
@@ -426,7 +449,7 @@ public class ReflectionUtils {
         }
 
         return property;
-    }
+    }*/
     
     public Class<?> loadClass(String className) {
         try {
