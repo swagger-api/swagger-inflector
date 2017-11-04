@@ -216,7 +216,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         List<Parameter> parameters = operation.getParameters();
         int requestBody = 0;
         if(operation.getRequestBody() != null){
-            requestBody = 1;
+            requestBody = this.requestBodyClass.length - 1;
         }
         int arguments = parameters.size() + requestBody;
         final RequestContext requestContext = createContext(ctx);
@@ -405,8 +405,10 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
                                                                 if ("binary".equals(properties.get(key).getFormat())) {
                                                                     o = inputStreams.get(key);
+
                                                                 } else {
                                                                     Object obj = headers.get(key);
+
                                                                     if (obj != null) {
                                                                         jt = requestBodyClass[i];
                                                                         cls = jt.getRawClass();
@@ -422,6 +424,9 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                                                     }
                                                                 }
                                                             }
+                                                            args[i] = o;
+                                                            o = null;
+                                                            i += 1;
                                                         }
                                                     }
                                                 } else {
@@ -460,8 +465,10 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                                             }
                                                         }
                                                     }
+                                                    args[i] = o;
+                                                    o = null;
+                                                    i += 1;
                                                 }
-
 
                                             }
                                         } catch (NumberFormatException e) {
@@ -470,10 +477,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                     }
                                 }
                             }
-                            if (parameters == null || parameters.size() == 0) {
-                                args[i] = o;
-                                i += 1;
-                            }
+
                         }
                     }
                 } catch (ConversionException e) {
