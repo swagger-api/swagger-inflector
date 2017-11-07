@@ -177,17 +177,17 @@ public class ExampleBuilder {
             }
 
             if (output == null) {
-                Integer defaultValue = ((IntegerSchema) property).getDefault();
+                Number defaultValue = ((IntegerSchema) property).getDefault();
 
                 if (defaultValue == null) {
-                    List<Integer> enums = ((IntegerSchema) property).getEnum();
+                    List<Number> enums = ((IntegerSchema) property).getEnum();
                     if (enums != null && !enums.isEmpty()) {
                         defaultValue = enums.get(0);
                     }
                 }
                 if (property.getFormat() != null) {
                     if (property.getFormat().equals("int32")) {
-                        output = new IntegerExample(defaultValue == null ? SAMPLE_INT_PROPERTY_VALUE : defaultValue);
+                        output = new IntegerExample(defaultValue == null ? SAMPLE_INT_PROPERTY_VALUE : defaultValue.intValue());
                     } else if (property.getFormat().equals("int64")) {
                         output = new LongExample(defaultValue == null ? SAMPLE_LONG_PROPERTY_VALUE : defaultValue.longValue());
                     }
