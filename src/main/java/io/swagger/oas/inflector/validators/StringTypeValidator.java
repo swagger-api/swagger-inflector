@@ -15,75 +15,75 @@ import java.util.Map;
 import java.util.Set;
 
 public class StringTypeValidator implements Validator {
-    public void validate(Object o, Parameter parameter, Iterator<Validator> chain) throws ValidationException {
-        if(o != null && parameter.getSchema() != null ) {
+    public void validate(Object argument, Parameter parameter, Iterator<Validator> chain) throws ValidationException {
+        if(argument != null && parameter.getSchema() != null ) {
             if(parameter.getSchema().getEnum() != null && parameter.getSchema().getEnum().size() > 0) {
                 List<?> values = parameter.getSchema().getEnum();
                 Set<String> allowable = new LinkedHashSet<String>();
                 for(Object obj : values) {
                     allowable.add(obj.toString());
                 }
-                if(!allowable.contains(o.toString())) {
+                if(!allowable.contains(argument.toString())) {
                     throw new ValidationException()
                         .message(new ValidationMessage()
                             .code(ValidationError.UNACCEPTABLE_VALUE)
-                            .message(parameter.getIn() + " parameter `" + parameter.getName() + "` value `" + o + "` is not in the allowable values `" + allowable + "`"));
+                            .message(parameter.getIn() + " parameter `" + parameter.getName() + "` value `" + argument + "` is not in the allowable values `" + allowable + "`"));
                 }
             }
 
             if("string".equals(parameter.getSchema().getType()) && ("date".equals(parameter.getSchema().getFormat()) || "date-time".equals(parameter.getSchema().getFormat()))) {
-              if(o instanceof DateTime) {
+              if(argument instanceof DateTime) {
                 // TODO
               }
-              else if(o instanceof LocalDate) {
+              else if(argument instanceof LocalDate) {
                 // TODO
               }
               else {
                 throw new ValidationException()
                   .message(new ValidationMessage()
                     .code(ValidationError.INVALID_FORMAT)
-                    .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + o + "` is not a valid " + parameter.getSchema().getFormat()));
+                    .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + argument + "` is not a valid " + parameter.getSchema().getFormat()));
               }
             }
         }
         if(chain.hasNext()) {
-            chain.next().validate(o, parameter, chain);
+            chain.next().validate(argument, parameter, chain);
             return;
         }
 
         return;
     }
 
-    public void validate(Object o, RequestBody body, Iterator<Validator> chain) throws ValidationException {
+    public void validate(Object argument, RequestBody body, Iterator<Validator> chain) throws ValidationException {
         if (body.getContent() != null) {
             for(String media: body.getContent().keySet()) {
                 if (body.getContent().get(media) != null) {
                     MediaType mediaType = body.getContent().get(media);
-                    if (o != null && mediaType.getSchema() != null) {
+                    if (argument != null && mediaType.getSchema() != null) {
                         if(mediaType.getSchema().getEnum() != null && mediaType.getSchema().getEnum().size() > 0) {
                             List<?> values = mediaType.getSchema().getEnum();
                             Set<String> allowable = new LinkedHashSet<String>();
                             for(Object obj : values) {
                                 allowable.add(obj.toString());
                             }
-                            if(!allowable.contains(o.toString())) {
+                            if(!allowable.contains(argument.toString())) {
                                 throw new ValidationException()
                                         .message(new ValidationMessage()
                                                 .code(ValidationError.UNACCEPTABLE_VALUE)
-                                                .message(" parameter  value `" + o + "` is not in the allowable values `" + allowable + "`"));
+                                                .message(" parameter  value `" + argument + "` is not in the allowable values `" + allowable + "`"));
                             }
                         };
 
                         if ("string".equals(mediaType.getSchema().getType()) && ("date".equals(mediaType.getSchema().getFormat()) || "date-time".equals(mediaType.getSchema().getFormat()))) {
-                            if (o instanceof DateTime) {
+                            if (argument instanceof DateTime) {
                                 // TODO
-                            } else if (o instanceof LocalDate) {
+                            } else if (argument instanceof LocalDate) {
                                 // TODO
                             } else {
                                 throw new ValidationException()
                                         .message(new ValidationMessage()
                                                 .code(ValidationError.INVALID_FORMAT)
-                                                .message( " parameter `" +  " value `" + o + "` is not a valid " + mediaType.getSchema().getFormat()));
+                                                .message( " parameter `" +  " value `" + argument + "` is not a valid " + mediaType.getSchema().getFormat()));
                             }
                         }
                     }
@@ -91,7 +91,7 @@ public class StringTypeValidator implements Validator {
             }
         }
         if(chain.hasNext()) {
-            chain.next().validate(o, body, chain);
+            chain.next().validate(argument, body, chain);
             return;
         }
 

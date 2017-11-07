@@ -14,26 +14,26 @@ import java.util.Map;
 import java.util.Set;
 
 public class NumericValidator implements Validator {
-    public void validate(Object o, Parameter parameter, Iterator<Validator> chain) throws ValidationException {
-        if(o != null && parameter.getSchema() != null) {
+    public void validate(Object argument, Parameter parameter, Iterator<Validator> chain) throws ValidationException {
+        if(argument != null && parameter.getSchema() != null) {
             if(parameter.getSchema().getEnum() != null && parameter.getSchema().getEnum().size() > 0) {
                 List<?> values = parameter.getSchema().getEnum();
                 Set<String> allowable = new LinkedHashSet<String>();
                 for(Object obj : values) {
                     allowable.add(obj.toString());
                 }
-                if(!allowable.contains(o.toString())) {
+                if(!allowable.contains(argument.toString())) {
                     throw new ValidationException()
                         .message(new ValidationMessage()
                             .code(ValidationError.UNACCEPTABLE_VALUE)
-                            .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + o + "` is not in the allowable values `" + allowable + "`"));
+                            .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + argument + "` is not in the allowable values `" + allowable + "`"));
                 }
             };
             if(parameter.getSchema().getMaximum() != null) {
                 double max = parameter.getSchema().getMaximum().doubleValue();
                 Double value;
                 try {
-                    value = Double.parseDouble(o.toString());
+                    value = Double.parseDouble(argument.toString());
                 }
                 catch (NumberFormatException e) {
                     throw new ValidationException()
@@ -46,7 +46,7 @@ public class NumericValidator implements Validator {
                         throw new ValidationException()
                           .message(new ValidationMessage()
                               .code(ValidationError.VALUE_OVER_MAXIMUM)
-                              .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + o + "` is greater than maximum allowed value `" + max + "`"));
+                              .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + argument + "` is greater than maximum allowed value `" + max + "`"));
                     }
                 }
                 else {
@@ -54,7 +54,7 @@ public class NumericValidator implements Validator {
                         throw new ValidationException()
                           .message(new ValidationMessage()
                               .code(ValidationError.VALUE_OVER_MAXIMUM)
-                              .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + o + "` is greater or equal to maximum allowed value `" + max + "`"));
+                              .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + argument + "` is greater or equal to maximum allowed value `" + max + "`"));
                     }
                 }
             }
@@ -62,7 +62,7 @@ public class NumericValidator implements Validator {
                 double min = parameter.getSchema().getMinimum().doubleValue();
                 Double value;
                 try {
-                    value = Double.parseDouble(o.toString());
+                    value = Double.parseDouble(argument.toString());
                 }
                 catch (NumberFormatException e) {
                     throw new ValidationException()
@@ -75,7 +75,7 @@ public class NumericValidator implements Validator {
                         throw new ValidationException()
                           .message(new ValidationMessage()
                               .code(ValidationError.VALUE_UNDER_MINIMUM)
-                              .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + o + "` is less than minimum allowed value `" + min + "`"));
+                              .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + argument + "` is less than minimum allowed value `" + min + "`"));
                     }
                 }
                 else {
@@ -83,37 +83,37 @@ public class NumericValidator implements Validator {
                         throw new ValidationException()
                           .message(new ValidationMessage()
                               .code(ValidationError.VALUE_UNDER_MINIMUM)
-                              .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + o + "` is less or equal to the minimum allowed value `" + min + "`"));
+                              .message(parameter.getIn() + " parameter `" + parameter.getName() + " value `" + argument + "` is less or equal to the minimum allowed value `" + min + "`"));
                     }
                 }
             }
             
         }
         if(chain.hasNext()) {
-            chain.next().validate(o, parameter, chain);
+            chain.next().validate(argument, parameter, chain);
             return;
         }
 
         return;
     }
 
-    public void validate(Object o, RequestBody body, Iterator<Validator> chain) throws ValidationException {
+    public void validate(Object argument, RequestBody body, Iterator<Validator> chain) throws ValidationException {
         if (body.getContent() != null) {
             for(String media: body.getContent().keySet()) {
                 if (body.getContent().get(media) != null) {
                     MediaType mediaType = body.getContent().get(media);
-                    if (o != null && mediaType.getSchema() != null) {
+                    if (argument != null && mediaType.getSchema() != null) {
                         if(mediaType.getSchema().getEnum() != null && mediaType.getSchema().getEnum().size() > 0) {
                             List<?> values = mediaType.getSchema().getEnum();
                             Set<String> allowable = new LinkedHashSet<String>();
                             for(Object obj : values) {
                                 allowable.add(obj.toString());
                             }
-                            if(!allowable.contains(o.toString())) {
+                            if(!allowable.contains(argument.toString())) {
                                 throw new ValidationException()
                                         .message(new ValidationMessage()
                                                 .code(ValidationError.UNACCEPTABLE_VALUE)
-                                                .message( " parameter  value `" + o + "` is not in the allowable values `" + allowable + "`"));
+                                                .message( " parameter  value `" + argument + "` is not in the allowable values `" + allowable + "`"));
                             }
                         };
 
@@ -121,7 +121,7 @@ public class NumericValidator implements Validator {
                             double max = mediaType.getSchema().getMaximum().doubleValue();
                             Double value;
                             try {
-                                value = Double.parseDouble(o.toString());
+                                value = Double.parseDouble(argument.toString());
                             } catch (NumberFormatException e) {
                                 throw new ValidationException()
                                         .message(new ValidationMessage()
@@ -133,14 +133,14 @@ public class NumericValidator implements Validator {
                                     throw new ValidationException()
                                             .message(new ValidationMessage()
                                                     .code(ValidationError.VALUE_OVER_MAXIMUM)
-                                                    .message(" parameter `"  + " value `" + o + "` is greater than maximum allowed value `" + max + "`"));
+                                                    .message(" parameter `"  + " value `" + argument + "` is greater than maximum allowed value `" + max + "`"));
                                 }
                             } else {
                                 if (value > max) {
                                     throw new ValidationException()
                                             .message(new ValidationMessage()
                                                     .code(ValidationError.VALUE_OVER_MAXIMUM)
-                                                    .message(" parameter `" + " value `" + o + "` is greater or equal to maximum allowed value `" + max + "`"));
+                                                    .message(" parameter `" + " value `" + argument + "` is greater or equal to maximum allowed value `" + max + "`"));
                                 }
                             }
                         }
@@ -148,7 +148,7 @@ public class NumericValidator implements Validator {
                             double min = mediaType.getSchema().getMinimum().doubleValue();
                             Double value;
                             try {
-                                value = Double.parseDouble(o.toString());
+                                value = Double.parseDouble(argument.toString());
                             } catch (NumberFormatException e) {
                                 throw new ValidationException()
                                         .message(new ValidationMessage()
@@ -160,14 +160,14 @@ public class NumericValidator implements Validator {
                                     throw new ValidationException()
                                             .message(new ValidationMessage()
                                                     .code(ValidationError.VALUE_UNDER_MINIMUM)
-                                                    .message(" parameter `" + " value `" + o + "` is less than minimum allowed value `" + min + "`"));
+                                                    .message(" parameter `" + " value `" + argument + "` is less than minimum allowed value `" + min + "`"));
                                 }
                             } else {
                                 if (value < min) {
                                     throw new ValidationException()
                                             .message(new ValidationMessage()
                                                     .code(ValidationError.VALUE_UNDER_MINIMUM)
-                                                    .message(" parameter `" + " value `" + o + "` is less or equal to the minimum allowed value `" + min + "`"));
+                                                    .message(" parameter `" + " value `" + argument + "` is less or equal to the minimum allowed value `" + min + "`"));
                                 }
                             }
                         }
@@ -177,7 +177,7 @@ public class NumericValidator implements Validator {
             }
         }
         if(chain.hasNext()) {
-            chain.next().validate(o, body, chain);
+            chain.next().validate(argument, body, chain);
             return;
         }
 

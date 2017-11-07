@@ -101,15 +101,15 @@ public class InputConverter {
 
     public Object convertAndValidate(List<String> value, Parameter parameter, Class<?> cls, Map<String, Schema> definitions) throws ConversionException, ValidationException {
         Iterator<Converter> itr = converterChain.iterator();
-        Object o = null;
+        Object output = null;
         if(itr.hasNext()) {
             Converter converter = itr.next();
             LOGGER.debug("using converter `" + converter.getClass().getName() + "`");
-            o = converter.convert(value, parameter, cls, definitions, itr);
+            output= converter.convert(value, parameter, cls, definitions, itr);
         }
 
-        validate(o, parameter);
-        return o;
+        validate(output, parameter);
+        return output;
     }
 
     public void validate(Object value, Parameter parameter) throws ValidationException {
@@ -123,15 +123,15 @@ public class InputConverter {
 
     public Object convertAndValidate(List<String> value, RequestBody body, Class<?> cls, Map<String, Schema> definitions) throws ConversionException, ValidationException {
         Iterator<Converter> itr = converterChain.iterator();
-        Object o = null;
+        Object output = null;
         if(itr.hasNext()) {
             Converter converter = itr.next();
             LOGGER.debug("using converter `" + converter.getClass().getName() + "`");
-            o = converter.convert(value, body, cls, definitions, itr);
+            output = converter.convert(value, body, cls, definitions, itr);
         }
 
-        validate(o, body);
-        return o;
+        validate(output, body);
+        return output;
     }
 
     public void validate(Object value, RequestBody body) throws ValidationException {

@@ -388,7 +388,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
                                         try {
                                             io.swagger.v3.oas.models.media.MediaType media = body.getContent().get(mediaType);
-                                            //name ?
+                                            
                                             if (media.getSchema() != null) {
                                                 Schema schema = media.getSchema();
                                                 if (mt.isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {

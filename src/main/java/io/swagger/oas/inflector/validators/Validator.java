@@ -7,6 +7,6 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import java.util.Iterator;
 
 public interface Validator {
-    void validate(Object o, Parameter parameter, Iterator<Validator> next) throws ValidationException;
-    void validate(Object o, RequestBody body, Iterator<Validator> next) throws ValidationException;
+    void validate(Object argument, Parameter parameter, Iterator<Validator> next) throws ValidationException;
+    void validate(Object argument, RequestBody body, Iterator<Validator> next) throws ValidationException;
 }
