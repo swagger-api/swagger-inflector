@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.processors.JsonProvider;
-import io.swagger.util.Json;
+import io.swagger.v3.core.util.Json;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 

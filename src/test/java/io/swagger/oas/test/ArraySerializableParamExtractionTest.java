@@ -17,14 +17,14 @@
 package io.swagger.oas.test;
 
 import io.swagger.oas.inflector.converters.DefaultConverter;
-import io.swagger.oas.models.media.ArraySchema;
-import io.swagger.oas.models.media.BooleanSchema;
-import io.swagger.oas.models.media.IntegerSchema;
-import io.swagger.oas.models.media.StringSchema;
-import io.swagger.oas.models.parameters.Parameter;
-import io.swagger.oas.models.parameters.QueryParameter;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.parameters.QueryParameter;
 
-import io.swagger.util.Json;
+import io.swagger.v3.core.util.Json;
 
 import org.testng.annotations.Test;
 

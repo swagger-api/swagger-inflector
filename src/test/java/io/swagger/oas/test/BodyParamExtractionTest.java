@@ -17,20 +17,20 @@
 package io.swagger.oas.test;
 
 import com.fasterxml.jackson.databind.JavaType;
-import io.swagger.converter.ModelConverters;
+import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.utils.ReflectionUtils;
 
 
-import io.swagger.oas.models.media.ArraySchema;
-import io.swagger.oas.models.media.Content;
-import io.swagger.oas.models.media.MediaType;
-import io.swagger.oas.models.media.Schema;
-import io.swagger.oas.models.media.StringSchema;
-import io.swagger.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.parameters.Parameter;
 
 
-import io.swagger.oas.models.parameters.RequestBody;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.oas.test.models.Person;
 import io.swagger.oas.test.models.User;
 import org.junit.Before;

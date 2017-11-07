@@ -2,7 +2,7 @@ package io.swagger.oas.inflector.processors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import io.swagger.util.Json;
+import io.swagger.v3.core.util.Json;
 
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;

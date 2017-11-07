@@ -17,7 +17,7 @@
 package io.swagger.oas.inflector.processors;
 
 import io.swagger.oas.inflector.examples.models.Example;
-import io.swagger.util.Json;
+import io.swagger.v3.core.util.Json;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;

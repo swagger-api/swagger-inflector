@@ -22,7 +22,7 @@ import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.utils.ReflectionUtils;
 
 
-import io.swagger.oas.models.Operation;
+import io.swagger.v3.oas.models.Operation;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 

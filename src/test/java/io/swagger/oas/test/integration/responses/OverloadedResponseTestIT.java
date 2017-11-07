@@ -19,7 +19,7 @@ package io.swagger.oas.test.integration.responses;
 import io.swagger.oas.test.models.User;
 import io.swagger.oas.test.client.ApiClient;
 
-import io.swagger.util.Json;
+import io.swagger.v3.core.util.Json;
 
 import org.testng.annotations.Test;
 

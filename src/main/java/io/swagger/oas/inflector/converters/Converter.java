@@ -2,8 +2,8 @@ package io.swagger.oas.inflector.converters;
 
 
 
-import io.swagger.oas.models.media.Schema;
-import io.swagger.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.Parameter;
 
 import java.util.Iterator;
 import java.util.List;

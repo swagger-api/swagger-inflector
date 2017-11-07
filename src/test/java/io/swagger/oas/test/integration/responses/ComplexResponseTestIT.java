@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.oas.test.client.ApiClient;
-import io.swagger.util.Json;
+import io.swagger.v3.core.util.Json;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;

@@ -21,14 +21,15 @@ import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.controllers.OpenAPIOperationController;
 
 import io.swagger.oas.inflector.processors.JsonNodeExampleSerializer;
-import io.swagger.oas.models.Operation;
-import io.swagger.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.OpenAPI;
 
-import io.swagger.oas.models.examples.Example;
-import io.swagger.parser.models.ParseOptions;
-import io.swagger.parser.v3.OpenAPIV3Parser;
-import io.swagger.util.Json;
-import io.swagger.util.Yaml;
+
+import io.swagger.v3.oas.models.examples.Example;
+import io.swagger.v3.parser.OpenAPIV3Parser;
+import io.swagger.v3.parser.core.models.ParseOptions;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.core.util.Yaml;
 import mockit.Injectable;
 import org.testng.annotations.Test;
 
@@ -43,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.stub;
 import static org.testng.Assert.assertEquals;
@@ -65,7 +65,7 @@ public class ResponseExamplesTest {
     }
 
     @Test
-    public void testResponseJsonExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
+    public void testResponseJsonExample(@Injectable final List<io.swagger.v3.parser.core.models.AuthorizationValue> auths) throws Exception {
         Configuration config = new Configuration();
         List<String> exampleProcessor = new ArrayList<>();
         exampleProcessor.add("sequence");
@@ -97,7 +97,7 @@ public class ResponseExamplesTest {
     }
 
     @Test
-    public void testResponseYamlExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
+    public void testResponseYamlExample(@Injectable final List<io.swagger.v3.parser.core.models.AuthorizationValue> auths) throws Exception {
 
         Configuration config = new Configuration();
         List<String> exampleProcessor = new ArrayList<>();
@@ -133,7 +133,7 @@ public class ResponseExamplesTest {
         assertEquals(actual.replace("\n", ""), expected);
     }
 
-    public void testRandomJsonExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
+    public void testRandomJsonExample(@Injectable final List<io.swagger.v3.parser.core.models.AuthorizationValue> auths) throws Exception {
         Configuration config = new Configuration();
         List<String> exampleProcessor = new ArrayList<>();
         exampleProcessor.add("random");
@@ -161,13 +161,13 @@ public class ResponseExamplesTest {
         Response response = controller.apply( requestContext );
 
         assertEquals( 200, response.getStatus() );
-        io.swagger.oas.models.examples.Example example1 = (Example) response.getEntity();
+        io.swagger.v3.oas.models.examples.Example example1 = (Example) response.getEntity();
         assertNotNull( Json.mapper().writeValueAsString(example1));
 
         Response response1 = controller.apply( requestContext );
 
         assertEquals( 200, response1.getStatus() );
-        io.swagger.oas.models.examples.Example example2 = (Example) response1.getEntity();
+        io.swagger.v3.oas.models.examples.Example example2 = (Example) response1.getEntity();
         assertNotNull( Json.mapper().writeValueAsString(example2));
 
 
@@ -181,7 +181,7 @@ public class ResponseExamplesTest {
     }
 
     @Test
-    public void testRandom(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths)throws Exception{
+    public void testRandom(@Injectable final List<io.swagger.v3.parser.core.models.AuthorizationValue> auths)throws Exception{
         for (int i = 0;i <1000; i++) {
             testRandomJsonExample(auths);
         }
@@ -193,7 +193,7 @@ public class ResponseExamplesTest {
     }
 
     @Test
-    public void testSecuenceJsonExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
+    public void testSecuenceJsonExample(@Injectable final List<io.swagger.v3.parser.core.models.AuthorizationValue> auths) throws Exception {
         Configuration config = new Configuration();
         List<String> exampleProcessor = new ArrayList<>();
         exampleProcessor.add("sequence");
@@ -221,37 +221,37 @@ public class ResponseExamplesTest {
         Response response = controller.apply( requestContext );
 
         assertEquals( 200, response.getStatus() );
-        io.swagger.oas.models.examples.Example example1 = (Example) response.getEntity();
+        io.swagger.v3.oas.models.examples.Example example1 = (Example) response.getEntity();
         assertEquals( Json.mapper().writeValueAsString(example1), "{\"value\":{\"id\":6,\"name\":\"Queen Victoria\"}}");
 
         Response response1 = controller.apply( requestContext );
 
         assertEquals( 200, response1.getStatus() );
-        io.swagger.oas.models.examples.Example example2 = (Example) response1.getEntity();
+        io.swagger.v3.oas.models.examples.Example example2 = (Example) response1.getEntity();
         assertEquals( Json.mapper().writeValueAsString(example2), "{\"value\":{\"id\":5,\"name\":\"Grace Gonzalez\"}}");
 
         Response response2 = controller.apply( requestContext );
 
         assertEquals( 200, response2.getStatus() );
-        io.swagger.oas.models.examples.Example example3 = (Example) response2.getEntity();
+        io.swagger.v3.oas.models.examples.Example example3 = (Example) response2.getEntity();
         assertEquals( Json.mapper().writeValueAsString(example3), "{\"value\":{\"id\":4,\"name\":\"Arthur Dent\"}}");
 
         Response response3 = controller.apply( requestContext );
 
         assertEquals( 200, response3.getStatus() );
-        io.swagger.oas.models.examples.Example example4 = (Example) response3.getEntity();
+        io.swagger.v3.oas.models.examples.Example example4 = (Example) response3.getEntity();
         assertEquals( Json.mapper().writeValueAsString(example4), "{\"value\":{\"id\":3,\"name\":\"Tricia McMillan\"}}");
 
         Response response4 = controller.apply( requestContext );
 
         assertEquals( 200, response4.getStatus() );
-        io.swagger.oas.models.examples.Example example5 = (Example) response.getEntity();
+        io.swagger.v3.oas.models.examples.Example example5 = (Example) response.getEntity();
         assertEquals( Json.mapper().writeValueAsString(example5), "{\"value\":{\"id\":6,\"name\":\"Queen Victoria\"}}");
 
     }
 
     @Test
-    public void testRandomRequestedJsonExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
+    public void testRandomRequestedJsonExample(@Injectable final List<io.swagger.v3.parser.core.models.AuthorizationValue> auths) throws Exception {
         Configuration config = new Configuration();
         List<String> exampleProcessor = new ArrayList<>();
         exampleProcessor.add("random");
@@ -287,7 +287,7 @@ public class ResponseExamplesTest {
     }
 
     @Test
-    public void testRandomRequestedXmlExample(@Injectable final List<io.swagger.parser.models.AuthorizationValue> auths) throws Exception {
+    public void testRandomRequestedXmlExample(@Injectable final List<io.swagger.v3.parser.core.models.AuthorizationValue> auths) throws Exception {
         Configuration config = new Configuration();
         List<String> exampleProcessor = new ArrayList<>();
         exampleProcessor.add("random");

@@ -17,7 +17,7 @@
 package io.swagger.oas.inflector.config;
 
 
-import io.swagger.oas.models.Operation;
+import io.swagger.v3.oas.models.Operation;
 
 /**
  * Behaviour for instantiating controllers - provide your custom implementation to the Configuration

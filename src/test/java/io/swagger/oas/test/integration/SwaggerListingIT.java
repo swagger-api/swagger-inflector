@@ -19,13 +19,13 @@ package io.swagger.oas.test.integration;
 import io.swagger.oas.inflector.Constants;
 import io.swagger.oas.inflector.config.OpenAPIProcessor;
 
-import io.swagger.oas.models.OpenAPI;
-import io.swagger.oas.models.Operation;
-import io.swagger.oas.models.PathItem;
-import io.swagger.oas.models.media.Schema;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.oas.test.client.ApiClient;
-import io.swagger.util.Json;
-import io.swagger.util.Yaml;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.core.util.Yaml;
 import junit.framework.Assert;
 import org.testng.annotations.Test;
 
