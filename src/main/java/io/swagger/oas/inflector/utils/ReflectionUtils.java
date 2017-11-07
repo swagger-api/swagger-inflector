@@ -86,11 +86,11 @@ public class ReflectionUtils {
             operation.setParameters(new ArrayList<Parameter>());
         }
         int body = 0;
-        JavaType[] bodyArgumentClass = null;
+        JavaType[] bodyArgumentClasses = null;
         if (operation.getRequestBody() != null){
-            bodyArgumentClass = getTypeFromRequestBody(operation.getRequestBody(), definitions);
-            if (bodyArgumentClass != null) {
-                body = bodyArgumentClass.length;
+            bodyArgumentClasses = getTypeFromRequestBody(operation.getRequestBody(), definitions);
+            if (bodyArgumentClasses != null) {
+                body = bodyArgumentClasses.length;
             }
         }
 
@@ -101,13 +101,13 @@ public class ReflectionUtils {
         i += 1;
 
         for (Parameter parameter : operation.getParameters()) {
-            JavaType argumentClass = getTypeFromParameter(parameter, definitions);
-            jt[i] = argumentClass;
+            JavaType argumentClasses = getTypeFromParameter(parameter, definitions);
+            jt[i] = argumentClasses;
             i += 1;
         }
-        if (operation.getRequestBody() != null && bodyArgumentClass != null) {
-            for(int y = 0; y < bodyArgumentClass.length; y++) {
-                jt[i] = bodyArgumentClass[y];
+        if (operation.getRequestBody() != null && bodyArgumentClasses != null) {
+            for (JavaType argument :bodyArgumentClasses) {
+                jt[i] = argument;
                 i += 1;
             }
 
@@ -119,16 +119,16 @@ public class ReflectionUtils {
         TypeFactory tf = Json.mapper().getTypeFactory();
 
         if (operation.getRequestBody() != null) {
-            JavaType[] argumentClass = getTypeFromRequestBody(operation.getRequestBody(), definitions);
-            if (argumentClass != null) {
-                JavaType[] jt = new JavaType[argumentClass.length + 1];
+            JavaType[] argumentClasses = getTypeFromRequestBody(operation.getRequestBody(), definitions);
+            if (argumentClasses != null) {
+                JavaType[] jt = new JavaType[argumentClasses.length + 1];
                 int i = 0;
                 jt[i] = tf.constructType(RequestContext.class);
 
                 i += 1;
 
-                for (int y = 0; y < argumentClass.length; y++) {
-                    jt[i] = argumentClass[y];
+                for (JavaType argument :argumentClasses) {
+                    jt[i] = argument;
                     i += 1;
                 }
 

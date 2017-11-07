@@ -107,7 +107,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
     private Object controller = null;
     private Method method = null;
     private JavaType[] parameterClasses = null;
-    private JavaType[] requestBodyClass = null;
+    private JavaType[] requestBodyClasses = null;
     private Map<String, Schema> definitions;
     private InputConverter validator;
     private String controllerName;
@@ -135,8 +135,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
     public Method detectMethod(Operation operation) {
         controllerName = getControllerName(operation);
         methodName = getMethodName(path, httpMethod, operation);
-        JavaType[] args = getOperationParameterClasses(operation, this.definitions);
-        JavaType[] args2 = getOperationRequestBodyClasses(operation, this.definitions);
+        JavaType[] args = getOperationParameterClasses(operation, definitions);
+        JavaType[] args2 = getOperationRequestBodyClasses(operation, definitions);
 
         StringBuilder builder = new StringBuilder();
 
@@ -166,8 +166,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         operationSignature = "public ResponseContext " + builder.toString();
 
         LOGGER.info("looking for method: `" + operationSignature + "` in class `" + controllerName + "`");
-        this.parameterClasses = args;
-        this.requestBodyClass = args2;
+        parameterClasses = args;
+        requestBodyClasses = args2;
 
         if (controllerName != null && methodName != null) {
             try {
@@ -192,7 +192,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                             }
                             if (matched) {
                                 this.parameterClasses = args;
-                                this.requestBodyClass = args2;
+                                this.requestBodyClasses = args2;
                                 this.controller = getControllerFactory().instantiateController(cls, operation);
                                 LOGGER.debug("found class `" + controllerName + "`");
                                 return method;
@@ -214,11 +214,12 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
     @Override
     public Response apply(ContainerRequestContext ctx) {
         List<Parameter> parameters = operation.getParameters();
+
         int requestBody = 0;
         if(operation.getRequestBody() != null){
-            requestBody = this.requestBodyClass.length - 1;
+            requestBody = this.requestBodyClasses.length - 1;
         }
-        int arguments = parameters.size() + requestBody;
+        int argumentsSize = parameters.size() + requestBody;
         final RequestContext requestContext = createContext(ctx);
 
         Map<String, Map<String, String>> formMap = new HashMap<>();
@@ -226,7 +227,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         String formDataString = null;
         String[] parts = null;
 
-        Object[] args = new Object[arguments + 1];
+        Object[] args = new Object[argumentsSize + 1];
 
         int i = 0;
 
@@ -244,16 +245,11 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
             existingKeys.add(x.next() + ": pp");
         }
 
-        for (Iterator<String> x = ctx.getHeaders().keySet().iterator(); x.hasNext(); ) {
-            String key = x.next();
-//              if(!commonHeaders.contains(key))
-//                existingKeys.add(key);
-        }
+
         MediaType mt = requestContext.getMediaType();
 
 
-
-            Object o = null;
+        Object argument = null;
 
         if (operation.getRequestBody() != null) {
             RequestBody body = operation.getRequestBody();
@@ -261,27 +257,27 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
             String name = null;
 
             if (ctx.hasEntity()) {
-                JavaType jt = requestBodyClass[i];
+                JavaType jt = requestBodyClasses[i];
                 Class<?> cls = null;
                 if(jt != null) {
                     cls  = jt.getRawClass();
                 }
                 try {
-                    o = EntityProcessorFactory.readValue(ctx.getMediaType(), ctx.getEntityStream(), cls);
-                    if (o != null) {
+                    argument = EntityProcessorFactory.readValue(ctx.getMediaType(), ctx.getEntityStream(), cls);
+                    if (argument != null) {
                         if (body.getContent() != null) {
                             Content content = body.getContent();
                             for (String key : content.keySet()) {
                                 io.swagger.v3.oas.models.media.MediaType mediaType = content.get(key);
                                 if (mediaType.getSchema() != null) {
-                                    validate(o, mediaType.getSchema(), SchemaValidator.Direction.INPUT);
+                                    validate(argument, mediaType.getSchema(), SchemaValidator.Direction.INPUT);
                                 }
                             }
 
                         }
 
                         if (parameters == null || parameters.size() == 0) {
-                            args[i] = o;
+                            args[i] = argument;
                             i += 1;
                         }
 
@@ -297,9 +293,9 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
                                             if (boundary != null) {
                                                 try {
-                                                    InputStream output = ctx.getEntityStream();
+                                                    InputStream inputStream = ctx.getEntityStream();
 
-                                                    MultipartStream multipartStream = new MultipartStream(output, boundary.getBytes());
+                                                    MultipartStream multipartStream = new MultipartStream(inputStream, boundary.getBytes());
                                                     boolean nextPart = multipartStream.skipPreamble();
                                                     while (nextPart) {
                                                         String header = multipartStream.readHeaders();
@@ -404,18 +400,18 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                                             if (headers != null && headers.size() > 0) {
 
                                                                 if ("binary".equals(properties.get(key).getFormat())) {
-                                                                    o = inputStreams.get(key);
+                                                                    argument = inputStreams.get(key);
 
                                                                 } else {
                                                                     Object obj = headers.get(key);
 
                                                                     if (obj != null) {
-                                                                        jt = requestBodyClass[i];
+                                                                        jt = requestBodyClasses[i];
                                                                         cls = jt.getRawClass();
 
-                                                                        List<String> os = Arrays.asList(obj.toString());
+                                                                        List<String> stringHeaders = Arrays.asList(obj.toString());
                                                                         try {
-                                                                            o = validator.convertAndValidate(os, body, cls, definitions);
+                                                                            argument = validator.convertAndValidate(stringHeaders, body, cls, definitions);
                                                                         } catch (ConversionException e) {
                                                                             missingParams.add(e.getError());
                                                                         } catch (ValidationException e) {
@@ -424,8 +420,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                                                     }
                                                                 }
                                                             }
-                                                            args[i] = o;
-                                                            o = null;
+                                                            args[i] = argument;
+                                                            argument = null;
                                                             i += 1;
                                                         }
                                                     }
@@ -441,15 +437,14 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                                                             existingKeys.remove(kv[0] + ": fp");
                                                                         }
                                                                         if (kv.length == 2) {
-                                                                            // TODO how to handle arrays here?
                                                                             String key = kv[0];
                                                                             try {
                                                                                 String value = URLDecoder.decode(kv[1], "utf-8");
                                                                                 if (property.equals(key)) {
-                                                                                    jt = requestBodyClass[i];
+                                                                                    jt = requestBodyClasses[i];
                                                                                     cls = jt.getRawClass();
                                                                                     try {
-                                                                                        o = validator.convertAndValidate(Arrays.asList(value), body, cls, definitions);
+                                                                                        argument = validator.convertAndValidate(Arrays.asList(value), body, cls, definitions);
                                                                                     } catch (ConversionException e) {
                                                                                         missingParams.add(e.getError());
                                                                                     } catch (ValidationException e) {
@@ -465,8 +460,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                                             }
                                                         }
                                                     }
-                                                    args[i] = o;
-                                                    o = null;
+                                                    args[i] = argument;
+                                                    argument = null;
                                                     i += 1;
                                                 }
 
@@ -515,11 +510,11 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                         JavaType jt = parameterClasses[i];
                         Class<?> cls = jt.getRawClass();
                         if ("query".equals(in)) {
-                            o = validator.convertAndValidate(uri.getQueryParameters().get(parameter.getName()), parameter, cls, definitions);
+                            argument = validator.convertAndValidate(uri.getQueryParameters().get(parameter.getName()), parameter, cls, definitions);
                         } else if ("path".equals(in)) {
-                            o = validator.convertAndValidate(uri.getPathParameters().get(parameter.getName()), parameter, cls, definitions);
+                            argument = validator.convertAndValidate(uri.getPathParameters().get(parameter.getName()), parameter, cls, definitions);
                         } else if ("header".equals(in)) {
-                            o = validator.convertAndValidate(ctx.getHeaders().get(parameter.getName()), parameter, cls, definitions);
+                            argument = validator.convertAndValidate(ctx.getHeaders().get(parameter.getName()), parameter, cls, definitions);
                         }
                     } catch (ConversionException e) {
                         missingParams.add(e.getError());
@@ -531,7 +526,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     LOGGER.error("Couldn't find " + parameter.getName() + " (" + in + ") to " + parameterClasses[i], e);
                 }
 
-                args[i] = o;
+                args[i] = argument;
                 i += 1;
             }
             if (existingKeys.size() > 0) {
