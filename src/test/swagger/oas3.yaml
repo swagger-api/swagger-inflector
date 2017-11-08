@@ -317,6 +317,7 @@ paths:
         in: query
         required: true
         style: form
+        explode: false
         schema:
           type: array
           items:
