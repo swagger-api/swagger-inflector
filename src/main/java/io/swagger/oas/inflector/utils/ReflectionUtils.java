@@ -420,36 +420,6 @@ public class ReflectionUtils {
         return tf.constructType(JsonNode.class);
     }
 
-   /* public Schema propertyFromModel(Schema model) {
-        if(model.getType() == null) {
-            return null;
-        }
-
-        Schema property = SchemaTypeUtil.createSchema(model.getType(), model.getFormat());
-        if(model.getType() != null){
-            property.setType(model.getType());
-        }
-        if(model.getTitle() != null){
-            property.setTitle(model.getTitle());
-        }
-        if(model.getDescription() != null) {
-            property.setDescription(model.getDescription());
-        }
-        if(model.getDefault() != null){
-             property.setDefault(model.getDefault());
-        }
-        if(model.getExample() != null){
-            property.setExample(model.getExample());
-        }
-        if(model.getFormat() != null) {
-            property.setFormat(model.getFormat());
-        }
-        if(model.getExtensions() != null) {
-             property.setExample(model.getExtensions());
-        }
-
-        return property;
-    }*/
     
     public Class<?> loadClass(String className) {
         try {
