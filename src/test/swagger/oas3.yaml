@@ -78,7 +78,7 @@ paths:
             schema:
               type: string
               example: Hi there
-          x-www-form-urlencoded:
+          application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/PizzaOrder'
           multipart/form-data:
