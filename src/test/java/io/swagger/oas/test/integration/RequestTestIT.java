@@ -29,8 +29,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
@@ -172,6 +174,33 @@ public class RequestTestIT {
             new String[0]);
 
         assertEquals(str, "tony,the tam");
+    }
+
+    @Test
+    public void verifyPostFormDataInBody() throws Exception {
+        String path = "/post";
+
+        MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
+        formData.add("custname", "Grace");
+        formData.add("custtel", "+12345444");
+        formData.add("custemail", "grace@gmail.com");
+        formData.add("size", "large");
+        formData.add("topping", "bacon");
+        formData.add("delivery", "20:30");
+        formData.add("comments", "Fast!");
+
+        String str = client.invokeAPI(
+                path,               // path
+                "POST",             // method
+                new HashMap<>(),  // query
+                null,               // body
+                new HashMap<String, String>(), // header
+                Entity.form(formData),         // form
+                "application/json", // accept
+                "x-www-form-urlencoded",  // contentType
+                new String[0]);
+
+        assertEquals(str, "Grace");
     }
 
     @Test

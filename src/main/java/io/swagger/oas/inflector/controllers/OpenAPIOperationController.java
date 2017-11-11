@@ -83,6 +83,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -427,11 +428,12 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                                     }
                                                 } else {
                                                     if (formDataString != null) {
-                                                        for (String part : parts) {
-                                                            if (schema.getProperties() != null) {
-                                                                Map<String, Schema> properties = schema.getProperties();
-                                                                for (String property : properties.keySet()) {
+                                                        if (schema.getProperties() != null) {
+                                                            Map<String, Schema> properties = schema.getProperties();
+                                                            for (String property : properties.keySet()) {
+                                                                for (String part : parts) {
                                                                     String[] kv = part.split("=");
+
                                                                     if (kv != null) {
                                                                         if (kv.length > 0) {
                                                                             existingKeys.remove(kv[0] + ": fp");
@@ -445,6 +447,9 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                                                                     cls = jt.getRawClass();
                                                                                     try {
                                                                                         argument = validator.convertAndValidate(Arrays.asList(value), body, cls, definitions);
+                                                                                        args[i] = argument;
+                                                                                        argument = null;
+                                                                                        i += 1;
                                                                                     } catch (ConversionException e) {
                                                                                         missingParams.add(e.getError());
                                                                                     } catch (ValidationException e) {
@@ -458,11 +463,9 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                                                     }
                                                                 }
                                                             }
+
                                                         }
                                                     }
-                                                    args[i] = argument;
-                                                    argument = null;
-                                                    i += 1;
                                                 }
 
                                             }
@@ -704,6 +707,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                             output = ExampleBuilder.fromSchema(response.getContent().get(name).getSchema(), definitions);
                         }
                     }
+
                     if (output != null) {
                         ResponseContext resp = new ResponseContext().entity(output);
                         setContentType(requestContext, resp, operation);

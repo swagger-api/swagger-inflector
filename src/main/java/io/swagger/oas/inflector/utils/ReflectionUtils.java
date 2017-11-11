@@ -160,6 +160,7 @@ public class ReflectionUtils {
                                 }
                                 i++;
                             }
+                            return jt;
                         }
                     }else {
                         jt = new JavaType[1];
