@@ -770,7 +770,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
         switch (direction) {
             case INPUT:
                 if (config.getValidatePayloads().contains(Configuration.Direction.IN)
-                        && !SchemaValidator.validate(value, Json.pretty(schema), direction)) {
+                        && !SchemaValidator.validate(value, Json.pretty(schema), direction, config.getSchemaFactory())) {
                     throw new ApiException(new ApiError()
                             .code(config.getInvalidRequestStatusCode())
                             .message("Input does not match the expected structure"));
@@ -778,7 +778,7 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                 break;
             case OUTPUT:
                 if (config.getValidatePayloads().contains(Configuration.Direction.OUT)
-                        && !SchemaValidator.validate(value, Json.pretty(schema), direction)) {
+                        && !SchemaValidator.validate(value, Json.pretty(schema), direction, config.getSchemaFactory())) {
                     throw new ApiException(new ApiError()
                             .code(config.getInvalidRequestStatusCode())
                             .message("The server generated an invalid response"));

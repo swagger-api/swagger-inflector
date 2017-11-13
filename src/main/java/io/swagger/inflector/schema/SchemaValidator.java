@@ -2,9 +2,15 @@ package io.swagger.inflector.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import com.github.fge.jsonschema.core.report.DevNullProcessingReport;
+import com.github.fge.jsonschema.core.report.ListProcessingReport;
+import com.github.fge.jsonschema.core.report.LogLevel;
+import com.github.fge.jsonschema.core.report.ProcessingMessage;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
+import com.github.fge.jsonschema.main.JsonSchemaFactoryBuilder;
+import io.swagger.inflector.config.Configuration;
 import io.swagger.util.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +28,9 @@ public class SchemaValidator {
         OUTPUT
     }
 
-    public static boolean validate(Object o, String schema, Direction direction) {
+    public static boolean validate(Object o, String schema, Direction direction, JsonSchemaFactory factory) {
         try {
             JsonNode schemaObject = Json.mapper().readTree(schema);
-            JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
             JsonNode content = Json.mapper().convertValue(o, JsonNode.class);
             com.github.fge.jsonschema.main.JsonSchema jsonSchema = factory.getJsonSchema(schemaObject);
 

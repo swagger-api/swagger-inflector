@@ -19,6 +19,7 @@ package io.swagger.inflector.config;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import io.swagger.inflector.converters.InputConverter;
 import io.swagger.util.Yaml;
 import org.apache.commons.lang3.StringUtils;
@@ -57,6 +58,8 @@ public class Configuration {
     private String swaggerBase = "/";
     private Set<Direction> validatePayloads = Collections.emptySet();
     private boolean prettyPrint;
+    private JsonSchemaFactoryProvider schemaFactoryProvider = new DefaultJsonSchemaFactoryProvider();
+    private JsonSchemaFactory schemaFactory = schemaFactoryProvider.get();
 
     public String getSwaggerBase() {
         if("".equals(swaggerBase) || "/".equals(swaggerBase)) {
@@ -394,4 +397,33 @@ public class Configuration {
     public void setPrettyPrint(boolean prettyPrint) {
         this.prettyPrint = prettyPrint;
     }
+
+  public String getSchemaFactoryProviderClass() {
+    return schemaFactoryProvider.getClass().getName();
+  }
+
+  public void setSchemaFactoryProviderClass(String schemaFactoryProviderClass) {
+    if (!StringUtils.isEmpty(schemaFactoryProviderClass)) {
+      try {
+        setSchemaFactoryProvider(Class.forName(schemaFactoryProviderClass).asSubclass(JsonSchemaFactoryProvider.class)
+            .newInstance());
+      } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        LOGGER.error("Couldn't create JSON Schema factory provider", e);
+      }
+    }
+  }
+
+  public JsonSchemaFactoryProvider getSchemaFactoryProvider() {
+    return schemaFactoryProvider;
+  }
+
+  public void setSchemaFactoryProvider(JsonSchemaFactoryProvider schemaFactoryProvider) {
+    this.schemaFactoryProvider = schemaFactoryProvider;
+    this.schemaFactory = schemaFactoryProvider.get();
+  }
+
+  public JsonSchemaFactory getSchemaFactory() {
+    return schemaFactory;
+  }
+
 }

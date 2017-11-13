@@ -20,6 +20,7 @@ import io.swagger.models.Operation;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 public class ConfigurationTest {
 
@@ -42,6 +43,32 @@ public class ConfigurationTest {
         configuration.setControllerFactory(new ControllerFactoryImpl());
 
         assertEquals(configuration.getControllerFactory().getClass(), ControllerFactoryImpl.class);
+    }
+
+    @Test
+    public void defaultSchemaFactoryProviderTest() {
+        assertEquals(new Configuration().getSchemaFactoryProviderClass(), DefaultJsonSchemaFactoryProvider.class.getName());
+        assertEquals(new Configuration().getSchemaFactoryProvider().getClass(), DefaultJsonSchemaFactoryProvider.class);
+        assertNotNull(new Configuration().getSchemaFactory());
+    }
+
+    @Test
+    public void schemaFactoryProviderFromClassNameTest() {
+        final Configuration configuration = new Configuration();
+        configuration.setSchemaFactoryProviderClass(JsonSchemaFactoryProviderMock.class.getName());
+
+        assertEquals(configuration.getSchemaFactoryProvider().getClass(), JsonSchemaFactoryProviderMock.class);
+        assertEquals(configuration.getSchemaFactory(),
+            ((JsonSchemaFactoryProviderMock)configuration.getSchemaFactoryProvider()).jsonSchemaFactory);
+    }
+
+    @Test
+    public void schemaFactoryProviderFromInstanceNameTest() {
+        final Configuration configuration = new Configuration();
+        configuration.setSchemaFactoryProvider(new JsonSchemaFactoryProviderMock());
+
+        assertEquals(configuration.getSchemaFactoryProvider().getClass(), JsonSchemaFactoryProviderMock.class);
+        assertEquals(configuration.getSchemaFactoryProviderClass(), JsonSchemaFactoryProviderMock.class.getName());
     }
 
     @Test
