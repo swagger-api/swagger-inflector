@@ -659,4 +659,18 @@ public class ExampleBuilderTest {
                 "  \"string\" : \"Arthur Dent\"\n" +
                 "}");
     }
+
+    @Test
+    public void writeOnlyParametersShouldNotBeIncluded() throws Exception {
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/write-only.yaml");
+
+        ApiResponse response = openAPI.getPaths().get("/user").getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+
+        String output = Json.pretty(example);
+        // Password shouldn't be included
+        assertEqualsIgnoreLineEnding(output, "{\n" +
+                "  \"username\" : \"bob\"\n" +
+                "}");
+    }
 }
