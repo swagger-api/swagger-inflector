@@ -55,7 +55,7 @@ import java.util.UUID;
 
 public class ExampleBuilder {
     public enum RequestType {
-        BOTH, READ, WRITE
+        READ, WRITE
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExampleBuilder.class);
@@ -74,7 +74,7 @@ public class ExampleBuilder {
     public static final double SAMPLE_DECIMAL_PROPERTY_VALUE = 1.5;
 
     public static Example fromSchema(Schema property, Map<String, Schema> definitions) {
-        return fromProperty(property, definitions, new HashSet<String>(), RequestType.BOTH);
+        return fromProperty(property, definitions, new HashSet<String>(), null);
     }
 
     public static Example fromSchema(Schema property, Map<String, Schema> definitions, RequestType requestType) {
@@ -82,7 +82,7 @@ public class ExampleBuilder {
     }
 
     public static Example fromProperty(Schema property, Map<String, Schema> definitions, Set<String> processedModels) {
-        return fromProperty(property, definitions, processedModels, RequestType.BOTH);
+        return fromProperty(property, definitions, processedModels, null);
     }
 
     public static Example fromProperty(Schema property, Map<String, Schema> definitions, Set<String> processedModels, RequestType requestType) {
