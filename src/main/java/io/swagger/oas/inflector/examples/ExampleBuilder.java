@@ -26,7 +26,6 @@ import io.swagger.oas.inflector.examples.models.IntegerExample;
 import io.swagger.oas.inflector.examples.models.LongExample;
 import io.swagger.oas.inflector.examples.models.ObjectExample;
 import io.swagger.oas.inflector.examples.models.StringExample;
-
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
@@ -40,10 +39,9 @@ import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.media.UUIDSchema;
+import io.swagger.v3.oas.models.media.XML;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.swagger.v3.oas.models.media.XML;
-
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -56,6 +54,10 @@ import java.util.Set;
 import java.util.UUID;
 
 public class ExampleBuilder {
+    public enum RequestType {
+        READ, WRITE
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ExampleBuilder.class);
 
     public static final String SAMPLE_EMAIL_PROPERTY_VALUE = "apiteam@swagger.io";
@@ -72,11 +74,25 @@ public class ExampleBuilder {
     public static final double SAMPLE_DECIMAL_PROPERTY_VALUE = 1.5;
 
     public static Example fromSchema(Schema property, Map<String, Schema> definitions) {
-        return fromProperty(property, definitions, new HashSet<String>());
+        return fromProperty(property, definitions, new HashSet<String>(), null);
+    }
+
+    public static Example fromSchema(Schema property, Map<String, Schema> definitions, RequestType requestType) {
+        return fromProperty(property, definitions, new HashSet<String>(), requestType);
     }
 
     public static Example fromProperty(Schema property, Map<String, Schema> definitions, Set<String> processedModels) {
+        return fromProperty(property, definitions, processedModels, null);
+    }
+
+    public static Example fromProperty(Schema property, Map<String, Schema> definitions, Set<String> processedModels, RequestType requestType) {
         if (property == null) {
+            return null;
+        }
+        if (property.getReadOnly() != null && property.getReadOnly() && requestType == RequestType.WRITE) {
+            return null;
+        }
+        if (property.getWriteOnly() != null && property.getWriteOnly() && requestType == RequestType.READ) {
             return null;
         }
 
@@ -109,7 +125,7 @@ public class ExampleBuilder {
             if( definitions != null ) {
                 Schema model = definitions.get(ref);
                 if (model != null) {
-                    output = fromProperty(model, definitions, processedModels);
+                    output = fromProperty(model, definitions, processedModels, requestType);
                 }
             }
         } else if (property instanceof EmailSchema) {
@@ -284,7 +300,7 @@ public class ExampleBuilder {
                 if(op.getProperties() != null) {
                     for(String propertyName : op.getProperties().keySet()) {
                         Schema inner = op.getProperties().get(propertyName);
-                        Example innerExample = fromProperty(inner, definitions,processedModels);
+                        Example innerExample = fromProperty(inner, definitions,processedModels, requestType);
                         outputExample.put(propertyName, innerExample);
                     }
                 }
@@ -298,7 +314,7 @@ public class ExampleBuilder {
                 ArraySchema ap = (ArraySchema) property;
                 Schema inner = ap.getItems();
                 if (inner != null) {
-                    Object innerExample = fromProperty(inner, definitions, processedModels);
+                    Object innerExample = fromProperty(inner, definitions, processedModels, requestType);
                     if (innerExample != null) {
                         if (innerExample instanceof Example) {
                             ArrayExample an = new ArrayExample();
@@ -319,7 +335,7 @@ public class ExampleBuilder {
                 List<Example> innerExamples = new ArrayList<>();
                 if (models != null) {
                     for (Schema im : models) {
-                        Example innerExample = fromProperty(im, definitions, processedModels);
+                        Example innerExample = fromProperty(im, definitions, processedModels, requestType);
                         if (innerExample != null) {
                             innerExamples.add(innerExample);
                         }
@@ -331,7 +347,7 @@ public class ExampleBuilder {
         } else if (property.getAdditionalProperties() != null) {
             Schema inner = property.getAdditionalProperties();
             if (inner != null) {
-                Object innerExample = fromProperty(inner, definitions, processedModels);
+                Object innerExample = fromProperty(inner, definitions, processedModels, requestType);
                 if (innerExample != null) {
                     ObjectExample on = new ObjectExample();
 
@@ -384,7 +400,7 @@ public class ExampleBuilder {
                         if (properties != null) {
                             for (String key : properties.keySet()) {
                                 Schema innerProp = properties.get(key);
-                                Example p = fromProperty(innerProp, definitions, processedModels);
+                                Example p = fromProperty(innerProp, definitions, processedModels, requestType);
                                 if (p != null) {
                                     if (p.getName() == null) {
                                         p.setName(key);
