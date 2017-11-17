@@ -45,6 +45,7 @@ public class Configuration {
     private String modelPackage;
     private String swaggerUrl;
     private List<String> swaggerProcessors = new ArrayList<>();
+    private List<String> exampleProcessors = new ArrayList<>();
     private String filterClass;
     private int invalidRequestCode = 400;
     private String rootPath = "";
@@ -295,6 +296,14 @@ public class Configuration {
 
     public void setSwaggerProcessors(List<String> swaggerProcessors) {
         this.swaggerProcessors = swaggerProcessors;
+    }
+
+    public void setExampleProcessors(List<String> exampleProcessors) {
+        this.exampleProcessors = exampleProcessors;
+    }
+
+    public List<String> getExampleProcessors() {
+        return exampleProcessors;
     }
 
 

@@ -16,6 +16,11 @@ entityProcessors:
   - json
   - xml
   - yaml
+  - plain
+
+# Allows to configure the examples
+exampleProcessors:
+  - sequence
 
 # loads all by default, or pick and choose
 inputValidators:
