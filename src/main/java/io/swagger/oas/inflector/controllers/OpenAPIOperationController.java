@@ -668,23 +668,19 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     if (res.getHeaders().get("Content-Type")!= null) {
                         for (String acceptable : res.getHeaders().get("Content-Type")) {
                             String subtype = acceptable.substring(acceptable.lastIndexOf("/") + 1);
-
+                            resp.setContentType(mediaType);
                             if (subtype.equals(mediaType.getSubtype())) {
-                                resp.setContentType(mediaType);
                                 return;
-                            }else {
-                                resp.setContentType(mediaType);
                             }
+
                         }
                     }else {
                         for (MediaType acceptable : res.getAcceptableMediaTypes()){
-
+                            resp.setContentType(mediaType);
                             if (mediaType.isCompatible(acceptable)) {
-                                resp.setContentType(mediaType);
                                 return;
-                            }else {
-                                resp.setContentType(mediaType);
                             }
+
                         }
 
                     }
