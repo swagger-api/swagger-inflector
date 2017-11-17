@@ -17,6 +17,8 @@ import io.swagger.oas.inflector.models.InflectResult;
 import io.swagger.oas.inflector.processors.EntityProcessor;
 import io.swagger.oas.inflector.processors.EntityProcessorFactory;
 import io.swagger.oas.inflector.processors.JacksonProcessor;
+import io.swagger.oas.inflector.processors.PlainProcessor;
+import io.swagger.oas.inflector.processors.PlainExampleProvider;
 import io.swagger.oas.inflector.processors.JsonExampleProvider;
 import io.swagger.oas.inflector.processors.JsonNodeExampleSerializer;
 import io.swagger.oas.inflector.processors.JsonProvider;
@@ -238,6 +240,10 @@ public class OpenAPIInflector extends ResourceConfig {
                 register(YamlExampleProvider.class);
                 enableProcessor(JacksonProcessor.class, JacksonProcessor.APPLICATION_YAML_TYPE);
                 enableSwaggerYAML(openAPI, configuration.getSwaggerProcessors());
+            }else if ("plain".equalsIgnoreCase(item)) {
+                // PLAIN
+                register(PlainExampleProvider.class);
+                enableProcessor(PlainProcessor.class, MediaType.TEXT_PLAIN_TYPE);
             }
         }
 
