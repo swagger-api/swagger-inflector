@@ -64,7 +64,6 @@ tags:
     description: Find out more about our store
     url: http://swagger.io
 paths:
-<<<<<<< HEAD
   "/post":
     post:
       operationId: "formDataTest"
@@ -153,7 +152,6 @@ paths:
       responses:
         '200':
           description: ok
-=======
   /mockResponses/objectMultipleExamples:
     get:
       responses:
@@ -214,7 +212,6 @@ paths:
                   value: >
                     A long time ago
                     in a galaxy far, far away....
->>>>>>> af929d7de1bf94efb5f57fefe6772e10c342a287
   "/pet":
     summary: summary
     description: description
