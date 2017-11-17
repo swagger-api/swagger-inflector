@@ -1,0 +1,22 @@
+openapi: 3.0.0
+info:
+  version: 0.0.0
+  title: ExampleBuilder writeOnly test
+paths:
+  /user:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    example: bob
+                  password:
+                    type: string
+                    example: p@55w0rd
+                    writeOnly: true
