@@ -490,8 +490,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     io.swagger.v3.oas.models.examples.Example outputExample = null;
 
                     if (response.getContent() != null) {
-                        if (requestContext.getHeaders().get("Content-Type") != null) {
-                            for (String acceptable : requestContext.getHeaders().get("Content-Type")) {
+                        if (requestContext.getHeaders().get("Accept") != null) {
+                            for (String acceptable : requestContext.getHeaders().get("Accept")) {
                                 if (response.getContent().get(acceptable) != null) {
                                     if (response.getContent().get(acceptable).getExamples() != null) {
                                         examples = response.getContent().get(acceptable).getExamples();
@@ -525,9 +525,13 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                     }
                                     output = ExampleBuilder.fromSchema(response.getContent().get(acceptable).getSchema(), definitions);
                                 }else{
-                                    throw new ApiException(ApiErrorUtils.createInternalError());
+                                    for (String mediaType: response.getContent().keySet()) {
+                                        output = ExampleBuilder.fromSchema(response.getContent().get(mediaType).getSchema(), definitions);
+                                        break;
+                                    }
                                 }
                             }
+
                         }else{
                             for (String key: response.getContent().keySet()) {
                                 if (response.getContent().get(key).getExamples() != null) {
@@ -665,8 +669,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
                 for(String key : content.keySet()) {
                     MediaType mediaType = MediaType.valueOf(key);
-                    if (res.getHeaders().get("Content-Type")!= null) {
-                        for (String acceptable : res.getHeaders().get("Content-Type")) {
+                    if (res.getHeaders().get("Accept")!= null) {
+                        for (String acceptable : res.getHeaders().get("Accept")) {
                             String subtype = acceptable.substring(acceptable.lastIndexOf("/") + 1);
                             resp.setContentType(mediaType);
                             if (subtype.equals(mediaType.getSubtype())) {

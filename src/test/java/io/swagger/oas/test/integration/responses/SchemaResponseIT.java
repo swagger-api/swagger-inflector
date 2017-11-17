@@ -117,7 +117,7 @@ public class SchemaResponseIT {
     public void testProducesTypeWithConflict() throws Exception {
         String response = client.invokeAPI("/producesTest", "GET", new HashMap<String, String>(), new HashMap<String, Object>(),
                 new HashMap<String, String>(), null, null, "application/xml", new String[0]);
-        System.out.println(response);
+
         assertEquals(response, "{\"name\":\"string\"}");
     }
 }

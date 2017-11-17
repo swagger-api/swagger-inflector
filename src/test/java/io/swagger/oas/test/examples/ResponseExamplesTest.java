@@ -275,7 +275,7 @@ public class ResponseExamplesTest {
 
 
         stub( requestContext.getHeaders()).toReturn( new MultivaluedHashMap<String, String>());
-        requestContext.getHeaders().add("Content-Type","application/json");
+        requestContext.getHeaders().add("Accept","application/json");
         stub( requestContext.getUriInfo()).toReturn( uriInfo );
 
         Response response = controller.apply( requestContext );
@@ -286,45 +286,6 @@ public class ResponseExamplesTest {
         assertNotNull( response.getEntity());
 
     }
-
-    @Test
-    public void testNotAllowedMediaType(@Injectable final List<io.swagger.v3.parser.core.models.AuthorizationValue> auths) throws Exception {
-        Configuration config = new Configuration();
-        List<String> exampleProcessor = new ArrayList<>();
-        exampleProcessor.add("random");
-        config.setExampleProcessors(exampleProcessor);
-        ParseOptions options = new ParseOptions();
-        options.setResolveFully(true);
-
-        OpenAPI openAPI = new OpenAPIV3Parser().readLocation( "src/test/swagger/oas3.yaml",auths, options).getOpenAPI();
-        Operation operation = openAPI.getPaths().get( "/mockResponses/responseWithExamples").getGet();
-
-        OpenAPIOperationController controller = new OpenAPIOperationController(
-                config, "/mockResponses/responseWithExamples", "GET", operation, openAPI.getComponents().getSchemas() );
-
-        ContainerRequestContext requestContext = mock(ContainerRequestContext.class);
-        UriInfo uriInfo = mock( UriInfo.class );
-
-        stub( uriInfo.getPath()).toReturn( "/mockResponses/responseWithExamples");
-        stub( uriInfo.getQueryParameters()).toReturn( new MultivaluedHashMap<String, String>());
-        stub( uriInfo.getPathParameters()).toReturn( new MultivaluedHashMap<String, String>());
-
-
-        stub( requestContext.getHeaders()).toReturn( new MultivaluedHashMap<String, String>());
-        requestContext.getHeaders().add("Content-Type","application/xml");
-        stub( requestContext.getUriInfo()).toReturn( uriInfo );
-        Response response = null;
-        try {
-            response = controller.apply(requestContext);
-
-            fail("Error - The media type requested is not on the responses");
-
-        }catch (Exception exception) {
-            Assert.assertNull(response);
-        }
-
-    }
-
 
 
     @Test
@@ -351,7 +312,7 @@ public class ResponseExamplesTest {
 
 
         stub( requestContext.getHeaders()).toReturn( new MultivaluedHashMap<String, String>());
-        requestContext.getHeaders().add("Content-Type","application/xml");
+        requestContext.getHeaders().add("Accept","application/xml");
         stub( requestContext.getUriInfo()).toReturn( uriInfo );
 
         Response response = controller.apply( requestContext );
