@@ -32,6 +32,7 @@ import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -44,10 +45,14 @@ import io.swagger.oas.test.models.User;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.parser.OpenAPIV3Parser;
+import io.swagger.v3.parser.core.models.AuthorizationValue;
+import io.swagger.v3.parser.core.models.ParseOptions;
+import mockit.Injectable;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
@@ -672,5 +677,45 @@ public class ExampleBuilderTest {
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"username\" : \"bob\"\n" +
                 "}");
+    }
+
+    @Test
+    public void resolveComposedOneOfSchema(){
+
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oneof-anyof.yaml");
+
+        ApiResponse response = openAPI.getPaths().get("/mixed-array").getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "[ \"string\" ]");
+
+    }
+
+    @Test
+    public void resolveComposedOneOfRefSchema(@Injectable List<AuthorizationValue> auth){
+        ParseOptions options = new ParseOptions();
+        options.setResolve(true);
+        options.setResolveFully(true);
+
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oneof-anyof.yaml", auth, options);
+
+        ApiResponse response = openAPI.getPaths().get("/oneOf").getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "{\n" +
+                "  \"title\" : \"The Hitchhiker's Guide to the Galaxy\",\n" +
+                "  \"authors\" : [ \"Douglas Adams\" ],\n" +
+                "  \"isbn\" : \"0-330-25864-8\"\n" +
+                "}");
+
+        ApiResponse responseAnyOf = openAPI.getPaths().get("/anyOf").getGet().getResponses().get("200");
+        Example exampleAnyOf = ExampleBuilder.fromSchema(responseAnyOf.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
+        String outputAnyOf = Json.pretty(exampleAnyOf);
+        assertEqualsIgnoreLineEnding(outputAnyOf, "{\n" +
+                "  \"title\" : \"Blade Runner\",\n" +
+                "  \"directors\" : [ \"Ridley Scott\" ],\n" +
+                "  \"year\" : 1982\n" +
+                "}");
+
     }
 }
