@@ -682,7 +682,7 @@ public class ExampleBuilderTest {
     @Test
     public void resolveComposedOneOfSchema(){
 
-        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oneof-anyof.yaml");
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oneOf-anyOf.yaml.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/mixed-array").getGet().getResponses().get("200");
         Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
