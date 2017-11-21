@@ -698,7 +698,7 @@ public class ExampleBuilderTest {
         options.setResolve(true);
         options.setResolveFully(true);
 
-        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oneof-anyof.yaml", auth, options);
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oneOf-anyOf.yaml", auth, options);
 
         ApiResponse response = openAPI.getPaths().get("/oneOf").getGet().getResponses().get("200");
         Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
