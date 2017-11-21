@@ -326,6 +326,7 @@ public class ExampleBuilder {
                 }
             }
         } if (property instanceof ComposedSchema) {
+            //validate resolved validators if true send back the first property if false the actual code
             ComposedSchema composedSchema = (ComposedSchema) property;
             if(composedSchema.getAllOf() != null) {
 
@@ -343,6 +344,31 @@ public class ExampleBuilder {
                 }
                 mergeTo(ex, innerExamples);
                 output = ex;
+            }else if(composedSchema.getAnyOf() != null) {
+
+                List<Schema> models = composedSchema.getAnyOf();
+                if (models != null) {
+                    for (Schema im : models) {
+                        Example innerExample = fromProperty(im, definitions, processedModels, requestType);
+                        if (innerExample != null) {
+                            output = innerExample;
+                            break;
+                        }
+                    }
+                }
+            }else if(composedSchema.getOneOf() != null) {
+
+                List<Schema> models = composedSchema.getOneOf();
+
+                if (models != null) {
+                    for (Schema im : models) {
+                        Example innerExample = fromProperty(im, definitions, processedModels, requestType);
+                        if (innerExample != null) {
+                            output = innerExample;
+                            break;
+                        }
+                    }
+                }
             }
         } else if (property.getAdditionalProperties() != null) {
             Schema inner = property.getAdditionalProperties();
