@@ -693,6 +693,7 @@ public class ExampleBuilderTest {
 
     @Test
     public void resolveComposedOneOfRefSchema(@Injectable List<AuthorizationValue> auth){
+
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
         options.setResolveFully(true);
