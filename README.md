@@ -363,8 +363,9 @@ If your Swagger Description is unparsable, the server will throw ugly errors on 
    give indications as to why.
 
 #### Samples
+The samples are a being refactor to support the new inflector.
 
-You can find samples for the inflector project in the [Swagger-Samples](https://github.com/swagger-api/swagger-samples) repository.  The inflector projects start with `inflector-`
+You will soon find samples for the inflector project in the [Swagger-Samples](https://github.com/swagger-api/swagger-samples) repository.  The inflector projects start with `inflector-`
 
 ---
 <img src="http://swagger.io/wp-content/uploads/2016/02/logo.jpg"/>
