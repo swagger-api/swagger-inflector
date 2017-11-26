@@ -75,7 +75,7 @@ controllerPackage: io.swagger.oas.sample.controllers
 modelPackage: io.swagger.oas.sample.models
 
 # the path to the swagger definition (Note! this can be overridden with -DswaggerUrl as a system property
-swaggerUrl: swagger.yaml
+swaggerUrl: openapi.yaml
 
 # specific mappings for models, used to locate models in the `#/definitions/${model}`
 modelMappings:

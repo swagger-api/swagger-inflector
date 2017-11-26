@@ -150,7 +150,7 @@ public class Configuration {
         return new Configuration()
                 .controllerPackage("io.swagger.oas.sample.controllers")
                 .modelPackage("io.swagger.oas.sample.models")
-                .swaggerUrl("swagger.yaml")
+                .swaggerUrl("openapi.yaml")
                 .exceptionMapper("io.swagger.oas.inflector.utils.DefaultExceptionMapper")
                 .defaultValidators()
                 .defaultConverters()
