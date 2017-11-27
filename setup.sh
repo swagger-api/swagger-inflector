@@ -25,7 +25,9 @@ wget --quiet --no-check-certificate "https://github.com/swagger-api/swagger-infl
 wget --quiet --no-check-certificate "https://github.com/swagger-api/swagger-inflector/raw/2.0/scripts/editor.sh" -O ./editor.sh
 
 echo "...fetching sample swagger description"
-wget --quiet --no-check-certificate "https://raw.githubusercontent.com/swagger-api/swagger-inflector/2.0/scripts/swagger.yaml" -O src/main/swagger/swagger.yaml
+
+wget --quiet --no-check-certificate "https://raw.githubusercontent.com/swagger-api/swagger-inflector/2.0/scripts/openapi.yaml" -O src/main/swagger/openapi.yaml
+
 
 echo "...fetching inflector configuration"
 wget --quiet --no-check-certificate "https://raw.githubusercontent.com/swagger-api/swagger-inflector/2.0/scripts/inflector.yaml" -O ./inflector.yaml
@@ -49,5 +51,5 @@ echo ""
 echo "you can run your server as follows:"
 echo "mvn package jetty:run"
 echo ""
-echo "and your swagger listing will be at http://localhost:8080/{basePath}/swagger.json"
+echo "and your swagger listing will be at http://localhost:8080/{basePath}/openapi.json"
 echo ""
