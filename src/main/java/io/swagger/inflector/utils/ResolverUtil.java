@@ -74,9 +74,9 @@ public class ResolverUtil {
                 if(op.getResponses() != null) {
                     for(String code : op.getResponses().keySet()) {
                         Response response = op.getResponses().get(code);
-                        if (response.getSchema() != null) {
-                            Property resolved = resolveFully(response.getSchema());
-                            response.setSchema(resolved);
+                        if (response.getResponseSchema() != null) {
+                            Model resolved = resolveFully(response.getResponseSchema());
+                            response.setResponseSchema(resolved);
                         }
                     }
                 }

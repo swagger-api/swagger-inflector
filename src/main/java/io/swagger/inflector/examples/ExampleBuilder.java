@@ -30,6 +30,7 @@ import io.swagger.models.ArrayModel;
 import io.swagger.models.ComposedModel;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
+import io.swagger.models.RefModel;
 import io.swagger.models.Xml;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.BaseIntegerProperty;
@@ -303,7 +304,7 @@ public class ExampleBuilder {
         } else if (property instanceof ObjectProperty) {
             if (example != null) {
                 try {
-                    output = Json.mapper().readValue(example.toString(), ObjectExample.class);
+                    output = Json.mapper().readValue(Json.mapper().writeValueAsString(example), ObjectExample.class);
                 } catch (IOException e) {
                     LOGGER.error("unable to convert `" + example + "` to JsonNode");
                     output = new ObjectExample();
@@ -434,6 +435,7 @@ public class ExampleBuilder {
         }
         return output;
     }
+
 
     public static Example alreadyProcessedRefExample(String name, Map<String, Model> definitions) {
         Model model = definitions.get(name);
