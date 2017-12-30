@@ -64,6 +64,30 @@ public class RequestTestIT {
     }
 
     @Test
+    public void verifyNotSupport() throws Exception {
+        Map<String,String> body = new HashMap<>();
+        body.put("pet_type","Cat");
+
+        String path = "/pets";
+        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), body, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertEquals(str, "OK!");
+    }
+
+    @Test
+    public void verifyNotSupportByFailling() throws Exception {
+        Map<String,Integer> body = new HashMap<>();
+        body.put("pet_type",31);
+
+        String path = "/pets";
+        try {
+            client.invokeAPI(path, "POST", new HashMap<String, String>(), body, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+            Assert.fail("No exception was thrown");
+        } catch (ApiException e) {
+            Assert.assertEquals(e.getCode(), HttpURLConnection.HTTP_BAD_REQUEST);
+        }
+    }
+
+    @Test
     public void verifyArrayModelMapping() throws Exception {
         final Address first = new Address();
         first.setStreet("first");

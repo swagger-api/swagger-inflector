@@ -65,7 +65,9 @@ tags:
     url: http://swagger.io
 paths:
   /pets:
-    patch:
+    post:
+      x-swagger-router-controller: TestController
+      operationId: updatePet
       requestBody:
         content:
           application/json:

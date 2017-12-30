@@ -48,6 +48,12 @@ public class TestController {
             .entity("success!");
     }
 
+    public ResponseContext updatePet(RequestContext request, com.fasterxml.jackson.databind.JsonNode petType) {
+        return new ResponseContext()
+                .status(200)
+                .entity("OK!");
+    }
+
     public ResponseContext formTest(RequestContext request, String user) {
         return new ResponseContext()
             .status(Status.OK)
