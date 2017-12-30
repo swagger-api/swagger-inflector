@@ -64,6 +64,16 @@ tags:
     description: Find out more about our store
     url: http://swagger.io
 paths:
+  /pets:
+    patch:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PetByType'
+      responses:
+        '200':
+          description: Updated
   /mockResponses/objectMultipleExamples:
     get:
       responses:
@@ -1052,6 +1062,14 @@ externalDocs:
   url: http://swagger.io
 components:
   schemas:
+    PetByType:
+      type: object
+      properties:
+        pet_type:
+          not:
+            type: integer
+      required:
+        - pet_type
     Water:
       properties:
         clear:
