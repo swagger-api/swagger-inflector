@@ -93,9 +93,9 @@ public class StringTypeValidator implements Validator {
         if (argument != null && schema != null) {
             if ("string".equals(schema.getType()) && ("date".equals(schema.getFormat()) || "date-time".equals(schema.getFormat()))) {
                 if (argument instanceof DateTime) {
-                    // TODO
+
                 } else if (argument instanceof LocalDate) {
-                    // TODO
+                    
                 } else {
                     return true;
                 }
