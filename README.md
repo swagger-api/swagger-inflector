@@ -15,7 +15,7 @@ You have full control over the mapping of controllers to classes and methods as 
 
 Run this command to start in a hurry.  It will create a project named `my-project`
 ```
-curl -L https://goo.gl/RYgGNd | project=my-project bash
+curl -L http://bit.ly/2zn5IT7 | project=my-project bash
 ```
 
 This will download everything you need to start editing and running a swagger-inflector based project.  See the output of the command for instructions.
@@ -75,7 +75,7 @@ controllerPackage: io.swagger.oas.sample.controllers
 modelPackage: io.swagger.oas.sample.models
 
 # the path to the swagger definition (Note! this can be overridden with -DswaggerUrl as a system property
-swaggerUrl: swagger.yaml
+swaggerUrl: openapi.yaml
 
 # specific mappings for models, used to locate models in the `#/definitions/${model}`
 modelMappings:
@@ -363,8 +363,9 @@ If your Swagger Description is unparsable, the server will throw ugly errors on 
    give indications as to why.
 
 #### Samples
+The samples are a being refactor to support the new inflector.
 
-You can find samples for the inflector project in the [Swagger-Samples](https://github.com/swagger-api/swagger-samples) repository.  The inflector projects start with `inflector-`
+You will soon find samples for the inflector project in the [Swagger-Samples](https://github.com/swagger-api/swagger-samples) repository.  The inflector projects start with `inflector-`
 
 ---
 <img src="http://swagger.io/wp-content/uploads/2016/02/logo.jpg"/>

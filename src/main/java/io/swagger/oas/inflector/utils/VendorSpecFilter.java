@@ -36,7 +36,9 @@ public class VendorSpecFilter extends SpecFilter {
 
         if( filteredDefinitions != null ) {
             for (Schema model : filteredDefinitions.values()) {
-                filterVendorExtensions(model.getExtensions());
+                if(model != null && model.getExtensions() != null) {
+                    filterVendorExtensions(model.getExtensions());
+                }
             }
         }
 

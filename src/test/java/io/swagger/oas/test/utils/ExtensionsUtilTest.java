@@ -2,6 +2,7 @@ package io.swagger.oas.test.utils;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.sun.org.apache.xerces.internal.xs.StringList;
+import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.oas.sample.models.Dog;
 import io.swagger.oas.inflector.config.Configuration;
@@ -41,7 +42,7 @@ import static org.testng.AssertJUnit.assertEquals;
 public class ExtensionsUtilTest {
 
     @Test
-    public void resolveComposedReferenceSchema(@Injectable final List<AuthorizationValue> auths){
+    public void resolveComposedAllOfReferenceSchema(@Injectable final List<AuthorizationValue> auths){
 
         ParseOptions options = new ParseOptions();
         options.setResolve(true);

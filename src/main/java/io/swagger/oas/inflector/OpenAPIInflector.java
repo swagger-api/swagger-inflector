@@ -409,7 +409,7 @@ public class OpenAPIInflector extends ResourceConfig {
 
     private void enableSwaggerJSON(OpenAPI openAPI, List<String> swaggerProcessors) {
         final Resource.Builder builder = Resource.builder();
-        builder.path(basePath(originalBasePath, StringUtils.appendIfMissing(config.getSwaggerBase(), "/") + "swagger.json"))
+        builder.path(basePath(originalBasePath, StringUtils.appendIfMissing(config.getSwaggerBase(), "/") + "openapi.json"))
                 .addMethod(HttpMethod.GET)
                 .produces(MediaType.APPLICATION_JSON)
                 .handledBy(new OpenAPIResourceController(openAPI, swaggerProcessors))
@@ -420,7 +420,7 @@ public class OpenAPIInflector extends ResourceConfig {
 
     private void enableSwaggerYAML(OpenAPI openAPI, List<String> swaggerProcessors) {
         final Resource.Builder builder = Resource.builder();
-        builder.path(basePath(originalBasePath, StringUtils.appendIfMissing(config.getSwaggerBase(), "/") + "swagger.yaml"))
+        builder.path(basePath(originalBasePath, StringUtils.appendIfMissing(config.getSwaggerBase(), "/") + "openapi.yaml"))
                 .addMethod(HttpMethod.GET)
                 .produces("application/yaml")
                 .handledBy(new OpenAPIResourceController(openAPI, swaggerProcessors))

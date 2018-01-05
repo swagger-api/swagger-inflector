@@ -95,7 +95,7 @@ public class StringTypeValidator implements Validator {
                 if (argument instanceof DateTime) {
 
                 } else if (argument instanceof LocalDate) {
-                    
+
                 } else {
                     return true;
                 }
