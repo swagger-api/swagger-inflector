@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 public class BodyParamExtractionTest {
     ReflectionUtils utils = new ReflectionUtils();
@@ -140,6 +141,7 @@ public class BodyParamExtractionTest {
 
 
         JavaType jt = utils.getTypeFromRequestBody(body, definitions)[0];
+        assertNotNull(jt);
         assertEquals(jt.getRawClass(), String[].class);
     }
 
@@ -154,6 +156,7 @@ public class BodyParamExtractionTest {
 
 
         JavaType jt = utils.getTypeFromRequestBody(body, definitions)[0];
+        assertNotNull(jt);
         assertEquals(jt.getRawClass(), String[][].class);
     }
 }
