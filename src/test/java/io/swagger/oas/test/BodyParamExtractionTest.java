@@ -25,6 +25,7 @@ import io.swagger.oas.inflector.utils.ReflectionUtils;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
@@ -42,6 +43,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 public class BodyParamExtractionTest {
     ReflectionUtils utils = new ReflectionUtils();
@@ -65,7 +67,7 @@ public class BodyParamExtractionTest {
                         .addMediaType("application/json",new MediaType()
                             .schema(new Schema().type("string"))));
 
-        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions)[0];
 
         assertEquals(jt.getRawClass(), String.class);
     }
@@ -79,7 +81,7 @@ public class BodyParamExtractionTest {
                         .addMediaType("application/json",new MediaType()
                             .schema(new Schema().type("string").format("uuid"))));
 
-        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions)[0];
 
         assertEquals(jt.getRawClass(), UUID.class);
     }
@@ -93,7 +95,7 @@ public class BodyParamExtractionTest {
                         .addMediaType("application/json",new MediaType()
                                 .schema(new Schema().$ref("#/components/schema/User"))));
 
-        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions)[0];
 
         assertEquals(jt.getRawClass(), User.class);
     }
@@ -107,7 +109,7 @@ public class BodyParamExtractionTest {
                         .addMediaType("application/json",new MediaType()
                                 .schema(new Schema().$ref("#/components/schemas/Person"))));
 
-        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions)[0];
 
         // will look up from the config model package and ref.simpleName of Person
         assertEquals(jt.getRawClass(), Person.class);
@@ -124,7 +126,7 @@ public class BodyParamExtractionTest {
 
 
     
-        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions)[0];
         assertEquals(jt.getRawClass(), Person[].class);
     }
 
@@ -138,7 +140,8 @@ public class BodyParamExtractionTest {
                                 .items(new StringSchema()))));
 
 
-        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions)[0];
+        assertNotNull(jt);
         assertEquals(jt.getRawClass(), String[].class);
     }
 
@@ -152,7 +155,8 @@ public class BodyParamExtractionTest {
                                 .items(new ArraySchema().items(new StringSchema())))));
 
 
-        JavaType jt = utils.getTypeFromRequestBody(body, definitions);
+        JavaType jt = utils.getTypeFromRequestBody(body, definitions)[0];
+        assertNotNull(jt);
         assertEquals(jt.getRawClass(), String[][].class);
     }
 }

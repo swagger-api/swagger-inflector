@@ -29,11 +29,13 @@ paths:
                     type: string
   "/fileUpload":
     post:
+      x-swagger-router-controller: TestController
       operationId: uploadFile
       requestBody:
         content:
           multipart/form-data:
             schema:
+              type: object
               properties:
                 theFile:
                   type: string

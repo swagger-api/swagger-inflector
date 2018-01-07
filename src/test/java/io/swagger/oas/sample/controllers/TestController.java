@@ -54,11 +54,18 @@ public class TestController {
                 .entity("OK!");
     }
 
-    public ResponseContext formTest(RequestContext request, String user) {
+    public ResponseContext formDataTest(RequestContext request, String name, String phone, String mail, String size ,List<String>  topping, String delivery, String comments) {
         return new ResponseContext()
             .status(Status.OK)
             .contentType(MediaType.APPLICATION_JSON_TYPE)
-            .entity(user);
+            .entity(name);
+    }
+
+    public ResponseContext formTest(RequestContext request, String user) {
+        return new ResponseContext()
+                .status(Status.OK)
+                .contentType(MediaType.APPLICATION_JSON_TYPE)
+                .entity(user);
     }
 
     public ResponseContext postFormData(RequestContext request, Long id, String name) {

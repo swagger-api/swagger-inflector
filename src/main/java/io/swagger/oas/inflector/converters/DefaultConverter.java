@@ -7,10 +7,12 @@ import io.swagger.oas.inflector.validators.ValidationError;
 import io.swagger.oas.inflector.validators.ValidationMessage;
 
 import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.QueryParameter;
 import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -35,15 +37,56 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
         return coerceValue(value, parameter, cls);
 
     }
-    
-    
 
-    public Object coerceValue(List<String> o, Parameter parameter, Class<?> cls) throws ConversionException {
-        if (o == null || o.size() == 0) {
+    public Object convert(List<String> value, RequestBody body, Class<?> cls, Map<String, Schema> definitions, Iterator<Converter> chain) throws ConversionException {
+
+        return coerceValue(value, body, cls);
+
+    }
+
+    public Object coerceValue(List<String> arguments, RequestBody body, Class<?> cls) throws ConversionException {
+        if (arguments == null || arguments.size() == 0) {
             return null;
         }
 
-        LOGGER.debug("casting `" + o + "` to " + cls);
+        LOGGER.debug("casting `" + arguments + "` to " + cls);
+        if (List.class.equals(cls)) {
+            if (body.getContent() != null){
+                for (String mediaType: body.getContent().keySet()) {
+                    MediaType media = body.getContent().get(mediaType);
+                    if (media.getSchema() != null) {
+                        List<Object> output = new ArrayList<>();
+                        if (media.getSchema() instanceof ArraySchema) {
+                            ArraySchema arraySchema = ((ArraySchema) media.getSchema());
+                            Schema inner = arraySchema.getItems();
+
+                        }
+                        return output;
+                    }
+                }
+            }
+        } else if (body.getContent() != null){
+                for (String mediaType: body.getContent().keySet()) {
+                    MediaType media = body.getContent().get(mediaType);
+                    if (media.getSchema() != null) {
+                        TypeFactory tf = Json.mapper().getTypeFactory();
+
+                        return cast(arguments.get(0), media.getSchema(), tf.constructType(cls));
+                    }
+                }
+
+        }
+        return null;
+    }
+    
+    
+
+    public Object coerceValue(List<String> arguments, Parameter parameter, Class<?> cls) throws ConversionException {
+        if (arguments == null || arguments.size() == 0) {
+            return null;
+        }
+
+        LOGGER.debug("casting `" + arguments + "` to " + cls);
         if (List.class.equals(cls)) {
             if (parameter.getSchema() != null) {
                 List<Object> output = new ArrayList<>();
@@ -56,7 +99,7 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
                     Parameter innerParam = new QueryParameter();
                     innerParam.setSchema(inner);
                     JavaType innerClass = getTypeFromParameter(innerParam, definitions);
-                    for (String obj : o) {
+                    for (String obj : arguments) {
                         String[] parts = new String[0];
 
                         if (Parameter.StyleEnum.FORM.equals(parameter.getStyle()) && !StringUtils.isEmpty(obj) && parameter.getExplode() == false ) {
@@ -85,19 +128,19 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
         } else if (parameter.getSchema() != null) {
             TypeFactory tf = Json.mapper().getTypeFactory();
 
-            return cast(o.get(0), parameter.getSchema(), tf.constructType(cls));
+            return cast(arguments.get(0), parameter.getSchema(), tf.constructType(cls));
 
         }
         return null;
     }
 
-    public Object cast(List<String> o, Parameter parameter, JavaType javaType, Map<String, Schema> definitions) throws ConversionException {
-        if (o == null || o.size() == 0) {
+    public Object cast(List<String> arguments, Parameter parameter, JavaType javaType, Map<String, Schema> definitions) throws ConversionException {
+        if (arguments == null || arguments.size() == 0) {
             return null;
         }
         Class<?> cls = javaType.getRawClass();
 
-        LOGGER.debug("converting array `" + o + "` to `" + cls + "`");
+        LOGGER.debug("converting array `" + arguments + "` to `" + cls + "`");
         if (javaType.isArrayType()) {
             if (parameter.getSchema() != null) {
                 List<Object> output = new ArrayList<>();
@@ -109,7 +152,7 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
                         // TODO: this does not need to be done this way, update the helper method
                         Parameter innerParam = new QueryParameter().schema(inner);
                         JavaType innerClass = getTypeFromParameter(innerParam, definitions);
-                        for (String obj : o) {
+                        for (String obj : arguments) {
                             String[] parts = new String[0];
                             CSVFormat format = null;
                             if (Parameter.StyleEnum.FORM.equals(parameter.getStyle()) && !StringUtils.isEmpty(obj) && parameter.getExplode() == false) {
@@ -148,63 +191,63 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
                 }
             }
         } else if (parameter != null) {
-            return cast(o.get(0), parameter.getSchema(), javaType);
+            return cast(arguments.get(0), parameter.getSchema(), javaType);
         }
         return null;
     }
 
-    public Object cast(String o, Schema property, JavaType javaType) throws ConversionException {
-        if (o == null || javaType == null) {
+    public Object cast(String argument, Schema property, JavaType javaType) throws ConversionException {
+        if (argument == null || javaType == null) {
             return null;
         }
         Class<?> cls = javaType.getRawClass();
-        LOGGER.debug("coercing `" + o + "` to `" + cls + "`");
+        LOGGER.debug("coercing `" + argument + "` to `" + cls + "`");
         try {
             if (Integer.class.equals(cls)) {
-                return Integer.parseInt(o);
+                return Integer.parseInt(argument);
             }
             if (Long.class.equals(cls)) {
-                return Long.parseLong(o);
+                return Long.parseLong(argument);
             }
             if (Float.class.equals(cls)) {
-                return Float.parseFloat(o);
+                return Float.parseFloat(argument);
             }
             if (Double.class.equals(cls)) {
-                return Double.parseDouble(o);
+                return Double.parseDouble(argument);
             }
             if (String.class.equals(cls)) {
-                return o;
+                return argument;
             }
             if (Boolean.class.equals(cls)) {
-                if ("1".equals(o)) {
+                if ("1".equals(argument)) {
                     return Boolean.TRUE;
                 }
-                if ("0".equals(o)) {
+                if ("0".equals(argument)) {
                     return Boolean.FALSE;
                 }
-                return Boolean.parseBoolean(o);
+                return Boolean.parseBoolean(argument);
             }
             if (UUID.class.equals(cls)) {
-                return UUID.fromString(o);
+                return UUID.fromString(argument);
             }
             if(LocalDate.class.equals(cls)) {
-                return LocalDate.parse(o);
+                return LocalDate.parse(argument);
             }
             if(DateTime.class.equals(cls)) {
-                return DateTime.parse(o);
+                return DateTime.parse(argument);
             }
         } catch (NumberFormatException e) {
-            LOGGER.debug("couldn't coerce `" + o + "` to type " + cls);
+            LOGGER.debug("couldn't coerce `" + argument + "` to type " + cls);
             throw new ConversionException()
               .message(new ValidationMessage()
                 .code(ValidationError.INVALID_FORMAT)
-                .message("couldn't convert `" + o + "` to type `" + cls + "`"));
+                .message("couldn't convert `" + argument + "` to type `" + cls + "`"));
         } catch (IllegalArgumentException e) {
-            LOGGER.debug("couldn't coerce `" + o + "` to type " + cls);
+            LOGGER.debug("couldn't coerce `" + argument + "` to type " + cls);
             throw new ConversionException()
               .message(new ValidationMessage()
                 .code(ValidationError.INVALID_FORMAT)
-                .message("couldn't convert `" + o + "` to type `" + cls + "`"));
+                .message("couldn't convert `" + argument + "` to type `" + cls + "`"));
         }
         return null;
     }

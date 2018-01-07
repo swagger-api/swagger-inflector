@@ -85,10 +85,13 @@ public class ReflectionUtils {
         if (operation.getParameters() == null){
             operation.setParameters(new ArrayList<Parameter>());
         }
-
         int body = 0;
+        JavaType[] bodyArgumentClasses = null;
         if (operation.getRequestBody() != null){
-            body = 1;
+            bodyArgumentClasses = getTypeFromRequestBody(operation.getRequestBody(), definitions);
+            if (bodyArgumentClasses != null) {
+                body = bodyArgumentClasses.length;
+            }
         }
 
         JavaType[] jt = new JavaType[operation.getParameters().size() + 1 + body];
@@ -98,13 +101,16 @@ public class ReflectionUtils {
         i += 1;
 
         for (Parameter parameter : operation.getParameters()) {
-            JavaType argumentClass = getTypeFromParameter(parameter, definitions);
-            jt[i] = argumentClass;
+            JavaType argumentClasses = getTypeFromParameter(parameter, definitions);
+            jt[i] = argumentClasses;
             i += 1;
         }
-        if (operation.getRequestBody() != null) {
-            JavaType argumentClass = getTypeFromRequestBody(operation.getRequestBody(), definitions);
-            jt[i] = argumentClass;
+        if (operation.getRequestBody() != null && bodyArgumentClasses != null) {
+            for (JavaType argument :bodyArgumentClasses) {
+                jt[i] = argument;
+                i += 1;
+            }
+
         }
         return jt;
     }
@@ -113,36 +119,58 @@ public class ReflectionUtils {
         TypeFactory tf = Json.mapper().getTypeFactory();
 
         if (operation.getRequestBody() != null) {
+            JavaType[] argumentClasses = getTypeFromRequestBody(operation.getRequestBody(), definitions);
+            if (argumentClasses != null) {
+                JavaType[] jt = new JavaType[argumentClasses.length + 1];
+                int i = 0;
+                jt[i] = tf.constructType(RequestContext.class);
 
-            JavaType[] jt = new JavaType[2];
-            int i = 0;
-            jt[i] = tf.constructType(RequestContext.class);
+                i += 1;
 
-            i += 1;
+                for (JavaType argument :argumentClasses) {
+                    jt[i] = argument;
+                    i += 1;
+                }
 
-            JavaType argumentClass = getTypeFromRequestBody(operation.getRequestBody(), definitions);
-            jt[i] = argumentClass;
-
-            return jt;
+                return jt;
+            }
         }
 
         return  null;
 
     }
 
-    public JavaType getTypeFromRequestBody(RequestBody body,Map<String, Schema> definitions ){
-
+    public JavaType[] getTypeFromRequestBody(RequestBody body,Map<String, Schema> definitions ){
+        JavaType[] jt = null;
+        int i = 0;
         if (body.getContent() != null) {
             Map<String,MediaType> content   = body.getContent();
             for (String mediaType : content.keySet()){
                 if (content.get(mediaType).getSchema() != null) {
                     Schema model = content.get(mediaType).getSchema();
-                    return getTypeFromModel("", model, definitions);
+                    if (mediaType.equals("multipart/form-data") || mediaType.equals("x-www-form-urlencoded") || mediaType.equals("application/x-www-form-urlencoded")) {
+                        if (model.getProperties() != null) {
+                            Map<String, Schema> properties = model.getProperties();
+                            jt = new JavaType[properties.size()];
+                            for (String key : properties.keySet()) {
+                                Schema property = properties.get(key);
+                                JavaType javaType = getTypeFromProperty(property.getType(), property.getFormat(), property, definitions);
+                                if (javaType != null) {
+                                    jt[i] = javaType;
+                                }
+                                i++;
+                            }
+                            return jt;
+                        }
+                    }else {
+                        jt = new JavaType[1];
+                        jt[i] = getTypeFromModel("", model, definitions);
+                    }
                 }
             }
         }
 
-        return null;
+        return jt;
     }
 
     public JavaType getTypeFromParameter(Parameter parameter, Map<String, Schema> definitions) {
@@ -231,7 +259,7 @@ public class ReflectionUtils {
         if(("string".equals(type) && "uuid".equals(format)) || property instanceof UUIDSchema) {
             return tf.constructType(UUID.class);
         }
-        if(("file".equals(type)) || property instanceof FileSchema) {
+        if(("string".equals(type)) && ("binary".equals(format)) || property instanceof FileSchema) {
             return tf.constructType(File.class);
         }
         if(("integer".equals(type) && "int32".equals(format)) && property instanceof IntegerSchema) {
@@ -251,7 +279,7 @@ public class ReflectionUtils {
             return tf.constructType(String.class);
         }
         if(property instanceof ObjectSchema) {
-                String name = null;
+            String name = null;
             if (property.getExtensions() != null) {
                 name = (String) property.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
             }
@@ -261,6 +289,7 @@ public class ReflectionUtils {
                     return modelType;
                 }
             }
+
             return tf.constructType(JsonNode.class);
         }
         return null;
@@ -321,14 +350,9 @@ public class ReflectionUtils {
                 }
             }
         }
-        if(model.getProperties() != null) {
+        if(model instanceof  ObjectSchema) {
+            return getTypeFromProperty(model.getType(), model.getFormat(), model, definitions);
 
-            String type = model.getType();
-
-            Schema property = propertyFromModel(model);
-            if(property != null) {
-                return getTypeFromProperty(model.getType(), model.getFormat(), property, definitions);
-            }
         }
         if(model instanceof StringSchema) {
 
@@ -389,45 +413,14 @@ public class ReflectionUtils {
             } else {
                 return tf.constructType(JsonNode.class);
             }
-        }else {
-            Schema property = propertyFromModel(model);
-            if(property != null) {
-                return getTypeFromProperty(model.getType(), model.getFormat(), property, definitions);
-            }
+        }else if (model instanceof Schema){
+
+            return getTypeFromProperty(model.getType(), model.getFormat(), model, definitions);
+
         }
         return tf.constructType(JsonNode.class);
     }
 
-    public Schema propertyFromModel(Schema model) {
-        if(model.getType() == null) {
-            return null;
-        }
-
-        Schema property = SchemaTypeUtil.createSchema(model.getType(), model.getFormat());
-        if(model.getType() != null){
-            property.setType(model.getType());
-        }
-        if(model.getTitle() != null){
-            property.setTitle(model.getTitle());
-        }
-        if(model.getDescription() != null) {
-            property.setDescription(model.getDescription());
-        }
-        if(model.getDefault() != null){
-             property.setDefault(model.getDefault());
-        }
-        if(model.getExample() != null){
-            property.setExample(model.getExample());
-        }
-        if(model.getFormat() != null) {
-            property.setFormat(model.getFormat());
-        }
-        if(model.getExtensions() != null) {
-             property.setExample(model.getExtensions());
-        }
-
-        return property;
-    }
     
     public Class<?> loadClass(String className) {
         try {

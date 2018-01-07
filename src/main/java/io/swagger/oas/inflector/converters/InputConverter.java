@@ -9,6 +9,7 @@ import io.swagger.oas.inflector.validators.ValidationException;
 import io.swagger.oas.inflector.validators.Validator;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,15 +101,15 @@ public class InputConverter {
 
     public Object convertAndValidate(List<String> value, Parameter parameter, Class<?> cls, Map<String, Schema> definitions) throws ConversionException, ValidationException {
         Iterator<Converter> itr = converterChain.iterator();
-        Object o = null;
+        Object output = null;
         if(itr.hasNext()) {
             Converter converter = itr.next();
             LOGGER.debug("using converter `" + converter.getClass().getName() + "`");
-            o = converter.convert(value, parameter, cls, definitions, itr);
+            output= converter.convert(value, parameter, cls, definitions, itr);
         }
 
-        validate(o, parameter);
-        return o;
+        validate(output, parameter);
+        return output;
     }
 
     public void validate(Object value, Parameter parameter) throws ValidationException {
@@ -117,6 +118,28 @@ public class InputConverter {
         if(itr.hasNext()) {
             Validator validator = itr.next();
             validator.validate(value, parameter, itr);
+        }
+    }
+
+    public Object convertAndValidate(List<String> value, RequestBody body, Class<?> cls, Map<String, Schema> definitions) throws ConversionException, ValidationException {
+        Iterator<Converter> itr = converterChain.iterator();
+        Object output = null;
+        if(itr.hasNext()) {
+            Converter converter = itr.next();
+            LOGGER.debug("using converter `" + converter.getClass().getName() + "`");
+            output = converter.convert(value, body, cls, definitions, itr);
+        }
+
+        validate(output, body);
+        return output;
+    }
+
+    public void validate(Object value, RequestBody body) throws ValidationException {
+        Iterator<Validator> itr = validationChain.iterator();
+
+        if(itr.hasNext()) {
+            Validator validator = itr.next();
+            validator.validate(value, body, itr);
         }
     }
 }

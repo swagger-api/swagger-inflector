@@ -64,6 +64,94 @@ tags:
     description: Find out more about our store
     url: http://swagger.io
 paths:
+  "/post":
+    post:
+      operationId: "formDataTest"
+      x-swagger-router-controller: TestController
+      summary: Returns the POSTed data
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/PizzaOrder'
+          text/plain:
+            schema:
+              type: string
+              example: Hi there
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PizzaOrder'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                description:
+                  type: string
+      responses:
+        '200':
+          description: OK
+  "/formTest":
+    post:
+      operationId: formTest
+      x-swagger-router-controller: TestController
+      requestBody:
+        content:
+          x-www-form-urlencoded:
+            schema:
+              properties:
+                user:
+                  type: string
+      responses:
+        '200':
+          description: success!
+  "/fileUpload":
+      post:
+        x-swagger-router-controller: TestController
+        operationId: uploadFile
+        requestBody:
+          content:
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  theFile:
+                    type: string
+                    format: binary
+                  stringMetadata:
+                    type: string
+                  intMetadata:
+                    type: integer
+                    format: int32
+        responses:
+          '200':
+            description: the stringMetadata passed in
+            content:
+              "*/*":
+                schema:
+                  type: string
+  "/form":
+    post:
+      x-swagger-router-controller: TestController
+      operationId: postFormData
+      tags:
+      - test2
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                stringMetadata:
+                  type: string
+                intMetadata:
+                  type: integer
+                  format: int64
+      responses:
+        '200':
+          description: ok
   /pets:
     post:
       x-swagger-router-controller: TestController
@@ -223,30 +311,6 @@ paths:
                   properties:
                     name:
                       type: string
-  "/fileUpload":
-      post:
-        x-swagger-router-controller: TestController
-        operationId: uploadFile
-        requestBody:
-          content:
-            multipart/form-data:
-              schema:
-                properties:
-                  theFile:
-                    type: string
-                    format: binary
-                  stringMetadata:
-                    type: string
-                  intMetadata:
-                    type: integer
-                    format: int32
-        responses:
-          '200':
-            description: the stringMetadata passed in
-            content:
-              "*/*":
-                schema:
-                  type: string
   "/primitiveBody/inline":
     post:
       x-swagger-router-controller: TestController
@@ -331,20 +395,6 @@ paths:
           type: array
           items:
             type: string
-      responses:
-        '200':
-          description: success!
-  "/formTest":
-    post:
-      operationId: formTest
-      x-swagger-router-controller: TestController
-      requestBody:
-        content:
-          x-www-form-urlencoded:
-            schema:
-              properties:
-                user:
-                  type: string
       responses:
         '200':
           description: success!
@@ -697,15 +747,6 @@ paths:
                   type: string
                   format: url
                   example: 'http://foo.bar/other'
-  "/form":
-    post:
-      x-swagger-router-controller: TestController
-      operationId: postFormData
-      requestBody:
-        content: {}
-      responses:
-        '200':
-          description: ok
   "/goodbye":
     get:
       operationId: goodbye
@@ -1064,6 +1105,40 @@ externalDocs:
   url: http://swagger.io
 components:
   schemas:
+    PizzaOrder:
+      type: object
+      properties:
+        custname:
+          type: string
+          example: Alice
+        custtel:
+          type: string
+          example: +1-202-555-0100
+        custemail:
+          type: string
+          format: email
+          example: alice@wonderland.net
+        size:
+          type: string
+          enum:
+            - small
+            - medium
+            - large
+        topping:
+          type: array
+          items:
+            type: string
+            enum:
+              - bacon
+              - cheese
+              - mushroom
+              - onion
+        delivery:
+          type: string
+          example: '13:30'
+        comments:
+          type: string
+          example: ASAP
     PetByType:
       type: object
       properties:
