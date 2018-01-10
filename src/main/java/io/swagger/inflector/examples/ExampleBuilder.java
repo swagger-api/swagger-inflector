@@ -30,6 +30,7 @@ import io.swagger.models.ArrayModel;
 import io.swagger.models.ComposedModel;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
+import io.swagger.models.RefModel;
 import io.swagger.models.Xml;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.BaseIntegerProperty;
@@ -535,6 +536,21 @@ public class ExampleBuilder {
                     ArrayExample an = new ArrayExample();
                     an.add(innerExample);
                     output = an;
+                }
+            }
+        }
+        else if(model instanceof RefModel) {
+            RefModel ref = (RefModel) model;
+            if(processedModels.contains(ref.getSimpleRef())) {
+                // return some sort of example
+                output = alreadyProcessedRefExample(ref.getSimpleRef(), definitions);
+            } else {
+                processedModels.add(ref.getSimpleRef());
+                if (definitions != null) {
+                    Model refedModel = definitions.get(ref.getSimpleRef());
+                    if (refedModel != null) {
+                        output = fromModel(ref.getSimpleRef(), refedModel, definitions, processedModels);
+                    }
                 }
             }
         }
