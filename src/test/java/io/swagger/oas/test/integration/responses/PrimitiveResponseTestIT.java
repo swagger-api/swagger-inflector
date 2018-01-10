@@ -152,8 +152,19 @@ public class PrimitiveResponseTestIT {
     public void verifyGetMapResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
-        String str = client.invokeAPI("/mockResponses/primitiaveMapResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        String str = client.invokeAPI("/mockResponses/primitiveMapResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
         assertEquals(str, "{\"key\":\"key\",\"value\":\"string\"}");
+    }
+
+    /**
+     * verifies that the email return value is automatically created
+     */
+    @org.junit.Test
+    public void verifyResponseBooleanAdditionalProperties() throws Exception {
+        Map<String, String> queryParams = new HashMap<String, String>();
+
+        String str = client.invokeAPI("/mockResponses/booleanAdditionalProperties", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertEquals(str, "{\"firstProperty\":\"string\"}");
     }
 
     /**

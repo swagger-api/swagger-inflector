@@ -592,7 +592,7 @@ paths:
               schema:
                 type: string
                 format: uuid
-  "/mockResponses/primitiaveMapResponse":
+  "/mockResponses/primitiveMapResponse":
     get:
       tags:
         - mockResponses
@@ -611,6 +611,27 @@ paths:
                 type: object
                 additionalProperties:
                   type: string
+  "/mockResponses/booleanAdditionalProperties":
+    get:
+      tags:
+        - mockResponses
+      parameters:
+      - name: user
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success!
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  firstProperty:
+                    type: string
   "/mockResponses/complexResponse":
     get:
       tags:
