@@ -22,6 +22,7 @@ import io.swagger.v3.parser.core.models.AuthorizationValue;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import io.swagger.v3.parser.util.ResolverFully;
+import io.swagger.v3.parser.util.SchemaTypeUtil;
 import mockit.Injectable;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
@@ -34,12 +35,34 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertEquals;
 
 public class ExtensionsUtilTest {
+
+    @Test
+    public void allowBooleanAdditionalProperties(@Injectable final List<AuthorizationValue> auths) {
+
+        ParseOptions options = new ParseOptions();
+        options.setResolve(true);
+        options.setResolveFully(true);
+
+        SwaggerParseResult result = new OpenAPIV3Parser().readLocation("./src/test/swagger/additionalProperties.yaml", auths, options);
+
+        assertNotNull(result);
+        assertNotNull(result.getOpenAPI());
+        OpenAPI openAPI = result.getOpenAPI();
+        Assert.assertEquals(result.getOpenAPI().getOpenapi(), "3.0.0");
+        List<String> messages = result.getMessages();
+        assertTrue(messages.isEmpty(), messages.stream().collect(Collectors.joining("\n")));
+
+        Assert.assertTrue(openAPI.getComponents().getSchemas().get("someObject").getAdditionalProperties() instanceof Schema);
+        Assert.assertTrue(((Schema)(openAPI.getComponents().getSchemas().get("someObject").getProperties().get("innerObject"))).getAdditionalProperties() instanceof Boolean);
+
+    }
 
     @Test
     public void resolveComposedAllOfReferenceSchema(@Injectable final List<AuthorizationValue> auths){
