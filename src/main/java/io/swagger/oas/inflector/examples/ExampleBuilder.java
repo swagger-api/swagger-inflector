@@ -370,8 +370,8 @@ public class ExampleBuilder {
                     }
                 }
             }
-        } else if (property.getAdditionalProperties() != null) {
-            Schema inner = property.getAdditionalProperties();
+        } else if (property.getAdditionalProperties() != null && property.getAdditionalProperties() instanceof Schema) {
+            Schema inner = (Schema) property.getAdditionalProperties();
             if (inner != null) {
                 Object innerExample = fromProperty(inner, definitions, processedModels, requestType);
                 if (innerExample != null) {
