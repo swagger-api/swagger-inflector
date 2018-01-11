@@ -592,6 +592,51 @@ paths:
               schema:
                 type: string
                 format: uuid
+  "/mockResponses/additionalPropertiesTest":
+    get:
+      responses:
+        '200':
+          description: success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  foo:
+                    type: integer
+                additionalProperties:
+                  type: string
+  "/mockResponses/badAdditionalProperties":
+    get:
+      responses:
+        '200':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  foo:
+                    type: integer
+                additionalProperties:
+                  type: false
+  "/mockResponses/additionalProperties1":
+    get:
+      responses:
+        '200':
+          description: not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  foo:
+                    type: integer
+                additionalProperties:
+                  type: object
+                  properties:
+                    bar:
+                      type: integer
   "/mockResponses/primitiveMapResponse":
     get:
       tags:

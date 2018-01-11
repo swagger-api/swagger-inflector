@@ -160,6 +160,39 @@ public class PrimitiveResponseTestIT {
      * verifies that the email return value is automatically created
      */
     @org.junit.Test
+    public void verifyAdditionalPropertyResponse() throws Exception {
+        Map<String, String> queryParams = new HashMap<String, String>();
+
+        String str = client.invokeAPI("/mockResponses/additionalPropertiesTest", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertEquals(str, "{\"key\":\"key\",\"value\":\"string\"}");
+    }
+
+    /**
+     * verifies that the email return value is automatically created
+     */
+    @org.junit.Test
+    public void verifyAdditionalPropertyIntegerResponse() throws Exception {
+        Map<String, String> queryParams = new HashMap<String, String>();
+
+        String str = client.invokeAPI("/mockResponses/additionalProperties1", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertEquals(str, "{\"key\":\"key\",\"value\":{\"bar\":0}}");
+    }
+
+    /**
+     * verifies that the email return value is automatically created
+     */
+    @org.junit.Test
+    public void verifyBadAdditionalPropertyResponse() throws Exception {
+        Map<String, String> queryParams = new HashMap<String, String>();
+
+        String str = client.invokeAPI("/mockResponses/badAdditionalProperties", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertEquals(str, "{\"foo\":0}");
+    }
+
+    /**
+     * verifies that the email return value is automatically created
+     */
+    @org.junit.Test
     public void verifyResponseBooleanAdditionalProperties() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
