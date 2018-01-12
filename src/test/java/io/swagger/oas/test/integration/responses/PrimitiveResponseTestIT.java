@@ -182,7 +182,7 @@ public class PrimitiveResponseTestIT {
      * verifies that the email return value is automatically created
      */
     @org.junit.Test
-    public void verifyBadAdditionalPropertyResponse() throws Exception {
+    public void verifyFalseAdditionalPropertyResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/badAdditionalProperties", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
