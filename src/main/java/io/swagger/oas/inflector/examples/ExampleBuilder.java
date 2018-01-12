@@ -83,10 +83,6 @@ public class ExampleBuilder {
         return fromProperty(null,property, definitions, new HashSet<String>(), requestType);
     }
 
-    /*public static Example fromProperty(Schema property, Map<String, Schema> definitions, Set<String> processedModels) {
-        return fromProperty(null,property, definitions, processedModels, null);
-    }*/
-
     public static Example fromProperty(String name, Schema property, Map<String, Schema> definitions, Set<String> processedModels, RequestType requestType) {
         if (property == null) {
             return null;
@@ -424,55 +420,6 @@ public class ExampleBuilder {
                 }
             }
         }
-        // TODO: File
-        if (property.get$ref() != null && output == null) {
-            if( definitions != null ) {
-                String ref = property.get$ref();
-                ref = ref.substring(ref.lastIndexOf("/") + 1);
-                Schema model = definitions.get(ref);
-                if (model != null) {
-                    if (model instanceof Schema) {
-                        if (model.getXml() != null) {
-                            XML xml = model.getXml();
-                            name = xml.getName();
-                            attribute = xml.getAttribute();
-                            namespace = xml.getNamespace();
-                            prefix = xml.getPrefix();
-                            wrapped = xml.getWrapped();
-                        }
-                    }
-                    if (model.getExample() != null) {
-                        try {
-                            Example n = Json.mapper().readValue(model.getExample().toString(), Example.class);
-                            output = n;
-                        } catch (IOException e) {
-                            LOGGER.error("unable to convert value", e);
-                        }
-                    } else {
-                        ObjectExample values = new ObjectExample();
-
-                        Map<String, Schema> properties = model.getProperties();
-                        if (properties != null) {
-                            for (String propertyName : properties.keySet()) {
-                                Schema innerProp = properties.get(propertyName);
-                                Example p = fromProperty(null, innerProp, definitions, processedModels,requestType);
-                                if (p != null) {
-                                    if (p.getName() == null) {
-                                        p.setName(propertyName);
-                                    }
-                                    values.put(propertyName, p);
-                                    processedModels.add(propertyName);
-                                }
-                            }
-                        }
-                        output = values;
-                    }
-                }
-                if (output != null) {
-                    output.setName(ref);
-                }
-            }
-        }
         if (output != null) {
             if (attribute != null) {
                 output.setAttribute(attribute);
@@ -524,62 +471,7 @@ public class ExampleBuilder {
 
         return output;
     }
-
-    public static Example fromModel(String name, Schema model, Map<String, Schema> definitions, Set<String> processedModels, RequestType requestType) {
-        String namespace = null;
-        String prefix = null;
-        Boolean attribute = false;
-        Boolean wrapped = false;
-
-
-        Example output = null;
-        /*if (model.getExample() != null) {
-            try {
-                String str = model.getExample().toString();
-                output = Json.mapper().readValue(str, ObjectExample.class);
-            } catch (IOException e) {
-                return null;
-            }
-        }
-         else*/ if(model instanceof Schema) {
-            if (model.getXml() != null) {
-                XML xml = model.getXml();
-                name = xml.getName();
-                namespace = xml.getNamespace();
-                prefix = xml.getPrefix();
-                attribute = xml.getAttribute();
-                wrapped = xml.getWrapped() != null ? xml.getWrapped() : false;
-            }
-
-            ObjectExample ex = new ObjectExample();
-
-            if(model.getProperties() != null) {
-                Map<String,Schema> properties = model.getProperties();
-                for(String key : properties.keySet()) {
-                    Schema property = properties.get(key);
-                    Example propExample = fromProperty(null, property, definitions, processedModels,requestType);
-                    ex.put(key, propExample);
-                }
-            }
-            output = ex;
-        }
-        if (output != null) {
-            if (attribute != null) {
-                output.setAttribute(attribute);
-            }
-            if (wrapped != null && wrapped) {
-                if (name != null) {
-                    output.setWrappedName(name);
-                }
-            } else if (name != null) {
-                output.setName(name);
-            }
-            output.setNamespace(namespace);
-            output.setPrefix(prefix);
-            output.setWrapped(wrapped);
-        }
-        return output;
-    }
+    
 
     public static void mergeTo(ObjectExample output, List<Example> examples) {
         for(Example ex : examples) {
