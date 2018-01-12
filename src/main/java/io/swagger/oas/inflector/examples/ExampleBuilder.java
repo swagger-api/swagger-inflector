@@ -26,7 +26,8 @@ import io.swagger.oas.inflector.examples.models.IntegerExample;
 import io.swagger.oas.inflector.examples.models.LongExample;
 import io.swagger.oas.inflector.examples.models.ObjectExample;
 import io.swagger.oas.inflector.examples.models.StringExample;
-import io.swagger.v3.core.util.Json;
+
+import io.swagger.util.Json;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
@@ -54,6 +55,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class ExampleBuilder {
+
     public enum RequestType {
         READ, WRITE
     }
@@ -74,18 +76,18 @@ public class ExampleBuilder {
     public static final double SAMPLE_DECIMAL_PROPERTY_VALUE = 1.5;
 
     public static Example fromSchema(Schema property, Map<String, Schema> definitions) {
-        return fromProperty(property, definitions, new HashSet<String>(), null);
+        return fromProperty(null, property, definitions, new HashSet<String>(), null);
     }
 
     public static Example fromSchema(Schema property, Map<String, Schema> definitions, RequestType requestType) {
-        return fromProperty(property, definitions, new HashSet<String>(), requestType);
+        return fromProperty(null,property, definitions, new HashSet<String>(), requestType);
     }
 
-    public static Example fromProperty(Schema property, Map<String, Schema> definitions, Set<String> processedModels) {
-        return fromProperty(property, definitions, processedModels, null);
-    }
+    /*public static Example fromProperty(Schema property, Map<String, Schema> definitions, Set<String> processedModels) {
+        return fromProperty(null,property, definitions, processedModels, null);
+    }*/
 
-    public static Example fromProperty(Schema property, Map<String, Schema> definitions, Set<String> processedModels, RequestType requestType) {
+    public static Example fromProperty(String name, Schema property, Map<String, Schema> definitions, Set<String> processedModels, RequestType requestType) {
         if (property == null) {
             return null;
         }
@@ -96,7 +98,7 @@ public class ExampleBuilder {
             return null;
         }
 
-        String name = null;
+        //name = null;
         String namespace = null;
         String prefix = null;
         Boolean attribute = false;
@@ -114,6 +116,7 @@ public class ExampleBuilder {
         Example output = null;
 
         Object example = property.getExample();
+
         if (property.get$ref() != null) {
             String ref = property.get$ref();
             ref = ref.substring(ref.lastIndexOf("/") + 1);
@@ -125,7 +128,9 @@ public class ExampleBuilder {
             if( definitions != null ) {
                 Schema model = definitions.get(ref);
                 if (model != null) {
-                    output = fromProperty(model, definitions, processedModels, requestType);
+
+                    output = fromProperty(ref, model, definitions, processedModels, requestType);
+                    return output;
                 }
             }
         } else if (property instanceof EmailSchema) {
@@ -150,7 +155,6 @@ public class ExampleBuilder {
             }
             else {
                 UUID defaultValue = ((UUIDSchema)property).getDefault();
-
 
                 if( defaultValue == null ){
                     List<UUID> enums = ((UUIDSchema) property).getEnum();
@@ -213,48 +217,48 @@ public class ExampleBuilder {
             }
         } else if (property instanceof NumberSchema) {
 
-                    if (example != null) {
-                        try {
-                            if (property.getFormat() != null) {
-                                if (property.getFormat().equals("double")) {
-                                    output = new DoubleExample(Double.parseDouble(example.toString()));
-                                }else if (property.getFormat().equals("float")) {
-                                    output = new FloatExample(Float.parseFloat(example.toString()));
-                                }
-                            }else{
-                                output = new DecimalExample(new BigDecimal(example.toString()));
-                            }
-                        } catch (NumberFormatException e) {
+            if (example != null) {
+                try {
+                    if (property.getFormat() != null) {
+                        if (property.getFormat().equals("double")) {
+                            output = new DoubleExample(Double.parseDouble(example.toString()));
+                        }else if (property.getFormat().equals("float")) {
+                            output = new FloatExample(Float.parseFloat(example.toString()));
                         }
+                    }else{
+                        output = new DecimalExample(new BigDecimal(example.toString()));
                     }
+                } catch (NumberFormatException e) {
+                }
+            }
 
-                    if (output == null) {
-                        BigDecimal defaultValue = ((NumberSchema) property).getDefault();
+            if (output == null) {
+                BigDecimal defaultValue = ((NumberSchema) property).getDefault();
 
-                        if (defaultValue == null) {
-                            List<BigDecimal> enums = ((NumberSchema) property).getEnum();
-                            if (enums != null && !enums.isEmpty()) {
-                                defaultValue = enums.get(0);
-                            }
-                        }
-                        if (property.getFormat() != null) {
-                            if (property.getFormat().equals("double")) {
-                                output = new DoubleExample(defaultValue == null ? SAMPLE_DOUBLE_PROPERTY_VALUE : defaultValue.doubleValue());
-                            }
-                            if (property.getFormat().equals("float")) {
-                                output = new FloatExample(defaultValue == null ? SAMPLE_FLOAT_PROPERTY_VALUE : defaultValue.floatValue());
-                            }
-                        }else {
-                            output = new DecimalExample(new BigDecimal(SAMPLE_DECIMAL_PROPERTY_VALUE));
-                        }
+                if (defaultValue == null) {
+                    List<BigDecimal> enums = ((NumberSchema) property).getEnum();
+                    if (enums != null && !enums.isEmpty()) {
+                        defaultValue = enums.get(0);
                     }
+                }
+                if (property.getFormat() != null) {
+                    if (property.getFormat().equals("double")) {
+                        output = new DoubleExample(defaultValue == null ? SAMPLE_DOUBLE_PROPERTY_VALUE : defaultValue.doubleValue());
+                    }
+                    if (property.getFormat().equals("float")) {
+                        output = new FloatExample(defaultValue == null ? SAMPLE_FLOAT_PROPERTY_VALUE : defaultValue.floatValue());
+                    }
+                }else {
+                    output = new DecimalExample(new BigDecimal(SAMPLE_DECIMAL_PROPERTY_VALUE));
+                }
+            }
 
         } else if (property instanceof BooleanSchema) {
             if (example != null) {
                 output = new BooleanExample(Boolean.valueOf(example.toString()));
             }
             else {
-                Boolean defaultValue = (Boolean) property.getDefault();
+                Boolean defaultValue = (Boolean)property.getDefault();
                 output = new BooleanExample( defaultValue == null ? SAMPLE_BOOLEAN_PROPERTY_VALUE : defaultValue.booleanValue());
             }
         } else if (property instanceof DateSchema) {
@@ -298,10 +302,10 @@ public class ExampleBuilder {
                 outputExample.setName( property.getName() );
                 ObjectSchema op = (ObjectSchema) property;
                 if(op.getProperties() != null) {
-                    for(String propertyName : op.getProperties().keySet()) {
-                        Schema inner = op.getProperties().get(propertyName);
-                        Example innerExample = fromProperty(inner, definitions,processedModels, requestType);
-                        outputExample.put(propertyName, innerExample);
+                    for(String propertyname : op.getProperties().keySet()) {
+                        Schema inner = op.getProperties().get(propertyname);
+                        Example innerExample = fromProperty(null, inner, definitions,processedModels, requestType);
+                        outputExample.put(propertyname, innerExample);
                     }
                 }
                 output = outputExample;
@@ -314,7 +318,7 @@ public class ExampleBuilder {
                 ArraySchema ap = (ArraySchema) property;
                 Schema inner = ap.getItems();
                 if (inner != null) {
-                    Object innerExample = fromProperty(inner, definitions, processedModels, requestType);
+                    Object innerExample = fromProperty(null,inner, definitions, processedModels,requestType);
                     if (innerExample != null) {
                         if (innerExample instanceof Example) {
                             ArrayExample an = new ArrayExample();
@@ -325,7 +329,7 @@ public class ExampleBuilder {
                     }
                 }
             }
-        } if (property instanceof ComposedSchema) {
+        } else if (property instanceof ComposedSchema) {
             //validate resolved validators if true send back the first property if false the actual code
             ComposedSchema composedSchema = (ComposedSchema) property;
             if(composedSchema.getAllOf() != null) {
@@ -336,7 +340,7 @@ public class ExampleBuilder {
                 List<Example> innerExamples = new ArrayList<>();
                 if (models != null) {
                     for (Schema im : models) {
-                        Example innerExample = fromProperty(im, definitions, processedModels, requestType);
+                        Example innerExample = fromProperty(null, im, definitions, processedModels, requestType);
                         if (innerExample != null) {
                             innerExamples.add(innerExample);
                         }
@@ -349,7 +353,7 @@ public class ExampleBuilder {
                 List<Schema> models = composedSchema.getAnyOf();
                 if (models != null) {
                     for (Schema im : models) {
-                        Example innerExample = fromProperty(im, definitions, processedModels, requestType);
+                        Example innerExample = fromProperty(null, im, definitions, processedModels, requestType);
                         if (innerExample != null) {
                             output = innerExample;
                             break;
@@ -362,7 +366,7 @@ public class ExampleBuilder {
 
                 if (models != null) {
                     for (Schema im : models) {
-                        Example innerExample = fromProperty(im, definitions, processedModels, requestType);
+                        Example innerExample = fromProperty(null, im, definitions, processedModels, requestType);
                         if (innerExample != null) {
                             output = innerExample;
                             break;
@@ -370,17 +374,42 @@ public class ExampleBuilder {
                     }
                 }
             }
-        } else if (property.getAdditionalProperties() != null) {
+        }else if (property.getProperties() != null && output == null ){
+            if (example != null) {
+                try {
+                    output = Json.mapper().readValue(example.toString(), ObjectExample.class);
+                } catch (IOException e) {
+                    LOGGER.error("unable to convert `" + example + "` to JsonNode");
+                    output = new ObjectExample();
+                }
+            }
+            else {
+                ObjectExample ex = new ObjectExample();
+
+                if(property.getProperties() != null) {
+                    Map<String,Schema> properties = property.getProperties();
+                    for(String propertyKey : properties.keySet()) {
+                        Schema inner = properties.get(propertyKey);
+                        Example propExample = fromProperty(null, inner, definitions, processedModels,requestType);
+                        ex.put(propertyKey, propExample);
+                    }
+                }
+
+                output = ex;
+            }
+
+        }
+        if (property.getAdditionalProperties() != null) {
             Schema inner = property.getAdditionalProperties();
             if (inner != null) {
-                Object innerExample = fromProperty(inner, definitions, processedModels, requestType);
+                Object innerExample = fromProperty(null, inner, definitions, processedModels, requestType);
                 if (innerExample != null) {
                     ObjectExample on = new ObjectExample();
 
                     if (innerExample instanceof Example) {
-                        StringExample key = new StringExample("key");
-                        key.setName("key");
-                        on.put("key", key);
+                        StringExample value = new StringExample("key");
+                        value.setName("key");
+                        on.put("key", value);
                         Example in = (Example) innerExample;
                         if (in.getName() == null) {
                             in.setName("value");
@@ -395,7 +424,6 @@ public class ExampleBuilder {
                 }
             }
         }
-
         // TODO: File
         if (property.get$ref() != null && output == null) {
             if( definitions != null ) {
@@ -403,15 +431,16 @@ public class ExampleBuilder {
                 ref = ref.substring(ref.lastIndexOf("/") + 1);
                 Schema model = definitions.get(ref);
                 if (model != null) {
-                    if (model.getXml() != null) {
-                        XML xml = model.getXml();
-                        name = xml.getName();
-                        attribute = xml.getAttribute();
-                        namespace = xml.getNamespace();
-                        prefix = xml.getPrefix();
-                        wrapped = xml.getWrapped();
+                    if (model instanceof Schema) {
+                        if (model.getXml() != null) {
+                            XML xml = model.getXml();
+                            name = xml.getName();
+                            attribute = xml.getAttribute();
+                            namespace = xml.getNamespace();
+                            prefix = xml.getPrefix();
+                            wrapped = xml.getWrapped();
+                        }
                     }
-
                     if (model.getExample() != null) {
                         try {
                             Example n = Json.mapper().readValue(model.getExample().toString(), Example.class);
@@ -424,15 +453,15 @@ public class ExampleBuilder {
 
                         Map<String, Schema> properties = model.getProperties();
                         if (properties != null) {
-                            for (String key : properties.keySet()) {
-                                Schema innerProp = properties.get(key);
-                                Example p = fromProperty(innerProp, definitions, processedModels, requestType);
+                            for (String propertyName : properties.keySet()) {
+                                Schema innerProp = properties.get(propertyName);
+                                Example p = fromProperty(null, innerProp, definitions, processedModels,requestType);
                                 if (p != null) {
                                     if (p.getName() == null) {
-                                        p.setName(key);
+                                        p.setName(propertyName);
                                     }
-                                    values.put(key, p);
-                                    processedModels.add(key);
+                                    values.put(propertyName, p);
+                                    processedModels.add(propertyName);
                                 }
                             }
                         }
@@ -469,26 +498,85 @@ public class ExampleBuilder {
         }
         Example output = null;
 
-        // look at type
-        if(model.getType() != null) {
-            if ("object".equals(model.getType())) {
-                return new ObjectExample();
+        if(model instanceof Schema) {
+            // look at type
+            if(model.getType() != null) {
+                if ("object".equals(model.getType())) {
+                    return new ObjectExample();
+                }
+                else if("string".equals(model.getType())) {
+                    return new StringExample("");
+                }
+                else if("integer".equals(model.getType())) {
+                    return new IntegerExample(0);
+                }
+                else if("long".equals(model.getType())) {
+                    return new LongExample(0);
+                }
+                else if("float".equals(model.getType())) {
+                    return new FloatExample(0);
+                }
+                else if("double".equals(model.getType())) {
+                    return new DoubleExample(0);
+                }
             }
-            else if("string".equals(model.getType())) {
-                return new StringExample("");
+        }
+
+        return output;
+    }
+
+    public static Example fromModel(String name, Schema model, Map<String, Schema> definitions, Set<String> processedModels, RequestType requestType) {
+        String namespace = null;
+        String prefix = null;
+        Boolean attribute = false;
+        Boolean wrapped = false;
+
+
+        Example output = null;
+        /*if (model.getExample() != null) {
+            try {
+                String str = model.getExample().toString();
+                output = Json.mapper().readValue(str, ObjectExample.class);
+            } catch (IOException e) {
+                return null;
             }
-            else if("integer".equals(model.getType())) {
-                return new IntegerExample(0);
+        }
+         else*/ if(model instanceof Schema) {
+            if (model.getXml() != null) {
+                XML xml = model.getXml();
+                name = xml.getName();
+                namespace = xml.getNamespace();
+                prefix = xml.getPrefix();
+                attribute = xml.getAttribute();
+                wrapped = xml.getWrapped() != null ? xml.getWrapped() : false;
             }
-            else if("long".equals(model.getType())) {
-                return new LongExample(0);
+
+            ObjectExample ex = new ObjectExample();
+
+            if(model.getProperties() != null) {
+                Map<String,Schema> properties = model.getProperties();
+                for(String key : properties.keySet()) {
+                    Schema property = properties.get(key);
+                    Example propExample = fromProperty(null, property, definitions, processedModels,requestType);
+                    ex.put(key, propExample);
+                }
             }
-            else if("float".equals(model.getType())) {
-                return new FloatExample(0);
+            output = ex;
+        }
+        if (output != null) {
+            if (attribute != null) {
+                output.setAttribute(attribute);
             }
-            else if("double".equals(model.getType())) {
-                return new DoubleExample(0);
+            if (wrapped != null && wrapped) {
+                if (name != null) {
+                    output.setWrappedName(name);
+                }
+            } else if (name != null) {
+                output.setName(name);
             }
+            output.setNamespace(namespace);
+            output.setPrefix(prefix);
+            output.setWrapped(wrapped);
         }
         return output;
     }
