@@ -303,8 +303,9 @@ public class ExampleBuilder {
                         Example innerExample = fromProperty(null, inner, definitions,processedModels, requestType);
                         outputExample.put(propertyname, innerExample);
                     }
+                    output = outputExample;
                 }
-                output = outputExample;
+
             }
         } else if (property instanceof ArraySchema) {
             if (example != null) {
@@ -400,18 +401,23 @@ public class ExampleBuilder {
             if (inner != null) {
                 Object innerExample = fromProperty(null, inner, definitions, processedModels, requestType);
                 if (innerExample != null) {
-                    ObjectExample on = new ObjectExample();
-
                     if (innerExample instanceof Example) {
-                        StringExample value = new StringExample("key");
-                        value.setName("key");
-                        on.put("key", value);
                         Example in = (Example) innerExample;
                         if (in.getName() == null) {
                             in.setName("value");
                         }
-                        on.put("value", (Example) in);
-                        output = on;
+                        ObjectExample on;
+                        if (output != null) {
+                             on = (ObjectExample) output;
+                             on.put("additionalProperty", in);
+                        }else {
+                            on = new ObjectExample();
+                            StringExample value = new StringExample("key");
+                            value.setName("key");
+                            on.put("key", value);
+                            on.put("additionalProperty", in);
+                            output = on;
+                        }
                     } else {
                         ObjectExample outputMap = new ObjectExample();
                         outputMap.put("key", new ObjectExample());

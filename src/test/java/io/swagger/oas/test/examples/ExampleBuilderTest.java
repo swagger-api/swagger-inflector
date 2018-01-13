@@ -138,7 +138,7 @@ public class ExampleBuilderTest {
 
         String xmlString = new XmlExampleSerializer().serialize(rep);
         assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><user><userName>fehguy</userName><addressess><address><street>12345 El Monte Blvd</street><city>Los Altos Hills</city><state>CA</state><zip>94022</zip></address></addressess><managers><key>key</key><value>SVP Engineering</value></managers><kidsAges>9</kidsAges></user>");
-        assertEqualsIgnoreLineEnding(Yaml.pretty().writeValueAsString(rep),"username: fehguy\naddresses:\n- street: 12345 El Monte Blvd\n  city: Los Altos Hills\n  state: CA\n  zip: \"94022\"\nmanagers:\n  key: key\n  value: SVP Engineering\nkidsAges:\n- 9\n");
+        assertEqualsIgnoreLineEnding(Yaml.pretty().writeValueAsString(rep),"username: fehguy\naddresses:\n- street: 12345 El Monte Blvd\n  city: Los Altos Hills\n  state: CA\n  zip: \"94022\"\nmanagers:\n  key: key\n  additionalProperty: SVP Engineering\nkidsAges:\n- 9\n");
     }
 
     @Test
@@ -688,6 +688,34 @@ public class ExampleBuilderTest {
         Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "[ \"string\" ]");
+
+    }
+
+    @Test
+    public void verifyAdditionalPropertyResponse() throws Exception {
+
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3.yaml");
+        ApiResponse response = openAPI.getPaths().get("/mockResponses/additionalPropertiesTest").getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "{\n" +
+                "  \"foo\" : 0,\n" +
+                "  \"additionalProperty\" : \"string\"\n" +
+                "}");
+
+    }
+
+    @Test
+    public void verifyGetMapResponse() throws Exception {
+
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3.yaml");
+        ApiResponse response = openAPI.getPaths().get("/mockResponses/primitiveMapResponse").getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "{\n" +
+                "  \"key\" : \"key\",\n" +
+                "  \"additionalProperty\" : \"string\"\n" +
+                "}");
 
     }
 
