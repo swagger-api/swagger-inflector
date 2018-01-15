@@ -207,8 +207,8 @@ public class ReflectionUtils {
             JavaType innerType = getTypeFromProperty(null, null, inner, definitions);
             return tf.constructCollectionType(List.class, innerType);
         }
-        if(property.getAdditionalProperties() != null) {
-            Schema inner = property.getAdditionalProperties();
+        if(property.getAdditionalProperties() != null && property.getAdditionalProperties() instanceof Schema) {
+            Schema inner = (Schema)property.getAdditionalProperties();
             JavaType innerType = getTypeFromProperty(null, null, inner, definitions);
             return tf.constructMapLikeType(Map.class, getTypeFromProperty("string", null, null, definitions), innerType);
         }

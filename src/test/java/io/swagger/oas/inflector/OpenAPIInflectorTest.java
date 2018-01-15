@@ -24,8 +24,7 @@ import io.swagger.v3.core.util.Json;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-
-;import static org.testng.Assert.*;
+import static org.testng.Assert.*;
 
 
 public class OpenAPIInflectorTest {
@@ -64,4 +63,6 @@ public class OpenAPIInflectorTest {
         // is providing this functionality.
         assertFalse(inflector.isRegistered(JsonProvider.class));
     }
+
+
 }

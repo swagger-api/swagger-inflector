@@ -592,7 +592,52 @@ paths:
               schema:
                 type: string
                 format: uuid
-  "/mockResponses/primitiaveMapResponse":
+  "/mockResponses/additionalPropertiesTest":
+    get:
+      responses:
+        '200':
+          description: success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  foo:
+                    type: integer
+                additionalProperties:
+                  type: string
+  "/mockResponses/badAdditionalProperties":
+    get:
+      responses:
+        '200':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  foo:
+                    type: integer
+                additionalProperties:
+                  type: false
+  "/mockResponses/additionalProperties1":
+    get:
+      responses:
+        '200':
+          description: not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  foo:
+                    type: integer
+                additionalProperties:
+                  type: object
+                  properties:
+                    bar:
+                      type: integer
+  "/mockResponses/primitiveMapResponse":
     get:
       tags:
         - mockResponses
@@ -611,6 +656,27 @@ paths:
                 type: object
                 additionalProperties:
                   type: string
+  "/mockResponses/booleanAdditionalProperties":
+    get:
+      tags:
+        - mockResponses
+      parameters:
+      - name: user
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success!
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  firstProperty:
+                    type: string
   "/mockResponses/complexResponse":
     get:
       tags:
