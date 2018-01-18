@@ -194,7 +194,7 @@ public class RequestTestIT {
             new HashMap<String, String>(), // header
             Entity.form(formData),         // form
             "application/json", // accept
-            "x-www-form-urlencoded",  // contentType
+            "application/x-www-form-urlencoded",  // contentType
             new String[0]);
 
         assertEquals(str, "tony,the tam");
@@ -221,7 +221,7 @@ public class RequestTestIT {
                 new HashMap<String, String>(), // header
                 Entity.form(formData),         // form
                 "application/json", // accept
-                "x-www-form-urlencoded",  // contentType
+                "application/x-www-form-urlencoded",  // contentType
                 new String[0]);
 
         assertEquals(str, "Grace");

@@ -79,7 +79,7 @@ public class ReflectionUtils {
         return config;
     }
 
-    public JavaType[] getOperationParameterClasses(Operation operation, Map<String, Schema> definitions) {
+    public JavaType[] getOperationParameterClasses(Operation operation, String mediaType, Map<String, Schema> definitions) {
         TypeFactory tf = Json.mapper().getTypeFactory();
 
         if (operation.getParameters() == null){
@@ -88,7 +88,7 @@ public class ReflectionUtils {
         int body = 0;
         JavaType[] bodyArgumentClasses = null;
         if (operation.getRequestBody() != null){
-            bodyArgumentClasses = getTypeFromRequestBody(operation.getRequestBody(), definitions);
+            bodyArgumentClasses = getTypeFromRequestBody(operation.getRequestBody(), mediaType, definitions);
             if (bodyArgumentClasses != null) {
                 body = bodyArgumentClasses.length;
             }
@@ -115,11 +115,11 @@ public class ReflectionUtils {
         return jt;
     }
 
-    public JavaType[] getOperationRequestBodyClasses(Operation operation, Map<String, Schema> definitions) {
+    public JavaType[] getOperationRequestBodyClasses(Operation operation, String mediaType, Map<String, Schema> definitions) {
         TypeFactory tf = Json.mapper().getTypeFactory();
 
         if (operation.getRequestBody() != null) {
-            JavaType[] argumentClasses = getTypeFromRequestBody(operation.getRequestBody(), definitions);
+            JavaType[] argumentClasses = getTypeFromRequestBody(operation.getRequestBody(), mediaType ,definitions);
             if (argumentClasses != null) {
                 JavaType[] jt = new JavaType[argumentClasses.length + 1];
                 int i = 0;
@@ -140,58 +140,55 @@ public class ReflectionUtils {
 
     }
 
-    public JavaType[] getTypeFromRequestBody(RequestBody body,Map<String, Schema> definitions ){
+    public JavaType[] getTypeFromRequestBody(RequestBody body, String mediaType , Map<String, Schema> definitions ){
         JavaType[] jt = null;
         int i = 0;
         if (body.getContent() != null) {
             Map<String,MediaType> content   = body.getContent();
-            for (String mediaType : content.keySet()){
-                if (content.get(mediaType).getSchema() != null) {
-                    Schema model = content.get(mediaType).getSchema();
-                    if (mediaType.equals("multipart/form-data") || mediaType.equals("x-www-form-urlencoded") || mediaType.equals("application/x-www-form-urlencoded")) {
-                        if (model.getProperties() != null) {
-                            Map<String, Schema> properties = model.getProperties();
-                            jt = new JavaType[properties.size()];
-                            for (String key : properties.keySet()) {
-                                Schema property = properties.get(key);
-                                JavaType javaType = getTypeFromProperty(property.getType(), property.getFormat(), property, definitions);
-                                if (javaType != null) {
-                                    jt[i] = javaType;
-                                }
-                                i++;
-                            }
-                            return jt;
+            Schema model = content.get(mediaType).getSchema();
+            if (mediaType.equals("multipart/form-data") || mediaType.equals("x-www-form-urlencoded") || mediaType.equals("application/x-www-form-urlencoded")) {
+                if (model.getProperties() != null) {
+                    Map<String, Schema> properties = model.getProperties();
+                    jt = new JavaType[properties.size()];
+                    for (String key : properties.keySet()) {
+                        Schema property = properties.get(key);
+                        JavaType javaType = getTypeFromProperty(property.getType(), property.getFormat(), property, definitions);
+                        if (javaType != null) {
+                            jt[i] = javaType;
                         }
-                    }else {
-                        jt = new JavaType[1];
-                        jt[i] = getTypeFromModel("", model, definitions);
+                        i++;
                     }
+                    return jt;
                 }
+            }else {
+                jt = new JavaType[1];
+                jt[i] = getTypeFromModel("", model, definitions);
             }
         }
 
         return jt;
     }
 
-    public JavaType getTypeFromParameter(Parameter parameter, Map<String, Schema> definitions) {
-      if (parameter.getSchema() != null) {
-          JavaType parameterType =  getTypeFromProperty(parameter.getSchema().getType(),parameter.getSchema().getFormat(), parameter.getSchema(), definitions);
-          if (parameterType != null){
-              return parameterType;
-          }
-         }
 
-      else if (parameter.getContent() != null) {
-          Map<String,MediaType> content   = parameter.getContent();
-          for (String mediaType : content.keySet()){
-              if (content.get(mediaType).getSchema() != null) {
-                  Schema model = content.get(mediaType).getSchema();
-                  return getTypeFromModel("", model, definitions);
-              }
-          }
-      }
-      
-      return null;
+    public JavaType getTypeFromParameter(Parameter parameter, Map<String, Schema> definitions) {
+        if (parameter.getSchema() != null) {
+            JavaType parameterType =  getTypeFromProperty(parameter.getSchema().getType(),parameter.getSchema().getFormat(), parameter.getSchema(), definitions);
+            if (parameterType != null){
+                return parameterType;
+            }
+        }
+
+        else if (parameter.getContent() != null) {
+            Map<String,MediaType> content   = parameter.getContent();
+            for (String mediaType : content.keySet()){
+                if (content.get(mediaType).getSchema() != null) {
+                    Schema model = content.get(mediaType).getSchema();
+                    return getTypeFromModel("", model, definitions);
+                }
+            }
+        }
+
+        return null;
     }
 
 
@@ -239,10 +236,10 @@ public class ReflectionUtils {
             return tf.constructType(LocalDate.class);
         }
         if(("string".equals(type) && "date-time".equals(format)) || property instanceof DateTimeSchema) {
-          return tf.constructType(DateTime.class);
+            return tf.constructType(DateTime.class);
         }
         if(("string".equals(type) && format == null) || property instanceof StringSchema) {
-          return tf.constructType(String.class);
+            return tf.constructType(String.class);
         }
         if(("number".equals(type) && format == null) && property instanceof NumberSchema) {
             return tf.constructType(BigDecimal.class);
@@ -294,7 +291,7 @@ public class ReflectionUtils {
         }
         return null;
     }
-    
+
     public JavaType getTypeFromModel(String name, Schema model, Map<String, Schema> definitions) {
         TypeFactory tf = Json.mapper().getTypeFactory();
 
@@ -421,7 +418,7 @@ public class ReflectionUtils {
         return tf.constructType(JsonNode.class);
     }
 
-    
+
     public Class<?> loadClass(String className) {
         try {
             return Class.forName(className);

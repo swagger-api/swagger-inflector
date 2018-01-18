@@ -155,4 +155,12 @@ public class TestController {
     public ResponseContext mappedWithDefinedModel(RequestContext request, Dog dog) {
         return new ResponseContext().status(200);
     }
+
+    public ResponseContext multipleMediaType(RequestContext request, Long id, String name, String dogType) {
+        return new ResponseContext()
+                .status(Status.OK)
+                .entity(new Dog()
+                        .id(id)
+                        .name(name));
+    }
 }

@@ -118,30 +118,31 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
     private String controllerName;
     private String methodName;
     private String operationSignature;
+
     @Inject
     private Provider<Providers> providersProvider;
     @Inject
     private Provider<HttpServletRequest> requestProvider;
     private ControllerFactory controllerFactoryCache = null;
 
-    public OpenAPIOperationController(Configuration config, String path, String httpMethod, Operation operation, Map<String, Schema> definitions) {
+    public OpenAPIOperationController(Configuration config, String path, String httpMethod, Operation operation, String mediaType, Map<String, Schema> definitions) {
         this.setConfiguration(config);
         this.path = path;
         this.httpMethod = httpMethod;
         this.operation = operation;
         this.definitions = definitions;
         this.validator = InputConverter.getInstance();
-        this.method = detectMethod(operation);
+        this.method = detectMethod(operation, mediaType);
         if (method == null) {
             LOGGER.debug("no method `" + methodName + "` in `" + controllerName + "` to map to, using mock response");
         }
     }
 
-    public Method detectMethod(Operation operation) {
+    public Method detectMethod(Operation operation, String mediaType) {
         controllerName = getControllerName(operation);
         methodName = getMethodName(path, httpMethod, operation);
-        JavaType[] args = getOperationParameterClasses(operation, definitions);
-        JavaType[] args2 = getOperationRequestBodyClasses(operation, definitions);
+        JavaType[] args = getOperationParameterClasses(operation, mediaType ,definitions);
+        JavaType[] args2 = getOperationRequestBodyClasses(operation, mediaType ,definitions);
 
         StringBuilder builder = new StringBuilder();
 
@@ -161,7 +162,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                         className = className.substring("java.lang.".length());
                     }
                     builder.append(className);
-                    builder.append(" ").append(args[1]);
+                    builder.append(" ").append(args[i]);
 
                 }
             }
@@ -972,4 +973,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
     	}
     	return controllerFactoryCache;
     }
+
+
+
+
 }
