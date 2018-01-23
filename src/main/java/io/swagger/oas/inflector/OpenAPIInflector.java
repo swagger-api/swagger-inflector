@@ -72,7 +72,7 @@ public class OpenAPIInflector extends ResourceConfig {
     private ServletContext servletContext;
     private Map<String, List<String>> missingOperations = new HashMap<>();
     private Set<String> unimplementedMappedModels = new TreeSet<>();
-    private Set<String> implementedMappedModels = new TreeSet<>();
+
 
 
     private ObjectMapper objectMapper;
@@ -434,7 +434,6 @@ public class OpenAPIInflector extends ResourceConfig {
 
     private void addOperation(String pathString, Resource.Builder builder, String method, Operation operation, Map<String, Schema> definitions) {
         LOGGER.debug("adding operation for `" + pathString + "` " + method);
-        //recorrer la operacion y por cada mediatype schema llamar el OperationController
         if (operation.getRequestBody() != null){
             RequestBody body = operation.getRequestBody();
             if(body.getContent() != null){
@@ -452,12 +451,18 @@ public class OpenAPIInflector extends ResourceConfig {
                                 missingMethods.add(controller.getOperationSignature());
                             }
                         }
-                        if(!implementedMappedModels.contains((controller.getOperationSignature()))) {
-                            unimplementedMappedModels.addAll(controller.getUnimplementedMappedModels());
+                        unimplementedMappedModels.addAll(controller.getUnimplementedMappedModels());
+                        try {
                             MediaType media = MediaType.valueOf(mediaType);
-                            builder.addMethod(method).handledBy(controller).consumes(media.toString());
-                            implementedMappedModels.add(controller.getOperationSignature());
+                            if (media.getSubtype().equals("yaml")) {
+                                builder.addMethod(method).handledBy(controller);
+                            } else {
+                                builder.addMethod(method).handledBy(controller).consumes(media.toString());
+                            }
+                        }catch(Exception e){
+                            LOGGER.error("unable to find a matching mediatype for " + mediaType);
                         }
+
 
                     }
                 }
@@ -474,11 +479,9 @@ public class OpenAPIInflector extends ResourceConfig {
                     missingMethods.add(controller.getOperationSignature());
                 }
             }
-            if(!implementedMappedModels.contains((controller.getOperationSignature()))) {
-                unimplementedMappedModels.addAll(controller.getUnimplementedMappedModels());
-                builder.addMethod(method).handledBy(controller);
-                implementedMappedModels.add(controller.getOperationSignature());
-            }
+            unimplementedMappedModels.addAll(controller.getUnimplementedMappedModels());
+            builder.addMethod(method).handledBy(controller);
+
         }
     }
 }

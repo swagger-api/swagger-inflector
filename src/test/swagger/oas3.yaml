@@ -78,7 +78,7 @@ paths:
             schema:
               type: string
               example: Hi there
-          application/x-www-form-urlencoded:
+          x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/Dog'
           multipart/form-data:
@@ -362,7 +362,7 @@ paths:
       operationId: stringBody
       requestBody:
         content:
-          "application/json":
+          "application/yaml":
             schema:
               type: string
         required: false
