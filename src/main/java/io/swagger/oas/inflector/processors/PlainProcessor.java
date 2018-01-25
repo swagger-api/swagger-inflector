@@ -20,6 +20,7 @@ public class PlainProcessor implements EntityProcessor {
 
     static {
         SUPPORTED_TYPES.add(MediaType.TEXT_XML_TYPE);
+        SUPPORTED_TYPES.add(MediaType.TEXT_PLAIN_TYPE);
     }
 
     @Override

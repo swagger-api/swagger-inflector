@@ -190,11 +190,12 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     if (methodName.equals(method.getName())) {
                         Class<?>[] methodArgs = method.getParameterTypes();
                         if (methodArgs.length == args.length) {
-                            int i = 0;
                             boolean matched = true;
-                            if (!args[i].getRawClass().equals(methodArgs[i])) {
-                                LOGGER.debug("failed to match " + args[i] + ", " + methodArgs[i]);
-                                matched = false;
+                            for (int i = 0; i<methodArgs.length; i++ ) {
+                                if (!args[i].getRawClass().equals(methodArgs[i])) {
+                                    LOGGER.debug("failed to match " + args[i] + ", " + methodArgs[i]);
+                                    matched = false;
+                                }
                             }
                             if (matched) {
                                 this.parameterClasses = args;
