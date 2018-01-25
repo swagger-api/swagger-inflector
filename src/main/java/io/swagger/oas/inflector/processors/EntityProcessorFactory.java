@@ -34,6 +34,7 @@ public class EntityProcessorFactory {
         // handles yaml, json, xml
         PROCESSORS.add(new JacksonProcessor());
         PROCESSORS.add(new BinaryProcessor());
+        PROCESSORS.add(new PlainProcessor());
     }
 
     public static void addProcessor(Class<?> cls, MediaType type) {

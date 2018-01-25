@@ -323,4 +323,5 @@ public class ResponseExamplesTest {
         assertNotNull( response.getEntity());
 
     }
+
 }

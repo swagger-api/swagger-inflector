@@ -36,6 +36,7 @@ import io.swagger.v3.oas.models.PathItem;
 
 
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.parser.OpenAPIV3Parser;
@@ -440,48 +441,48 @@ public class OpenAPIInflector extends ResourceConfig {
                 Map<String, io.swagger.v3.oas.models.media.MediaType> content = body.getContent();
                 for (String mediaType: content.keySet()){
                     if (content.get(mediaType) != null){
-                        OpenAPIOperationController controller = new OpenAPIOperationController(config, pathString, method, operation, mediaType, definitions);
-                        if (controller.getMethod() == null) {
-                            if (controller.getMethodName() != null) {
-                                List<String> missingMethods = missingOperations.get(controller.getControllerName());
-                                if (missingMethods == null) {
-                                    missingMethods = new ArrayList<>();
-                                    missingOperations.put(controller.getControllerName(), missingMethods);
-                                }
-                                missingMethods.add(controller.getOperationSignature());
-                            }
-                        }
-                        unimplementedMappedModels.addAll(controller.getUnimplementedMappedModels());
-                        try {
-                            MediaType media = MediaType.valueOf(mediaType);
-                            if (media.getSubtype().equals("yaml")) {
-                                builder.addMethod(method).handledBy(controller);
-                            } else {
-                                builder.addMethod(method).handledBy(controller).consumes(media.toString());
-                            }
-                        }catch(Exception e){
-                            LOGGER.error("unable to find a matching mediatype for " + mediaType);
-                        }
-
-
+                        OpenAPIOperationController controller = createController(pathString,method,operation, mediaType,definitions);
+                        addConsumesToResource(mediaType,builder,method,controller);
                     }
                 }
             }
         }else {
-            OpenAPIOperationController controller = new OpenAPIOperationController(config, pathString, method, operation, "", definitions);
-            if (controller.getMethod() == null) {
-                if (controller.getMethodName() != null) {
-                    List<String> missingMethods = missingOperations.get(controller.getControllerName());
-                    if (missingMethods == null) {
-                        missingMethods = new ArrayList<>();
-                        missingOperations.put(controller.getControllerName(), missingMethods);
-                    }
-                    missingMethods.add(controller.getOperationSignature());
-                }
-            }
-            unimplementedMappedModels.addAll(controller.getUnimplementedMappedModels());
-            builder.addMethod(method).handledBy(controller);
+            OpenAPIOperationController controller = createController(pathString,method,operation, "",definitions);
+            addConsumesToResource("",builder,method,controller);
 
+        }
+    }
+
+    private OpenAPIOperationController createController(String pathString, String method, Operation operation, String mediaType, Map<String, Schema> definitions) {
+        OpenAPIOperationController controller = new OpenAPIOperationController(config, pathString, method, operation, mediaType, definitions);
+        if (controller.getMethod() == null) {
+            if (controller.getMethodName() != null) {
+                List<String> missingMethods = missingOperations.get(controller.getControllerName());
+                if (missingMethods == null) {
+                    missingMethods = new ArrayList<>();
+                    missingOperations.put(controller.getControllerName(), missingMethods);
+                }
+                missingMethods.add(controller.getOperationSignature());
+            }
+        }
+        unimplementedMappedModels.addAll(controller.getUnimplementedMappedModels());
+        return controller;
+    }
+
+    private void addConsumesToResource(String mediaType, Resource.Builder builder, String method, OpenAPIOperationController controller) {
+        if (StringUtils.isNotBlank(mediaType)) {
+            try {
+                MediaType media = MediaType.valueOf(mediaType);
+                if (media.getSubtype().equals("yaml")) {
+                    builder.addMethod(method).handledBy(controller);
+                } else {
+                    builder.addMethod(method).handledBy(controller).consumes(media.toString());
+                }
+            } catch (Exception e) {
+                LOGGER.error("unable to find a matching mediatype for " + mediaType + " in " + controller.getMethodName());
+            }
+        }else{
+            builder.addMethod(method).handledBy(controller);
         }
     }
 }

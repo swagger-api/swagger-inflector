@@ -146,7 +146,7 @@ public class ReflectionUtils {
         if (body.getContent() != null) {
             Map<String,MediaType> content   = body.getContent();
             Schema model = content.get(mediaType).getSchema();
-            if (mediaType.equals("multipart/form-data") || mediaType.equals("x-www-form-urlencoded") || mediaType.equals("application/x-www-form-urlencoded")) {
+            if (mediaType.equals("multipart/form-data") || mediaType.equals("application/x-www-form-urlencoded")) {
                 if (model.getProperties() != null) {
                     Map<String, Schema> properties = model.getProperties();
                     jt = new JavaType[properties.size()];

@@ -64,6 +64,43 @@ tags:
     description: Find out more about our store
     url: http://swagger.io
 paths:
+  "/fileUpload":
+    post:
+      x-swagger-router-controller: TestController
+      operationId: uploadFile
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                theFile:
+                  type: string
+                  format: binary
+                stringMetadata:
+                  type: string
+                intMetadata:
+                  type: integer
+                  format: int32
+  "/primitiveBody/binary":
+    post:
+      x-swagger-router-controller: TestController
+      operationId: binaryBody
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+        required: false
+      responses:
+        '200':
+          description: ok!
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
   "/multipleMediaType":
     post:
       operationId: "multipleMediaType"
@@ -78,7 +115,7 @@ paths:
             schema:
               type: string
               example: Hi there
-          x-www-form-urlencoded:
+          application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/Dog'
           multipart/form-data:
@@ -383,25 +420,6 @@ paths:
       responses:
         '200':
           description: ok!
-  "/primitiveBody/binary":
-    post:
-      x-swagger-router-controller: TestController
-      operationId: binaryBody
-      requestBody:
-        content:
-          application/octet-stream:
-            schema:
-              type: string
-              format: binary
-        required: false
-      responses:
-        '200':
-          description: ok!
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
   "/hidden":
     get:
       x-inflector-hidden: true

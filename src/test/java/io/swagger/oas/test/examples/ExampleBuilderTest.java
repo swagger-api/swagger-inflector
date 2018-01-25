@@ -40,6 +40,7 @@ import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.media.XML;
 
 
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.oas.test.models.User;
 import io.swagger.v3.core.util.Json;
@@ -716,8 +717,8 @@ public class ExampleBuilderTest {
                 "  \"key\" : \"key\",\n" +
                 "  \"additionalProperty\" : \"string\"\n" +
                 "}");
-
     }
+
 
     @Test
     public void resolveComposedOneOfRefSchema(@Injectable List<AuthorizationValue> auth){

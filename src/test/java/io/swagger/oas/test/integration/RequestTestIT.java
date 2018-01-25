@@ -20,6 +20,7 @@ import io.swagger.oas.test.client.ApiClient;
 import io.swagger.oas.test.client.ApiException;
 import io.swagger.oas.test.models.Address;
 import io.swagger.oas.test.models.ExtendedAddress;
+import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -28,7 +29,11 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import java.io.File;
 import java.net.HttpURLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -158,6 +163,8 @@ public class RequestTestIT {
         assertEquals(str, "\"string\"");
     }
 
+
+
     @Test
     public void verifyStringPostBodyWithJsonContentType() throws Exception {
         client.setDebugging(true);
@@ -174,9 +181,51 @@ public class RequestTestIT {
 
         String path = "/primitiveBody/binary";
 
-        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), new byte[]{42, 0, 1}, new
+        byte[] bytes = new byte[]{42, 0, 1};
+        Path filePath = Paths.get("src/test/swagger/testFile.txt");
+        Files.write(filePath, bytes);
+        File file = filePath.toFile();
+
+        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), file, new
                 HashMap<String, String>(), null, MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_OCTET_STREAM, new String[0]);
         assertEquals(str.getBytes(), new byte[]{42, 0, 1});
+    }
+
+
+    @Test
+    public void verifyTextPlainMediaTypeBody() throws Exception {
+        client.setDebugging(true);
+
+        String path = "/multipleMediaType";
+
+        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), "string", new HashMap<String, String>(), null, "text/plain", "text/plain", new String[0]);
+        assertEquals(str, "");
+    }
+
+    @Test
+    public void verifyMultipleMediaTypeBody() throws Exception {
+
+
+        MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
+
+        formData.add("id","1");
+        formData.add("name","coky");
+        formData.add("dogType","chiguagua");
+
+        String path = "/multipleMediaType";
+
+        String str = client.invokeAPI(
+                path,               // path
+                "POST",             // method
+                new HashMap<>(),  // query
+                null,               // body
+                new HashMap<String, String>(), // header
+                Entity.form(formData),         // form
+                "application/json", // accept
+                "application/x-www-form-urlencoded",  // contentType
+                new String[0]);
+
+        assertEquals(str, "{\"id\":1,\"name\":\"coky\"}");
     }
 
     @Test
