@@ -183,10 +183,14 @@ public class RequestTestIT {
 
         String path = "/primitiveBody/binary";
 
-        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), new byte[]{42, 0, 1}, new
+        byte[] initialArray = new byte[]{42, 0, 1};
+        InputStream targetStream = new ByteArrayInputStream(initialArray);
+
+        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), targetStream, new
                 HashMap<String, String>(), null, MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_OCTET_STREAM, new String[0]);
         assertEquals(str.getBytes(), new byte[]{42, 0, 1});
     }
+
 
 
 

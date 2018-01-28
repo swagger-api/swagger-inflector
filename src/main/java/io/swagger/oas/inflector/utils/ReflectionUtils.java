@@ -143,39 +143,43 @@ public class ReflectionUtils {
     }
 
     public JavaType[] getTypeFromRequestBody(RequestBody body, String mediaType , Map<String, Schema> definitions ){
+
         JavaType[] jt = null;
         TypeFactory tf = Json.mapper().getTypeFactory();
         int i = 0;
         if (body.getContent() != null) {
             Map<String,MediaType> content   = body.getContent();
-            Schema model = content.get(mediaType).getSchema();
-            if (mediaType.equals("multipart/form-data") || mediaType.equals("application/x-www-form-urlencoded")) {
-                if (model.getProperties() != null) {
-                    Map<String, Schema> properties = model.getProperties();
-                    jt = new JavaType[properties.size()];
-                    for (String key : properties.keySet()) {
-                        Schema property = properties.get(key);
-                        JavaType javaType = getTypeFromProperty(property.getType(), property.getFormat(), property, definitions);
-                        if (javaType != null) {
-                            jt[i] = javaType;
+            if (mediaType != null) {
+                Schema model = content.get(mediaType).getSchema();
+                if (mediaType.equals("multipart/form-data") || mediaType.equals("application/x-www-form-urlencoded")) {
+                    if (model.getProperties() != null) {
+                        Map<String, Schema> properties = model.getProperties();
+                        jt = new JavaType[properties.size()];
+                        for (String key : properties.keySet()) {
+                            Schema property = properties.get(key);
+                            JavaType javaType = getTypeFromProperty(property.getType(), property.getFormat(), property, definitions);
+                            if (javaType != null) {
+                                jt[i] = javaType;
+                            }
+                            i++;
                         }
-                        i++;
+                        return jt;
                     }
-                    return jt;
-                }
-            }else {
-                jt = new JavaType[1];
-                JavaType javaType = getTypeFromModel("", model, definitions);
-                if (javaType != null) {
-                    if (javaType.isTypeOrSubTypeOf(File.class) && mediaType.equals("application/octet-stream")){
-                        javaType = tf.constructType(byte[].class);
+                } else {
+                    jt = new JavaType[1];
+                    JavaType javaType = getTypeFromModel("", model, definitions);
+                    if (javaType != null) {
+                        if (javaType.isTypeOrSubTypeOf(File.class) && mediaType.equals("application/octet-stream")) {
+                            javaType = tf.constructType(byte[].class);
+                        }
+                        jt[i] = javaType;
                     }
-                    jt[i] = javaType;
                 }
             }
         }
 
         return jt;
+        
     }
 
 
