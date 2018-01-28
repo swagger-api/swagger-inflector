@@ -278,6 +278,9 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                 io.swagger.v3.oas.models.media.MediaType mediaType = content.get(key);
                                 if (mediaType.getSchema() != null) {
                                     validate(argument, mediaType.getSchema(), SchemaValidator.Direction.INPUT);
+                                    if (mediaType.equals(mt)){
+                                        break;
+                                    }
                                 }
                             }
 

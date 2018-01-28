@@ -41,7 +41,7 @@ import io.swagger.v3.oas.models.media.UUIDSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.core.util.Json;
-import io.swagger.v3.parser.util.SchemaTypeUtil;
+
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -51,7 +51,9 @@ import org.slf4j.LoggerFactory;
 
 
 import java.io.File;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 public class ReflectionUtils {
@@ -142,6 +144,7 @@ public class ReflectionUtils {
 
     public JavaType[] getTypeFromRequestBody(RequestBody body, String mediaType , Map<String, Schema> definitions ){
         JavaType[] jt = null;
+        TypeFactory tf = Json.mapper().getTypeFactory();
         int i = 0;
         if (body.getContent() != null) {
             Map<String,MediaType> content   = body.getContent();
@@ -162,7 +165,13 @@ public class ReflectionUtils {
                 }
             }else {
                 jt = new JavaType[1];
-                jt[i] = getTypeFromModel("", model, definitions);
+                JavaType javaType = getTypeFromModel("", model, definitions);
+                if (javaType != null) {
+                    if (javaType.isTypeOrSubTypeOf(File.class) && mediaType.equals("application/octet-stream")){
+                        javaType = tf.constructType(byte[].class);
+                    }
+                    jt[i] = javaType;
+                }
             }
         }
 

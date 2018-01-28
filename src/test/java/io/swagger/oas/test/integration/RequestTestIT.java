@@ -29,7 +29,9 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -181,26 +183,11 @@ public class RequestTestIT {
 
         String path = "/primitiveBody/binary";
 
-        byte[] bytes = new byte[]{42, 0, 1};
-        Path filePath = Paths.get("src/test/swagger/testFile.txt");
-        Files.write(filePath, bytes);
-        File file = filePath.toFile();
-
-        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), file, new
+        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), new byte[]{42, 0, 1}, new
                 HashMap<String, String>(), null, MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_OCTET_STREAM, new String[0]);
         assertEquals(str.getBytes(), new byte[]{42, 0, 1});
     }
 
-    /*@Test
-    public void verifyBinaryPostBody() throws Exception {
-        client.setDebugging(true);
-
-        String path = "/primitiveBody/binary";
-
-        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), new byte[]{42, 0, 1}, new
-                HashMap<String, String>(), null, MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_OCTET_STREAM, new String[0]);
-        assertEquals(str.getBytes(), new byte[]{42, 0, 1});
-    }*/
 
 
     @Test
