@@ -309,7 +309,12 @@ public class ExampleBuilder {
             }
         } else if (property instanceof ArraySchema) {
             if (example != null) {
-                output = new ArrayExample();
+                try {
+                    output = Json.mapper().readValue(example.toString(), ArrayExample.class);
+                } catch (IOException e) {
+                    LOGGER.error("unable to convert `" + example + "` to JsonNode");
+                    output = new ArrayExample();
+                }
             }
             else {
                 ArraySchema ap = (ArraySchema) property;
