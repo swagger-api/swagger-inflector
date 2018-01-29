@@ -577,6 +577,20 @@ public class ExampleBuilderTest {
     }
 
     @Test
+    public void testInlinedArrayExample() throws Exception {
+        Swagger swagger = new SwaggerParser().read("src/test/swagger/array-example.yaml");
+
+        String output = getExampleForPath(swagger, "/");
+        assertEqualsIgnoreLineEnding(output, "[ {\n" +
+                "  \"id\" : 1,\n" +
+                "  \"name\" : \"Arthur Dent\"\n" +
+                "}, {\n" +
+                "  \"id\" : 2,\n" +
+                "  \"name\" : \"Ford Prefect\"\n" +
+                "} ]");
+    }
+
+    @Test
     public void testIssue1263SchemaExampleNestedObjects() throws Exception {
         Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-1263.yaml");
 
