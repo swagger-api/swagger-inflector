@@ -1,0 +1,32 @@
+openapi: 3.0.0
+info:
+  version: 0.0.0
+  title: Array mock test
+paths:
+  /:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+                example:
+                  - id: 1
+                    name: Arthur Dent
+                  - id: 2
+                    name: Ford Prefect
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 0
+        name:
+          type: string
+          example: Marvin

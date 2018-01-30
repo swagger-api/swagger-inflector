@@ -17,6 +17,7 @@
 package io.swagger.oas.test.examples;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import io.swagger.models.Swagger;
 import io.swagger.oas.inflector.examples.ExampleBuilder;
 import io.swagger.oas.inflector.examples.XmlExampleSerializer;
 import io.swagger.oas.inflector.examples.models.AbstractExample;
@@ -28,6 +29,7 @@ import io.swagger.oas.inflector.examples.models.StringExample;
 import io.swagger.oas.inflector.processors.JsonExampleDeserializer;
 import io.swagger.oas.inflector.processors.JsonNodeExampleSerializer;
 
+import io.swagger.parser.SwaggerParser;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
@@ -625,6 +627,23 @@ public class ExampleBuilderTest {
 
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "[ \"string\" ]");
+    }
+
+    @Test
+    public void testInlinedArrayExample() throws Exception {
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/array-example.yaml");
+
+        ApiResponse response = openAPI.getPaths().get("/").getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas());
+
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "[ {\n" +
+                "  \"id\" : 1,\n" +
+                "  \"name\" : \"Arthur Dent\"\n" +
+                "}, {\n" +
+                "  \"id\" : 2,\n" +
+                "  \"name\" : \"Ford Prefect\"\n" +
+                "} ]");
     }
 
     @Test
