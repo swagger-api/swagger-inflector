@@ -77,4 +77,45 @@ public class FileUploadTestIT {
             }
         }
     }
+
+    @Test
+    public void verifyMultipleMediaTypeFileUpload() throws Exception {
+        File file = null;
+        try {
+            String path = "/multipleMediaType";
+            file = File.createTempFile("inflector-test2-", ".tmp");
+
+            PrintWriter writer = new PrintWriter(file);
+            writer.println("The first line");
+            writer.println("The second line");
+            writer.close();
+
+            file = new File(file.getPath());
+
+            final FileDataBodyPart filePart = new FileDataBodyPart("file", file);
+
+            final MultiPart multipart = new FormDataMultiPart()
+                    .field("description", "foo")
+                    .bodyPart(filePart);
+
+            Entity<?> formParams = Entity.entity(multipart, MediaType.MULTIPART_FORM_DATA_TYPE);
+
+            String str = client.invokeAPI(
+                    path,                           // path
+                    "POST",                         // method
+                    new HashMap<>(),  // query params
+                    null,                           // body
+                    new HashMap<>(),  // header params
+                    formParams,                     // form params
+                    "multipart/form-data",          // accept
+                    "multipart/form-data",                           // content-type
+                    new String[0]);                 // auth names
+            assertEquals(str, "foo: " + file.length());
+        }
+        finally {
+            if(file != null) {
+                file.delete();
+            }
+        }
+    }
 }

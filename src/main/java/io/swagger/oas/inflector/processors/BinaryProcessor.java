@@ -36,6 +36,8 @@ public class BinaryProcessor implements EntityProcessor {
 
     static {
         SUPPORTED_TYPES.add(MediaType.APPLICATION_OCTET_STREAM_TYPE);
+        /*SUPPORTED_TYPES.add(MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        SUPPORTED_TYPES.add(MediaType.MULTIPART_FORM_DATA_TYPE);*/
     }
 
     @Override
