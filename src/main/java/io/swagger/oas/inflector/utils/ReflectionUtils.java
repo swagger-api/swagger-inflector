@@ -85,7 +85,7 @@ public class ReflectionUtils {
         TypeFactory tf = Json.mapper().getTypeFactory();
 
         if (operation.getParameters() == null){
-            operation.setParameters(new ArrayList<Parameter>());
+            operation.setParameters(new ArrayList<>());
         }
         int body = 0;
         JavaType[] bodyArgumentClasses = null;
@@ -117,35 +117,9 @@ public class ReflectionUtils {
         return jt;
     }
 
-    public JavaType[] getOperationRequestBodyClasses(Operation operation, String mediaType, Map<String, Schema> definitions) {
-        TypeFactory tf = Json.mapper().getTypeFactory();
-
-        if (operation.getRequestBody() != null) {
-            JavaType[] argumentClasses = getTypeFromRequestBody(operation.getRequestBody(), mediaType ,definitions);
-            if (argumentClasses != null) {
-                JavaType[] jt = new JavaType[argumentClasses.length + 1];
-                int i = 0;
-                jt[i] = tf.constructType(RequestContext.class);
-
-                i += 1;
-
-                for (JavaType argument :argumentClasses) {
-                    jt[i] = argument;
-                    i += 1;
-                }
-
-                return jt;
-            }
-        }
-
-        return  null;
-
-    }
-
     public JavaType[] getTypeFromRequestBody(RequestBody body, String mediaType , Map<String, Schema> definitions ){
 
         JavaType[] jt = null;
-        TypeFactory tf = Json.mapper().getTypeFactory();
         int i = 0;
         if (body.getContent() != null) {
             Map<String,MediaType> content   = body.getContent();
@@ -169,17 +143,18 @@ public class ReflectionUtils {
                     jt = new JavaType[1];
                     JavaType javaType = getTypeFromModel("", model, definitions);
                     if (javaType != null) {
-                        if (javaType.isTypeOrSubTypeOf(File.class) && mediaType.equals("application/octet-stream")) {
-                            javaType = tf.constructType(byte[].class);
-                        }
                         jt[i] = javaType;
                     }
                 }
             }
         }
-
         return jt;
-        
+    }
+
+
+    public JavaType updateArgumentClass(Class<?> methodArg) {
+        TypeFactory tf = Json.mapper().getTypeFactory();
+        return tf.constructType(methodArg);
     }
 
 
@@ -200,16 +175,12 @@ public class ReflectionUtils {
                 }
             }
         }
-
         return null;
     }
 
 
-
-
     public JavaType getTypeFromProperty(String type, String format, Schema property, Map<String, Schema> definitions) {
         TypeFactory tf = Json.mapper().getTypeFactory();
-
 
         if(property instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema)property;
@@ -270,7 +241,7 @@ public class ReflectionUtils {
             return tf.constructType(UUID.class);
         }
         if(("string".equals(type)) && ("binary".equals(format)) || property instanceof FileSchema) {
-            return tf.constructType(File.class);
+            return tf.constructType(InputStream.class);
         }
         if(("integer".equals(type) && "int32".equals(format)) && property instanceof IntegerSchema) {
             return tf.constructType(Integer.class);
@@ -299,7 +270,6 @@ public class ReflectionUtils {
                     return modelType;
                 }
             }
-
             return tf.constructType(JsonNode.class);
         }
         return null;

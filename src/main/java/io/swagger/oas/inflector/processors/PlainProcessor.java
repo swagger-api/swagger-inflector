@@ -1,6 +1,7 @@
 package io.swagger.oas.inflector.processors;
 
 import com.fasterxml.jackson.databind.JavaType;
+import io.swagger.oas.inflector.controllers.OpenAPIOperationController;
 import io.swagger.oas.inflector.converters.ConversionException;
 import io.swagger.oas.inflector.validators.ValidationError;
 import io.swagger.oas.inflector.validators.ValidationMessage;
@@ -15,11 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlainProcessor implements EntityProcessor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BinaryProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PlainProcessor.class);
     private static List<MediaType> SUPPORTED_TYPES = new ArrayList<>();
 
     static {
-        SUPPORTED_TYPES.add(MediaType.TEXT_XML_TYPE);
         SUPPORTED_TYPES.add(MediaType.TEXT_PLAIN_TYPE);
     }
 
@@ -42,6 +42,9 @@ public class PlainProcessor implements EntityProcessor {
     public boolean supports(MediaType mediaType) {
         return SUPPORTED_TYPES.contains(mediaType);
     }
+
+    @Override
+    public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls, OpenAPIOperationController controller) throws ConversionException { return null;}
 
     @Override
     public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls) throws ConversionException {

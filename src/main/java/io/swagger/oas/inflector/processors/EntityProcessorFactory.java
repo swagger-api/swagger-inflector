@@ -16,7 +16,9 @@
 
 package io.swagger.oas.inflector.processors;
 
+import io.swagger.oas.inflector.controllers.OpenAPIOperationController;
 import io.swagger.oas.inflector.converters.ConversionException;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +60,15 @@ public class EntityProcessorFactory {
         for (EntityProcessor p : getProcessors()) {
             if (p.supports(mediaType)) {
                 return p.process(mediaType, entityStream, class1);
+            }
+        }
+        return null;
+    }
+
+    public static Object readValue(MediaType mediaType, InputStream entityStream, Class<?> class1, OpenAPIOperationController controller) throws ConversionException {
+        for (EntityProcessor p : getProcessors()) {
+            if (p.supports(mediaType)) {
+                return p.process(mediaType, entityStream, class1, controller);
             }
         }
         return null;
