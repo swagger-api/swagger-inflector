@@ -28,6 +28,7 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.fileupload.MultipartStream;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -87,15 +88,9 @@ public class BinaryProcessor implements EntityProcessor {
 
     @Override
     public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls) throws ConversionException {
-        try {
+
             return null;
-        } catch (Exception e) {
-            LOGGER.trace("unable to extract entity from content-type `" + mediaType, e);
-            throw new ConversionException()
-                    .message(new ValidationMessage()
-                            .code(ValidationError.UNACCEPTABLE_VALUE)
-                            .message("unable to convert input to " + cls.getCanonicalName()));
-        }
+
     }
 
     @Override
@@ -110,14 +105,22 @@ public class BinaryProcessor implements EntityProcessor {
         try {
             if (mediaType.equals(MediaType.APPLICATION_OCTET_STREAM_TYPE)) {
 
-                //TODO validate also here what javatype its expected as parameter
+                //TODO validate also here what JavaType its expected as parameter
                 JavaType[] parameters = controller.getParameterClasses();
                 for (int i = 0; i < parameters.length; i++) {
                     //validate if its File, byte[] or inputStream and change it to the implemented method
                     if (parameters[i].getRawClass().equals(InputStream.class)){
 
+                        argument = new ByteArrayInputStream(IOUtils.toByteArray(entityStream));
 
                     }else if (parameters[i].getRawClass().equals(File.class)) {
+
+                        File file = File.createTempFile("inflector", ".tmp");
+                        file.deleteOnExit();
+
+                        FileUtils.copyInputStreamToFile(entityStream, file);
+
+                        argument = file;
 
                     }else if (parameters[i].getRawClass().equals(byte[].class)){
                         
@@ -136,7 +139,7 @@ public class BinaryProcessor implements EntityProcessor {
 
                 if (boundary != null) {
                     try {
-                        InputStream inputStream = entityStream;//ctx.getEntityStream();
+                        InputStream inputStream = entityStream;
 
                         MultipartStream multipartStream = new MultipartStream(inputStream, boundary.getBytes());
                         boolean nextPart = multipartStream.skipPreamble();
@@ -217,46 +220,44 @@ public class BinaryProcessor implements EntityProcessor {
                 }
                 try {
                     if (controller.getOperation().getRequestBody().getContent() != null) {
+                        io.swagger.v3.oas.models.media.MediaType media = controller.getOperation().getRequestBody().getContent().get(MediaType.MULTIPART_FORM_DATA);
+                        if (media.getSchema() != null ) {
+                            Schema schema = media.getSchema();
+                            // look in the form map
+                            if (schema.getProperties() != null) {
+                                Map<String, Schema> properties = schema.getProperties();
+                                for (String key : properties.keySet()) {
+                                    headers = formMap.get(key);
+                                    if (headers != null && headers.size() > 0) {
 
-                        //for (String mediaTypeKey : controller.getOperation().getRequestBody().getContent().keySet()) {
-                            io.swagger.v3.oas.models.media.MediaType media = controller.getOperation().getRequestBody().getContent().get(MediaType.MULTIPART_FORM_DATA);
-                            if (media.getSchema() != null ) {
-                                Schema schema = media.getSchema();
-                                // look in the form map
-                                if (schema.getProperties() != null) {
-                                    Map<String, Schema> properties = schema.getProperties();
-                                    for (String key : properties.keySet()) {
-                                        headers = formMap.get(key);
-                                        if (headers != null && headers.size() > 0) {
+                                        if ("binary".equals(properties.get(key).getFormat())) {
+                                            argument = inputStreams.get(key);
 
-                                            if ("binary".equals(properties.get(key).getFormat())) {
-                                                argument = inputStreams.get(key);
+                                        } else {
+                                            Object obj = headers.get(key);
 
-                                            } else {
-                                                Object obj = headers.get(key);
+                                            if (obj != null) {
+                                                JavaType jt = controller.getParameterClasses()[i];
+                                                cls = jt.getRawClass();
 
-                                                if (obj != null) {
-                                                    JavaType jt = controller.getParameterClasses()[i];
-                                                    cls = jt.getRawClass();
-
-                                                    List<String> stringHeaders = Arrays.asList(obj.toString());
-                                                    try {
-                                                        argument = controller.getValidator().convertAndValidate(stringHeaders, controller.getOperation().getRequestBody(), cls, controller.getDefinitions());
-                                                    } catch (ConversionException e) {
-                                                        missingParams.add(e.getError());
-                                                    } catch (ValidationException e) {
-                                                        missingParams.add(e.getValidationMessage());
-                                                    }
+                                                List<String> stringHeaders = Arrays.asList(obj.toString());
+                                                try {
+                                                    argument = controller.getValidator().convertAndValidate(stringHeaders, controller.getOperation().getRequestBody(), cls, controller.getDefinitions());
+                                                } catch (ConversionException e) {
+                                                    missingParams.add(e.getError());
+                                                } catch (ValidationException e) {
+                                                    missingParams.add(e.getValidationMessage());
                                                 }
                                             }
                                         }
-                                        args[i] = argument;
-                                        argument = null;
-                                        i += 1;
                                     }
+                                    args[i] = argument;
+                                    argument = null;
+                                    i += 1;
                                 }
-                           }
-                        //}
+                            }
+                       }
+
                    }
                 } catch (NumberFormatException e) {
                     LOGGER.error("Couldn't find body ( ) to " + controller.getParameterClasses()[i], e);
@@ -280,51 +281,51 @@ public class BinaryProcessor implements EntityProcessor {
                     e.printStackTrace();
                 }
 
-                //for (String mediaTypeKey : controller.getOperation().getRequestBody().getContent().keySet()) {
-                    io.swagger.v3.oas.models.media.MediaType media = controller.getOperation().getRequestBody().getContent().get(mediaType.APPLICATION_FORM_URLENCODED);
-                    if (formDataString != null) {
-                        if (media.getSchema() != null ) {
-                            Schema schema = media.getSchema();
-                            if (schema.getProperties() != null) {
-                                Map<String, Schema> properties = schema.getProperties();
-                                for (String property : properties.keySet()) {
-                                    for (String part : parts) {
-                                        String[] kv = part.split("=");
 
-                                        if (kv != null) {
-                                            if (kv.length > 0) {
-                                                existingKeys.remove(kv[0] + ": fp");
-                                            }
-                                            if (kv.length == 2) {
-                                                String key = kv[0];
-                                                try {
-                                                    String value = URLDecoder.decode(kv[1], "utf-8");
-                                                    if (property.equals(key)) {
-                                                        JavaType jt = controller.getParameterClasses()[i];
-                                                        cls = jt.getRawClass();
-                                                        try {
-                                                            argument = controller.getValidator().convertAndValidate(Arrays.asList(value), controller.getOperation().getRequestBody(), cls, controller.getDefinitions());
-                                                            args[i] = argument;
-                                                            argument = null;
-                                                            i += 1;
-                                                        } catch (ConversionException e) {
-                                                            missingParams.add(e.getError());
-                                                        } catch (ValidationException e) {
-                                                            missingParams.add(e.getValidationMessage());
-                                                        }
+                io.swagger.v3.oas.models.media.MediaType media = controller.getOperation().getRequestBody().getContent().get(mediaType.APPLICATION_FORM_URLENCODED);
+                if (formDataString != null) {
+                    if (media.getSchema() != null ) {
+                        Schema schema = media.getSchema();
+                        if (schema.getProperties() != null) {
+                            Map<String, Schema> properties = schema.getProperties();
+                            for (String property : properties.keySet()) {
+                                for (String part : parts) {
+                                    String[] kv = part.split("=");
+
+                                    if (kv != null) {
+                                        if (kv.length > 0) {
+                                            existingKeys.remove(kv[0] + ": fp");
+                                        }
+                                        if (kv.length == 2) {
+                                            String key = kv[0];
+                                            try {
+                                                String value = URLDecoder.decode(kv[1], "utf-8");
+                                                if (property.equals(key)) {
+                                                    JavaType jt = controller.getParameterClasses()[i];
+                                                    cls = jt.getRawClass();
+                                                    try {
+                                                        argument = controller.getValidator().convertAndValidate(Arrays.asList(value), controller.getOperation().getRequestBody(), cls, controller.getDefinitions());
+                                                        args[i] = argument;
+                                                        argument = null;
+                                                        i += 1;
+                                                    } catch (ConversionException e) {
+                                                        missingParams.add(e.getError());
+                                                    } catch (ValidationException e) {
+                                                        missingParams.add(e.getValidationMessage());
                                                     }
-                                                } catch (UnsupportedEncodingException e) {
-                                                    LOGGER.error("unable to decode value for " + key);
                                                 }
+                                            } catch (UnsupportedEncodingException e) {
+                                                LOGGER.error("unable to decode value for " + key);
                                             }
                                         }
                                     }
                                 }
-
                             }
+
                         }
                     }
-                //}
+                }
+
                 return args;
             }
         } catch (Exception e) {

@@ -194,7 +194,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                             boolean matched = true;
                             for (int i = 0; i < methodArgs.length; i++) {
                                 if (!args[i].getRawClass().equals(methodArgs[i])) {
-                                    //validate if its File, byte[] or inputStream and change it to the implemented method
+                                    //validate if its InputStream and change it to the implemented method in Controller
                                     if (args[i].getRawClass().equals(InputStream.class)){
                                         args[i] = updateArgumentClass(methodArgs[i]);
                                     }else {
@@ -351,18 +351,15 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                             i += 1;
                         }
                     }else {
-                        //if (cls.equals(File.class) || cls.equals(InputStream.class)|| cls.equals(byte[].class)){
-                            argument = new BinaryProcessor().process(ctx.getMediaType(), ctx.getEntityStream(), cls, this);
-                            
-                            if (argument instanceof Object[]){
-                                Object[] args2 = (Object[]) argument;
-                                args2[0]= args[0];
-                                args = args2;
-                            }else {
-                                args[i] = argument;
-                            }
+                        argument = new BinaryProcessor().process(ctx.getMediaType(), ctx.getEntityStream(), cls, this);
 
-                        //}
+                        if (argument instanceof Object[]){
+                            Object[] args2 = (Object[]) argument;
+                            args2[0]= args[0];
+                            args = args2;
+                        }else {
+                            args[i] = argument;
+                        }
                     }
                 } catch (ConversionException e) {
                     missingParams.add(e.getError());

@@ -143,7 +143,7 @@ public class TestController {
         return new ResponseContext().status(200).entity(body);
     }
 
-    public ResponseContext binaryBody(RequestContext request,  byte[] content) {
+    public ResponseContext binaryBody(RequestContext request,  File content) {
         return new ResponseContext().status(200).entity(content);
     }
 

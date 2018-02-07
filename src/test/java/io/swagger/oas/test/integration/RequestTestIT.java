@@ -20,6 +20,8 @@ import io.swagger.oas.test.client.ApiClient;
 import io.swagger.oas.test.client.ApiException;
 import io.swagger.oas.test.models.Address;
 import io.swagger.oas.test.models.ExtendedAddress;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -29,7 +31,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -171,17 +175,52 @@ public class RequestTestIT {
     }
 
     @Test
-    public void verifyBinaryPostBody() throws Exception {
+    public void verifyBinaryBytePostBody() throws Exception {
+        client.setDebugging(true);
+
+        String path = "/primitiveBody/binary";
+
+        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), new byte[]{42, 0, 1} , new
+                HashMap<String, String>(), null, MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_OCTET_STREAM, new String[0]);
+
+        assertEquals(str.getBytes(), new byte[]{42, 0, 1} );
+    }
+
+    @Test
+    public void verifyBinaryStreamPostBody() throws Exception {
         client.setDebugging(true);
 
         String path = "/primitiveBody/binary";
 
         byte[] initialArray = new byte[]{42, 0, 1};
-        InputStream targetStream = new ByteArrayInputStream(initialArray);
+        ByteArrayInputStream targetStream = new ByteArrayInputStream(initialArray);
 
-        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), targetStream, new
+        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), targetStream , new
                 HashMap<String, String>(), null, MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_OCTET_STREAM, new String[0]);
+
         assertEquals(str.getBytes(), new byte[]{42, 0, 1});
+    }
+
+    @Test
+    public void verifyBinaryFilePostBody() throws Exception {
+        client.setDebugging(true);
+
+        String path = "/primitiveBody/binary";
+
+
+        File file = File.createTempFile("inflector-test2-", ".tmp");
+        PrintWriter writer = new PrintWriter(file);
+        writer.println("The first line");
+        writer.println("The second line");
+        writer.close();
+
+        file = new File(file.getPath());
+
+
+        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), file , new
+                HashMap<String, String>(), null, MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_OCTET_STREAM, new String[0]);
+
+        assertEquals(str, FileUtils.readFileToString(file,"utf-8"));
     }
 
 
