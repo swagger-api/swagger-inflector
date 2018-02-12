@@ -780,4 +780,22 @@ public class ExampleBuilderTest {
         Assert.assertNotNull(openAPI.getComponents().getSchemas().get("User"));
         Assert.assertTrue(openAPI.getPaths().get("/refToAllOf").getGet().getResponses().get("200").getContent().get("application/json").getSchema().getProperties().size() == 2);
     }
+
+    @Test
+    public void schemaExampleWithNullProperty(@Injectable final List<AuthorizationValue> auths) throws Exception {
+        ParseOptions options = new ParseOptions();
+        options.setResolve(true);
+        options.setResolveFully(true);
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/schemaExampleWithNullProperty.yaml",auths,options);
+
+        Assert.assertNotNull(openAPI);
+        ApiResponse apiResponse = openAPI.getPaths().get("/schemaExampleWithNullProperty").getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromSchema(apiResponse.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "{\n" +
+                "  \"prop1\" : null,\n" +
+                "  \"prop2\" : null,\n" +
+                "  \"prop3\" : null\n" +
+                "}");
+    }
 }
