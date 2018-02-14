@@ -399,7 +399,7 @@ paths:
       operationId: stringBody
       requestBody:
         content:
-          "application/yaml":
+          "*/*":
             schema:
               type: string
         required: false

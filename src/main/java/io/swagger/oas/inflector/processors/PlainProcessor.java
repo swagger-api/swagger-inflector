@@ -44,14 +44,16 @@ public class PlainProcessor implements EntityProcessor {
     }
 
     @Override
-    public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls, OpenAPIOperationController controller) throws ConversionException { return null;}
+    public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls, OpenAPIOperationController controller) throws ConversionException {
+        return process(mediaType,entityStream,cls);
+    }
 
     @Override
     public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls) throws ConversionException {
         try {
-            return IOUtils.toByteArray(entityStream);
+            return IOUtils.toString(entityStream);
         } catch (IOException e) {
-            LOGGER.trace("unable to extract entity from content-type `" + mediaType + "` to byte[]", e);
+            LOGGER.trace("unable to extract entity from content-type `" + mediaType + "` to String", e);
             throw new ConversionException()
                     .message(new ValidationMessage()
                             .code(ValidationError.UNACCEPTABLE_VALUE)
@@ -62,9 +64,9 @@ public class PlainProcessor implements EntityProcessor {
     @Override
     public Object process(MediaType mediaType, InputStream entityStream, JavaType javaType) {
         try {
-            return IOUtils.toByteArray(entityStream);
+            return IOUtils.toString(entityStream);
         } catch (IOException e) {
-            LOGGER.error("unable to extract entity from content-type `" + mediaType + "` to byte[]", e);
+            LOGGER.error("unable to extract entity from content-type `" + mediaType + "` to String", e);
         }
         return null;
     }

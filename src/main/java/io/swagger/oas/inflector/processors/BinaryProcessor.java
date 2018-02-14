@@ -82,14 +82,18 @@ public class BinaryProcessor implements EntityProcessor {
 
     @Override
     public boolean supports(MediaType mediaType) {
-        return SUPPORTED_TYPES.contains(mediaType);
+        for (MediaType item : SUPPORTED_TYPES) {
+            if (item.isCompatible(mediaType) && !mediaType.isWildcardType()) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
     @Override
     public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls) throws ConversionException {
-
-            return null;
+        throw new UnsupportedOperationException();
 
     }
 
@@ -105,7 +109,6 @@ public class BinaryProcessor implements EntityProcessor {
         try {
             if (mediaType.equals(MediaType.APPLICATION_OCTET_STREAM_TYPE)) {
 
-                //TODO validate also here what JavaType its expected as parameter
                 JavaType[] parameters = controller.getParameterClasses();
                 for (int i = 0; i < parameters.length; i++) {
                     //validate if its File, byte[] or inputStream and change it to the implemented method

@@ -281,7 +281,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         }
 
 
-        MediaType mt = requestContext.getMediaType();
+        MediaType mediaType = requestContext.getMediaType();
         Object argument = null;
 
         if (parameters != null && parameters.size() > 0) {
@@ -330,36 +330,43 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     cls  = jt.getRawClass();
                 }
                 try {
-                    argument = EntityProcessorFactory.readValue(ctx.getMediaType(), ctx.getEntityStream(), cls);
+                    argument = EntityProcessorFactory.readValue(mediaType, ctx.getEntityStream(), cls,this);
+
                     if (argument != null) {
-                        if (body.getContent() != null) {
-                            Content content = body.getContent();
-                            for (String key : content.keySet()) {
-                                io.swagger.v3.oas.models.media.MediaType mediaType = content.get(key);
-                                if (mediaType.getSchema() != null) {
-                                    validate(argument, mediaType.getSchema(), SchemaValidator.Direction.INPUT);
-                                    if (mediaType.equals(mt)){
-                                        break;
+                        if (mediaType.isCompatible(MediaType.APPLICATION_FORM_URLENCODED_TYPE) ||
+                                mediaType.isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE) ||
+                                mediaType.isCompatible(MediaType.APPLICATION_OCTET_STREAM_TYPE)){
+
+                            if (argument instanceof Object[]){
+                                Object[] args2 = (Object[]) argument;
+                                args2[0]= args[0];
+                                args = args2;
+                            }else {
+                                args[i] = argument;
+                            }
+                        }else {
+                            if (body.getContent() != null) {
+                                Content content = body.getContent();
+                                io.swagger.v3.oas.models.media.MediaType media = content.get(mediaType.toString());
+
+                                if (media == null){
+                                    media = content.get(MediaType.WILDCARD);
+                                }
+
+                                if (media != null) {
+                                    if (media.getSchema() != null) {
+                                        validate(argument, media.getSchema(), SchemaValidator.Direction.INPUT);
                                     }
                                 }
+
+                                if (parameters == null || parameters.size() == 0) {
+                                    args[i] = argument;
+                                    i += 1;
+                                }
+
                             }
-
                         }
 
-                        if (parameters == null || parameters.size() == 0) {
-                            args[i] = argument;
-                            i += 1;
-                        }
-                    }else {
-                        argument = new BinaryProcessor().process(ctx.getMediaType(), ctx.getEntityStream(), cls, this);
-
-                        if (argument instanceof Object[]){
-                            Object[] args2 = (Object[]) argument;
-                            args2[0]= args[0];
-                            args = args2;
-                        }else {
-                            args[i] = argument;
-                        }
                     }
                 } catch (ConversionException e) {
                     missingParams.add(e.getError());
@@ -540,9 +547,9 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                         examples = response.getContent().get(acceptable).getExamples();
                                     }
                                     if (examples != null && examples.size() > 0) {
-                                        for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
+                                        for (MediaType key : requestContext.getAcceptableMediaTypes()) {
                                             MediaType media = MediaType.valueOf(acceptable);
-                                            if (media.isCompatible(mediaType)) {
+                                            if (media.isCompatible(key)) {
                                                 if (exampleProcessorList != null && exampleProcessorList.size() > 0) {
                                                     for (String mode : exampleProcessorList) {
                                                         if (mode.equals(RANDOM_EXAMPLE)) {
@@ -568,8 +575,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                     }
                                     output = ExampleBuilder.fromSchema(response.getContent().get(acceptable).getSchema(), definitions);
                                 }else{
-                                    for (String mediaType: response.getContent().keySet()) {
-                                        output = ExampleBuilder.fromSchema(response.getContent().get(mediaType).getSchema(), definitions);
+                                    for (String media: response.getContent().keySet()) {
+                                        output = ExampleBuilder.fromSchema(response.getContent().get(media).getSchema(), definitions);
                                         break;
                                     }
                                 }
@@ -581,8 +588,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                     examples = response.getContent().get(key).getExamples();
                                 }
                                 if (examples != null && examples.size() > 0) {
-                                    for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
-                                        if (MediaType.valueOf(key).isCompatible(mediaType)) {
+                                    for (MediaType media : requestContext.getAcceptableMediaTypes()) {
+                                        if (MediaType.valueOf(key).isCompatible(media)) {
                                             if (exampleProcessorList != null && exampleProcessorList.size() > 0) {
                                                 for (String mode : exampleProcessorList) {
                                                     if (mode.equals(RANDOM_EXAMPLE)) {
@@ -631,8 +638,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                     break;
                                 }
                                 for (MediaType mediaTypet : requestContext.getAcceptableMediaTypes()) {
-                                    LOGGER.debug("checking type " + mt.toString() + " against " + processor.getClass().getName());
-                                    if (processor.supports(mt)) {
+                                    LOGGER.debug("checking type " + mediaType.toString() + " against " + processor.getClass().getName());
+                                    if (processor.supports(mediaType)) {
                                         builder.type(mediaTypet);
                                         responseMediaType = mediaTypet;
                                         break;

@@ -91,7 +91,9 @@ public class JacksonProcessor implements EntityProcessor {
     }
 
     @Override
-    public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls, OpenAPIOperationController controller) throws ConversionException { return null;}
+    public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls, OpenAPIOperationController controller) throws ConversionException {
+        return process(mediaType,entityStream,cls);
+    }
 
     @Override
     public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls) throws ConversionException {
