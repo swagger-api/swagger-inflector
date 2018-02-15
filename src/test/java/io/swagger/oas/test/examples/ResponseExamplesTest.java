@@ -78,7 +78,7 @@ public class ResponseExamplesTest {
         Operation operation = openAPI.getPaths().get( "/mockResponses/responseWithExamples").getGet();
 
        OpenAPIOperationController controller = new OpenAPIOperationController(
-            config, "/mockResponses/responseWithExamples", "GET", operation, openAPI.getComponents().getSchemas() );
+            config, "/mockResponses/responseWithExamples", "GET", operation,"" ,openAPI.getComponents().getSchemas() );
 
         ContainerRequestContext requestContext = mock(ContainerRequestContext.class);
         UriInfo uriInfo = mock( UriInfo.class );
@@ -111,7 +111,7 @@ public class ResponseExamplesTest {
         Operation operation = openAPI.getPaths().get( "/mockResponses/responseWithExamples").getGet();
 
         OpenAPIOperationController controller = new OpenAPIOperationController(
-            config, "/mockResponses/responseWithExamples", "GET", operation, openAPI.getComponents().getSchemas());
+            config, "/mockResponses/responseWithExamples", "GET", operation,"" ,openAPI.getComponents().getSchemas());
 
         ContainerRequestContext requestContext = mock(ContainerRequestContext.class);
         UriInfo uriInfo = mock( UriInfo.class );
@@ -146,7 +146,7 @@ public class ResponseExamplesTest {
         Operation operation = openAPI.getPaths().get( "/mockResponses/objectMultipleExamples").getGet();
 
         OpenAPIOperationController controller = new OpenAPIOperationController(
-                config, "/mockResponses/objectMultipleExamples", "GET", operation, openAPI.getComponents().getSchemas() );
+                config, "/mockResponses/objectMultipleExamples", "GET", operation,"" ,openAPI.getComponents().getSchemas() );
 
         ContainerRequestContext requestContext = mock(ContainerRequestContext.class);
         UriInfo uriInfo = mock( UriInfo.class );
@@ -206,7 +206,7 @@ public class ResponseExamplesTest {
         Operation operation = openAPI.getPaths().get( "/mockResponses/objectMultipleExamples").getGet();
 
         OpenAPIOperationController controller = new OpenAPIOperationController(
-                config, "/mockResponses/objectMultipleExamples", "GET", operation, openAPI.getComponents().getSchemas() );
+                config, "/mockResponses/objectMultipleExamples", "GET", operation,"" ,openAPI.getComponents().getSchemas() );
 
         ContainerRequestContext requestContext = mock(ContainerRequestContext.class);
         UriInfo uriInfo = mock( UriInfo.class );
@@ -264,7 +264,7 @@ public class ResponseExamplesTest {
         Operation operation = openAPI.getPaths().get( "/mockResponses/objectMultipleExamples").getGet();
 
         OpenAPIOperationController controller = new OpenAPIOperationController(
-                config, "/mockResponses/objectMultipleExamples", "GET", operation, openAPI.getComponents().getSchemas() );
+                config, "/mockResponses/objectMultipleExamples", "GET",operation,"", openAPI.getComponents().getSchemas() );
 
         ContainerRequestContext requestContext = mock(ContainerRequestContext.class);
         UriInfo uriInfo = mock( UriInfo.class );
@@ -301,7 +301,7 @@ public class ResponseExamplesTest {
         Operation operation = openAPI.getPaths().get( "/mockResponses/objectMultipleExamples").getGet();
 
         OpenAPIOperationController controller = new OpenAPIOperationController(
-                config, "/mockResponses/objectMultipleExamples", "GET", operation, openAPI.getComponents().getSchemas() );
+                config, "/mockResponses/objectMultipleExamples", "GET", operation, "" ,openAPI.getComponents().getSchemas() );
 
         ContainerRequestContext requestContext = mock(ContainerRequestContext.class);
         UriInfo uriInfo = mock( UriInfo.class );
@@ -323,4 +323,5 @@ public class ResponseExamplesTest {
         assertNotNull( response.getEntity());
 
     }
+
 }

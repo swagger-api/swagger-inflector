@@ -1,6 +1,7 @@
 package io.swagger.oas.inflector.processors;
 
 import com.fasterxml.jackson.databind.JavaType;
+import io.swagger.oas.inflector.controllers.OpenAPIOperationController;
 import io.swagger.oas.inflector.converters.ConversionException;
 import io.swagger.oas.inflector.validators.ValidationError;
 import io.swagger.oas.inflector.validators.ValidationMessage;
@@ -15,11 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlainProcessor implements EntityProcessor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BinaryProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PlainProcessor.class);
     private static List<MediaType> SUPPORTED_TYPES = new ArrayList<>();
 
     static {
-        SUPPORTED_TYPES.add(MediaType.TEXT_XML_TYPE);
+        SUPPORTED_TYPES.add(MediaType.TEXT_PLAIN_TYPE);
     }
 
     @Override
@@ -43,11 +44,16 @@ public class PlainProcessor implements EntityProcessor {
     }
 
     @Override
+    public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls, OpenAPIOperationController controller) throws ConversionException {
+        return process(mediaType,entityStream,cls);
+    }
+
+    @Override
     public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls) throws ConversionException {
         try {
-            return IOUtils.toByteArray(entityStream);
+            return IOUtils.toString(entityStream);
         } catch (IOException e) {
-            LOGGER.trace("unable to extract entity from content-type `" + mediaType + "` to byte[]", e);
+            LOGGER.trace("unable to extract entity from content-type `" + mediaType + "` to String", e);
             throw new ConversionException()
                     .message(new ValidationMessage()
                             .code(ValidationError.UNACCEPTABLE_VALUE)
@@ -58,9 +64,9 @@ public class PlainProcessor implements EntityProcessor {
     @Override
     public Object process(MediaType mediaType, InputStream entityStream, JavaType javaType) {
         try {
-            return IOUtils.toByteArray(entityStream);
+            return IOUtils.toString(entityStream);
         } catch (IOException e) {
-            LOGGER.error("unable to extract entity from content-type `" + mediaType + "` to byte[]", e);
+            LOGGER.error("unable to extract entity from content-type `" + mediaType + "` to String", e);
         }
         return null;
     }

@@ -17,6 +17,7 @@
 package io.swagger.oas.inflector.controllers;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.io.Files;
 import io.swagger.models.parameters.FormParameter;
 import io.swagger.oas.inflector.config.Configuration;
@@ -30,6 +31,7 @@ import io.swagger.oas.inflector.examples.models.ObjectExample;
 import io.swagger.oas.inflector.models.ApiError;
 import io.swagger.oas.inflector.models.RequestContext;
 import io.swagger.oas.inflector.models.ResponseContext;
+import io.swagger.oas.inflector.processors.BinaryProcessor;
 import io.swagger.oas.inflector.processors.EntityProcessor;
 import io.swagger.oas.inflector.processors.EntityProcessorFactory;
 import io.swagger.oas.inflector.schema.SchemaValidator;
@@ -53,6 +55,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.glassfish.jersey.process.Inflector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +77,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
@@ -112,37 +116,117 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
     private Object controller = null;
     private Method method = null;
     private JavaType[] parameterClasses = null;
-    private JavaType[] requestBodyClasses = null;
     private Map<String, Schema> definitions;
     private InputConverter validator;
     private String controllerName;
     private String methodName;
     private String operationSignature;
+
     @Inject
     private Provider<Providers> providersProvider;
     @Inject
     private Provider<HttpServletRequest> requestProvider;
     private ControllerFactory controllerFactoryCache = null;
 
-    public OpenAPIOperationController(Configuration config, String path, String httpMethod, Operation operation, Map<String, Schema> definitions) {
+    public OpenAPIOperationController(Configuration config, String path, String httpMethod, Operation operation, String mediaType, Map<String, Schema> definitions) {
         this.setConfiguration(config);
         this.path = path;
         this.httpMethod = httpMethod;
         this.operation = operation;
         this.definitions = definitions;
         this.validator = InputConverter.getInstance();
-        this.method = detectMethod(operation);
+        this.method = detectMethod(operation, mediaType);
         if (method == null) {
             LOGGER.debug("no method `" + methodName + "` in `" + controllerName + "` to map to, using mock response");
         }
     }
 
-    public Method detectMethod(Operation operation) {
+    public Operation getOperation() {
+        return operation;
+    }
+
+    public Object getController() {
+        return controller;
+    }
+
+    public JavaType[] getParameterClasses() {
+        return parameterClasses;
+    }
+
+    public Map<String, Schema> getDefinitions() {
+        return definitions;
+    }
+
+    public InputConverter getValidator() {
+        return validator;
+    }
+
+    public Method detectMethod(Operation operation, String mediaType) {
         controllerName = getControllerName(operation);
         methodName = getMethodName(path, httpMethod, operation);
-        JavaType[] args = getOperationParameterClasses(operation, definitions);
-        JavaType[] args2 = getOperationRequestBodyClasses(operation, definitions);
+        JavaType[] args = getOperationParameterClasses(operation, mediaType ,definitions);
 
+        buildOperationSignature(args);
+
+        LOGGER.info("looking for method: `" + operationSignature + "` in class `" + controllerName + "`");
+        parameterClasses = args;
+
+        return matchBuildMethodToImplemented(args);
+    }
+
+    private Method matchBuildMethodToImplemented(JavaType[] args) {
+
+        if (controllerName != null && methodName != null) {
+            try {
+                Class<?> cls;
+                try {
+                    cls = Class.forName(controllerName);
+                } catch (ClassNotFoundException e) {
+                    controllerName = controllerName + "Controller";
+                    cls = Class.forName(controllerName);
+                }
+
+                Method[] methods = cls.getMethods();
+                for (Method method : methods) {
+                    if (methodName.equals(method.getName())) {
+                        Class<?>[] methodArgs = method.getParameterTypes();
+                        if (methodArgs.length == args.length) {
+                            boolean matched = true;
+                            for (int i = 0; i < methodArgs.length; i++) {
+                                if (!args[i].getRawClass().equals(methodArgs[i])) {
+                                    //validate if its InputStream and change it to the implemented method in Controller
+                                    if (args[i].getRawClass().equals(InputStream.class)){
+                                        args[i] = updateArgumentClass(methodArgs[i]);
+                                    }else {
+                                        LOGGER.debug("failed to match " + args[i] + ", " + methodArgs[i]);
+                                        matched = false;
+                                    }
+                                }
+                            }
+                            if (matched) {
+                                parameterClasses = args;
+                                controller = getControllerFactory().instantiateController(cls, operation);
+                                LOGGER.debug("found class `" + controllerName + "`");
+                                //update operationSignature
+                                buildOperationSignature(args);
+                                return method;
+                            }
+                        }
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                LOGGER.debug("didn't find class " + controller);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+
+    private void buildOperationSignature(JavaType[] args) {
         StringBuilder builder = new StringBuilder();
 
         builder.append(getMethodName(path, httpMethod, operation))
@@ -161,7 +245,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                         className = className.substring("java.lang.".length());
                     }
                     builder.append(className);
-                    builder.append(" ").append(args[1]);
+                    builder.append(" ").append(args[i]);
 
                 }
             }
@@ -169,70 +253,16 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         builder.append(")");
 
         operationSignature = "public ResponseContext " + builder.toString();
-
-        LOGGER.info("looking for method: `" + operationSignature + "` in class `" + controllerName + "`");
-        parameterClasses = args;
-        requestBodyClasses = args2;
-
-        if (controllerName != null && methodName != null) {
-            try {
-                Class<?> cls;
-                try {
-                    cls = Class.forName(controllerName);
-                } catch (ClassNotFoundException e) {
-                    controllerName = controllerName + "Controller";
-                    cls = Class.forName(controllerName);
-                }
-
-                Method[] methods = cls.getMethods();
-                for (Method method : methods) {
-                    if (methodName.equals(method.getName())) {
-                        Class<?>[] methodArgs = method.getParameterTypes();
-                        if (methodArgs.length == args.length) {
-                            int i = 0;
-                            boolean matched = true;
-                            if (!args[i].getRawClass().equals(methodArgs[i])) {
-                                LOGGER.debug("failed to match " + args[i] + ", " + methodArgs[i]);
-                                matched = false;
-                            }
-                            if (matched) {
-                                this.parameterClasses = args;
-                                this.requestBodyClasses = args2;
-                                this.controller = getControllerFactory().instantiateController(cls, operation);
-                                LOGGER.debug("found class `" + controllerName + "`");
-                                return method;
-                            }
-                        }
-                    }
-                }
-            } catch (ClassNotFoundException e) {
-                LOGGER.debug("didn't find class " + controller);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
     }
 
     @Override
     public Response apply(ContainerRequestContext ctx) {
-        List<Parameter> parameters = operation.getParameters();
+         List<Parameter> parameters = operation.getParameters();
 
-        int requestBody = 0;
-        if(operation.getRequestBody() != null){
-            requestBody = this.requestBodyClasses.length - 1;
-        }
-        int argumentsSize = parameters.size() + requestBody;
         final RequestContext requestContext = createContext(ctx);
-
-        Map<String, Map<String, String>> formMap = new HashMap<>();
         Map<String, File> inputStreams = new HashMap<>();
-        String formDataString = null;
-        String[] parts = null;
 
-        Object[] args = new Object[argumentsSize + 1];
+        Object[] args = new Object[parameterClasses.length];
 
         int i = 0;
 
@@ -251,260 +281,12 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         }
 
 
-        MediaType mt = requestContext.getMediaType();
-
-
+        MediaType mediaType = requestContext.getMediaType();
         Object argument = null;
-
-        if (operation.getRequestBody() != null) {
-            RequestBody body = operation.getRequestBody();
-            Map<String, String> headers = new HashMap<>();
-            String name = null;
-
-            if (ctx.hasEntity()) {
-                JavaType jt = requestBodyClasses[i];
-                Class<?> cls = null;
-                if(jt != null) {
-                    cls  = jt.getRawClass();
-                }
-                try {
-                    argument = EntityProcessorFactory.readValue(ctx.getMediaType(), ctx.getEntityStream(), cls);
-                    if (argument != null) {
-                        if (body.getContent() != null) {
-                            Content content = body.getContent();
-                            for (String key : content.keySet()) {
-                                io.swagger.v3.oas.models.media.MediaType mediaType = content.get(key);
-                                if (mediaType.getSchema() != null) {
-                                    validate(argument, mediaType.getSchema(), SchemaValidator.Direction.INPUT);
-                                }
-                            }
-
-                        }
-
-                        if (parameters == null || parameters.size() == 0) {
-                            args[i] = argument;
-                            i += 1;
-                        }
-
-                    }else {
-                        if (body.getContent() != null) {
-                            for (String mediaType : body.getContent().keySet()) {
-                                if (formDataString == null) {
-                                    // can only read stream once
-                                    if (mt != null) {
-                                        if (mt.isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {
-                                            // get the boundary
-                                            String boundary = mt.getParameters().get("boundary");
-
-                                            if (boundary != null) {
-                                                try {
-                                                    InputStream inputStream = ctx.getEntityStream();
-
-                                                    MultipartStream multipartStream = new MultipartStream(inputStream, boundary.getBytes());
-                                                    boolean nextPart = multipartStream.skipPreamble();
-                                                    while (nextPart) {
-                                                        String header = multipartStream.readHeaders();
-                                                        // process headers
-                                                        if (header != null) {
-                                                            CSVFormat format = CSVFormat.DEFAULT
-                                                                    .withDelimiter(';')
-                                                                    .withRecordSeparator("=");
-
-                                                            Iterable<CSVRecord> records = format.parse(new StringReader(header));
-                                                            for (CSVRecord r : records) {
-                                                                for (int j = 0; j < r.size(); j++) {
-                                                                    String string = r.get(j);
-
-                                                                    Iterable<CSVRecord> outerString = CSVFormat.DEFAULT
-                                                                            .withDelimiter('=')
-                                                                            .parse(new StringReader(string));
-                                                                    for (CSVRecord outerKvPair : outerString) {
-                                                                        if (outerKvPair.size() == 2) {
-                                                                            String key = outerKvPair.get(0).trim();
-                                                                            String value = outerKvPair.get(1).trim();
-                                                                            if ("name".equals(key)) {
-                                                                                name = value;
-                                                                            }
-                                                                            headers.put(key, value);
-                                                                        } else {
-                                                                            Iterable<CSVRecord> innerString = CSVFormat.DEFAULT
-                                                                                    .withDelimiter(':')
-                                                                                    .parse(new StringReader(string));
-                                                                            for (CSVRecord innerKVPair : innerString) {
-                                                                                if (innerKVPair.size() == 2) {
-                                                                                    String key = innerKVPair.get(0).trim();
-                                                                                    String value = innerKVPair.get(1).trim();
-                                                                                    if ("name".equals(key)) {
-                                                                                        name = value;
-                                                                                    }
-                                                                                    headers.put(key, value);
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                    if (name != null) {
-                                                                        formMap.put(name, headers);
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                        String filename = extractFilenameFromHeaders(headers);
-                                                        if (filename != null) {
-                                                            try {
-                                                                File file = new File(Files.createTempDir(), filename);
-                                                                file.deleteOnExit();
-                                                                file.getParentFile().deleteOnExit();
-                                                                FileOutputStream fo = new FileOutputStream(file);
-                                                                multipartStream.readBodyData(fo);
-                                                                inputStreams.put(name, file);
-                                                            } catch (Exception e) {
-                                                                LOGGER.error("Failed to extract uploaded file", e);
-                                                            }
-                                                        } else {
-                                                            ByteArrayOutputStream bo = new ByteArrayOutputStream();
-                                                            multipartStream.readBodyData(bo);
-                                                            String value = bo.toString();
-                                                            headers.put(name, value);
-                                                        }
-                                                        if (name != null) {
-                                                            formMap.put(name, headers);
-                                                        }
-                                                        headers = new HashMap<>();
-                                                        name = null;
-                                                        nextPart = multipartStream.readBoundary();
-                                                    }
-                                                } catch (IOException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        } else {
-                                            try {
-                                                formDataString = IOUtils.toString(ctx.getEntityStream(), "UTF-8");
-                                                parts = formDataString.split("&");
-
-                                                for (String part : parts) {
-                                                    String[] kv = part.split("=");
-                                                    existingKeys.add(kv[0] + ": fp");
-                                                }
-                                            } catch (IOException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-
-                                        try {
-                                            io.swagger.v3.oas.models.media.MediaType media = body.getContent().get(mediaType);
-                                            
-                                            if (media.getSchema() != null) {
-                                                Schema schema = media.getSchema();
-                                                if (mt.isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)) {
-                                                    // look in the form map
-                                                    if (schema.getProperties() != null) {
-                                                        Map<String, Schema> properties = schema.getProperties();
-                                                        for (String key : properties.keySet()) {
-                                                            headers = formMap.get(key);
-                                                            if (headers != null && headers.size() > 0) {
-
-                                                                if ("binary".equals(properties.get(key).getFormat())) {
-                                                                    argument = inputStreams.get(key);
-
-                                                                } else {
-                                                                    Object obj = headers.get(key);
-
-                                                                    if (obj != null) {
-                                                                        jt = requestBodyClasses[i];
-                                                                        cls = jt.getRawClass();
-
-                                                                        List<String> stringHeaders = Arrays.asList(obj.toString());
-                                                                        try {
-                                                                            argument = validator.convertAndValidate(stringHeaders, body, cls, definitions);
-                                                                        } catch (ConversionException e) {
-                                                                            missingParams.add(e.getError());
-                                                                        } catch (ValidationException e) {
-                                                                            missingParams.add(e.getValidationMessage());
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                            args[i] = argument;
-                                                            argument = null;
-                                                            i += 1;
-                                                        }
-                                                    }
-                                                } else {
-                                                    if (formDataString != null) {
-                                                        if (schema.getProperties() != null) {
-                                                            Map<String, Schema> properties = schema.getProperties();
-                                                            for (String property : properties.keySet()) {
-                                                                for (String part : parts) {
-                                                                    String[] kv = part.split("=");
-
-                                                                    if (kv != null) {
-                                                                        if (kv.length > 0) {
-                                                                            existingKeys.remove(kv[0] + ": fp");
-                                                                        }
-                                                                        if (kv.length == 2) {
-                                                                            String key = kv[0];
-                                                                            try {
-                                                                                String value = URLDecoder.decode(kv[1], "utf-8");
-                                                                                if (property.equals(key)) {
-                                                                                    jt = requestBodyClasses[i];
-                                                                                    cls = jt.getRawClass();
-                                                                                    try {
-                                                                                        argument = validator.convertAndValidate(Arrays.asList(value), body, cls, definitions);
-                                                                                        args[i] = argument;
-                                                                                        argument = null;
-                                                                                        i += 1;
-                                                                                    } catch (ConversionException e) {
-                                                                                        missingParams.add(e.getError());
-                                                                                    } catch (ValidationException e) {
-                                                                                        missingParams.add(e.getValidationMessage());
-                                                                                    }
-                                                                                }
-                                                                            } catch (UnsupportedEncodingException e) {
-                                                                                LOGGER.error("unable to decode value for " + key);
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-
-                                                        }
-                                                    }
-                                                }
-
-                                            }
-                                        } catch (NumberFormatException e) {
-                                            LOGGER.error("Couldn't find body ( ) to " + parameterClasses[i], e);
-                                        }
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-                } catch (ConversionException e) {
-                    missingParams.add(e.getError());
-                }
-
-            } else if (operation.getRequestBody().getRequired()) {
-                ValidationException e = new ValidationException();
-                e.message(new ValidationMessage()
-                        .message("The input body `" + operation.getRequestBody() + "` is required"));
-                try {
-                    throw e;
-                } catch (ValidationException e1) {
-                    missingParams.add(e.getValidationMessage());
-                }
-
-            }
-
-        }
 
         if (parameters != null && parameters.size() > 0) {
             for (Parameter parameter : parameters) {
                 String in = parameter.getIn();
-
-
                 try {
                     try {
                         String paramName = parameter.getName();
@@ -536,35 +318,101 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                 args[i] = argument;
                 i += 1;
             }
-            if (existingKeys.size() > 0) {
-                LOGGER.debug("unexpected keys: " + existingKeys);
-            }
-            if (missingParams.size() > 0) {
-                StringBuilder builder = new StringBuilder();
-                builder.append("Input error");
-                if (missingParams.size() > 1) {
-                    builder.append("s");
+        }
+
+        if (operation.getRequestBody() != null) {
+            RequestBody body = operation.getRequestBody();
+
+            if (ctx.hasEntity()) {
+                JavaType jt = parameterClasses[i];
+                Class<?> cls = null;
+                if(jt != null) {
+                    cls  = jt.getRawClass();
                 }
-                builder.append(": ");
-                int count = 0;
-                for (ValidationMessage message : missingParams) {
-                    if (count > 0) {
-                        builder.append(", ");
+                try {
+                    argument = EntityProcessorFactory.readValue(mediaType, ctx.getEntityStream(), cls,this);
+
+                    if (argument != null) {
+                        if (mediaType.isCompatible(MediaType.APPLICATION_FORM_URLENCODED_TYPE) ||
+                                mediaType.isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE) ||
+                                mediaType.isCompatible(MediaType.APPLICATION_OCTET_STREAM_TYPE)){
+
+                            if (argument instanceof Object[]){
+                                Object[] args2 = (Object[]) argument;
+                                args2[0]= args[0];
+                                args = args2;
+                            }else {
+                                args[i] = argument;
+                            }
+                        }else {
+                            if (body.getContent() != null) {
+                                Content content = body.getContent();
+                                io.swagger.v3.oas.models.media.MediaType media = content.get(mediaType.toString());
+
+                                if (media == null){
+                                    media = content.get(MediaType.WILDCARD);
+                                }
+
+                                if (media != null) {
+                                    if (media.getSchema() != null) {
+                                        validate(argument, media.getSchema(), SchemaValidator.Direction.INPUT);
+                                    }
+                                }
+
+                                if (parameters == null || parameters.size() == 0) {
+                                    args[i] = argument;
+                                    i += 1;
+                                }
+
+                            }
+                        }
+
                     }
-                    if (message != null && message.getMessage() != null) {
-                        builder.append(message.getMessage());
-                    } else {
-                        builder.append("no additional input");
-                    }
-                    count += 1;
+                } catch (ConversionException e) {
+                    missingParams.add(e.getError());
                 }
-                int statusCode = config.getInvalidRequestStatusCode();
-                ApiError error = new ApiError()
-                        .code(statusCode)
-                        .message(builder.toString());
-                throw new ApiException(error);
+
+            } else if (operation.getRequestBody().getRequired()) {
+                ValidationException e = new ValidationException();
+                e.message(new ValidationMessage()
+                        .message("The input body `" + operation.getRequestBody() + "` is required"));
+                try {
+                    throw e;
+                } catch (ValidationException e1) {
+                    missingParams.add(e.getValidationMessage());
+                }
             }
         }
+
+        if (existingKeys.size() > 0) {
+            LOGGER.debug("unexpected keys: " + existingKeys);
+        }
+        if (missingParams.size() > 0) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Input error");
+            if (missingParams.size() > 1) {
+                builder.append("s");
+            }
+            builder.append(": ");
+            int count = 0;
+            for (ValidationMessage message : missingParams) {
+                if (count > 0) {
+                    builder.append(", ");
+                }
+                if (message != null && message.getMessage() != null) {
+                    builder.append(message.getMessage());
+                } else {
+                    builder.append("no additional input");
+                }
+                count += 1;
+            }
+            int statusCode = config.getInvalidRequestStatusCode();
+            ApiError error = new ApiError()
+                    .code(statusCode)
+                    .message(builder.toString());
+            throw new ApiException(error);
+        }
+        
         try {
             if (method != null) {
                 LOGGER.info("calling method " + method + " on controller " + this.controller + " with args " + Arrays.toString(args));
@@ -699,9 +547,9 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                         examples = response.getContent().get(acceptable).getExamples();
                                     }
                                     if (examples != null && examples.size() > 0) {
-                                        for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
+                                        for (MediaType key : requestContext.getAcceptableMediaTypes()) {
                                             MediaType media = MediaType.valueOf(acceptable);
-                                            if (media.isCompatible(mediaType)) {
+                                            if (media.isCompatible(key)) {
                                                 if (exampleProcessorList != null && exampleProcessorList.size() > 0) {
                                                     for (String mode : exampleProcessorList) {
                                                         if (mode.equals(RANDOM_EXAMPLE)) {
@@ -727,8 +575,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                     }
                                     output = ExampleBuilder.fromSchema(response.getContent().get(acceptable).getSchema(), definitions);
                                 }else{
-                                    for (String mediaType: response.getContent().keySet()) {
-                                        output = ExampleBuilder.fromSchema(response.getContent().get(mediaType).getSchema(), definitions);
+                                    for (String media: response.getContent().keySet()) {
+                                        output = ExampleBuilder.fromSchema(response.getContent().get(media).getSchema(), definitions);
                                         break;
                                     }
                                 }
@@ -740,8 +588,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                     examples = response.getContent().get(key).getExamples();
                                 }
                                 if (examples != null && examples.size() > 0) {
-                                    for (MediaType mediaType : requestContext.getAcceptableMediaTypes()) {
-                                        if (MediaType.valueOf(key).isCompatible(mediaType)) {
+                                    for (MediaType media : requestContext.getAcceptableMediaTypes()) {
+                                        if (MediaType.valueOf(key).isCompatible(media)) {
                                             if (exampleProcessorList != null && exampleProcessorList.size() > 0) {
                                                 for (String mode : exampleProcessorList) {
                                                     if (mode.equals(RANDOM_EXAMPLE)) {
@@ -790,8 +638,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                     break;
                                 }
                                 for (MediaType mediaTypet : requestContext.getAcceptableMediaTypes()) {
-                                    LOGGER.debug("checking type " + mt.toString() + " against " + processor.getClass().getName());
-                                    if (processor.supports(mt)) {
+                                    LOGGER.debug("checking type " + mediaType.toString() + " against " + processor.getClass().getName());
+                                    if (processor.supports(mediaType)) {
                                         builder.type(mediaTypet);
                                         responseMediaType = mediaTypet;
                                         break;
@@ -833,24 +681,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         }
     }
 
-    static String extractFilenameFromHeaders(Map<String, String> headers) {
-        String filename = headers.get("filename");
-        if( StringUtils.isBlank( filename )){
-            return null;
-        }
 
-        filename = filename.trim();
-
-        int ix = filename.lastIndexOf(File.separatorChar);
-        if (ix != -1 ) {
-            filename = filename.substring(ix + 1).trim();
-            if( StringUtils.isBlank(filename)){
-                return null;
-            }
-        }
-
-        return filename;
-    }
 
     public void validate(Object o, Schema property, SchemaValidator.Direction direction) throws ApiException {
         doValidation(o, property, direction);
@@ -972,4 +803,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
     	}
     	return controllerFactoryCache;
     }
+
+
+
+
 }

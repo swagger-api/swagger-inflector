@@ -143,7 +143,7 @@ public class TestController {
         return new ResponseContext().status(200).entity(body);
     }
 
-    public ResponseContext binaryBody(RequestContext request, byte[] content) {
+    public ResponseContext binaryBody(RequestContext request,  byte[] content) {
         return new ResponseContext().status(200).entity(content);
     }
 
@@ -154,5 +154,30 @@ public class TestController {
 
     public ResponseContext mappedWithDefinedModel(RequestContext request, Dog dog) {
         return new ResponseContext().status(200);
+    }
+
+    public ResponseContext multipleMediaType(RequestContext request, Long id, String name, String dogType) {
+        return new ResponseContext()
+                .status(Status.OK)
+                .entity(new Dog()
+                        .id(id)
+                        .name(name));
+    }
+
+    public ResponseContext multipleMediaType(RequestContext request, Dog dog) {
+        return new ResponseContext()
+                .status(Status.OK)
+                .entity(dog.dogType);
+    }
+
+
+    public ResponseContext multipleMediaType(RequestContext request, File inputFile, String string) {
+        if(inputFile != null) {
+            string += ": " + String.valueOf(inputFile.length());
+        }
+
+        return new ResponseContext()
+                .status(200)
+                .entity(string);
     }
 }

@@ -17,7 +17,9 @@
 package io.swagger.oas.inflector.processors;
 
 import com.fasterxml.jackson.databind.JavaType;
+import io.swagger.oas.inflector.controllers.OpenAPIOperationController;
 import io.swagger.oas.inflector.converters.ConversionException;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 
 import javax.ws.rs.core.MediaType;
 import java.io.InputStream;
@@ -31,6 +33,8 @@ public interface EntityProcessor {
     void enableType(MediaType type);
 
     Object process(MediaType mediaType, InputStream entityStream, Class<?> cls) throws ConversionException;
+
+    Object process(MediaType mediaType, InputStream entityStream, Class<?> cls, OpenAPIOperationController controller) throws ConversionException;
     
     Object process(MediaType mediaType, InputStream entityStream, JavaType javaType);
 }

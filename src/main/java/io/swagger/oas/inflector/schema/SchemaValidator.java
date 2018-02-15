@@ -22,11 +22,11 @@ public class SchemaValidator {
         OUTPUT
     }
 
-    public static boolean validate(Object o, String schema, Direction direction) {
+    public static boolean validate(Object argument, String schema, Direction direction) {
         try {
             JsonNode schemaObject = Json.mapper().readTree(schema);
             JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
-            JsonNode content = Json.mapper().convertValue(o, JsonNode.class);
+            JsonNode content = Json.mapper().convertValue(argument, JsonNode.class);
             com.github.fge.jsonschema.main.JsonSchema jsonSchema = factory.getJsonSchema(schemaObject);
 
             ProcessingReport report = jsonSchema.validate(content);
