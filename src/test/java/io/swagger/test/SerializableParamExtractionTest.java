@@ -36,6 +36,8 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JavaType;
 
+import java.util.List;
+
 import static org.testng.Assert.assertEquals;
 
 public class SerializableParamExtractionTest {
@@ -117,10 +119,11 @@ public class SerializableParamExtractionTest {
         assertEquals(jt.getRawClass(), DateTime.class);
     }
 
-    @org.junit.Test
+    @Test
     public void getStringArrayParameterClassTest() throws Exception {
         JavaType jt = utils.getTypeFromParameter(new QueryParameter()
                 .property(new ArrayProperty(new StringProperty())), null);
-        assertEquals(jt.getRawClass(), String[].class);
+
+        assertEquals(jt.getRawClass(), List.class);//String[].class
     }
 }
