@@ -122,8 +122,10 @@ public class SerializableParamExtractionTest {
     @Test
     public void getStringArrayParameterClassTest() throws Exception {
         JavaType jt = utils.getTypeFromParameter(new QueryParameter()
-                .property(new ArrayProperty(new StringProperty())), null);
+                .property(new ArrayProperty()
+                        .items(new StringProperty())),null);
 
-        assertEquals(jt.getRawClass(), List.class);//String[].class
+        assertEquals(jt.getRawClass(), List.class);
+        assertEquals(jt.getContentType().getRawClass(), String.class);
     }
 }

@@ -129,6 +129,9 @@ public class BodyParamExtractionTest {
                 .items(new ArrayProperty(new StringProperty())));
 
         JavaType jt = utils.getTypeFromParameter(parameter, definitions);
-        assertEquals(jt.getRawClass(), List[].class); //String[][].class
+        assertEquals(jt.getRawClass(), List[].class);
+        JavaType inner = jt.getContentType();
+        assertEquals(inner.getRawClass(), List.class);
+        assertEquals(inner.getContentType().getRawClass(), String.class);
     }
 }
