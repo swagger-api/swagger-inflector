@@ -18,6 +18,7 @@ package io.swagger.oas.test;
 
 import io.swagger.oas.inflector.converters.DefaultConverter;
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
 import io.swagger.v3.oas.models.media.DateSchema;
 import io.swagger.v3.oas.models.media.DateTimeSchema;
@@ -33,6 +34,8 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JavaType;
 
+
+import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 
@@ -104,6 +107,15 @@ public class SerializableParamExtractionTest {
     public void getDateTimeParameterClassTest() throws Exception {
         JavaType jt = utils.getTypeFromParameter(new QueryParameter().schema(new DateTimeSchema()), null);
         assertEquals(jt.getRawClass(), DateTime.class);
+    }
+
+    @Test
+    public void getStringArrayParameterClassTest() throws Exception {
+        JavaType jt = utils.getTypeFromParameter(new QueryParameter()
+                                .schema(new ArraySchema().items(new StringSchema())), null);
+
+        assertEquals(jt.getRawClass(), List.class);
+        assertEquals(jt.getContentType().getRawClass(), String.class);
     }
 
 

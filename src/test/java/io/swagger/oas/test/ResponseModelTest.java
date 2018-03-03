@@ -67,7 +67,7 @@ public class ResponseModelTest {
         assertEquals(((IntegerExample) o).asInt(), new Integer(0));
     }
 
-    @org.junit.Test
+    @Test
     public void testConvertIntegerPropertyWithExample() throws Exception {
         Schema p = new IntegerSchema()
                 .example(3);
