@@ -41,6 +41,20 @@ paths:
                   oneOf:
                     - type: string
                     - type: integer
+  /adjacent:
+    get:
+      responses:
+        '200':
+          description: A book or movie object
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Book'
+                  - $ref: '#/components/schemas/Movie'
+                anyOf:
+                  - $ref: '#/components/schemas/Movie'
+                  - $ref: '#/components/schemas/Book'
 
 components:
   schemas:

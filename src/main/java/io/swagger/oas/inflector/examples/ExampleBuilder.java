@@ -350,7 +350,7 @@ public class ExampleBuilder {
                 }
                 mergeTo(ex, innerExamples);
                 output = ex;
-            }else if(composedSchema.getAnyOf() != null) {
+            }if(composedSchema.getAnyOf() != null) {
 
                 List<Schema> models = composedSchema.getAnyOf();
                 if (models != null) {
@@ -362,7 +362,7 @@ public class ExampleBuilder {
                         }
                     }
                 }
-            }else if(composedSchema.getOneOf() != null) {
+            } if(composedSchema.getOneOf() != null) {
 
                 List<Schema> models = composedSchema.getOneOf();
 

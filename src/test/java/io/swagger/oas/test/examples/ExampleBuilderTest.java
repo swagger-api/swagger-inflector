@@ -769,6 +769,31 @@ public class ExampleBuilderTest {
     }
 
     @Test
+    public void testAdjacentComposedSchema(@Injectable List<AuthorizationValue> auth){
+
+        ParseOptions options = new ParseOptions();
+        options.setResolve(true);
+        options.setResolveFully(true);
+
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oneOf-anyOf.yaml", auth, options);
+
+
+        ApiResponse responseAdjacent = openAPI.getPaths().get("/adjacent").getGet().getResponses().get("200");
+        Example exampleAdjacent = ExampleBuilder.fromSchema(responseAdjacent.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
+        String outputAdjacent = Json.pretty(exampleAdjacent);
+        assertEqualsIgnoreLineEnding(outputAdjacent, "[ {\n" +
+                "  \"title\" : \"The Hitchhiker's Guide to the Galaxy\",\n" +
+                "  \"authors\" : [ \"Douglas Adams\" ],\n" +
+                "  \"isbn\" : \"0-330-25864-8\"\n" +
+                "}, {\n" +
+                "  \"title\" : \"Blade Runner\",\n" +
+                "  \"directors\" : [ \"Ridley Scott\" ],\n" +
+                "  \"year\" : 1982\n" +
+                "} ]");
+
+    }
+
+    @Test
     public void testRefAndInlineAllOf(@Injectable final List<AuthorizationValue> auths) throws Exception {
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
