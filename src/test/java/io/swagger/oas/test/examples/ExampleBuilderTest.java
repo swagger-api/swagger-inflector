@@ -766,6 +766,18 @@ public class ExampleBuilderTest {
                 "  \"year\" : 1982\n" +
                 "}");
 
+    }
+
+    @Test
+    public void testAdjacentComposedSchema(@Injectable List<AuthorizationValue> auth){
+
+        ParseOptions options = new ParseOptions();
+        options.setResolve(true);
+        options.setResolveFully(true);
+
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oneOf-anyOf.yaml", auth, options);
+
+
         ApiResponse responseAdjacent = openAPI.getPaths().get("/adjacent").getGet().getResponses().get("200");
         Example exampleAdjacent = ExampleBuilder.fromSchema(responseAdjacent.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
         String outputAdjacent = Json.pretty(exampleAdjacent);
