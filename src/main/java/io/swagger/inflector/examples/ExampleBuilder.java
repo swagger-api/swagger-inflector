@@ -326,7 +326,7 @@ public class ExampleBuilder {
         } else if (property instanceof ArrayProperty) {
             if (example != null) {
                 try {
-                    output = Json.mapper().readValue(example.toString(), ArrayExample.class);
+                    output = Json.mapper().readValue(Json.mapper().writeValueAsString(example), ArrayExample.class);
                 } catch (IOException e) {
                     LOGGER.error("unable to convert `" + example + "` to JsonNode");
                     output = new ArrayExample();
