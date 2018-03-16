@@ -525,8 +525,8 @@ public class SwaggerOperationController extends ReflectionUtils implements Infle
                                     // try default response schema
                                     responseSchema = operation.getResponses().get("default");
                                 }
-                                if (responseSchema != null && responseSchema.getSchema() != null) {
-                                    validate(wrapper.getEntity(), responseSchema.getSchema(), SchemaValidator.Direction.OUTPUT);
+                                if (responseSchema != null && responseSchema.getResponseSchema() != null) {
+                                    validate(wrapper.getEntity(), responseSchema.getResponseSchema(), SchemaValidator.Direction.OUTPUT);
                                 } else {
                                     LOGGER.debug("no response schema for code " + responseCode + " to validate against");
                                 }

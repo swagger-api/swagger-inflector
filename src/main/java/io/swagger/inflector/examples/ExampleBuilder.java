@@ -304,7 +304,7 @@ public class ExampleBuilder {
         } else if (property instanceof ObjectProperty) {
             if (example != null) {
                 try {
-                    output = Json.mapper().readValue(example.toString(), ObjectExample.class);
+                    output = Json.mapper().readValue(Json.mapper().writeValueAsString(example), ObjectExample.class);
                 } catch (IOException e) {
                     LOGGER.error("unable to convert `" + example + "` to JsonNode");
                     output = new ObjectExample();
@@ -326,7 +326,7 @@ public class ExampleBuilder {
         } else if (property instanceof ArrayProperty) {
             if (example != null) {
                 try {
-                    output = Json.mapper().readValue(example.toString(), ArrayExample.class);
+                    output = Json.mapper().readValue(Json.mapper().writeValueAsString(example), ArrayExample.class);
                 } catch (IOException e) {
                     LOGGER.error("unable to convert `" + example + "` to JsonNode");
                     output = new ArrayExample();
@@ -393,7 +393,7 @@ public class ExampleBuilder {
                     }
                     if (model.getExample() != null) {
                         try {
-                            Example n = Json.mapper().readValue(model.getExample().toString(), Example.class);
+                            Example n = Json.mapper().readValue(Json.mapper().writeValueAsString(example), Example.class);
                             output = n;
                         } catch (IOException e) {
                             LOGGER.error("unable to convert value", e);
@@ -441,6 +441,7 @@ public class ExampleBuilder {
         return output;
     }
 
+
     public static Example alreadyProcessedRefExample(String name, Map<String, Model> definitions) {
         Model model = definitions.get(name);
         if(model == null) {
@@ -485,7 +486,7 @@ public class ExampleBuilder {
         Example output = null;
         if (model.getExample() != null) {
             try {
-                String str = model.getExample().toString();
+                String str = Json.mapper().writeValueAsString(model.getExample());
                 output = Json.mapper().readValue(str, ObjectExample.class);
             } catch (IOException e) {
                 return null;
