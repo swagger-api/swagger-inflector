@@ -393,7 +393,7 @@ public class ExampleBuilder {
                     }
                     if (model.getExample() != null) {
                         try {
-                            Example n = Json.mapper().readValue(model.getExample().toString(), Example.class);
+                            Example n = Json.mapper().readValue(Json.mapper().writeValueAsString(example), Example.class);
                             output = n;
                         } catch (IOException e) {
                             LOGGER.error("unable to convert value", e);
@@ -486,7 +486,7 @@ public class ExampleBuilder {
         Example output = null;
         if (model.getExample() != null) {
             try {
-                String str = model.getExample().toString();
+                String str = Json.mapper().writeValueAsString(model.getExample());
                 output = Json.mapper().readValue(str, ObjectExample.class);
             } catch (IOException e) {
                 return null;
