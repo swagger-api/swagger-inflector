@@ -529,10 +529,7 @@ public class ExampleBuilderTest {
     public void testObjectsWithAnonymousObjectArrays() throws Exception {
         Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-171.yaml");
 
-        Response response = swagger.getPath("/test").getGet().getResponses().get( "200" );
-        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
-
-        String output = Json.pretty(example);
+        String output = getExampleForPath(swagger, "/test");
 
         assertEqualsIgnoreLineEnding(output, "[ {\n" +
                 "  \"id\" : \"string\",\n" +
@@ -543,8 +540,8 @@ public class ExampleBuilderTest {
                 "} ]");
 
 
-        response = swagger.getPath("/anothertest").getGet().getResponses().get( "200" );
-        example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+        Response response = swagger.getPath("/anothertest").getGet().getResponses().get( "200" );
+        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
 
         output = new XmlExampleSerializer().serialize(example);
         assertEquals( output, "<?xml version='1.1' encoding='UTF-8'?><string>string</string>");
@@ -554,10 +551,7 @@ public class ExampleBuilderTest {
     public void testEnumExample() throws Exception {
         Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-171.yaml");
 
-        Response response = swagger.getPath("/color").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
-
-        String output = Json.pretty(example);
+        String output = getExampleForPath(swagger, "/color");
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"color\" : \"black\"\n" +
                 "}");
@@ -567,10 +561,7 @@ public class ExampleBuilderTest {
     public void testIssue1261InlineSchemaExample() throws Exception {
         Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-1261.yaml");
 
-        Response response = swagger.getPath("/user").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
-
-        String output = Json.pretty(example);
+        String output = getExampleForPath(swagger, "/user");
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"id\" : 42,\n" +
                 "  \"name\" : \"Arthur Dent\"\n" +
@@ -581,21 +572,29 @@ public class ExampleBuilderTest {
     public void testIssue1177RefArrayExample() throws Exception {
         Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-1177.yaml");
 
-        Response response = swagger.getPath("/array").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
-
-        String output = Json.pretty(example);
+        String output = getExampleForPath(swagger, "/array");
         assertEqualsIgnoreLineEnding(output, "[ \"string\" ]");
+    }
+
+    @Test
+    public void testInlinedArrayExample() throws Exception {
+        Swagger swagger = new SwaggerParser().read("src/test/swagger/array-example.yaml");
+
+        String output = getExampleForPath(swagger, "/");
+        assertEqualsIgnoreLineEnding(output, "[ {\n" +
+                "  \"id\" : 1,\n" +
+                "  \"name\" : \"Arthur Dent\"\n" +
+                "}, {\n" +
+                "  \"id\" : 2,\n" +
+                "  \"name\" : \"Ford Prefect\"\n" +
+                "} ]");
     }
 
     @Test
     public void testIssue1263SchemaExampleNestedObjects() throws Exception {
         Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-1263.yaml");
 
-        Response response = swagger.getPath("/nested_object").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
-
-        String output = Json.pretty(example);
+        String output = getExampleForPath(swagger, "/nested_object");
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"nested_object\" : {\n" +
                 "    \"foo\" : \"bar\"\n" +
@@ -607,10 +606,7 @@ public class ExampleBuilderTest {
     public void testDifferentExampleTypes() throws Exception {
         Swagger swagger = new SwaggerParser().read("src/test/swagger/example-types.yaml");
 
-        Response response = swagger.getPath("/user").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
-
-        String output = Json.pretty(example);
+        String output = getExampleForPath(swagger, "/user");
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"obj\" : {\n" +
                 "    \"b\" : \"ho\",\n" +
@@ -624,5 +620,22 @@ public class ExampleBuilderTest {
                 "  \"boolean\" : true,\n" +
                 "  \"string\" : \"Arthur Dent\"\n" +
                 "}");
+    }
+
+    @Test
+    public void testAllOfAndRef() throws Exception {
+        Swagger swagger = new SwaggerParser().read("src/test/swagger/allOfAndRef.yaml");
+
+        String output = getExampleForPath(swagger, "/refToAllOf");
+        assertEqualsIgnoreLineEnding(output, "{\n" +
+                "  \"username\" : \"trillian\",\n" +
+                "  \"id\" : 4\n" +
+                "}");
+    }
+
+    private String getExampleForPath(Swagger swagger, String s) {
+        Response response = swagger.getPath(s).getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+        return Json.pretty(example);
     }
 }

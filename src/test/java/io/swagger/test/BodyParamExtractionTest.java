@@ -36,6 +36,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -64,7 +65,7 @@ public class BodyParamExtractionTest {
         assertEquals(jt.getRawClass(), String.class);
     }
 
-    @org.junit.Test
+    @Test
     public void testUUIDBodyParam() throws Exception {
         Map<String, Model> definitions = new HashMap<String, Model>();
 
@@ -119,7 +120,7 @@ public class BodyParamExtractionTest {
         assertEquals(jt.getRawClass(), String[].class);
     }
 
-    @org.junit.Test
+    @Test
     public void testConvertDoubleArrayBodyParam() throws Exception {
         Map<String, Model> definitions = ModelConverters.getInstance().read(Person.class);
 
@@ -128,6 +129,9 @@ public class BodyParamExtractionTest {
                 .items(new ArrayProperty(new StringProperty())));
 
         JavaType jt = utils.getTypeFromParameter(parameter, definitions);
-        assertEquals(jt.getRawClass(), String[][].class);
+        assertEquals(jt.getRawClass(), List[].class);
+        JavaType inner = jt.getContentType();
+        assertEquals(inner.getRawClass(), List.class);
+        assertEquals(inner.getContentType().getRawClass(), String.class);
     }
 }
