@@ -75,6 +75,7 @@ public class RequestTestIT {
     }
 
     @Test
+    //RequestTestIT.verifyComposedModelValidation
     public void verifyComposedModelValidation() throws Exception {
         try {
             client.invokeAPI("/withInvalidComposedModel", "POST", new HashMap<String, String>(),
@@ -87,6 +88,7 @@ public class RequestTestIT {
     }
 
     @Test()
+    //RequestTestIT.verifyComposedModelArrayValidation
     public void verifyComposedModelArrayValidation() throws Exception {
         try {
             client.invokeAPI("/withInvalidComposedModelArray", "POST", new HashMap<String, String>(),

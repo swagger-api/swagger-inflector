@@ -10,9 +10,12 @@ import io.swagger.models.parameters.Parameter;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.ObjectProperty;
 import io.swagger.models.properties.Property;
+import io.swagger.models.properties.RefProperty;
+import io.swagger.models.properties.UntypedProperty;
 import io.swagger.parser.SwaggerParser;
 import io.swagger.sample.models.Dog;
 import io.swagger.util.Json;
+import io.swagger.util.Yaml;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertNotNull;
@@ -21,6 +24,20 @@ import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 
 public class ResolverUtilTest {
+
+    @Test
+    public void testCircularRefs() {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/circular_refs.yaml");
+        new ResolverUtil().resolveFully(swagger);
+        try {
+            Json.mapper().writeValueAsString(swagger);
+        }
+        catch (Exception e) {
+            fail("Recursive loop found");
+        }
+    }
+
+
     @Test
     public void testArrayParam() {
         Swagger swagger = new SwaggerParser().read("./src/test/swagger/sample1.yaml");
@@ -29,13 +46,43 @@ public class ResolverUtilTest {
         Operation operation = swagger.getPath("/withModelArray/{id}").getPost();
         Parameter param = operation.getParameters().get(1);
 
-        Json.prettyPrint(swagger);
-
         assertTrue(param instanceof BodyParameter);
         BodyParameter body = (BodyParameter) param;
         Model model = body.getSchema();
         assertTrue(model instanceof ArrayModel);
         assertTrue(((ArrayModel)model).getItems() instanceof ObjectProperty);
+    }
+
+    @Test
+    public void testComposedModel() {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/sample1.yaml");
+
+        new ResolverUtil().resolveFully(swagger);
+        Operation operation = swagger.getPath("/withInvalidComposedModel").getPost();
+        Parameter param = operation.getParameters().get(0);
+
+        assertTrue(param instanceof BodyParameter);
+        BodyParameter body = (BodyParameter) param;
+        Model model = body.getSchema();
+        assertTrue(model instanceof ModelImpl);
+        assertTrue(model.getProperties().size() == 5);
+
+    }
+
+    @Test
+    public void testInvalidComposedModel() {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/sample1.yaml");
+
+        new ResolverUtil().resolveFully(swagger);
+        Operation operation = swagger.getPath("/withInvalidComposedModelArray").getPost();
+        Parameter param = operation.getParameters().get(0);
+        Yaml.prettyPrint(operation);
+        assertTrue(param instanceof BodyParameter);
+        BodyParameter body = (BodyParameter) param;
+        Model model = body.getSchema();
+        assertTrue(model instanceof ArrayModel);
+        assertTrue(((ArrayModel)model).getItems() instanceof UntypedProperty);
+
     }
 
     @Test
@@ -158,6 +205,12 @@ public class ResolverUtilTest {
 
         Swagger swagger = new SwaggerParser().parse(yaml);
         new ResolverUtil().resolveFully(swagger);
+        try {
+            Json.mapper().writeValueAsString(swagger);
+        }
+        catch (Exception e) {
+            fail("Recursive loop found");
+        }
     }
 
     @Test
