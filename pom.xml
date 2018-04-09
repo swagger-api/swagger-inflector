@@ -451,7 +451,7 @@
         </dependency>
     </dependencies>
     <properties>
-        <swagger-core-version>2.0.0-SNAPSHOT</swagger-core-version>
+        <swagger-core-version>2.0.0</swagger-core-version>
         <swagger-parser-version>2.0.0-SNAPSHOT</swagger-parser-version>
         <jackson.version>2.9.1</jackson.version>
         <jetty-version>9.4.6.v20170531</jetty-version>
