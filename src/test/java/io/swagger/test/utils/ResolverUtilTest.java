@@ -26,11 +26,25 @@ import static org.testng.AssertJUnit.assertEquals;
 public class ResolverUtilTest {
 
     @Test
+    public void testRefs() {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/spec.yaml");
+        new ResolverUtil().resolveFully(swagger);
+        try {
+            Json.mapper().writeValueAsString(swagger);
+
+        }
+        catch (Exception e) {
+            fail("Recursive loop found");
+        }
+    }
+
+    @Test
     public void testCircularRefs() {
         Swagger swagger = new SwaggerParser().read("./src/test/swagger/circular_refs.yaml");
         new ResolverUtil().resolveFully(swagger);
         try {
             Json.mapper().writeValueAsString(swagger);
+
         }
         catch (Exception e) {
             fail("Recursive loop found");
@@ -58,6 +72,7 @@ public class ResolverUtilTest {
         Swagger swagger = new SwaggerParser().read("./src/test/swagger/sample1.yaml");
 
         new ResolverUtil().resolveFully(swagger);
+        Yaml.prettyPrint(swagger);
         Operation operation = swagger.getPath("/withInvalidComposedModel").getPost();
         Parameter param = operation.getParameters().get(0);
 
@@ -74,14 +89,14 @@ public class ResolverUtilTest {
         Swagger swagger = new SwaggerParser().read("./src/test/swagger/sample1.yaml");
 
         new ResolverUtil().resolveFully(swagger);
+
         Operation operation = swagger.getPath("/withInvalidComposedModelArray").getPost();
         Parameter param = operation.getParameters().get(0);
-        Yaml.prettyPrint(operation);
         assertTrue(param instanceof BodyParameter);
         BodyParameter body = (BodyParameter) param;
         Model model = body.getSchema();
         assertTrue(model instanceof ArrayModel);
-        assertTrue(((ArrayModel)model).getItems() instanceof UntypedProperty);
+        assertTrue(((ArrayModel)model).getItems() instanceof ObjectProperty);
 
     }
 
@@ -207,6 +222,7 @@ public class ResolverUtilTest {
         new ResolverUtil().resolveFully(swagger);
         try {
             Json.mapper().writeValueAsString(swagger);
+
         }
         catch (Exception e) {
             fail("Recursive loop found");
