@@ -453,7 +453,7 @@
     <properties>
         <swagger-core-version>2.0.1-SNAPSHOT</swagger-core-version>
         <swagger-parser-version>2.0.0-SNAPSHOT</swagger-parser-version>
-        <jackson.version>2.9.1</jackson.version>
+        <jackson.version>2.9.5</jackson.version>
         <jetty-version>9.4.9.v20180320</jetty-version>
         <jersey2-version>2.26</jersey2-version>
         <servlet-api-version>3.1.0</servlet-api-version>
