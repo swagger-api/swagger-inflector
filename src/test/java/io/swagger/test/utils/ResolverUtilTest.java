@@ -38,18 +38,6 @@ public class ResolverUtilTest {
         }
     }
 
-    @Test
-    public void testRefs() {
-        Swagger swagger = new SwaggerParser().read("./src/test/swagger/spec.yaml");
-        new ResolverUtil().resolveFully(swagger);
-        try {
-            Json.mapper().writeValueAsString(swagger);
-
-        }
-        catch (Exception e) {
-            fail("Recursive loop found");
-        }
-    }
 
     @Test
     public void testCircularRefs() {

@@ -1,171 +1,139 @@
 ---
 swagger: "2.0"
 info:
-  description: "description"
+  description: "This is a sample\n"
   version: "1.0.0"
-  title: "title"
+  title: "sample for circular ref"
   termsOfService: "http://swagger.io/terms/"
   contact:
-    email: "suporte@mail.com"
+    email: "support@sample.com.co"
   license:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "wwww.local.com"
-basePath: "/basePath/Test"
+host: "sample.swaggerhub.com"
+basePath: "/v2"
 tags:
-- name: "Tags"
-  description: "Description"
-- name: "RH"
-  description: "Description"
+- name: "Test"
+  description: "description"
+- name: "Test2"
+  description: "description"
 
 schemes:
 - "https"
 - "http"
 paths:
-  /Test:
-    post:
+  /path1/test1:
+    get:
       tags:
-      - "Tags"
-      summary: testing
-      operationId: addTest
-      consumes:
-      - application/json
-      - application/xml
+      - "Test"
+      operationId: "getPath1"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters: []
+      responses:
+        200:
+          description: "success"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Test1"
+      security:
+      - learning_auth: []
+
+  /path1/{testId}:
+    get:
+      tags:
+      - "Test1"
+      operationId: getTestId
       produces:
       - application/json
       - application/xml
       parameters:
-      - in: body
-        name: body
-        description: new object for testing
+      - name: testId
+        in: path
+        description: test id
         required: true
-        schema:
-          $ref: '#/definitions/TrakingUsuarioCurso'
+        type: integer
+        format: int64
       responses:
-        405:
-          description: Entrada inválida
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/Test1'
+        400:
+          description: Invalid Id
+        404:
+          description: Id Not Found
+
+    delete:
+      tags:
+      - "Test1"
+      operationId: deleteId
+      produces:
+      - application/json
+      - application/xml
+      parameters:
+      - name: testId
+        in: path
+        description: Test id
+        required: true
+        type: integer
+        format: int64
+      responses:
+        400:
+          description: Invalid ID
+        404:
+          description: ID Not Found
 
 securityDefinitions:
-  learning_auth:
+  testing_auth:
     type: "apiKey"
     name: "Authorization"
     in: "header"
 
 definitions:
-  TrakingUsuarioCurso:
+  Test1:
     type: "object"
     properties:
-      id:
-        type: "integer"
-        format: "int64"
-      dataInicio:
-        type: "string"
-        format: "date-time"
-        example: "2017-07-21T17:32:28Z"
-      dataFim:
-        type: "string"
-        format: "date-time"
-        example: "2017-09-21T17:32:28Z"
-      percentualConclusao:
-        type: "integer"
-        format: "int64"
-        example: "70"
-      cursoInstancia:
-        $ref: '#/definitions/Curso'
-      trakingTopicoInstanciaAtual:
-        $ref: '#/definitions/TrakingTopicoInstancia'
-      trackingTopicosInstancias:
+      InstanceCourses:
         type: "array"
         xml:
           wrapped: true
         items:
-          $ref: '#/definitions/TrakingTopicoInstancia'
-
-  TrakingTopicoInstancia:
+          $ref: "#/definitions/Course"
+  Course:
     type: "object"
     properties:
-      id:
-        type: "integer"
-        format: "int64"
-      dataInicio:
-        type: "string"
-        format: "date-time"
-        example: "2017-07-21T17:32:28Z"
-      dataFim:
-        type: "string"
-        format: "date-time"
-        example: "2017-09-21T17:32:28Z"
-      percentualConclusao:
-        type: "integer"
-        format: "int64"
-        example: "70"
-      topicoInstancia:
-        $ref: '#/definitions/TopicosInstancia'
-
-  RoteiroApredizagemInstancia:
+      LearningInstances:
+        type: "array"
+        xml:
+          wrapped: true
+        items:
+          $ref: "#/definitions/LearningInstances"
+  LearningInstances:
     type: "object"
-    required:
-    - "nome"
     properties:
       id:
         type: "integer"
         format: "int64"
       nome:
         type: "string"
-        example: "Roteiro sobre Análise e tecnica de amostragem"
-      topicosInstancias:
+      instanceSubjects:
         type: "array"
         xml:
           wrapped: true
         items:
-          $ref: "#/definitions/TopicosInstancia"
-    example:
-      nome: "Roteiro sobre Análise e tecnica de amostragem"
-      id: 6
-      topicosInstancias:
-      - nome: "Apresentacao Disciplina"
-        id: 1
-        conteudovinculado: false
-        subTopicoInstancias:
-        - null
-        - null
-      - nome: "Apresentacao Disciplina"
-        id: 1
-        conteudovinculado: false
-        subTopicoInstancias:
-        - null
-        - null
-    xml:
-      name: "RoteiroApredizagemInstancia"
-  TopicosInstancia:
+          $ref: "#/definitions/InstanceSubjects"
+  InstanceSubjects:
     type: "object"
-    required:
-    - "nome"
     properties:
-      id:
-        type: "integer"
-        format: "int64"
-      nome:
-        type: "string"
-        example: "Apresentacao Disciplina"
-      conteudovinculado:
-        type: "boolean"
-        example: false
-      subTopicoInstancias:
+      subInstances:
         type: "array"
         xml:
           wrapped: true
         items:
-          $ref: "#/definitions/TopicosInstancia"
-    example:
-      nome: "Apresentacao Disciplina"
-      id: 1
-      conteudovinculado: false
-      subTopicoInstancias:
-      - null
-      - null
-    xml:
-      name: "TopicosInstancia"
+          $ref: "#/definitions/InstanceSubjects"
 externalDocs:
   description: "Find out more about Swagger"
   url: "http://swagger.io"

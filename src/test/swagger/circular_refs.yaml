@@ -1,171 +1,2119 @@
----
-swagger: "2.0"
+swagger: '2.0'
 info:
-  description: "description"
-  version: "1.0.0"
-  title: "title"
-  termsOfService: "http://swagger.io/terms/"
+  description: |
+    This is a sample Petstore server.  You can find
+    out more about Swagger at
+    [http://swagger.io](http://swagger.io) or on
+    [irc.freenode.net, #swagger](http://swagger.io/irc/).
+  version: "1.0.1"
+  title: Swagger Petstore
+  termsOfService: http://swagger.io/terms/
   contact:
-    email: "suporte@mail.com"
+    email: apiteam@swagger.io
   license:
-    name: "Apache 2.0"
-    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "wwww.local.com"
-basePath: "/basePath/Test"
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+# host: petstore.swagger.io
+# basePath: /v2
 tags:
-- name: "Tags"
-  description: "Description"
-- name: "RH"
-  description: "Description"
-
-schemes:
-- "https"
-- "http"
+- name: candidate
+  description: Everything about your Candidates
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+- name: user
+  description: Operations about user
+  externalDocs:
+    description: Find out more about our store
+    url: http://swagger.io
+- name: besoin
+  description: Everything about your Besoins
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+- name: school
+  description: Everything about your Schools
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+- name: client
+  description: Everything about your Clients
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+- name: jobboard
+  description: Everything about your JobBoards
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+- name: jobglobal
+  description: Everything about your JobGlobals
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+- name: source
+  description: Everything about your Sources
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+# schemes:
+# - http
 paths:
-  /Test:
+  /candidates:
     post:
       tags:
-      - "Tags"
-      summary: testing
-      operationId: addTest
+      - candidate
+      summary: Add a new candidate to the database
+      operationId: addCandidate
       consumes:
       - application/json
-      - application/xml
       produces:
       - application/json
-      - application/xml
       parameters:
       - in: body
         name: body
-        description: new object for testing
+        description: Candiadate object that needs to be added to the database
         required: true
         schema:
-          $ref: '#/definitions/TrakingUsuarioCurso'
+          $ref: '#/definitions/Candidate'
       responses:
         405:
-          description: Entrada inválida
-
+          description: Invalid input
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    put:
+      tags:
+      - candidate
+      summary: Update an existing candidate
+      operationId: updateCandidate
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Candidate object that needs to be update to the database
+        required: true
+        schema:
+          $ref: '#/definitions/Candidate'
+      responses:
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Candidate not found
+        405:
+          description: Validation exception
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    get:
+        tags:
+        - candidate
+        summary: Finds all candidates
+        description: Get all candidates
+        operationId: findCandidates
+        produces:
+        - application/json
+        parameters: []
+        responses:
+          200:
+            description: successful operation
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/Candidate'
+          400:
+            description: Invalid status value
+        security:
+        - petstore_auth:
+          - read:pets
+  /candidates/{candidateId}:
+    get:
+      tags:
+      - candidate
+      summary: Find candidate by ID
+      description: Returns a single candidate
+      operationId: getCandidateById
+      produces:
+      - application/json
+      parameters:
+      - name: candidateId
+        in: path
+        description: ID of candidate to return
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Candidate'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Candidate not found
+      security:
+      - api_key: []
+    post:
+      tags:
+      - candidate
+      summary: Updates a candidate in the database with form data
+      operationId: updateCandidatetWithForm
+      consumes:
+      - application/x-www-form-urlencoded
+      produces:
+      - application/json
+      parameters:
+      - name: candidateId
+        in: path
+        description: ID of candidate that needs to be updated
+        required: true
+        type: integer
+        format: int64
+      - name: name
+        in: formData
+        description: Updated name of the candidate
+        required: false
+        type: string
+      - name: status
+        in: formData
+        description: Updated status of the candidate
+        required: false
+        type: string
+      responses:
+        405:
+          description: Invalid input
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    delete:
+      tags:
+      - candidate
+      summary: Deletes a candidate
+      operationId: deleteCandidate
+      produces:
+      - application/json
+      parameters:
+      - name: api_key
+        in: header
+        required: false
+        type: string
+      - name: candidateId
+        in: path
+        description: Candidate id to delete
+        required: true
+        type: integer
+        format: int64
+      responses:
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Candidate not found
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+  /candidates/{candidateId}/uploadCV:
+    post:
+      tags:
+      - candidate
+      operationId: uploadCV
+      consumes:
+      - multipart/form-data
+      produces:
+      - application/json
+      parameters:
+      - name: candidateId
+        in: path
+        description: ID of candidate to update
+        required: true
+        type: integer
+        format: int64
+      - name: additionalMetadata
+        in: formData
+        description: Additional data to pass to server
+        required: false
+        type: string
+      - name: file
+        in: formData
+        description: file to upload
+        required: false
+        type: file
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ApiResponse'
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+  /user:
+    post:
+      tags:
+      - user
+      summary: Create user
+      description: This can only be done by the logged in user.
+      operationId: createUser
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Created user object
+        required: true
+        schema:
+          $ref: '#/definitions/User'
+      responses:
+        default:
+          description: successful operation
+  /user/login:
+    get:
+      tags:
+      - user
+      summary: Logs user into the system
+      operationId: loginUser
+      produces:
+      - application/json
+      parameters:
+      - name: username
+        in: query
+        description: The user name for login
+        required: true
+        type: string
+      - name: password
+        in: query
+        description: The password for login in clear text
+        required: true
+        type: string
+      responses:
+        200:
+          description: successful operation
+          schema:
+            type: string
+          headers:
+            X-Rate-Limit:
+              type: integer
+              format: int32
+              description: calls per hour allowed by the user
+            X-Expires-After:
+              type: string
+              format: date-time
+              description: date in UTC when token expires
+        400:
+          description: Invalid username/password supplied
+  /user/logout:
+    get:
+      tags:
+      - user
+      summary: Logs out current logged in user session
+      operationId: logoutUser
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        default:
+          description: successful operation
+  /user/{username}:
+    get:
+      tags:
+      - user
+      summary: Get user by user name
+      operationId: getUserByName
+      produces:
+      - application/json
+      parameters:
+      - name: username
+        in: path
+        description: The name that needs to be fetched. Use user1 for testing.
+        required: true
+        type: string
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/User'
+        400:
+          description: Invalid username supplied
+        404:
+          description: User not found
+    put:
+      tags:
+      - user
+      summary: Updated user
+      description: This can only be done by the logged in user.
+      operationId: updateUser
+      produces:
+      - application/json
+      parameters:
+      - name: username
+        in: path
+        description: name that need to be updated
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: Updated user object
+        required: true
+        schema:
+          $ref: '#/definitions/User'
+      responses:
+        400:
+          description: Invalid user supplied
+        404:
+          description: User not found
+    delete:
+      tags:
+      - user
+      summary: Delete user
+      description: This can only be done by the logged in user.
+      operationId: deleteUser
+      produces:
+      - application/json
+      parameters:
+      - name: username
+        in: path
+        description: The name that needs to be deleted
+        required: true
+        type: string
+      responses:
+        400:
+          description: Invalid username supplied
+        404:
+          description: User not found
+  /besoins:
+    post:
+      tags:
+      - besoin
+      summary: Add a new besoin to the database
+      operationId: addBesoin
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Besoin object that needs to be added to the database
+        required: true
+        schema:
+          $ref: '#/definitions/Besoin'
+      responses:
+        405:
+          description: Invalid input
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    put:
+      tags:
+      - besoin
+      summary: Update an existing besoin
+      operationId: updateBesoin
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Besoin object that needs to be update to the database
+        required: true
+        schema:
+          $ref: '#/definitions/Besoin'
+      responses:
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Besoin not found
+        405:
+          description: Validation exception
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    get:
+        tags:
+        - besoin
+        summary: Finds all besoins
+        description: Get all besoins
+        operationId: findBesoins
+        produces:
+        - application/json
+        parameters: []
+        responses:
+          200:
+            description: successful operation
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/Besoin'
+          400:
+            description: Invalid status value
+        security:
+        - petstore_auth:
+          - read:pets
+  /besoins/{besoinId}:
+    get:
+      tags:
+      - besoin
+      summary: Find besoin by ID
+      description: Returns a single besoin
+      operationId: getBesoinById
+      produces:
+      - application/json
+      parameters:
+      - name: besoinId
+        in: path
+        description: ID of besoin to return
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Besoin'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Besoin not found
+      security:
+      - api_key: []
+    post:
+      tags:
+      - besoin
+      summary: Updates a besoin in the database with form data
+      operationId: updateBesoinWithForm
+      consumes:
+      - application/x-www-form-urlencoded
+      produces:
+      - application/json
+      parameters:
+      - name: besoinId
+        in: path
+        description: ID of besoin that needs to be updated
+        required: true
+        type: integer
+        format: int64
+      - name: name
+        in: formData
+        description: Updated name of the besoin
+        required: false
+        type: string
+      - name: status
+        in: formData
+        description: Updated status of the besoin
+        required: false
+        type: string
+      responses:
+        405:
+          description: Invalid input
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    delete:
+      tags:
+      - besoin
+      summary: Deletes a besoin
+      operationId: deleteBesoin
+      produces:
+      - application/json
+      parameters:
+      - name: api_key
+        in: header
+        required: false
+        type: string
+      - name: besoinId
+        in: path
+        description: Besoin id to delete
+        required: true
+        type: integer
+        format: int64
+      responses:
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Besoin not found
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+  /schools:
+    post:
+      tags:
+      - school
+      summary: Add a new school to the database
+      operationId: addSchool
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: School object that needs to be added to the database
+        required: true
+        schema:
+          $ref: '#/definitions/School'
+      responses:
+        405:
+          description: Invalid input
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    put:
+      tags:
+      - school
+      summary: Update an existing school
+      operationId: updateSchool
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: School object that needs to be update to the database
+        required: true
+        schema:
+          $ref: '#/definitions/School'
+      responses:
+        400:
+          description: Invalid ID supplied
+        404:
+          description: School not found
+        405:
+          description: Validation exception
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    get:
+        tags:
+        - school
+        summary: Finds all schools
+        description: Get all schools
+        operationId: findSchools
+        produces:
+        - application/json
+        parameters: []
+        responses:
+          200:
+            description: successful operation
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/School'
+          400:
+            description: Invalid status value
+        security:
+        - petstore_auth:
+          - read:pets
+  /schools/{schoolId}:
+    get:
+      tags:
+      - school
+      summary: Find school by ID
+      description: Returns a single school
+      operationId: getSchoolById
+      produces:
+      - application/json
+      parameters:
+      - name: schoolId
+        in: path
+        description: ID of school to return
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/School'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: School not found
+      security:
+      - api_key: []
+    post:
+      tags:
+      - school
+      summary: Updates a besooloin in the database with form data
+      operationId: updateSchoolWithForm
+      consumes:
+      - application/x-www-form-urlencoded
+      produces:
+      - application/json
+      parameters:
+      - name: schoolId
+        in: path
+        description: ID of school that needs to be updated
+        required: true
+        type: integer
+        format: int64
+      - name: name
+        in: formData
+        description: Updated name of the school
+        required: false
+        type: string
+      - name: status
+        in: formData
+        description: Updated status of the school
+        required: false
+        type: string
+      responses:
+        405:
+          description: Invalid input
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    delete:
+      tags:
+      - school
+      summary: Deletes a school
+      operationId: deleteSchool
+      produces:
+      - application/json
+      parameters:
+      - name: api_key
+        in: header
+        required: false
+        type: string
+      - name: schoolId
+        in: path
+        description: School id to delete
+        required: true
+        type: integer
+        format: int64
+      responses:
+        400:
+          description: Invalid ID supplied
+        404:
+          description: School not found
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+  /clients:
+    post:
+      tags:
+      - client
+      summary: Add a new client to the database
+      operationId: addClient
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Client object that needs to be added to the database
+        required: true
+        schema:
+          $ref: '#/definitions/Client'
+      responses:
+        405:
+          description: Invalid input
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    put:
+      tags:
+      - client
+      summary: Update an existing client
+      operationId: updateClient
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Client object that needs to be update to the database
+        required: true
+        schema:
+          $ref: '#/definitions/Client'
+      responses:
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Client not found
+        405:
+          description: Validation exception
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    get:
+        tags:
+        - client
+        summary: Finds all clients
+        description: Get all clients
+        operationId: findClients
+        produces:
+        - application/json
+        parameters: []
+        responses:
+          200:
+            description: successful operation
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/Client'
+          400:
+            description: Invalid status value
+        security:
+        - petstore_auth:
+          - read:pets
+  /clients/{clientId}:
+    get:
+      tags:
+      - client
+      summary: Find client by ID
+      description: Returns a single client
+      operationId: getClientById
+      produces:
+      - application/json
+      parameters:
+      - name: clientId
+        in: path
+        description: ID of client to return
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Client'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Client not found
+      security:
+      - api_key: []
+    post:
+      tags:
+      - client
+      summary: Updates a client in the database with form data
+      operationId: updateClientWithForm
+      consumes:
+      - application/x-www-form-urlencoded
+      produces:
+      - application/json
+      parameters:
+      - name: clientId
+        in: path
+        description: ID of client that needs to be updated
+        required: true
+        type: integer
+        format: int64
+      - name: name
+        in: formData
+        description: Updated name of the client
+        required: false
+        type: string
+      - name: status
+        in: formData
+        description: Updated status of the client
+        required: false
+        type: string
+      responses:
+        405:
+          description: Invalid input
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    delete:
+      tags:
+      - client
+      summary: Deletes a client
+      operationId: deleteClient
+      produces:
+      - application/json
+      parameters:
+      - name: api_key
+        in: header
+        required: false
+        type: string
+      - name: clientId
+        in: path
+        description: Client id to delete
+        required: true
+        type: integer
+        format: int64
+      responses:
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Client not found
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+  /jobboards:
+    post:
+      tags:
+      - jobboard
+      summary: Add a new jobboard to the database
+      operationId: addJobBoard
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: JobBoard object that needs to be added to the database
+        required: true
+        schema:
+          $ref: '#/definitions/JobBoard'
+      responses:
+        405:
+          description: Invalid input
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    put:
+      tags:
+      - jobboard
+      summary: Update an existing jobboard
+      operationId: updateJobBoard
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: JobBoard object that needs to be update to the database
+        required: true
+        schema:
+          $ref: '#/definitions/JobBoard'
+      responses:
+        400:
+          description: Invalid ID supplied
+        404:
+          description: JobBoard not found
+        405:
+          description: Validation exception
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    get:
+        tags:
+        - jobboard
+        summary: Finds all JobBoards
+        description: Get all JobBoards
+        operationId: findJobBoards
+        produces:
+        - application/json
+        parameters: []
+        responses:
+          200:
+            description: successful operation
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/JobBoard'
+          400:
+            description: Invalid status value
+        security:
+        - petstore_auth:
+          - read:pets
+  /jobboards/{jobboardId}:
+    get:
+      tags:
+      - jobboard
+      summary: Find jobboard by ID
+      description: Returns a single jobboard
+      operationId: getJobBoardById
+      produces:
+      - application/json
+      parameters:
+      - name: jobboardId
+        in: path
+        description: ID of jobboard to return
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/JobBoard'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: JobBoard not found
+      security:
+      - api_key: []
+    post:
+      tags:
+      - jobboard
+      summary: Updates a jobboard in the database with form data
+      operationId: updateJobBoardWithForm
+      consumes:
+      - application/x-www-form-urlencoded
+      produces:
+      - application/json
+      parameters:
+      - name: jobboardId
+        in: path
+        description: ID of jobboard that needs to be updated
+        required: true
+        type: integer
+        format: int64
+      - name: name
+        in: formData
+        description: Updated name of the jobboard
+        required: false
+        type: string
+      - name: status
+        in: formData
+        description: Updated status of the jobboard
+        required: false
+        type: string
+      responses:
+        405:
+          description: Invalid input
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    delete:
+      tags:
+      - jobboard
+      summary: Deletes a jobboard
+      operationId: deleteJobBoard
+      produces:
+      - application/json
+      parameters:
+      - name: api_key
+        in: header
+        required: false
+        type: string
+      - name: jobboardId
+        in: path
+        description: JobBoard id to delete
+        required: true
+        type: integer
+        format: int64
+      responses:
+        400:
+          description: Invalid ID supplied
+        404:
+          description: JobBoard not found
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+  /jobglobals:
+    post:
+      tags:
+      - jobglobal
+      summary: Add a new jobglobal to the database
+      operationId: addJobGlobal
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: JobGlobal object that needs to be added to the database
+        required: true
+        schema:
+          $ref: '#/definitions/JobGlobal'
+      responses:
+        405:
+          description: Invalid input
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    put:
+      tags:
+      - jobglobal
+      summary: Update an existing jobglobal
+      operationId: updateJobGlobal
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: JobGlobal object that needs to be update to the database
+        required: true
+        schema:
+          $ref: '#/definitions/JobGlobal'
+      responses:
+        400:
+          description: Invalid ID supplied
+        404:
+          description: JobGlobal not found
+        405:
+          description: Validation exception
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    get:
+        tags:
+        - jobglobal
+        summary: Finds all JobGlobals
+        description: Get all JobGlobals
+        operationId: findJobGlobals
+        produces:
+        - application/json
+        parameters: []
+        responses:
+          200:
+            description: successful operation
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/JobGlobal'
+          400:
+            description: Invalid status value
+        security:
+        - petstore_auth:
+          - read:pets
+  /jobglobals/{jobglobalId}:
+    get:
+      tags:
+      - jobglobal
+      summary: Find jobglobal by ID
+      description: Returns a single jobglobal
+      operationId: getJobGlobalById
+      produces:
+      - application/json
+      parameters:
+      - name: jobglobalId
+        in: path
+        description: ID of jobglobal to return
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/JobGlobal'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: JobGlobal not found
+      security:
+      - api_key: []
+    post:
+      tags:
+      - jobglobal
+      summary: Updates a jobglobal in the database with form data
+      operationId: updateJobGlobalWithForm
+      consumes:
+      - application/x-www-form-urlencoded
+      produces:
+      - application/json
+      parameters:
+      - name: jobglobalId
+        in: path
+        description: ID of jobglobal that needs to be updated
+        required: true
+        type: integer
+        format: int64
+      - name: name
+        in: formData
+        description: Updated name of the jobglobal
+        required: false
+        type: string
+      - name: status
+        in: formData
+        description: Updated status of the jobglobal
+        required: false
+        type: string
+      responses:
+        405:
+          description: Invalid input
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    delete:
+      tags:
+      - jobglobal
+      summary: Deletes a jobglobal
+      operationId: deleteJobGlobal
+      produces:
+      - application/json
+      parameters:
+      - name: api_key
+        in: header
+        required: false
+        type: string
+      - name: jobglobalId
+        in: path
+        description: JobGlobal id to delete
+        required: true
+        type: integer
+        format: int64
+      responses:
+        400:
+          description: Invalid ID supplied
+        404:
+          description: JobGlobal not found
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+  /sources:
+    post:
+      tags:
+      - source
+      summary: Add a new source to the database
+      operationId: addSource
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Source object that needs to be added to the database
+        required: true
+        schema:
+          $ref: '#/definitions/Source'
+      responses:
+        405:
+          description: Invalid input
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    put:
+      tags:
+      - source
+      summary: Update an existing source
+      operationId: updateSource
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Source object that needs to be update to the database
+        required: true
+        schema:
+          $ref: '#/definitions/Source'
+      responses:
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Source not found
+        405:
+          description: Validation exception
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    get:
+        tags:
+        - source
+        summary: Finds all Sources
+        description: Get all Sources
+        operationId: findSources
+        produces:
+        - application/json
+        parameters: []
+        responses:
+          200:
+            description: successful operation
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/Source'
+          400:
+            description: Invalid status value
+        security:
+        - petstore_auth:
+          - read:pets
+  /sources/{sourceId}:
+    get:
+      tags:
+      - source
+      summary: Find source by ID
+      description: Returns a single jourceobboard
+      operationId: getSourceById
+      produces:
+      - application/json
+      parameters:
+      - name: sourceId
+        in: path
+        description: ID of source to return
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Source'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Source not found
+      security:
+      - api_key: []
+    post:
+      tags:
+      - source
+      summary: Updates a source in the database with form data
+      operationId: updateSourceWithForm
+      consumes:
+      - application/x-www-form-urlencoded
+      produces:
+      - application/json
+      parameters:
+      - name: sourceId
+        in: path
+        description: ID of source that needs to be updated
+        required: true
+        type: integer
+        format: int64
+      - name: name
+        in: formData
+        description: Updated name of the source
+        required: false
+        type: string
+      - name: status
+        in: formData
+        description: Updated status of the source
+        required: false
+        type: string
+      responses:
+        405:
+          description: Invalid input
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+    delete:
+      tags:
+      - source
+      summary: Deletes a source
+      operationId: deleteSource
+      produces:
+      - application/json
+      parameters:
+      - name: api_key
+        in: header
+        required: false
+        type: string
+      - name: sourceId
+        in: path
+        description: Source id to delete
+        required: true
+        type: integer
+        format: int64
+      responses:
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Source not found
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
 securityDefinitions:
-  learning_auth:
-    type: "apiKey"
-    name: "Authorization"
-    in: "header"
-
+  petstore_auth:
+    type: oauth2
+    authorizationUrl: http://petstore.swagger.io/oauth/dialog
+    flow: implicit
+    scopes:
+      write:pets: modify pets in your account
+      read:pets: read your pets
+  api_key:
+    type: apiKey
+    name: api_key
+    in: header
 definitions:
-  TrakingUsuarioCurso:
-    type: "object"
+  User:
+    type: object
     properties:
       id:
-        type: "integer"
-        format: "int64"
-      dataInicio:
-        type: "string"
-        format: "date-time"
-        example: "2017-07-21T17:32:28Z"
-      dataFim:
-        type: "string"
-        format: "date-time"
-        example: "2017-09-21T17:32:28Z"
-      percentualConclusao:
-        type: "integer"
-        format: "int64"
-        example: "70"
-      cursoInstancia:
-        $ref: '#/definitions/Curso'
-      trakingTopicoInstanciaAtual:
-        $ref: '#/definitions/TrakingTopicoInstancia'
-      trackingTopicosInstancias:
-        type: "array"
-        xml:
-          wrapped: true
-        items:
-          $ref: '#/definitions/TrakingTopicoInstancia'
-
-  TrakingTopicoInstancia:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      dataInicio:
-        type: "string"
-        format: "date-time"
-        example: "2017-07-21T17:32:28Z"
-      dataFim:
-        type: "string"
-        format: "date-time"
-        example: "2017-09-21T17:32:28Z"
-      percentualConclusao:
-        type: "integer"
-        format: "int64"
-        example: "70"
-      topicoInstancia:
-        $ref: '#/definitions/TopicosInstancia'
-
-  RoteiroApredizagemInstancia:
-    type: "object"
-    required:
-    - "nome"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      nome:
-        type: "string"
-        example: "Roteiro sobre Análise e tecnica de amostragem"
-      topicosInstancias:
-        type: "array"
-        xml:
-          wrapped: true
-        items:
-          $ref: "#/definitions/TopicosInstancia"
-    example:
-      nome: "Roteiro sobre Análise e tecnica de amostragem"
-      id: 6
-      topicosInstancias:
-      - nome: "Apresentacao Disciplina"
-        id: 1
-        conteudovinculado: false
-        subTopicoInstancias:
-        - null
-        - null
-      - nome: "Apresentacao Disciplina"
-        id: 1
-        conteudovinculado: false
-        subTopicoInstancias:
-        - null
-        - null
+        type: integer
+        format: int64
+      username:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      userStatus:
+        type: integer
+        format: int32
+        description: User Status
     xml:
-      name: "RoteiroApredizagemInstancia"
-  TopicosInstancia:
-    type: "object"
+      name: User
+  Candidate:
+    type: object
     required:
-    - "nome"
+    - firstName
+    - lastName
     properties:
       id:
-        type: "integer"
-        format: "int64"
-      nome:
-        type: "string"
-        example: "Apresentacao Disciplina"
-      conteudovinculado:
-        type: "boolean"
-        example: false
-      subTopicoInstancias:
-        type: "array"
+        type: integer
+        format: int64
+      firstName:
+        type: string
+        example: Jean
+      lastName:
+        type: string
+        example: Dupont
+      dateContacted:
+        type: string
+        example: 01-02-2018
+      managerEval:
+        type: string
+        example: ED
+      cdrEval:
+        type: string
+        example: VIP
+      dirEval:
+        type: string
+        example: ED
+      commentGlobal:
+        type: string
+        example: commentaire
+      experience:
+        type: string
+        example: 2017-Orange-developpeur PHP
+      salary:
+        type: string
+        example: 40K
+      salaryMin:
+        type: string
+        example: 38K
+      salaryMax:
+        type: string
+        example: 42K
+      lang:
+        type: string
+        example: fr
+      mobility:
+        type: string
+        example: PACA
+      availabilityDate:
+        type: string
+        example: 02-03-2018
+      availability:
+        type: string
+        example: 2 months
+      source:
+        $ref: '#/definitions/Source'
+      nationality:
+        type: string
+        example: français
+      jobBoard:
+        $ref: '#/definitions/JobBoard'
+      status:
+        type: string
+        description: candidate status in the database
+        enum:
+        - go
+        - no go
+        - ko
+      certifications:
+        type: array
         xml:
+          name: tag
           wrapped: true
         items:
-          $ref: "#/definitions/TopicosInstancia"
-    example:
-      nome: "Apresentacao Disciplina"
-      id: 1
-      conteudovinculado: false
-      subTopicoInstancias:
-      - null
-      - null
-    xml:
-      name: "TopicosInstancia"
+          $ref: '#/definitions/Certification'
+      RIManager:
+        $ref: '#/definitions/User'
+      RHManager:
+        $ref: '#/definitions/User'
+      school:
+        $ref: '#/definitions/School'
+      jobGlobal:
+        $ref: '#/definitions/JobGlobal'
+      jobDetails:
+        type: array
+        xml:
+          name: tag
+          wrapped: true
+        items:
+          $ref: '#/definitions/JobDetail'
+      shoots:
+        type: array
+        xml:
+          name: tag
+          wrapped: true
+        items:
+          $ref: '#/definitions/Shoot'
+      shootRecaps:
+        type: array
+        xml:
+          name: tag
+          wrapped: true
+        items:
+          $ref: '#/definitions/ShootRecap'
+      interviews:
+        type: array
+        xml:
+          name: tag
+          wrapped: true
+        items:
+          $ref: '#/definitions/Interview'
+      histories:
+        type: array
+        xml:
+          name: tag
+          wrapped: true
+        items:
+          $ref: '#/definitions/History'
+      updateddAt:
+        type: string
+        example: 22-02-2018
+      new:
+        type: boolean
+      active:
+        type: boolean
+      display:
+        type: boolean
+      preshoots:
+        type: array
+        xml:
+          name: tag
+          wrapped: true
+        items:
+          $ref: '#/definitions/PreShoot'
+      qcm:
+        type: array
+        xml:
+          name: tag
+          wrapped: true
+        items:
+          $ref: '#/definitions/Qcm'
+      cv:
+        type: string
+        example: cv.docx
+      dt:
+        type: string
+        example: dt_david.docx
+      cv_plainame:
+        type: string
+        example: cv.docx
+      dt_plainame:
+        type: string
+        example: dt_david.docx
+      email:
+        type: string
+        example: monmail@testemail.com
+      telephone:
+        type: string
+        example: 0102030405
+      engineer:
+        $ref: '#/definitions/Engineer'
+  Source:
+    type: object
+    required:
+    - name
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+        example: CDR
+      candidates:
+        $ref: '#/definitions/Candidate'
+  JobBoard:
+    type: object
+    required:
+    - name
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+        example: LinkeDin
+      candidates:
+        $ref: '#/definitions/Candidate'
+  Certification:
+    type: object
+    required:
+    - name
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+        example: Certified scrum master
+      candidates:
+        $ref: '#/definitions/Candidate'
+  School:
+    type: object
+    required:
+    - name
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+        example: Polytech Paris
+      country:
+        type: string
+        example: France
+      category:
+        type: string
+        example: G1
+      rank:
+        type: string
+        example: A
+      candidates:
+        $ref: '#/definitions/Candidate'
+      besoins:
+        $ref: '#/definitions/Besoin'
+  JobGlobal:
+    type: object
+    required:
+    - name
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+        example: Developpeur
+      candidates:
+        $ref: '#/definitions/Candidate'
+      shoots:
+        $ref: '#/definitions/Shoot'
+  JobDetail:
+    type: object
+    required:
+    - name
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+        example: developpeur
+      candidates:
+        $ref: '#/definitions/Candidate'
+      besoins:
+        $ref: '#/definitions/Besoin'
+  Shoot:
+    type: object
+    required:
+    - status
+    properties:
+      id:
+        type: integer
+        format: int64
+      status:
+        type: string
+        example: en cours
+      comment:
+        type: string
+        example: commentaire
+      jobGlobal:
+        $ref: '#/definitions/JobGlobal'
+      date:
+        type: string
+        example: 22-02-2018
+      time:
+        type: string
+        example: 22-02-2018
+      client:
+        $ref: '#/definitions/Client'
+      manager:
+        $ref: '#/definitions/User'
+      candidate:
+        $ref: '#/definitions/Candidate'
+      besoin:
+        $ref: '#/definitions/Besoin'
+      dateRT:
+        type: string
+        example: 22-02-2018
+      dateReponseClient:
+        type: string
+        example: 22-02-2018
+      preShoot:
+        $ref: '#/definitions/PreShoot'
+  ShootRecap:
+    type: object
+    required:
+    - status
+    properties:
+      id:
+        type: integer
+        format: int64
+      status:
+        type: string
+        example: en cours
+      comment:
+        type: string
+        example: commentaire
+      date:
+        type: string
+        example: 22-02-2018
+      client:
+        $ref: '#/definitions/Client'
+      manager:
+        $ref: '#/definitions/User'
+      candidate:
+        $ref: '#/definitions/Candidate'
+      dateRT:
+        type: string
+        example: 22-02-2018
+      eures:
+        type: boolean
+      rejected:
+        type: boolean
+      active:
+        type: boolean
+      sendByCdr:
+        type: boolean
+  Interview:
+    type: object
+    required:
+    - type
+    properties:
+      id:
+        type: integer
+        format: int64
+      manager:
+        $ref: '#/definitions/User'
+      type:
+        type: string
+        example: EC1
+      status:
+        type: string
+        example: todo
+      physical:
+        type: boolean
+      comment:
+        type: string
+        example: commentaire
+      dateEc:
+        type: string
+        example: 22-02-2018
+      candidate:
+        $ref: '#/definitions/Candidate'
+  History:
+    type: object
+    required:
+    - object
+    properties:
+      id:
+        type: integer
+        format: int64
+      manager:
+        $ref: '#/definitions/User'
+      object:
+        type: string
+        example: Candidate
+      new:
+        type: boolean
+      label:
+        type: string
+        example: label
+      date:
+        type: string
+        example: 22-02-2018
+      candidate:
+        $ref: '#/definitions/Candidate'
+      historyChanges:
+        $ref: '#/definitions/HistoryChange'
+  PreShoot:
+    type: object
+    required:
+    - status
+    properties:
+      id:
+        type: integer
+        format: int64
+      status:
+        type: string
+        example: en cours
+      comment:
+        type: string
+        example: commentaire
+      date:
+        type: string
+        example: 22-02-2018
+      startDate:
+        type: string
+        example: 22-02-2018
+      endDate:
+        type: string
+        example: 22-02-2018
+      client:
+        $ref: '#/definitions/Client'
+      manager:
+        $ref: '#/definitions/User'
+      candidate:
+        $ref: '#/definitions/Candidate'
+      active:
+        type: boolean
+      paused:
+        type: boolean
+      timeout:
+        type: boolean
+      nok:
+        type: boolean
+      shoot:
+        $ref: '#/definitions/PreShoot'
+      flowOrder:
+        type: integer
+        format: int64
+  Qcm:
+    type: object
+    required:
+    - code
+    properties:
+      id:
+        type: integer
+        format: int64
+      code:
+        type: string
+        example: qcm-42
+      comment:
+        type: string
+        example: commentaire
+      name:
+        type: string
+        example: QCM PHP
+      score:
+        type: string
+        example: 42
+      scoreFraction:
+        type: string
+        example: 42%
+      scoreFractionTime:
+        type: string
+        example: 0h42min
+      dateFinished:
+        type: string
+        example: 22-02-2018
+      candidate:
+        $ref: '#/definitions/Candidate'
+  Engineer:
+    type: object
+    required:
+    - matricule
+    - firstName
+    - lastName
+    properties:
+      id:
+        type: integer
+        format: int64
+      matricule:
+        type: string
+        example: 842042h
+      firstName:
+        type: string
+        example: Jean
+      lastName:
+        type: string
+        example: Dupont
+      gender:
+        type: string
+        example: male
+      dateHired:
+        type: string
+        example: 01-02-2018
+      manager:
+        $ref: '#/definitions/User'
+      seniority:
+        type: string
+        example: 2ans
+      firstExperience:
+        type: string
+        example: 01-02-2018
+      totalExperience:
+        type: string
+        example: 2ans
+      client:
+        type: string
+        example: Amadeus
+      coefficient:
+        type: string
+        example: 2.2
+      salary:
+        type: string
+        example: 40K
+      dob:
+        type: string
+        example: 01-02-2018
+      age:
+        type: string
+        example: 42
+      nationality:
+        type: string
+        example: française
+      origin:
+        type: string
+        example: PACA
+      school:
+        $ref: '#/definitions/School'
+      dateGraduation:
+        type: string
+        example: 02-03-2018
+      chez:
+        type: string
+        example: Chez M. Dupont
+      address1:
+        type: string
+        example: 42 route des Lucioles
+      address2:
+        type: string
+        example: Bat les écolucioles b2
+      codePostale:
+        type: string
+        example: 06560
+      ville:
+        type: string
+        example: Valbonne
+      telephone:
+        type: string
+        example: 0102030405
+      personnalEmail:
+        type: string
+        example: jean.dupont@gmail.com
+      progessionalEmail:
+        type: string
+        example: jean.dupont@alten.com
+      title:
+        type: string
+        example: M.
+      active:
+        type: boolean
+      exitDate:
+        type: string
+        example: 22-02-2018
+      exitMotive:
+        type: string
+        example: Personnal
+      exitComment:
+        type: string
+        example: Wife moving from another city
+      candidate:
+        $ref: '#/definitions/Candidate'
+      isRsi:
+        type: boolean
+      rsi:
+        $ref: '#/definitions/Engineer'
+      signed:
+        type: string
+        example: oui
+      isPrev:
+        type: boolean
+      prevLastDate:
+        type: string
+        example: 22-02-2018
+      createdDate:
+        type: string
+        example: 22-02-2018
+      suspendedContract:
+        type: boolean
+      rc:
+        $ref: '#/definitions/User'
+      notation:
+        type: string
+        example: dt_david.docx
+  Besoin:
+    type: object
+    required:
+    - name
+    properties:
+      id:
+        type: integer
+        format: int64
+      manager:
+        $ref: '#/definitions/User'
+      client:
+        $ref: '#/definitions/Client'
+      name:
+        type: string
+        example: Dev PHP/Symfony
+      availability:
+        type: string
+        example: 01-02-2018
+      jobGlobal:
+        $ref: '#/definitions/JobGlobal'
+      jobDetail:
+        $ref: '#/definitions/JobDetail'
+      notification:
+        $ref: '#/definitions/Notification'
+      schoolGroup:
+        type: array
+        xml:
+          name: tag
+          wrapped: true
+        items:
+          type: string
+      experience:
+        type: string
+        example: Amadeus
+      salary:
+        type: string
+        example: 40K
+      lang:
+        type: string
+        description: lang need
+        enum:
+        - FR
+        - FR/EN
+        - EN
+      nationality:
+        type: string
+        example: française
+      availabiltyDate:
+        type: string
+        example: 02-03-2018
+      jobDetailWeight:
+        type: string
+        example: 42
+      experienceWeight:
+        type: string
+        example: 42
+      salaryWeight:
+        type: string
+        example: 42
+      langWeight:
+        type: string
+        example: 42
+      schoolWeight:
+        type: string
+        example: 42
+      availabilityWeight:
+        type: string
+        example: 42
+      nationalityWeight:
+        type: string
+        example: 42
+      extraSkills:
+        type: string
+        example: script bash
+      comment:
+        type: string
+        example: commentaire
+      active:
+        type: boolean
+  Client:
+    type: object
+    required:
+    - name
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+        example: Orange
+      description:
+        type: string
+        example: Phone operator
+      department:
+        type: string
+        example: OIH
+      manager:
+        $ref: '#/definitions/User'
+      shoots:
+        $ref: '#/definitions/Shoot'
+      contactDate:
+        type: string
+        example: 01-02-2018
+  HistoryChange:
+    type: object
+    required:
+    - field
+    properties:
+      id:
+        type: integer
+        format: int64
+      field:
+        type: string
+        example: name
+      newValue:
+        type: string
+        example: Orange Telecom
+      history:
+        $ref: '#/definitions/History'
+  Notification:
+    type: object
+    required:
+    - manager
+    properties:
+      id:
+        type: integer
+        format: int64
+      manager:
+        $ref: '#/definitions/User'
+      candidate:
+        $ref: '#/definitions/Candidate'
+      besoin:
+        $ref: '#/definitions/Besoin'
+      dateCreated:
+        type: string
+        example: 01-02-2018
+      seen:
+        type: boolean
+      seenRh:
+        type: boolean
+      seenDir:
+        type: boolean
+      rank:
+        type: number
+        format: float
+  ApiResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      type:
+        type: string
+      message:
+        type: string
 externalDocs:
-  description: "Find out more about Swagger"
-  url: "http://swagger.io"
+  description: Find out more about Swagger
+  url: http://swagger.io
+# Added by API Auto Mocking Plugin
+# host: miami.swaggerhub.com
+basePath: /mia87/MiamiAPI/1.0.1
+schemes:
+ - https
+ - http
+# Added by API Auto Mocking Plugin
+host: virtserver.swaggerhub.com
