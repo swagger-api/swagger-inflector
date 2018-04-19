@@ -639,6 +639,7 @@ paths:
           description: 'success!'
   '/withInvalidComposedModelArray':
     post:
+
       operationId: withInvalidComposedModelArray
       x-swagger-router-controller: TestController
       parameters:
