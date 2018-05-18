@@ -28,8 +28,11 @@ import io.swagger.inflector.examples.models.ObjectExample;
 import io.swagger.inflector.examples.models.StringExample;
 import io.swagger.inflector.processors.JsonExampleDeserializer;
 import io.swagger.inflector.processors.JsonNodeExampleSerializer;
+import io.swagger.inflector.utils.ResolverUtil;
+import io.swagger.models.HttpMethod;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
+import io.swagger.models.Operation;
 import io.swagger.models.Response;
 import io.swagger.models.Swagger;
 import io.swagger.models.Xml;
@@ -49,9 +52,11 @@ import io.swagger.parser.SwaggerParser;
 import io.swagger.test.models.User;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -129,22 +134,22 @@ public class ExampleBuilderTest {
         Map<String, Model> definitions = new HashMap<String, Model>();
 
         Model address = new ModelImpl()
-          .xml(new Xml()
-            .name("address"))
-          .property(
-            "street",
-            new StringProperty()
-            .example("12345 El Monte Blvd"))
-          .property(
-            "city",
-            new StringProperty()
-            .example("Los Altos Hills"))
-          .property("state", new StringProperty()
-            .example("CA")
-            .minLength(2)
-            .maxLength(2))
-          .property("zip", new StringProperty()
-            .example("94022"));
+                .xml(new Xml()
+                        .name("address"))
+                .property(
+                        "street",
+                        new StringProperty()
+                                .example("12345 El Monte Blvd"))
+                .property(
+                        "city",
+                        new StringProperty()
+                                .example("Los Altos Hills"))
+                .property("state", new StringProperty()
+                        .example("CA")
+                        .minLength(2)
+                        .maxLength(2))
+                .property("zip", new StringProperty()
+                        .example("94022"));
 
         definitions.put("Address", address);
 
@@ -160,23 +165,23 @@ public class ExampleBuilderTest {
         Map<String, Model> definitions = new HashMap<String, Model>();
 
         Model address = new ModelImpl()
-          .example("{\"foo\":\"bar\"}")
-          .xml(new Xml()
-            .name("address"))
-          .property(
-            "street",
-            new StringProperty()
-              .example("12345 El Monte Blvd"))
-          .property(
-            "city",
-            new StringProperty()
-              .example("Los Altos Hills"))
-          .property("state", new StringProperty()
-            .example("CA")
-            .minLength(2)
-            .maxLength(2))
-          .property("zip", new StringProperty()
-            .example("94022"));
+                .example("{\"foo\":\"bar\"}")
+                .xml(new Xml()
+                        .name("address"))
+                .property(
+                        "street",
+                        new StringProperty()
+                                .example("12345 El Monte Blvd"))
+                .property(
+                        "city",
+                        new StringProperty()
+                                .example("Los Altos Hills"))
+                .property("state", new StringProperty()
+                        .example("CA")
+                        .minLength(2)
+                        .maxLength(2))
+                .property("zip", new StringProperty()
+                        .example("94022"));
 
         definitions.put("Address", address);
 
@@ -193,9 +198,9 @@ public class ExampleBuilderTest {
     @Test
     public void testXmlExample() throws Exception {
         Model model = new ModelImpl()
-          .property("id", new StringProperty()
-            .xml(new Xml()
-              .name("fred")));
+                .property("id", new StringProperty()
+                        .xml(new Xml()
+                                .name("fred")));
 
         Map<String, Model> definitions = new HashMap<String, Model>();
         definitions.put("User", model);
@@ -253,13 +258,13 @@ public class ExampleBuilderTest {
     @Test
     public void testRecursiveModel() throws Exception {
         Model person = new ModelImpl()
-          .property(
-            "age",
-            new IntegerProperty()
-            .example(42))
-          .property(
-            "spouse",
-            new RefProperty("Person"));
+                .property(
+                        "age",
+                        new IntegerProperty()
+                                .example(42))
+                .property(
+                        "spouse",
+                        new RefProperty("Person"));
 
         Map<String, Model> definitions = new HashMap<String, Model>();
         definitions.put("Person", person);
@@ -304,15 +309,15 @@ public class ExampleBuilderTest {
     @Test
     public void testIssue126Simple() throws Exception {
         String schema =
-            "{\n" +
-            "  \"type\": \"object\",\n" +
-            "  \"properties\": {\n" +
-            "    \"name\": {\n" +
-            "      \"type\": \"string\",\n" +
-            "      \"example\": \"hi!?\"\n" +
-            "    }\n" +
-            "  }\n" +
-            "}";
+                "{\n" +
+                        "  \"type\": \"object\",\n" +
+                        "  \"properties\": {\n" +
+                        "    \"name\": {\n" +
+                        "      \"type\": \"string\",\n" +
+                        "      \"example\": \"hi!?\"\n" +
+                        "    }\n" +
+                        "  }\n" +
+                        "}";
         Model model = Json.mapper().readValue(schema, Model.class);
 
         Map<String, Model> definitions = new HashMap<>();
@@ -321,36 +326,36 @@ public class ExampleBuilderTest {
         Example rep = ExampleBuilder.fromProperty(new RefProperty("SimpleModel"), definitions);
 
         assertEqualsIgnoreLineEnding(Json.pretty(rep),
-            "{\n" +
-            "  \"name\" : \"hi!?\"\n" +
-            "}");
+                "{\n" +
+                        "  \"name\" : \"hi!?\"\n" +
+                        "}");
     }
 
     @Test
     public void testIssue126Composed() throws Exception {
         String schema =
-            "{\n" +
-            "  \"allOf\": [\n" +
-            "    {\n" +
-            "      \"type\": \"object\",\n" +
-            "      \"properties\": {\n" +
-            "        \"id\": {\n" +
-            "          \"type\": \"integer\",\n" +
-            "          \"format\": \"int32\"\n" +
-            "        }\n" +
-            "      }\n" +
-            "    },\n" +
-            "    {\n" +
-            "      \"type\": \"object\",\n" +
-            "      \"properties\": {\n" +
-            "        \"name\": {\n" +
-            "          \"type\": \"string\",\n" +
-            "          \"example\": \"hi!?\"\n" +
-            "        }\n" +
-            "      }\n" +
-            "    }\n" +
-            "  ]\n" +
-            "}";
+                "{\n" +
+                        "  \"allOf\": [\n" +
+                        "    {\n" +
+                        "      \"type\": \"object\",\n" +
+                        "      \"properties\": {\n" +
+                        "        \"id\": {\n" +
+                        "          \"type\": \"integer\",\n" +
+                        "          \"format\": \"int32\"\n" +
+                        "        }\n" +
+                        "      }\n" +
+                        "    },\n" +
+                        "    {\n" +
+                        "      \"type\": \"object\",\n" +
+                        "      \"properties\": {\n" +
+                        "        \"name\": {\n" +
+                        "          \"type\": \"string\",\n" +
+                        "          \"example\": \"hi!?\"\n" +
+                        "        }\n" +
+                        "      }\n" +
+                        "    }\n" +
+                        "  ]\n" +
+                        "}";
         Model model = Json.mapper().readValue(schema, Model.class);
 
         Map<String, Model> definitions = new HashMap<>();
@@ -359,28 +364,28 @@ public class ExampleBuilderTest {
         Example rep = ExampleBuilder.fromProperty(new RefProperty("ComposedModel"), definitions);
 
         assertEqualsIgnoreLineEnding(Json.pretty(rep),
-            "{\n" +
-            "  \"id\" : 0,\n" +
-            "  \"name\" : \"hi!?\"\n" +
-            "}");
+                "{\n" +
+                        "  \"id\" : 0,\n" +
+                        "  \"name\" : \"hi!?\"\n" +
+                        "}");
     }
 
     @Test
     public void testRecursiveSchema() throws Exception {
         String schema = "{\n" +
-            "  \"type\": \"object\",\n" +
-            "  \"properties\": {\n" +
-            "    \"id\": {\n" +
-            "      \"type\": \"string\"\n" +
-            "    },\n" +
-            "    \"circular1\": {\n" +
-            "      \"$ref\": \"#/definitions/Circular\"\n" +
-            "    },\n" +
-            "    \"circular2\": {\n" +
-            "      \"$ref\": \"#/definitions/Circular\"\n" +
-            "    }\n" +
-            "  }\n" +
-            "}";
+                "  \"type\": \"object\",\n" +
+                "  \"properties\": {\n" +
+                "    \"id\": {\n" +
+                "      \"type\": \"string\"\n" +
+                "    },\n" +
+                "    \"circular1\": {\n" +
+                "      \"$ref\": \"#/definitions/Circular\"\n" +
+                "    },\n" +
+                "    \"circular2\": {\n" +
+                "      \"$ref\": \"#/definitions/Circular\"\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";
         Model model = Json.mapper().readValue(schema, Model.class);
 
         Map<String, Model> definitions = new HashMap<>();
@@ -389,36 +394,44 @@ public class ExampleBuilderTest {
         Example rep = ExampleBuilder.fromProperty(new RefProperty("Circular"), definitions);
 
         assertEqualsIgnoreLineEnding(Json.pretty(rep), "{\n" +
-            "  \"id\" : \"string\",\n" +
-            "  \"circular1\" : { },\n" +
-            "  \"circular2\" : { }\n" +
-            "}");
+                "  \"id\" : \"string\",\n" +
+                "  \"circular1\" : { },\n" +
+                "  \"circular2\" : { }\n" +
+                "}");
+    }
+
+    @Test
+    public void testCircularRefSchema() throws Exception {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/circuler-refs-SPLAT-56.yaml");
+        ResolverUtil resolverUtil = new ResolverUtil();
+        resolverUtil.resolveFully(swagger);
+        ExampleBuilder.fromProperty(new RefProperty("Source"), resolverUtil.getResolvedModels());
     }
 
     @Test
     public void testIssue126Inline() throws Exception {
         String schema =
-            "{\n" +
-            "  \"type\": \"object\",\n" +
-            "  \"properties\": {\n" +
-            "    \"id\": {\n" +
-            "      \"type\": \"integer\",\n" +
-            "      \"format\": \"int32\",\n" +
-            "      \"example\": 999\n" +
-            "    },\n" +
-            "    \"inline\": {\n" +
-            "      \"type\": \"object\",\n" +
-            "      \"properties\": {\n" +
-            "        \"first\": {\n" +
-            "          \"type\": \"string\"\n" +
-            "        },\n" +
-            "        \"last\": {\n" +
-            "          \"type\": \"string\"\n" +
-            "        }\n" +
-            "      }\n" +
-            "    }\n" +
-            "  }\n" +
-            "}";
+                "{\n" +
+                        "  \"type\": \"object\",\n" +
+                        "  \"properties\": {\n" +
+                        "    \"id\": {\n" +
+                        "      \"type\": \"integer\",\n" +
+                        "      \"format\": \"int32\",\n" +
+                        "      \"example\": 999\n" +
+                        "    },\n" +
+                        "    \"inline\": {\n" +
+                        "      \"type\": \"object\",\n" +
+                        "      \"properties\": {\n" +
+                        "        \"first\": {\n" +
+                        "          \"type\": \"string\"\n" +
+                        "        },\n" +
+                        "        \"last\": {\n" +
+                        "          \"type\": \"string\"\n" +
+                        "        }\n" +
+                        "      }\n" +
+                        "    }\n" +
+                        "  }\n" +
+                        "}";
         Model model = Json.mapper().readValue(schema, Model.class);
 
         Map<String, Model> definitions = new HashMap<>();
@@ -427,12 +440,12 @@ public class ExampleBuilderTest {
         Example rep = ExampleBuilder.fromProperty(new RefProperty("InlineModel"), definitions);
 
         assertEqualsIgnoreLineEnding(Json.pretty(rep), "{\n" +
-            "  \"id\" : 999,\n" +
-            "  \"inline\" : {\n" +
-            "    \"first\" : \"string\",\n" +
-            "    \"last\" : \"string\"\n" +
-            "  }\n" +
-            "}");
+                "  \"id\" : 999,\n" +
+                "  \"inline\" : {\n" +
+                "    \"first\" : \"string\",\n" +
+                "    \"last\" : \"string\"\n" +
+                "  }\n" +
+                "}");
     }
 
     @Test
@@ -441,7 +454,7 @@ public class ExampleBuilderTest {
         integerProperty.setFormat("int64");
         integerProperty.setExample(new Long(4321));
         Model model = new ModelImpl()
-            .property("int64", integerProperty);
+                .property("int64", integerProperty);
 
         Map<String, Model> definitions = new HashMap<>();
         definitions.put("Address", model);
@@ -449,8 +462,8 @@ public class ExampleBuilderTest {
         Example rep = ExampleBuilder.fromProperty(new RefProperty("Address"), definitions);
         assertEqualsIgnoreLineEnding(Json.pretty(rep),
                 "{\n" +
-                "  \"int64\" : 4321\n" +
-                "}");
+                        "  \"int64\" : 4321\n" +
+                        "}");
     }
 
     @Test
@@ -469,34 +482,34 @@ public class ExampleBuilderTest {
         Json.prettyPrint(rep);
         assertEqualsIgnoreLineEnding(Json.pretty(rep),
                 "{\n" +
-                "  \"unboundedInteger\" : 4321\n" +
-                "}");
+                        "  \"unboundedInteger\" : 4321\n" +
+                        "}");
     }
 
     @Test
     public void testInvalidExample() throws Exception {
         testInvalidExample( new IntegerProperty(), "asd",
-            ExampleBuilder.SAMPLE_INT_PROPERTY_VALUE, 123 );
+                ExampleBuilder.SAMPLE_INT_PROPERTY_VALUE, 123 );
 
         testInvalidExample( new LongProperty(), "asd",
-            ExampleBuilder.SAMPLE_LONG_PROPERTY_VALUE, 123 );
+                ExampleBuilder.SAMPLE_LONG_PROPERTY_VALUE, 123 );
 
         testInvalidExample( new FloatProperty(), "asd",
-            ExampleBuilder.SAMPLE_FLOAT_PROPERTY_VALUE, 2.1f );
+                ExampleBuilder.SAMPLE_FLOAT_PROPERTY_VALUE, 2.1f );
 
         testInvalidExample( new DoubleProperty(), "asd",
-            ExampleBuilder.SAMPLE_DOUBLE_PROPERTY_VALUE, 3.1f );
+                ExampleBuilder.SAMPLE_DOUBLE_PROPERTY_VALUE, 3.1f );
 
         // base types that don't implement setting a sample value
         testInvalidExample( new DecimalProperty(), "asd",
-            ExampleBuilder.SAMPLE_DECIMAL_PROPERTY_VALUE );
+                ExampleBuilder.SAMPLE_DECIMAL_PROPERTY_VALUE );
 
         testInvalidExample( new BaseIntegerProperty(), "asd",
-            ExampleBuilder.SAMPLE_BASE_INTEGER_PROPERTY_VALUE );
+                ExampleBuilder.SAMPLE_BASE_INTEGER_PROPERTY_VALUE );
     }
 
     public void testInvalidExample(AbstractProperty property, String invalidValue, Object defaultValue ) throws Exception {
-       testInvalidExample( property, invalidValue, defaultValue, null );
+        testInvalidExample( property, invalidValue, defaultValue, null );
     }
 
     public void testInvalidExample(AbstractProperty property, String invalidValue, Object defaultValue, Object sampleValue ) throws Exception {
