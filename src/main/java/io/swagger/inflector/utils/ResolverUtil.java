@@ -35,6 +35,9 @@ public class ResolverUtil {
     private Map<String, Model> resolvedModels = new HashMap<>();
     private Map<String, Property> resolvedProperties = new HashMap<>();
 
+    public Map<String, Model> getResolvedModels() {
+        return resolvedModels;
+    }
 
     public void resolveFully(Swagger swagger) {
         if (swagger.getDefinitions() != null) {

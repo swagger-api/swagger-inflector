@@ -50,6 +50,7 @@ import io.swagger.models.properties.RefProperty;
 import io.swagger.models.properties.StringProperty;
 import io.swagger.models.properties.UUIDProperty;
 import io.swagger.util.Json;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -302,6 +303,10 @@ public class ExampleBuilder {
                 output = new DecimalExample(new BigDecimal(SAMPLE_DECIMAL_PROPERTY_VALUE));
             }
         } else if (property instanceof ObjectProperty) {
+            if(processedModels.contains(property.getName())) {
+                // return some sort of example
+                return alreadyProcessedRefExample(property.getName(), definitions);
+            }
             if (example != null) {
                 try {
                     output = Json.mapper().readValue(Json.mapper().writeValueAsString(example), ObjectExample.class);
@@ -508,6 +513,8 @@ public class ExampleBuilder {
             if(impl.getProperties() != null) {
                 for(String key : impl.getProperties().keySet()) {
                     Property property = impl.getProperties().get(key);
+                    if(property instanceof ObjectProperty)
+                        property.setName(StringUtils.capitalize(key));
                     Example propExample = fromProperty(property, definitions, processedModels);
                     ex.put(key, propExample);
                 }

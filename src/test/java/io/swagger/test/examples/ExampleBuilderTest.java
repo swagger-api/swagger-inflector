@@ -28,6 +28,7 @@ import io.swagger.inflector.examples.models.ObjectExample;
 import io.swagger.inflector.examples.models.StringExample;
 import io.swagger.inflector.processors.JsonExampleDeserializer;
 import io.swagger.inflector.processors.JsonNodeExampleSerializer;
+import io.swagger.inflector.utils.ResolverUtil;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
 import io.swagger.models.Response;
@@ -630,6 +631,24 @@ public class ExampleBuilderTest {
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"username\" : \"trillian\",\n" +
                 "  \"id\" : 4\n" +
+                "}");
+    }
+
+    @Test
+    public void testCircularRefSchema() throws Exception {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/circuler-refs-SPLAT-56.yaml");
+        ResolverUtil resolverUtil = new ResolverUtil();
+        resolverUtil.resolveFully(swagger);
+        Example example = ExampleBuilder.fromProperty(new RefProperty("Source"), resolverUtil.getResolvedModels());
+        assertEqualsIgnoreLineEnding(Json.pretty(example), "{\n" +
+                "  \"id\" : 0,\n" +
+                "  \"name\" : \"CDR\",\n" +
+                "  \"candidates\" : {\n" +
+                "    \"id\" : 0,\n" +
+                "    \"firstName\" : \"Jean\",\n" +
+                "    \"lastName\" : \"Dupont\",\n" +
+                "    \"source\" : { }\n" +
+                "  }\n" +
                 "}");
     }
 
