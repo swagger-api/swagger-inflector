@@ -63,6 +63,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -126,6 +127,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
     private Provider<Providers> providersProvider;
     @Inject
     private Provider<HttpServletRequest> requestProvider;
+    @Inject
+    private Provider<HttpServletResponse> responseProvider;
     private ControllerFactory controllerFactoryCache = null;
 
     public OpenAPIOperationController(Configuration config, String path, String httpMethod, Operation operation, String mediaType, Map<String, Schema> definitions) {
@@ -139,6 +142,16 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         if (method == null) {
             LOGGER.debug("no method `" + methodName + "` in `" + controllerName + "` to map to, using mock response");
         }
+    }
+
+    // Used for unit testing only
+    OpenAPIOperationController(Configuration config, String path, String httpMethod, Operation operation,
+                                             String mediaType, Map<String, Schema> definitions,
+                                             Provider<HttpServletRequest> requestProvider,
+                                             Provider<HttpServletResponse> responseProvider) {
+        this(config, path, httpMethod, operation, mediaType, definitions);
+        this.requestProvider = requestProvider;
+        this.responseProvider = responseProvider;
     }
 
     public Operation getOperation() {
@@ -762,15 +775,29 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         this.method = method;
     }
 
-    private RequestContext createContext(ContainerRequestContext from) {
-        final RequestContext result = new RequestContext(from);
+    // package protected to facilitate unit testing
+    RequestContext createContext(ContainerRequestContext from) {
+        HttpServletRequest request = getHttpServletRequest();
+        HttpServletResponse response = getHttpServletResponse();
+        return new RequestContext(from, request, response);
+    }
+
+    private HttpServletRequest getHttpServletRequest() {
         if (requestProvider != null) {
-            final HttpServletRequest request = requestProvider.get();
-            if (request != null) {
-                result.setRemoteAddr(request.getRemoteAddr());
-            }
+            return requestProvider.get();
+        } else {
+            LOGGER.warn("HttpServletRequest provider was null - returning null request!");
+            return null;
         }
-        return result;
+    }
+
+    private HttpServletResponse getHttpServletResponse() {
+        if (responseProvider != null) {
+            return responseProvider.get();
+        } else {
+            LOGGER.warn("HttpServletResponse provider was null - returning null response!");
+            return null;
+        }
     }
 
     private void doValidation(Object value, Object schema, SchemaValidator.Direction direction) throws ApiException {

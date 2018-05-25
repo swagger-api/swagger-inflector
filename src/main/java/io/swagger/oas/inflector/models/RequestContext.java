@@ -16,6 +16,8 @@
 
 package io.swagger.oas.inflector.models;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -27,16 +29,29 @@ public class RequestContext {
     MediaType mediaType;
     List<MediaType> acceptableMediaTypes;
     private String remoteAddr;
+    private final HttpServletRequest request;
+    private final HttpServletResponse response;
 
-    public RequestContext() {}
+    public RequestContext() {
+        this(null, null, null);
+    }
 
-    public RequestContext(ContainerRequestContext ctx) {
-        this.context = ctx;
-        if(ctx != null) {
-            headers(ctx.getHeaders());
-            mediaType(ctx.getMediaType());
-            acceptableMediaTypes(ctx.getAcceptableMediaTypes());
+    public RequestContext(ContainerRequestContext context) {
+        this(context, null, null);
+    }
+
+    public RequestContext(ContainerRequestContext context, HttpServletRequest request, HttpServletResponse response) {
+        this.context = context;
+        if(context != null) {
+            headers(context.getHeaders());
+            mediaType(context.getMediaType());
+            acceptableMediaTypes(context.getAcceptableMediaTypes());
         }
+        this.request = request;
+        if (request != null) {
+            this.remoteAddr = request.getRemoteAddr();
+        }
+        this.response = response;
     }
 
     public RequestContext headers(MultivaluedMap<String, String> headers) {
@@ -92,5 +107,13 @@ public class RequestContext {
 
     public void setRemoteAddr(String remoteAddr) {
         this.remoteAddr = remoteAddr;
+    }
+
+    public HttpServletRequest getRequest() {
+        return request;
+    }
+
+    public HttpServletResponse getResponse() {
+        return response;
     }
 }
