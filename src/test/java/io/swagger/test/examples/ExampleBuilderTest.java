@@ -639,7 +639,17 @@ public class ExampleBuilderTest {
         Swagger swagger = new SwaggerParser().read("./src/test/swagger/circuler-refs-SPLAT-56.yaml");
         ResolverUtil resolverUtil = new ResolverUtil();
         resolverUtil.resolveFully(swagger);
-        ExampleBuilder.fromProperty(new RefProperty("Source"), resolverUtil.getResolvedModels());
+        Example example = ExampleBuilder.fromProperty(new RefProperty("Source"), resolverUtil.getResolvedModels());
+        assertEqualsIgnoreLineEnding(Json.pretty(example), "{\n" +
+                "  \"id\" : 0,\n" +
+                "  \"name\" : \"CDR\",\n" +
+                "  \"candidates\" : {\n" +
+                "    \"id\" : 0,\n" +
+                "    \"firstName\" : \"Jean\",\n" +
+                "    \"lastName\" : \"Dupont\",\n" +
+                "    \"source\" : { }\n" +
+                "  }\n" +
+                "}");
     }
 
     private String getExampleForPath(Swagger swagger, String s) {
