@@ -513,8 +513,9 @@ public class ExampleBuilder {
             if(impl.getProperties() != null) {
                 for(String key : impl.getProperties().keySet()) {
                     Property property = impl.getProperties().get(key);
-                    if(property instanceof ObjectProperty)
+                    if(property instanceof ObjectProperty) {
                         property.setName(StringUtils.capitalize(key));
+                    }
                     Example propExample = fromProperty(property, definitions, processedModels);
                     ex.put(key, propExample);
                 }
