@@ -42,9 +42,9 @@ public class ResolverUtil {
     public void resolveFully(Swagger swagger) {
         if (swagger.getDefinitions() != null) {
             schemas = swagger.getDefinitions();
-            if (schemas == null) {
-                schemas = new HashMap<>();
-            }
+        }
+        if (schemas == null) {
+            schemas = new HashMap<>();
         }
 
         for (String name : schemas.keySet()) {

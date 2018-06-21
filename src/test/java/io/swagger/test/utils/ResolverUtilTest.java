@@ -267,4 +267,26 @@ public class ResolverUtilTest {
             fail("Recursive loop found");
         }
     }
+
+
+    @Test
+    public void testResolvingWithoutDefinitions() {
+        String yaml =
+                "swagger: '2.0'\n" +
+                        "info:\n" +
+                        "  version: '1.0'\n" +
+                        "  title: No definition example\n" +
+                        "\n" +
+                        "paths:\n" +
+                        "  /:\n" +
+                        "    get:\n" +
+                        "      produces:\n" +
+                        "        - application/json\n" +
+                        "      responses:\n" +
+                        "        200:\n" +
+                        "          description: completed successfully\n";
+
+        Swagger swagger = new SwaggerParser().parse(yaml);
+        new ResolverUtil().resolveFully(swagger);
+    }
 }
