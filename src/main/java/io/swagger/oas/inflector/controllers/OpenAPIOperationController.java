@@ -372,14 +372,11 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                     }
                                 }
 
-                                if (parameters == null || parameters.size() == 0) {
-                                    args[i] = argument;
-                                    i += 1;
-                                }
+                                args[i] = argument;
+                                i += 1;
 
                             }
                         }
-
                     }
                 } catch (ConversionException e) {
                     missingParams.add(e.getError());

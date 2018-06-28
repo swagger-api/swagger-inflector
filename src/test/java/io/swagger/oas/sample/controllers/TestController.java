@@ -103,7 +103,8 @@ public class TestController {
 
     public ResponseContext withModelArray(RequestContext request, String id, Address[] modelArray) {
         return new ResponseContext()
-            .status(Status.OK);
+            .status(Status.OK)
+                .entity(modelArray);
     }
 
     public ResponseContext withValidComposedModel(RequestContext request, ExtendedAddress body) {
