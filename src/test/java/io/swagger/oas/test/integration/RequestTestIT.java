@@ -99,9 +99,11 @@ public class RequestTestIT {
         first.setStreet("first");
         final Address second = new Address();
         second.setStreet("second");
-        client.invokeAPI("/withModelArray/3", "POST", new HashMap<String, String>(),
+        String str = client.invokeAPI("/withModelArray/3", "POST", new HashMap<String, String>(),
                 Arrays.asList(first, second), new HashMap<String, String>(), null,
                 "application/json", null, new String[0]);
+        assertEquals(str,"[{\"street\":\"first\"},{\"street\":\"second\"}]");
+
     }
 
     @Test
