@@ -29,6 +29,7 @@ import io.swagger.inflector.examples.models.StringExample;
 import io.swagger.inflector.processors.JsonExampleDeserializer;
 import io.swagger.inflector.processors.JsonNodeExampleSerializer;
 import io.swagger.inflector.utils.ResolverUtil;
+import io.swagger.models.HttpMethod;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
 import io.swagger.models.Response;
@@ -54,9 +55,11 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 public class ExampleBuilderTest {
     static {
@@ -634,23 +637,17 @@ public class ExampleBuilderTest {
                 "}");
     }
 
+
     @Test
     public void testCircularRefSchema() throws Exception {
-        Swagger swagger = new SwaggerParser().read("./src/test/swagger/circuler-refs-SPLAT-56.yaml");
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/circuler-refs-SPLAT-56-2.yaml");
         ResolverUtil resolverUtil = new ResolverUtil();
         resolverUtil.resolveFully(swagger);
-        Example example = ExampleBuilder.fromProperty(new RefProperty("Source"), resolverUtil.getResolvedModels());
-        assertEqualsIgnoreLineEnding(Json.pretty(example), "{\n" +
-                "  \"id\" : 0,\n" +
-                "  \"name\" : \"CDR\",\n" +
-                "  \"candidates\" : {\n" +
-                "    \"id\" : 0,\n" +
-                "    \"firstName\" : \"Jean\",\n" +
-                "    \"lastName\" : \"Dupont\",\n" +
-                "    \"source\" : { }\n" +
-                "  }\n" +
-                "}");
+        Response response = swagger.getPaths().get("/candidates").getOperationMap().get(HttpMethod.GET).getResponses().get("200");
+        Example example = ExampleBuilder.fromModel("", response.getResponseSchema(), swagger.getDefinitions(), new HashSet<String>());
+        assertNotNull(example);
     }
+
 
     private String getExampleForPath(Swagger swagger, String s) {
         Response response = swagger.getPath(s).getGet().getResponses().get("200");
