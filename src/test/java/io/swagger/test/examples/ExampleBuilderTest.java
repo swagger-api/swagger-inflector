@@ -637,9 +637,26 @@ public class ExampleBuilderTest {
                 "}");
     }
 
-
     @Test
     public void testCircularRefSchema() throws Exception {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/circuler-refs-SPLAT-56.yaml");
+        ResolverUtil resolverUtil = new ResolverUtil();
+        resolverUtil.resolveFully(swagger);
+        Example example = ExampleBuilder.fromProperty(new RefProperty("Source"), resolverUtil.getResolvedModels());
+        assertEqualsIgnoreLineEnding(Json.pretty(example), "{\n" +
+                "  \"id\" : 0,\n" +
+                "  \"name\" : \"CDR\",\n" +
+                "  \"candidates\" : {\n" +
+                "    \"id\" : 0,\n" +
+                "    \"firstName\" : \"Jean\",\n" +
+                "    \"lastName\" : \"Dupont\",\n" +
+                "    \"source\" : { }\n" +
+                "  }\n" +
+                "}");
+    }
+
+    @Test
+    public void testCircularRefSchemaInResponse() throws Exception {
         Swagger swagger = new SwaggerParser().read("./src/test/swagger/circuler-refs-SPLAT-56-2.yaml");
         ResolverUtil resolverUtil = new ResolverUtil();
         resolverUtil.resolveFully(swagger);
@@ -663,6 +680,17 @@ public class ExampleBuilderTest {
                 "        \"candidates\" : { }\n" +
                 "      }\n" +
                 "    }\n" +
+                "  }\n" +
+                "}");
+
+        response = swagger.getPaths().get("/self").getOperationMap().get(HttpMethod.GET).getResponses().get("200");
+        example = ExampleBuilder.fromModel("", response.getResponseSchema(), swagger.getDefinitions(), new HashSet<String>());
+        assertNotNull(example);
+        assertEqualsIgnoreLineEnding(Json.pretty(example), "{\n" +
+                "  \"selfname\" : \"CDR\",\n" +
+                "  \"selfObj\" : {\n" +
+                "    \"selfname\" : \"CDR\",\n" +
+                "    \"selfObj\" : { }\n" +
                 "  }\n" +
                 "}");
     }
