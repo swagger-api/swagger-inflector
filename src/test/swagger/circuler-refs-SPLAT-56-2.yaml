@@ -26,13 +26,13 @@ definitions:
     - firstName
     - lastName
     properties:
-      id:
+      cid:
         type: integer
         format: int64
-      firstName:
+      cfirstName:
         type: string
         example: Jean
-      lastName:
+      clastName:
         type: string
         example: Dupont
       source:
@@ -42,10 +42,10 @@ definitions:
     required:
     - name
     properties:
-      id:
+      sid:
         type: integer
         format: int64
-      name:
+      sname:
         type: string
         example: CDR
       candidates:

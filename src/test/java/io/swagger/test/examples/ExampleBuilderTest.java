@@ -646,6 +646,25 @@ public class ExampleBuilderTest {
         Response response = swagger.getPaths().get("/candidates").getOperationMap().get(HttpMethod.GET).getResponses().get("200");
         Example example = ExampleBuilder.fromModel("", response.getResponseSchema(), swagger.getDefinitions(), new HashSet<String>());
         assertNotNull(example);
+        assertEqualsIgnoreLineEnding(Json.pretty(example), "{\n" +
+                "  \"cid\" : 0,\n" +
+                "  \"cfirstName\" : \"Jean\",\n" +
+                "  \"clastName\" : \"Dupont\",\n" +
+                "  \"source\" : {\n" +
+                "    \"sid\" : 0,\n" +
+                "    \"sname\" : \"CDR\",\n" +
+                "    \"candidates\" : {\n" +
+                "      \"cid\" : 0,\n" +
+                "      \"cfirstName\" : \"Jean\",\n" +
+                "      \"clastName\" : \"Dupont\",\n" +
+                "      \"source\" : {\n" +
+                "        \"sid\" : 0,\n" +
+                "        \"sname\" : \"CDR\",\n" +
+                "        \"candidates\" : { }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}");
     }
 
 
