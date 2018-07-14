@@ -29,6 +29,7 @@ import io.swagger.inflector.examples.models.StringExample;
 import io.swagger.inflector.processors.JsonExampleDeserializer;
 import io.swagger.inflector.processors.JsonNodeExampleSerializer;
 import io.swagger.inflector.utils.ResolverUtil;
+import io.swagger.models.HttpMethod;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
 import io.swagger.models.Response;
@@ -54,9 +55,11 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 public class ExampleBuilderTest {
     static {
@@ -651,6 +654,47 @@ public class ExampleBuilderTest {
                 "  }\n" +
                 "}");
     }
+
+    @Test
+    public void testCircularRefSchemaInResponse() throws Exception {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/circuler-refs-SPLAT-56-2.yaml");
+        ResolverUtil resolverUtil = new ResolverUtil();
+        resolverUtil.resolveFully(swagger);
+        Response response = swagger.getPaths().get("/candidates").getOperationMap().get(HttpMethod.GET).getResponses().get("200");
+        Example example = ExampleBuilder.fromModel("", response.getResponseSchema(), swagger.getDefinitions(), new HashSet<String>());
+        assertNotNull(example);
+        assertEqualsIgnoreLineEnding(Json.pretty(example), "{\n" +
+                "  \"cid\" : 0,\n" +
+                "  \"cfirstName\" : \"Jean\",\n" +
+                "  \"clastName\" : \"Dupont\",\n" +
+                "  \"source\" : {\n" +
+                "    \"sid\" : 0,\n" +
+                "    \"sname\" : \"CDR\",\n" +
+                "    \"candidates\" : {\n" +
+                "      \"cid\" : 0,\n" +
+                "      \"cfirstName\" : \"Jean\",\n" +
+                "      \"clastName\" : \"Dupont\",\n" +
+                "      \"source\" : {\n" +
+                "        \"sid\" : 0,\n" +
+                "        \"sname\" : \"CDR\",\n" +
+                "        \"candidates\" : { }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}");
+
+        response = swagger.getPaths().get("/self").getOperationMap().get(HttpMethod.GET).getResponses().get("200");
+        example = ExampleBuilder.fromModel("", response.getResponseSchema(), swagger.getDefinitions(), new HashSet<String>());
+        assertNotNull(example);
+        assertEqualsIgnoreLineEnding(Json.pretty(example), "{\n" +
+                "  \"selfname\" : \"CDR\",\n" +
+                "  \"selfObj\" : {\n" +
+                "    \"selfname\" : \"CDR\",\n" +
+                "    \"selfObj\" : { }\n" +
+                "  }\n" +
+                "}");
+    }
+
 
     private String getExampleForPath(Swagger swagger, String s) {
         Response response = swagger.getPath(s).getGet().getResponses().get("200");

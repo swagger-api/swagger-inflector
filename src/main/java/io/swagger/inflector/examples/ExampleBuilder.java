@@ -322,7 +322,7 @@ public class ExampleBuilder {
                 if(op.getProperties() != null) {
                     for(String propertyname : op.getProperties().keySet()) {
                         Property inner = op.getProperties().get(propertyname);
-                        Example innerExample = fromProperty(inner, definitions);
+                        Example innerExample = fromProperty(inner, definitions, processedModels);
                         outputExample.put(propertyname, innerExample);
                     }
                 }
