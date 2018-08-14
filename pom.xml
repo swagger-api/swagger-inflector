@@ -231,6 +231,9 @@
                             <goal>start</goal>
                         </goals>
                         <configuration>
+                            <supportedPackagings>
+                                <supportedPackaging>jar</supportedPackaging>
+                            </supportedPackagings>
                             <scanIntervalSeconds>0</scanIntervalSeconds>
                             <daemon>true</daemon>
                         </configuration>
