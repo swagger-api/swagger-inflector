@@ -50,7 +50,7 @@
   </dependencies>
   <properties>
     <maven-plugin.version>3.1.0</maven-plugin.version>
-    <jetty-version>9.4.9.v20180320</jetty-version>
+    <jetty-version>9.4.11.v20180605</jetty-version>
     <servlet-api-version>2.5</servlet-api-version>
   </properties>
 </project>
