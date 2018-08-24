@@ -1,4 +1,4 @@
-# Swagger Inflector
+# Swagger Inflector - devOps
 
 [![Build Status](https://travis-ci.org/swagger-api/swagger-inflector.svg?branch=master)](https://travis-ci.org/swagger-api/swagger-inflector)
 
