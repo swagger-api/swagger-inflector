@@ -1,6 +1,6 @@
 # Swagger Inflector
 
-[![Build Status](https://travis-ci.org/swagger-api/swagger-inflector.svg?branch=master)](https://travis-ci.org/swagger-api/swagger-inflector)
+[![Build Status](https://img.shields.io/jenkins/s/https/jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-master.svg)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-master)
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector)
 
