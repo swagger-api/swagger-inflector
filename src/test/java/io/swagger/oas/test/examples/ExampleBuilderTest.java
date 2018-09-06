@@ -648,6 +648,23 @@ public class ExampleBuilderTest {
     }
 
     @Test
+    public void testNextedArrayExample() throws Exception {
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/nested-array-example.yaml");
+
+        ApiResponse response = openAPI.getPaths().get("/").getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas());
+
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "[ [ {\n" +
+                "  \"id\" : 1,\n" +
+                "  \"name\" : \"Arthur Dent\"\n" +
+                "}, {\n" +
+                "  \"id\" : 2,\n" +
+                "  \"name\" : \"Ford Prefect\"\n" +
+                "} ] ]");
+    }
+
+    @Test
     public void testIssue1263SchemaExampleNestedObjects() throws Exception {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/issue-1263.yaml");
 
