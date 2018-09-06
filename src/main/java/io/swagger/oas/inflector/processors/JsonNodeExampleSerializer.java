@@ -74,8 +74,8 @@ public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
         } else if (o instanceof ArrayExample) {
             jgen.writeStartArray();
             List<Example> items = ((ArrayExample) o).getItems();
-            if( !items.isEmpty()){
-                serialize( items.get(0), jgen, null );
+            for (Example item : items) {
+                serialize(item, jgen, null);
             }
             jgen.writeEndArray();
         } else {
