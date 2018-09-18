@@ -24,7 +24,6 @@ import io.swagger.oas.inflector.validators.ValidationError;
 import io.swagger.oas.inflector.validators.ValidationException;
 import io.swagger.oas.inflector.validators.ValidationMessage;
 import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.parameters.RequestBody;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.fileupload.MultipartStream;
@@ -35,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -44,7 +42,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,7 +54,6 @@ import java.util.Set;
 public class BinaryProcessor implements EntityProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(BinaryProcessor.class);
     private static List<MediaType> SUPPORTED_TYPES = new ArrayList<>();
-
 
     static {
         SUPPORTED_TYPES.add(MediaType.APPLICATION_OCTET_STREAM_TYPE);
@@ -90,11 +86,9 @@ public class BinaryProcessor implements EntityProcessor {
         return false;
     }
 
-
     @Override
     public Object process(MediaType mediaType, InputStream entityStream, Class<?> cls) throws ConversionException {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
@@ -131,7 +125,6 @@ public class BinaryProcessor implements EntityProcessor {
 
                     }
                 }
-
 
                 return argument;
 
@@ -284,48 +277,43 @@ public class BinaryProcessor implements EntityProcessor {
                     e.printStackTrace();
                 }
 
-
                 io.swagger.v3.oas.models.media.MediaType media = controller.getOperation().getRequestBody().getContent().get(mediaType.APPLICATION_FORM_URLENCODED);
-                if (formDataString != null) {
-                    if (media.getSchema() != null ) {
-                        Schema schema = media.getSchema();
-                        if (schema.getProperties() != null) {
-                            Map<String, Schema> properties = schema.getProperties();
-                            for (String property : properties.keySet()) {
-                                for (String part : parts) {
-                                    String[] kv = part.split("=");
-
-                                    if (kv != null) {
-                                        if (kv.length > 0) {
-                                            existingKeys.remove(kv[0] + ": fp");
-                                        }
-                                        if (kv.length == 2) {
-                                            String key = kv[0];
-                                            try {
-                                                String value = URLDecoder.decode(kv[1], "utf-8");
-                                                if (property.equals(key)) {
-                                                    JavaType jt = controller.getParameterClasses()[i];
-                                                    cls = jt.getRawClass();
-                                                    try {
-                                                        argument = controller.getValidator().convertAndValidate(Arrays.asList(value), controller.getOperation().getRequestBody(), cls, controller.getDefinitions());
-                                                        args[i] = argument;
-                                                        argument = null;
-                                                        i += 1;
-                                                    } catch (ConversionException e) {
-                                                        missingParams.add(e.getError());
-                                                    } catch (ValidationException e) {
-                                                        missingParams.add(e.getValidationMessage());
-                                                    }
+                if (formDataString != null && media.getSchema() != null ) {
+                    Schema schema = media.getSchema();
+                    if (schema.getProperties() != null) {
+                        Map<String, Schema> properties = schema.getProperties();
+                        for (String property : properties.keySet()) {
+                            for (String part : parts) {
+                                String[] kv = part.split("=");
+                                if (kv != null) {
+                                    if (kv.length > 0) {
+                                        existingKeys.remove(kv[0] + ": fp");
+                                    }
+                                    if (kv.length == 2) {
+                                        String key = kv[0];
+                                        try {
+                                            String value = URLDecoder.decode(kv[1], "utf-8");
+                                            if (property.equals(key)) {
+                                                JavaType jt = controller.getParameterClasses()[i];
+                                                cls = jt.getRawClass();
+                                                try {
+                                                    argument = controller.getValidator().convertAndValidate(Arrays.asList(value), controller.getOperation().getRequestBody(), cls, controller.getDefinitions());
+                                                    args[i] = argument;
+                                                } catch (ConversionException e) {
+                                                    missingParams.add(e.getError());
+                                                } catch (ValidationException e) {
+                                                    missingParams.add(e.getValidationMessage());
                                                 }
-                                            } catch (UnsupportedEncodingException e) {
-                                                LOGGER.error("unable to decode value for " + key);
                                             }
+                                        } catch (UnsupportedEncodingException e) {
+                                            LOGGER.error("unable to decode value for " + key);
                                         }
                                     }
                                 }
                             }
-
+                            i++;
                         }
+
                     }
                 }
 
