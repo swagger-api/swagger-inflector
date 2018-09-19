@@ -165,6 +165,15 @@ public class TestController {
                         .name(name));
     }
 
+    public ResponseContext multipleMediaTypeForNullValues(RequestContext request, Long id, String name, String dogType) {
+        return new ResponseContext()
+                .status(Status.OK)
+                .entity(new Dog()
+                        .id(id)
+                        .name(name)
+                        .dogType(dogType));
+    }
+
     public ResponseContext multipleMediaType(RequestContext request, Dog dog) {
         return new ResponseContext()
                 .status(Status.OK)

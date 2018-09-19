@@ -14,6 +14,11 @@ public class Dog {
         return this;
     }
 
+    public Dog dogType(String dogType) {
+        this.dogType = dogType;
+        return this;
+    }
+
     @XmlElement
     public Long id;
 
