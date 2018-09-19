@@ -1,4 +1,4 @@
-# Swagger Inflector
+# Swagger Inflector - DevOps
 
 [![Build Status](https://img.shields.io/jenkins/s/https/jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-2.0.svg)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-2.0)
 
