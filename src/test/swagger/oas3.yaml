@@ -130,6 +130,35 @@ paths:
       responses:
         '200':
           description: OK
+  "/multipleMediaTypeForNullValues":
+    post:
+      operationId: "multipleMediaTypeForNullValues"
+      x-swagger-router-controller: TestController
+      summary: Returns the POSTed data
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Dog'
+          text/plain:
+            schema:
+              type: string
+              example: Hi there
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Dog'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                description:
+                  type: string
+      responses:
+        '200':
+          description: OK
   "/post":
     post:
       operationId: "formDataTest"

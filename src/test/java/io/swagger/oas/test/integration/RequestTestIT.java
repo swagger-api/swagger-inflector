@@ -164,8 +164,6 @@ public class RequestTestIT {
         assertEquals(str, "\"string\"");
     }
 
-
-
     @Test
     public void verifyStringPostBodyWithJsonContentType() throws Exception {
         client.setDebugging(true);
@@ -225,9 +223,6 @@ public class RequestTestIT {
         assertEquals(str, FileUtils.readFileToString(file,"utf-8"));
     }
 
-
-
-
     @Test
     public void verifyTextPlainMediaTypeBody() throws Exception {
         client.setDebugging(true);
@@ -240,8 +235,6 @@ public class RequestTestIT {
 
     @Test
     public void verifyMultipleMediaTypeBody() throws Exception {
-
-
         MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
 
         formData.add("id","1");
@@ -311,6 +304,31 @@ public class RequestTestIT {
 
         assertEquals(str, "Grace");
     }
+
+    @Test
+    public void verifyPostFormDataInBodyWithNullValues() throws Exception {
+        MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
+
+        formData.add("id","1");
+        formData.add("name","");
+        formData.add("dogType","chiguagua");
+
+        String path = "/multipleMediaTypeForNullValues";
+
+        String str = client.invokeAPI(
+                path,               // path
+                "POST",             // method
+                new HashMap<>(),  // query
+                null,               // body
+                new HashMap<>(), // header
+                Entity.form(formData),         // form
+                "application/json", // accept
+                "application/x-www-form-urlencoded",  // contentType
+                new String[0]);
+
+        assertEquals(str, "{\"id\":1,\"dogType\":\"chiguagua\"}");
+    }
+
 
     @Test
     public void verifyMissingRequiredPostBody() throws Exception {
