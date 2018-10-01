@@ -329,6 +329,32 @@ public class RequestTestIT {
         assertEquals(str, "{\"id\":1,\"dogType\":\"chiguagua\"}");
     }
 
+    @Test
+    public void verifyPostFormDataInBodyWithComplexValues() throws Exception {
+        MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
+
+        formData.add("id","10");
+        formData.add("name","doggie");
+        formData.add("category","{\n" +
+                "  \"id\": 1,\n" +
+                "  \"name\": \"Dogs\"\n" +
+                "}");
+
+        String path = "/multipleMediaTypeWithComplexValues";
+
+        String str = client.invokeAPI(
+                path,               // path
+                "POST",             // method
+                new HashMap<>(),  // query
+                null,               // body
+                new HashMap<>(), // header
+                Entity.form(formData),         // form
+                "application/json", // accept
+                "application/x-www-form-urlencoded",  // contentType
+                new String[0]);
+
+        assertEquals(str, "{\"id\":1,\"dogType\":\"chiguagua\"}");
+    }
 
     @Test
     public void verifyMissingRequiredPostBody() throws Exception {
