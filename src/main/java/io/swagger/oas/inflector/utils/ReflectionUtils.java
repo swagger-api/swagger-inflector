@@ -18,6 +18,7 @@ package io.swagger.oas.inflector.utils;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.swagger.oas.inflector.Constants;
 import io.swagger.oas.inflector.config.Configuration;
@@ -191,7 +192,7 @@ public class ReflectionUtils {
         if(property.getAdditionalProperties() != null && property.getAdditionalProperties() instanceof Schema) {
             Schema inner = (Schema)property.getAdditionalProperties();
             JavaType innerType = getTypeFromProperty(null, null, inner, definitions);
-            return tf.constructMapLikeType(Map.class, getTypeFromProperty("string", null, null, definitions), innerType);
+            return tf.constructMapLikeType(Map.class, SimpleType.constructUnsafe(String.class), innerType);
         }
         if(property.get$ref() != null) {
             if(definitions != null) {
