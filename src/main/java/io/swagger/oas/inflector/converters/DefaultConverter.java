@@ -1,6 +1,7 @@
 package io.swagger.oas.inflector.converters;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.swagger.oas.inflector.utils.ReflectionUtils;
 import io.swagger.oas.inflector.validators.ValidationError;
@@ -51,7 +52,9 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
 
         LOGGER.debug("casting `" + arguments + "` to " + cls);
         if (List.class.equals(cls)) {
-            if (body.getContent() != null){
+            if (isJson(arguments)) {
+
+            } else if (body.getContent() != null) {
                 for (String mediaType: body.getContent().keySet()) {
                     MediaType media = body.getContent().get(mediaType);
                     if (media.getSchema() != null) {
@@ -59,13 +62,27 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
                         if (media.getSchema() instanceof ArraySchema) {
                             ArraySchema arraySchema = ((ArraySchema) media.getSchema());
                             Schema inner = arraySchema.getItems();
-
+                            // Ask what to do?
                         }
+
+                        String[] split = arguments.get(0).split(",");
+                        List<String> strings = Arrays.asList(split);
+                        if (strings.size() > 0) {
+                            return strings;
+                        }
+
                         return output;
                     }
                 }
             }
-        } else if (body.getContent() != null){
+        } else if (isJson(arguments)) {
+            try {
+                return new ObjectMapper().readValue(arguments.get(0), cls);
+            } catch (IOException e) {
+                LOGGER.error("error casting `" + arguments + "` to " + cls);
+            }
+
+        } else if (body.getContent() != null) {
                 for (String mediaType: body.getContent().keySet()) {
                     MediaType media = body.getContent().get(mediaType);
                     if (media.getSchema() != null) {
@@ -78,8 +95,20 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
         }
         return null;
     }
-    
-    
+
+    private boolean isJson (List<String> arguments) {
+        boolean isJson = false;
+        try {
+            final ObjectMapper mapper = new ObjectMapper();
+            for (String argument : arguments) {
+                mapper.readTree(argument);
+                isJson = true;
+            }
+        } catch (IOException e) {
+            return false;
+        }
+        return isJson;
+    }
 
     public Object coerceValue(List<String> arguments, Parameter parameter, Class<?> cls) throws ConversionException {
         if (arguments == null || arguments.size() == 0) {
