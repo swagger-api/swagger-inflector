@@ -238,7 +238,7 @@ public class BinaryProcessor implements EntityProcessor {
 
                                                 List<String> stringHeaders = Arrays.asList(obj.toString());
                                                 try {
-                                                    argument = controller.getValidator().convertAndValidate(stringHeaders, controller.getOperation().getRequestBody(), cls, controller.getDefinitions());
+                                                    argument = controller.getValidator().convertAndValidate(stringHeaders, controller.getOperation().getRequestBody(), cls, null, controller.getDefinitions());
                                                 } catch (ConversionException e) {
                                                     missingParams.add(e.getError());
                                                 } catch (ValidationException e) {
@@ -296,8 +296,12 @@ public class BinaryProcessor implements EntityProcessor {
                                             if (property.equals(key)) {
                                                 JavaType jt = controller.getParameterClasses()[i];
                                                 cls = jt.getRawClass();
+                                                Class<?> innerClass = null;
+                                                if (jt.getContentType() != null) {
+                                                    innerClass = jt.getContentType().getRawClass();
+                                                }
                                                 try {
-                                                    argument = controller.getValidator().convertAndValidate(Arrays.asList(value), controller.getOperation().getRequestBody(), cls, controller.getDefinitions());
+                                                    argument = controller.getValidator().convertAndValidate(Arrays.asList(value), controller.getOperation().getRequestBody(), cls, innerClass, controller.getDefinitions());
                                                     args[i] = argument;
                                                 } catch (ConversionException e) {
                                                     missingParams.add(e.getError());

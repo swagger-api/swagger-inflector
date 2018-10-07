@@ -13,5 +13,6 @@ import java.util.Map;
 public interface Converter {
     Object convert(List<String> value, Parameter parameter, Class<?> cls, Map<String, Schema> definitions, Iterator<Converter> chain) throws ConversionException;
     Object convert(List<String> value, RequestBody body, Class<?> cls, Map<String, Schema> definitions, Iterator<Converter> chain) throws ConversionException;
+    Object convert(List<String> value, RequestBody body, Class<?> cls, Class<?> innerClass, Map<String, Schema> definitions, Iterator<Converter> chain) throws ConversionException;
 
 }

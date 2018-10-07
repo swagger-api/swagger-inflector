@@ -362,7 +362,9 @@ public class RequestTestIT {
                 "application/x-www-form-urlencoded",  // contentType
                 new String[0]);
 
-        assertEquals(str, "{\"id\":10,\"category\":{\"id\":1,\"name\":\"Dogs\"},\"name\":\"doggie\",\"photoUrls\":[\"x\",\"y\",\"z\"],\"status\":\"available\"}");
+        assertEquals(str, "{\"id\":10,\"category\":{\"id\":1,\"name\":\"Dogs\"}," +
+                "\"name\":\"doggie\",\"photoUrls\":[\"x\",\"y\",\"z\"]," +
+                "\"tags\":[{\"id\":1,\"name\":\"Tag1\"},{\"id\":2,\"name\":\"Tag2\"}],\"status\":\"available\"}");
     }
 
     @Test

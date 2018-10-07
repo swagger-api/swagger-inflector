@@ -26,4 +26,11 @@ public class SampleConverter implements Converter {
     }
     return null;
   }
+
+  public Object convert(List<String> value, RequestBody body, Class<?> cls, Class<?> innerClass, Map<String, Schema> definitions, Iterator<Converter> chain) throws ConversionException {
+    if(chain.hasNext()) {
+      return chain.next().convert(value, body, cls, innerClass, definitions, chain);
+    }
+    return null;
+  }
 }

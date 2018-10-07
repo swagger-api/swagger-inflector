@@ -34,25 +34,42 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
     public DefaultConverter(){}
 
     public Object convert(List<String> value, Parameter parameter, Class<?> cls, Map<String, Schema> definitions, Iterator<Converter> chain) throws ConversionException {
-
         return coerceValue(value, parameter, cls);
-
     }
 
     public Object convert(List<String> value, RequestBody body, Class<?> cls, Map<String, Schema> definitions, Iterator<Converter> chain) throws ConversionException {
-
         return coerceValue(value, body, cls);
+    }
 
+    public Object convert(List<String> value, RequestBody body, Class<?> cls, Class<?> innerClass, Map<String, Schema> definitions, Iterator<Converter> chain) throws ConversionException {
+        return coerceValue(value, body, cls, innerClass);
     }
 
     public Object coerceValue(List<String> arguments, RequestBody body, Class<?> cls) throws ConversionException {
+        return coerceValue(arguments, body, cls, null);
+    }
+
+    public Object coerceValue(List<String> arguments, RequestBody body, Class<?> cls, Class<?> innerClass) throws ConversionException {
         if (arguments == null || arguments.size() == 0) {
             return null;
         }
 
         LOGGER.debug("casting `" + arguments + "` to " + cls);
         if (List.class.equals(cls)) {
-            if (isJson(arguments)) {
+            if (isJson(arguments) && innerClass != null) {
+                final List<Object> objects = new ArrayList<>();
+                for (final String argument : arguments) {
+                    final String[] split = argument.split("},");
+                    for (final String aSplit : split) {
+                        try {
+                            final String object = aSplit.endsWith("}") ? aSplit : aSplit + "}";
+                            objects.add(new ObjectMapper().readValue(object, innerClass));
+                        } catch (IOException e) {
+                            LOGGER.error("error casting `" + arguments + "` to " + cls);
+                        }
+                    }
+                }
+                return objects;
 
             } else if (body.getContent() != null) {
                 for (String mediaType: body.getContent().keySet()) {
@@ -65,13 +82,17 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
                             // Ask what to do?
                         }
 
-                        String[] split = arguments.get(0).split(",");
-                        List<String> strings = Arrays.asList(split);
-                        if (strings.size() > 0) {
-                            return strings;
+                        List<String> allStrings = new ArrayList<>();
+
+                        for(final String argument: arguments) {
+                            String[] split = argument.split(",");
+                            List<String> strings = Arrays.asList(split);
+                            if (strings.size() > 0) {
+                                allStrings.addAll(strings);
+                            }
                         }
 
-                        return output;
+                        return allStrings;
                     }
                 }
             }
@@ -83,15 +104,13 @@ public class DefaultConverter extends ReflectionUtils implements Converter {
             }
 
         } else if (body.getContent() != null) {
-                for (String mediaType: body.getContent().keySet()) {
-                    MediaType media = body.getContent().get(mediaType);
-                    if (media.getSchema() != null) {
-                        TypeFactory tf = Json.mapper().getTypeFactory();
-
-                        return cast(arguments.get(0), media.getSchema(), tf.constructType(cls));
-                    }
+            for (String mediaType: body.getContent().keySet()) {
+                MediaType media = body.getContent().get(mediaType);
+                if (media.getSchema() != null) {
+                    TypeFactory tf = Json.mapper().getTypeFactory();
+                    return cast(arguments.get(0), media.getSchema(), tf.constructType(cls));
                 }
-
+            }
         }
         return null;
     }
