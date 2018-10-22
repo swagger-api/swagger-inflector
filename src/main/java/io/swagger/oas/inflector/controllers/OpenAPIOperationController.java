@@ -270,7 +270,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
     @Override
     public Response apply(ContainerRequestContext ctx) {
-         List<Parameter> parameters = operation.getParameters();
+        List<Parameter> parameters = operation.getParameters();
 
         final RequestContext requestContext = createContext(ctx);
         Map<String, File> inputStreams = new HashMap<>();

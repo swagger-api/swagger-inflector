@@ -329,6 +329,43 @@ public class RequestTestIT {
         assertEquals(str, "{\"id\":1,\"dogType\":\"chiguagua\"}");
     }
 
+    @Test
+    public void verifyPostFormDataInBodyWithComplexValues() throws Exception {
+        MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
+
+        formData.add("id","10");
+        formData.add("name","doggie");
+        formData.add("category","{\n" +
+                "  \"id\": 1,\n" +
+                "  \"name\": \"Dogs\"\n" +
+                "}");
+        formData.add("photoUrls", "x,y,z");
+        formData.add("tags","{\n" +
+                "  \"id\": 1,\n" +
+                "  \"name\": \"Tag1\"\n" +
+                "},{\n" +
+                "  \"id\": 2,\n" +
+                "  \"name\": \"Tag2\"\n" +
+                "}");
+        formData.add("status", "available");
+
+        String path = "/multipleMediaTypeWithComplexValues";
+
+        String str = client.invokeAPI(
+                path,               // path
+                "POST",             // method
+                new HashMap<>(),  // query
+                null,               // body
+                new HashMap<>(), // header
+                Entity.form(formData),         // form
+                "application/json", // accept
+                "application/x-www-form-urlencoded",  // contentType
+                new String[0]);
+
+        assertEquals(str, "{\"id\":10,\"category\":{\"id\":1,\"name\":\"Dogs\"}," +
+                "\"name\":\"doggie\",\"photoUrls\":[\"x\",\"y\",\"z\"]," +
+                "\"tags\":[{\"id\":1,\"name\":\"Tag1\"},{\"id\":2,\"name\":\"Tag2\"}],\"status\":\"available\"}");
+    }
 
     @Test
     public void verifyMissingRequiredPostBody() throws Exception {

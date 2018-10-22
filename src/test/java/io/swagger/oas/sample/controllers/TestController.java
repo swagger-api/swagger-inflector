@@ -20,7 +20,10 @@ import io.swagger.oas.inflector.models.ApiError;
 import io.swagger.oas.inflector.models.RequestContext;
 import io.swagger.oas.inflector.models.ResponseContext;
 import io.swagger.oas.inflector.utils.ApiException;
+import io.swagger.oas.sample.models.Category;
 import io.swagger.oas.sample.models.Dog;
+import io.swagger.oas.sample.models.Pet;
+import io.swagger.oas.sample.models.Tag;
 import io.swagger.oas.test.models.Address;
 import io.swagger.oas.test.models.ExtendedAddress;
 import io.swagger.oas.test.models.User;
@@ -172,6 +175,21 @@ public class TestController {
                         .id(id)
                         .name(name)
                         .dogType(dogType));
+    }
+
+    public ResponseContext multipleMediaTypeWithComplexValues(final RequestContext request, final Long id, final String name,
+                                                              final Category category, final List<String> photoUrls,
+                                                              final List<Tag> tags, final String status) {
+        Pet pet = new Pet();
+        pet.setId(id);
+        pet.setName(name);
+        pet.setCategory(category);
+        pet.setPhotoUrls(photoUrls);
+        pet.setTags(tags);
+        pet.setStatus(status);
+        return new ResponseContext()
+                .status(Status.OK)
+                .entity(pet);
     }
 
     public ResponseContext multipleMediaType(RequestContext request, Dog dog) {

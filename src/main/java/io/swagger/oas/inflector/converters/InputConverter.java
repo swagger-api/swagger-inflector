@@ -121,13 +121,13 @@ public class InputConverter {
         }
     }
 
-    public Object convertAndValidate(List<String> value, RequestBody body, Class<?> cls, Map<String, Schema> definitions) throws ConversionException, ValidationException {
+    public Object convertAndValidate(List<String> value, RequestBody body, Class<?> cls, Class<?> innerClass, Map<String, Schema> definitions) throws ConversionException, ValidationException {
         Iterator<Converter> itr = converterChain.iterator();
         Object output = null;
         if(itr.hasNext()) {
             Converter converter = itr.next();
             LOGGER.debug("using converter `" + converter.getClass().getName() + "`");
-            output = converter.convert(value, body, cls, definitions, itr);
+            output = converter.convert(value, body, cls, innerClass, definitions, itr);
         }
 
         validate(output, body);
