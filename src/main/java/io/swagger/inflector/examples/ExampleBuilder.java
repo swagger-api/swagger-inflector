@@ -356,24 +356,13 @@ public class ExampleBuilder {
             MapProperty mp = (MapProperty) property;
             Property inner = mp.getAdditionalProperties();
             if (inner != null) {
-                Object innerExample = fromProperty(inner, definitions, processedModels);
-                if (innerExample != null) {
-                    ObjectExample on = new ObjectExample();
-
-                    if (innerExample instanceof Example) {
-                        StringExample key = new StringExample("key");
-                        key.setName("key");
-                        on.put("key", key);
-                        Example in = (Example) innerExample;
-                        if (in.getName() == null) {
-                            in.setName("value");
-                        }
-                        on.put("value", (Example) in);
+                ObjectExample on = new ObjectExample();
+                for (int i = 1; i <= 3; i++) {
+                    Example innerExample = fromProperty(inner, definitions, processedModels);
+                    if (innerExample != null) {
+                        String key = "additionalProp" + i;
+                        on.put(key, innerExample);
                         output = on;
-                    } else {
-                        ObjectExample outputMap = new ObjectExample();
-                        outputMap.put("key", new ObjectExample());
-                        output = outputMap;
                     }
                 }
             }
@@ -518,6 +507,17 @@ public class ExampleBuilder {
                     }
                     Example propExample = fromProperty(property, definitions, processedModels);
                     ex.put(key, propExample);
+                }
+            }
+
+            if (impl.getAdditionalProperties() != null) {
+                Property additionalProperties = impl.getAdditionalProperties();
+                for (int i = 1; i <= 3; i++) {
+                    Example propExample = fromProperty(additionalProperties, definitions, processedModels);
+                    String key = "additionalProp" + i;
+                    if (propExample != null && !ex.keySet().contains(key)) {
+                        ex.put(key, propExample);
+                    }
                 }
             }
             output = ex;
