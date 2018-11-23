@@ -401,32 +401,24 @@ public class ExampleBuilder {
             }
 
         }
-        if (property.getAdditionalProperties() != null && property.getAdditionalProperties() instanceof Schema) {
+        if (property.getAdditionalProperties() instanceof Schema) {
             Schema inner = (Schema) property.getAdditionalProperties();
             if (inner != null) {
-                Object innerExample = fromProperty(null, inner, definitions, processedModels, requestType);
-                if (innerExample != null) {
-                    if (innerExample instanceof Example) {
-                        Example in = (Example) innerExample;
-                        if (in.getName() == null) {
-                            in.setName("value");
+                for (int i = 1; i <= 3; i++) {
+                    Example innerExample = fromProperty(null, inner, definitions, processedModels, requestType);
+                    if (innerExample != null) {
+                        if (output == null) {
+                            output = new ObjectExample();
                         }
-                        ObjectExample on;
-                        if (output != null) {
-                             on = (ObjectExample) output;
-                             on.put("additionalProperty", in);
-                        }else {
-                            on = new ObjectExample();
-                            StringExample value = new StringExample("key");
-                            value.setName("key");
-                            on.put("key", value);
-                            on.put("additionalProperty", in);
-                            output = on;
+                        ObjectExample on = (ObjectExample) output;
+                        String key = "additionalProp" + i;
+                        if (innerExample.getName() == null) {
+                            innerExample.setName(key);
                         }
-                    } else {
-                        ObjectExample outputMap = new ObjectExample();
-                        outputMap.put("key", new ObjectExample());
-                        output = outputMap;
+
+                        if (!on.keySet().contains(key)) {
+                            on.put(key, innerExample);
+                        }
                     }
                 }
             }
@@ -482,7 +474,7 @@ public class ExampleBuilder {
 
         return output;
     }
-    
+
 
     public static void mergeTo(ObjectExample output, List<Example> examples) {
         for(Example ex : examples) {

@@ -140,8 +140,8 @@ public class ExampleBuilderTest {
         Example rep = ExampleBuilder.fromSchema(new Schema().$ref("User"), definitions);
 
         String xmlString = new XmlExampleSerializer().serialize(rep);
-        assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><user><userName>fehguy</userName><addressess><address><street>12345 El Monte Blvd</street><city>Los Altos Hills</city><state>CA</state><zip>94022</zip></address></addressess><managers><key>key</key><value>SVP Engineering</value></managers><kidsAges>9</kidsAges></user>");
-        assertEqualsIgnoreLineEnding(Yaml.pretty().writeValueAsString(rep),"username: fehguy\naddresses:\n- street: 12345 El Monte Blvd\n  city: Los Altos Hills\n  state: CA\n  zip: \"94022\"\nmanagers:\n  key: key\n  additionalProperty: SVP Engineering\nkidsAges:\n- 9\n");
+        assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><user><userName>fehguy</userName><addressess><address><street>12345 El Monte Blvd</street><city>Los Altos Hills</city><state>CA</state><zip>94022</zip></address></addressess><managers><additionalProp1>SVP Engineering</additionalProp1><additionalProp2>SVP Engineering</additionalProp2><additionalProp3>SVP Engineering</additionalProp3></managers><kidsAges>9</kidsAges></user>");
+        assertEqualsIgnoreLineEnding(Yaml.pretty().writeValueAsString(rep),"username: fehguy\naddresses:\n- street: 12345 El Monte Blvd\n  city: Los Altos Hills\n  state: CA\n  zip: \"94022\"\nmanagers:\n  additionalProp1: SVP Engineering\n  additionalProp2: SVP Engineering\n  additionalProp3: SVP Engineering\nkidsAges:\n- 9\n");
     }
 
     @Test
@@ -737,7 +737,9 @@ public class ExampleBuilderTest {
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"foo\" : 0,\n" +
-                "  \"additionalProperty\" : \"string\"\n" +
+                "  \"additionalProp1\" : \"string\",\n" +
+                "  \"additionalProp2\" : \"string\",\n" +
+                "  \"additionalProp3\" : \"string\"\n" +
                 "}");
 
     }
@@ -750,8 +752,9 @@ public class ExampleBuilderTest {
         Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
-                "  \"key\" : \"key\",\n" +
-                "  \"additionalProperty\" : \"string\"\n" +
+                "  \"additionalProp1\" : \"string\",\n" +
+                "  \"additionalProp2\" : \"string\",\n" +
+                "  \"additionalProp3\" : \"string\"\n" +
                 "}");
     }
 
