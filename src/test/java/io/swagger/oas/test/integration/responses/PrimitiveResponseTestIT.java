@@ -154,7 +154,7 @@ public class PrimitiveResponseTestIT {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/primitiveMapResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        assertEquals(str, "{\"key\":\"key\",\"additionalProperty\":\"string\"}");
+        assertEquals(str, "{\"additionalProp1\":\"string\",\"additionalProp2\":\"string\",\"additionalProp3\":\"string\"}");
     }
 
     /**
@@ -165,7 +165,7 @@ public class PrimitiveResponseTestIT {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/additionalPropertiesTest", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        assertEquals(str, "{\"foo\":0,\"additionalProperty\":\"string\"}");
+        assertEquals(str, "{\"foo\":0,\"additionalProp1\":\"string\",\"additionalProp2\":\"string\",\"additionalProp3\":\"string\"}");
     }
 
     /**
@@ -176,7 +176,7 @@ public class PrimitiveResponseTestIT {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/additionalProperties1", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        assertEquals(str, "{\"foo\":0,\"additionalProperty\":{\"bar\":0}}");
+        assertEquals(str, "{\"foo\":0,\"additionalProp1\":{\"bar\":0},\"additionalProp2\":{\"bar\":0},\"additionalProp3\":{\"bar\":0}}");
     }
 
     /**
