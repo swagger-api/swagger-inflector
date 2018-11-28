@@ -57,10 +57,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class ExampleBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExampleBuilder.class);
@@ -77,12 +76,11 @@ public class ExampleBuilder {
     public static final String SAMPLE_DATE_PROPERTY_VALUE = "2015-07-20";
     public static final String SAMPLE_DATETIME_PROPERTY_VALUE = "2015-07-20T15:49:04-07:00";
     public static final double SAMPLE_DECIMAL_PROPERTY_VALUE = 1.5;
-
     public static Example fromProperty(Property property, Map<String, Model> definitions) {
-        return fromProperty(property, definitions, new HashSet<String>());
+        return fromProperty(property, definitions, new HashMap<String, Example>());
     }
 
-    public static Example fromProperty(Property property, Map<String, Model> definitions, Set<String> processedModels) {
+    public static Example fromProperty(Property property, Map<String, Model> definitions, Map<String, Example> processedModels) {
         if (property == null) {
             return null;
         }
@@ -107,15 +105,16 @@ public class ExampleBuilder {
         Object example = property.getExample();
         if (property instanceof RefProperty) {
             RefProperty ref = (RefProperty) property;
-            if(processedModels.contains(ref.getSimpleRef())) {
+            if(processedModels.containsKey(ref.getSimpleRef())) {
                 // return some sort of example
-                return alreadyProcessedRefExample(ref.getSimpleRef(), definitions);
+                return alreadyProcessedRefExample(ref.getSimpleRef(), definitions, processedModels);
             }
-            processedModels.add(ref.getSimpleRef());
+            processedModels.put(ref.getSimpleRef(), null);
             if( definitions != null ) {
                 Model model = definitions.get(ref.getSimpleRef());
                 if (model != null) {
                     output = fromModel(ref.getSimpleRef(), model, definitions, processedModels);
+                    processedModels.put(ref.getSimpleRef(), output);
                 }
             }
         } else if (property instanceof EmailProperty) {
@@ -303,9 +302,9 @@ public class ExampleBuilder {
                 output = new DecimalExample(new BigDecimal(SAMPLE_DECIMAL_PROPERTY_VALUE));
             }
         } else if (property instanceof ObjectProperty) {
-            if(processedModels.contains(property.getName())) {
+            if(processedModels.containsKey(property.getName())) {
                 // return some sort of example
-                return alreadyProcessedRefExample(property.getName(), definitions);
+                return alreadyProcessedRefExample(property.getName(), definitions, processedModels);
             }
             if (example != null) {
                 try {
@@ -405,7 +404,7 @@ public class ExampleBuilder {
                                         p.setName(key);
                                     }
                                     values.put(key, p);
-                                    processedModels.add(key);
+                                    processedModels.put(key, p);
                                 }
                             }
                         }
@@ -436,7 +435,11 @@ public class ExampleBuilder {
     }
 
 
-    public static Example alreadyProcessedRefExample(String name, Map<String, Model> definitions) {
+    public static Example alreadyProcessedRefExample(String name, Map<String, Model> definitions, Map<String, Example> processedExamples) {
+        if (processedExamples.get(name) != null){
+            return processedExamples.get(name);
+        }
+
         Model model = definitions.get(name);
         if(model == null) {
             return null;
@@ -471,7 +474,7 @@ public class ExampleBuilder {
         return output;
     }
 
-    public static Example fromModel(String name, Model model, Map<String, Model> definitions, Set<String> processedModels) {
+    public static Example fromModel(String name, Model model, Map<String, Model> definitions, Map<String, Example> processedModels) {
         String namespace = null;
         String prefix = null;
         Boolean attribute = false;
@@ -554,15 +557,16 @@ public class ExampleBuilder {
         }
         else if(model instanceof RefModel) {
             RefModel ref = (RefModel) model;
-            if(processedModels.contains(ref.getSimpleRef())) {
+            if(processedModels.containsKey(ref.getSimpleRef())) {
                 // return some sort of example
-                output = alreadyProcessedRefExample(ref.getSimpleRef(), definitions);
+                output = alreadyProcessedRefExample(ref.getSimpleRef(), definitions, processedModels);
             } else {
-                processedModels.add(ref.getSimpleRef());
+                processedModels.put(ref.getSimpleRef(), null);
                 if (definitions != null) {
                     Model refedModel = definitions.get(ref.getSimpleRef());
                     if (refedModel != null) {
                         output = fromModel(ref.getSimpleRef(), refedModel, definitions, processedModels);
+                        processedModels.put(ref.getSimpleRef(), output);
                     }
                 }
             }

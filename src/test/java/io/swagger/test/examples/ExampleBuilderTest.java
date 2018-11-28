@@ -661,7 +661,7 @@ public class ExampleBuilderTest {
         ResolverUtil resolverUtil = new ResolverUtil();
         resolverUtil.resolveFully(swagger);
         Response response = swagger.getPaths().get("/candidates").getOperationMap().get(HttpMethod.GET).getResponses().get("200");
-        Example example = ExampleBuilder.fromModel("", response.getResponseSchema(), swagger.getDefinitions(), new HashSet<String>());
+        Example example = ExampleBuilder.fromModel("", response.getResponseSchema(), swagger.getDefinitions(), new HashMap<String, Example>());
         assertNotNull(example);
         assertEqualsIgnoreLineEnding(Json.pretty(example), "{\n" +
                 "  \"cid\" : 0,\n" +
@@ -684,7 +684,7 @@ public class ExampleBuilderTest {
                 "}");
 
         response = swagger.getPaths().get("/self").getOperationMap().get(HttpMethod.GET).getResponses().get("200");
-        example = ExampleBuilder.fromModel("", response.getResponseSchema(), swagger.getDefinitions(), new HashSet<String>());
+        example = ExampleBuilder.fromModel("", response.getResponseSchema(), swagger.getDefinitions(), new HashMap<String, Example>());
         assertNotNull(example);
         assertEqualsIgnoreLineEnding(Json.pretty(example), "{\n" +
                 "  \"selfname\" : \"CDR\",\n" +
