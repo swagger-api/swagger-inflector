@@ -1,0 +1,31 @@
+openapi: 3.0.0
+info:
+  version: '1.0-oas3'
+  title: VirtServer additionalProperties test
+paths:
+  /dictionaryOfArray:
+    get:
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/myScheme'
+components:
+  schemas:
+    myScheme:
+      type: object
+      properties:
+        joel:
+          type: string
+        prop2:
+          type: integer
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://dev-virtserver.swaggerhub.com/0000/splat240_3/1.0-oas3

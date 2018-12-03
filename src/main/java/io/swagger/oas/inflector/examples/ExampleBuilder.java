@@ -37,6 +37,7 @@ import io.swagger.v3.oas.models.media.EmailSchema;
 import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
+import io.swagger.v3.oas.models.media.PasswordSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.media.UUIDSchema;
@@ -48,7 +49,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,14 +77,22 @@ public class ExampleBuilder {
     public static final double SAMPLE_DECIMAL_PROPERTY_VALUE = 1.5;
 
     public static Example fromSchema(Schema property, Map<String, Schema> definitions) {
-        return fromProperty(null, property, definitions, new HashSet<String>(), null);
+        return fromProperty(null, property, definitions, new HashMap<>(), null);
     }
 
     public static Example fromSchema(Schema property, Map<String, Schema> definitions, RequestType requestType) {
-        return fromProperty(null,property, definitions, new HashSet<String>(), requestType);
+        return fromProperty(null,property, definitions, new HashMap<>(), requestType);
     }
 
     public static Example fromProperty(String name, Schema property, Map<String, Schema> definitions, Set<String> processedModels, RequestType requestType) {
+        Map<String, Example> map = new HashMap<>();
+        for (String key : processedModels) {
+            map.put(key, null);
+        }
+        return fromProperty(name, property, definitions, map, requestType);
+    }
+
+    public static Example fromProperty(String name, Schema property, Map<String, Schema> definitions, Map<String, Example> processedModels, RequestType requestType) {
         if (property == null) {
             return null;
         }
@@ -116,16 +125,16 @@ public class ExampleBuilder {
         if (property.get$ref() != null) {
             String ref = property.get$ref();
             ref = ref.substring(ref.lastIndexOf("/") + 1);
-            if(processedModels.contains(ref)) {
+            if(processedModels.containsKey(ref)) {
                 // return some sort of example
-                return alreadyProcessedRefExample(ref, definitions);
+                return alreadyProcessedRefExample(ref, definitions, processedModels);
             }
-            processedModels.add(ref);
+            processedModels.put(ref, null);
             if( definitions != null ) {
                 Schema model = definitions.get(ref);
                 if (model != null) {
-
                     output = fromProperty(ref, model, definitions, processedModels, requestType);
+                    processedModels.put(ref, output);
                     return output;
                 }
             }
@@ -169,6 +178,21 @@ public class ExampleBuilder {
 
                 if( defaultValue == null ){
                     List<String> enums = ((StringSchema) property).getEnum();
+                    if( enums != null && !enums.isEmpty()) {
+                        defaultValue = enums.get(0);
+                    }
+                }
+
+                output = new StringExample( defaultValue == null ? SAMPLE_STRING_PROPERTY_VALUE : defaultValue );
+            }
+        } else if (property instanceof PasswordSchema) {
+            if (example != null) {
+                output = new StringExample(example.toString());
+            } else {
+                String defaultValue = ((PasswordSchema)property).getDefault();
+
+                if( defaultValue == null ){
+                    List<String> enums = ((PasswordSchema) property).getEnum();
                     if( enums != null && !enums.isEmpty()) {
                         defaultValue = enums.get(0);
                     }
@@ -441,34 +465,30 @@ public class ExampleBuilder {
         return output;
     }
 
-    public static Example alreadyProcessedRefExample(String name, Map<String, Schema> definitions) {
+    public static Example alreadyProcessedRefExample(String name, Map<String, Schema> definitions, Map<String, Example> processedModels) {
+        if (processedModels.get(name) != null) {
+            return processedModels.get(name);
+        }
         Schema model = definitions.get(name);
-        if(model == null) {
+        if (model == null) {
             return null;
         }
         Example output = null;
 
-        if(model instanceof Schema) {
-            // look at type
-            if(model.getType() != null) {
-                if ("object".equals(model.getType())) {
-                    return new ObjectExample();
-                }
-                else if("string".equals(model.getType())) {
-                    return new StringExample("");
-                }
-                else if("integer".equals(model.getType())) {
-                    return new IntegerExample(0);
-                }
-                else if("long".equals(model.getType())) {
-                    return new LongExample(0);
-                }
-                else if("float".equals(model.getType())) {
-                    return new FloatExample(0);
-                }
-                else if("double".equals(model.getType())) {
-                    return new DoubleExample(0);
-                }
+        // look at type
+        if (model.getType() != null) {
+            if ("object".equals(model.getType())) {
+                return new ObjectExample();
+            } else if ("string".equals(model.getType())) {
+                return new StringExample("");
+            } else if ("integer".equals(model.getType())) {
+                return new IntegerExample(0);
+            } else if ("long".equals(model.getType())) {
+                return new LongExample(0);
+            } else if ("float".equals(model.getType())) {
+                return new FloatExample(0);
+            } else if ("double".equals(model.getType())) {
+                return new DoubleExample(0);
             }
         }
 
