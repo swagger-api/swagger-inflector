@@ -698,7 +698,7 @@ public class ExampleBuilderTest {
 
     private String getExampleForPath(Swagger swagger, String s) {
         Response response = swagger.getPath(s).getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+        Example example = ExampleBuilder.fromModel("test", response.getResponseSchema(), swagger.getDefinitions(), new HashMap<String, Example>());
         return Json.pretty(example);
     }
 }
