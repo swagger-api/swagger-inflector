@@ -1,0 +1,35 @@
+swagger: '2.0'
+info:
+  version: '1.0'
+  title: VirtServer additionalProperties test
+paths:
+  /dictionaryOfInt:
+    get:
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            additionalProperties:
+              type: integer
+              format: int32
+
+  /objWithAdditionalProps:
+    get:
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            required: [name]
+            properties:
+              name:
+                type: string
+            additionalProperties:
+              $ref: '#/definitions/myScheme'
+definitions:
+  myScheme:
+    type: object
+    properties:
+      myProp:
+        type: string

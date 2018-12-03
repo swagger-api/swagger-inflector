@@ -661,7 +661,7 @@ public class ExampleBuilderTest {
         ResolverUtil resolverUtil = new ResolverUtil();
         resolverUtil.resolveFully(swagger);
         Response response = swagger.getPaths().get("/candidates").getOperationMap().get(HttpMethod.GET).getResponses().get("200");
-        Example example = ExampleBuilder.fromModel("", response.getResponseSchema(), swagger.getDefinitions(), new HashSet<String>());
+        Example example = ExampleBuilder.fromModel("", response.getResponseSchema(), swagger.getDefinitions(), new HashMap<String, Example>());
         assertNotNull(example);
         assertEqualsIgnoreLineEnding(Json.pretty(example), "{\n" +
                 "  \"cid\" : 0,\n" +
@@ -684,7 +684,7 @@ public class ExampleBuilderTest {
                 "}");
 
         response = swagger.getPaths().get("/self").getOperationMap().get(HttpMethod.GET).getResponses().get("200");
-        example = ExampleBuilder.fromModel("", response.getResponseSchema(), swagger.getDefinitions(), new HashSet<String>());
+        example = ExampleBuilder.fromModel("", response.getResponseSchema(), swagger.getDefinitions(), new HashMap<String, Example>());
         assertNotNull(example);
         assertEqualsIgnoreLineEnding(Json.pretty(example), "{\n" +
                 "  \"selfname\" : \"CDR\",\n" +
@@ -695,10 +695,37 @@ public class ExampleBuilderTest {
                 "}");
     }
 
+    @Test
+    public void testAdditionalProperties() throws Exception {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/additionalProperties-swagger2.yaml");
+        ResolverUtil resolverUtil = new ResolverUtil();
+        resolverUtil.resolveFully(swagger);
+        String example = getExampleForPath(swagger, "/dictionaryOfInt");
+        assertEqualsIgnoreLineEnding(example, "{\n" +
+                "  \"additionalProp1\" : 0,\n" +
+                "  \"additionalProp2\" : 0,\n" +
+                "  \"additionalProp3\" : 0\n" +
+                "}");
+
+        example = getExampleForPath(swagger, "/objWithAdditionalProps");
+        assertEqualsIgnoreLineEnding(example, "{\n" +
+                "  \"name\" : \"string\",\n" +
+                "  \"additionalProp1\" : {\n" +
+                "    \"myProp\" : \"string\"\n" +
+                "  },\n" +
+                "  \"additionalProp2\" : {\n" +
+                "    \"myProp\" : \"string\"\n" +
+                "  },\n" +
+                "  \"additionalProp3\" : {\n" +
+                "    \"myProp\" : \"string\"\n" +
+                "  }\n" +
+                "}");
+    }
+
 
     private String getExampleForPath(Swagger swagger, String s) {
         Response response = swagger.getPath(s).getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+        Example example = ExampleBuilder.fromModel("test", response.getResponseSchema(), swagger.getDefinitions(), new HashMap<String, Example>());
         return Json.pretty(example);
     }
 }
