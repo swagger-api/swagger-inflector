@@ -695,6 +695,33 @@ public class ExampleBuilderTest {
                 "}");
     }
 
+    @Test
+    public void testAdditionalProperties() throws Exception {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/additionalProperties-swagger2.yaml");
+        ResolverUtil resolverUtil = new ResolverUtil();
+        resolverUtil.resolveFully(swagger);
+        String example = getExampleForPath(swagger, "/dictionaryOfInt");
+        assertEqualsIgnoreLineEnding(example, "{\n" +
+                "  \"additionalProp1\" : 0,\n" +
+                "  \"additionalProp2\" : 0,\n" +
+                "  \"additionalProp3\" : 0\n" +
+                "}");
+
+        example = getExampleForPath(swagger, "/objWithAdditionalProps");
+        assertEqualsIgnoreLineEnding(example, "{\n" +
+                "  \"name\" : \"string\",\n" +
+                "  \"additionalProp1\" : {\n" +
+                "    \"myProp\" : \"string\"\n" +
+                "  },\n" +
+                "  \"additionalProp2\" : {\n" +
+                "    \"myProp\" : \"string\"\n" +
+                "  },\n" +
+                "  \"additionalProp3\" : {\n" +
+                "    \"myProp\" : \"string\"\n" +
+                "  }\n" +
+                "}");
+    }
+
 
     private String getExampleForPath(Swagger swagger, String s) {
         Response response = swagger.getPath(s).getGet().getResponses().get("200");
