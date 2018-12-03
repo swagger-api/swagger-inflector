@@ -60,6 +60,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ExampleBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExampleBuilder.class);
@@ -78,6 +79,10 @@ public class ExampleBuilder {
     public static final double SAMPLE_DECIMAL_PROPERTY_VALUE = 1.5;
     public static Example fromProperty(Property property, Map<String, Model> definitions) {
         return fromProperty(property, definitions, new HashMap<String, Example>());
+    }
+
+    public static Example fromProperty(Property property, Map<String, Model> definitions, Set<String> processedModels) {
+        return fromProperty(property, definitions, createNullFiledMap(processedModels));
     }
 
     public static Example fromProperty(Property property, Map<String, Model> definitions, Map<String, Example> processedModels) {
@@ -472,6 +477,20 @@ public class ExampleBuilder {
         }
 
         return output;
+    }
+
+    public static Example fromModel(String name, Model model, Map<String, Model> definitions, Set<String> processedModels) {
+        return fromModel(name, model, definitions, createNullFiledMap(processedModels));
+    }
+
+    private static Map<String, Example> createNullFiledMap(Set<String> processedModels) {
+        Map<String, Example> processedModelsMap = new HashMap<>();
+        if (processedModels != null) {
+            for (String processedModel : processedModels) {
+                processedModelsMap.put(processedModel, null);
+            }
+        }
+        return processedModelsMap;
     }
 
     public static Example fromModel(String name, Model model, Map<String, Model> definitions, Map<String, Example> processedModels) {
