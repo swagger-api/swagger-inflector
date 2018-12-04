@@ -745,6 +745,43 @@ public class ExampleBuilderTest {
     }
 
     @Test
+    public void verifyAdditionalPropertiesWithArray() throws Exception {
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3_array.yaml");
+        ApiResponse response = openAPI.getPaths().get("/dictionaryOfArray").getGet().getResponses().get("200");
+
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas(), ExampleBuilder.RequestType.READ);
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "{\n" +
+                "  \"additionalProp1\" : [ {\n" +
+                "    \"joel\" : \"string\",\n" +
+                "    \"prop2\" : 0\n" +
+                "  } ],\n" +
+                "  \"additionalProp2\" : [ {\n" +
+                "    \"joel\" : \"string\",\n" +
+                "    \"prop2\" : 0\n" +
+                "  } ],\n" +
+                "  \"additionalProp3\" : [ {\n" +
+                "    \"joel\" : \"string\",\n" +
+                "    \"prop2\" : 0\n" +
+                "  } ]\n" +
+                "}");
+    }
+
+    @Test
+    public void verifyAdditionalPropertiesWithPasswords() throws Exception {
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3_password.yaml");
+        ApiResponse response = openAPI.getPaths().get("/dictionaryOfPassword").getGet().getResponses().get("200");
+
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "{\n" +
+                "  \"additionalProp1\" : \"string\",\n" +
+                "  \"additionalProp2\" : \"string\",\n" +
+                "  \"additionalProp3\" : \"string\"\n" +
+                "}");
+    }
+
+    @Test
     public void verifyGetMapResponse() throws Exception {
 
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3.yaml");
@@ -758,6 +795,37 @@ public class ExampleBuilderTest {
                 "}");
     }
 
+    @Test
+    public void verifyPropertyWithBooleanAdditionalProperty() throws Exception {
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3.yaml");
+        ApiResponse response = openAPI.getPaths().get("/mockResponses/booleanAdditionalProperties").getGet().getResponses().get("200");
+
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "{\n" +
+                "  \"firstProperty\" : \"string\"\n" +
+                "}");
+    }
+
+    @Test
+    public void verifyBooleanAdditionalPropertyTrue() throws Exception {
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3.yaml");
+        ApiResponse response = openAPI.getPaths().get("/mockResponses/booleanAdditionalPropertiesTrue").getGet().getResponses().get("200");
+
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "{ }");
+    }
+
+    @Test
+    public void verifyBooleanAdditionalPropertyFalse() throws Exception {
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3.yaml");
+        ApiResponse response = openAPI.getPaths().get("/mockResponses/booleanAdditionalPropertiesFalse").getGet().getResponses().get("200");
+
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "{ }");
+    }
 
     @Test
     public void resolveComposedOneOfRefSchema(@Injectable List<AuthorizationValue> auth){

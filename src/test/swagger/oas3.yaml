@@ -757,6 +757,30 @@ paths:
                 properties:
                   firstProperty:
                     type: string
+  "/mockResponses/booleanAdditionalPropertiesTrue":
+    get:
+      tags:
+        - mockResponses
+      responses:
+        '200':
+          description: success!
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  "/mockResponses/booleanAdditionalPropertiesFalse":
+    get:
+      tags:
+        - mockResponses
+      responses:
+        '200':
+          description: success!
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
   "/mockResponses/complexResponse":
     get:
       tags:
