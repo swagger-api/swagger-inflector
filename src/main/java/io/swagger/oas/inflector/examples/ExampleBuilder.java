@@ -446,6 +446,8 @@ public class ExampleBuilder {
                     }
                 }
             }
+        } else if (property.getAdditionalProperties() instanceof Boolean && output == null) {
+            output = new ObjectExample();
         }
         if (output != null) {
             if (attribute != null) {

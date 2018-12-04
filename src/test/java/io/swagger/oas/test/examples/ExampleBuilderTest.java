@@ -795,6 +795,37 @@ public class ExampleBuilderTest {
                 "}");
     }
 
+    @Test
+    public void verifyPropertyWithBooleanAdditionalProperty() throws Exception {
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3.yaml");
+        ApiResponse response = openAPI.getPaths().get("/mockResponses/booleanAdditionalProperties").getGet().getResponses().get("200");
+
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "{\n" +
+                "  \"firstProperty\" : \"string\"\n" +
+                "}");
+    }
+
+    @Test
+    public void verifyBooleanAdditionalPropertyTrue() throws Exception {
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3.yaml");
+        ApiResponse response = openAPI.getPaths().get("/mockResponses/booleanAdditionalPropertiesTrue").getGet().getResponses().get("200");
+
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "{ }");
+    }
+
+    @Test
+    public void verifyBooleanAdditionalPropertyFalse() throws Exception {
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3.yaml");
+        ApiResponse response = openAPI.getPaths().get("/mockResponses/booleanAdditionalPropertiesFalse").getGet().getResponses().get("200");
+
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        String output = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(output, "{ }");
+    }
 
     @Test
     public void resolveComposedOneOfRefSchema(@Injectable List<AuthorizationValue> auth){
