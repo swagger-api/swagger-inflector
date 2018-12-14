@@ -18,7 +18,7 @@ Run this command to start in a hurry.  It will create a project named `my-projec
 curl -L https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/setup.sh | project=my-project bash
 ```
 
-This will download everything you need to start editing and running a swagger-inflector based project.  See the output of the command for instructions.
+This will download everything you need to start editing and running a Swagger Inflector based project.  See the output of the command for instructions.
 
 ### Components
 
