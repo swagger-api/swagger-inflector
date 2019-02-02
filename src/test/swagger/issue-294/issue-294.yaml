@@ -1,0 +1,54 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Data",
+    "version": "1.0",
+    "title": "Data"
+  },
+  "basePath": "/dcs/api",
+  "paths": {
+    "/concept": {
+      "get": {
+        "summary": "Retrieve settings",
+        "description": "settings",
+        "operationId": "getSettings",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Concept"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+
+    "Concept": {
+      "type": "object",
+      "properties": {
+        "thing": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/Thing"
+          }
+        }
+      }
+    },
+    "Thing": {
+      "allOf": [
+      {
+        "$ref": "#/definitions/Concept"
+      }
+      ]
+    }
+  }
+}

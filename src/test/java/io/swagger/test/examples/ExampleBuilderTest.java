@@ -658,8 +658,10 @@ public class ExampleBuilderTest {
     @Test
     public void testCircularRefSchemaInResponse() throws Exception {
         Swagger swagger = new SwaggerParser().read("./src/test/swagger/circuler-refs-SPLAT-56-2.yaml");
+        System.setProperty("resolveCircularRefsAsObjectRefs", "true");
         ResolverUtil resolverUtil = new ResolverUtil();
         resolverUtil.resolveFully(swagger);
+        String yaml = Yaml.pretty().writeValueAsString(swagger);
         Response response = swagger.getPaths().get("/candidates").getOperationMap().get(HttpMethod.GET).getResponses().get("200");
         Example example = ExampleBuilder.fromModel("", response.getResponseSchema(), swagger.getDefinitions(), new HashMap<String, Example>());
         assertNotNull(example);
@@ -693,6 +695,14 @@ public class ExampleBuilderTest {
                 "    \"selfObj\" : { }\n" +
                 "  }\n" +
                 "}");
+
+        System.setProperty("resolveCircularRefsAsObjectRefs", "false");
+
+        swagger = new SwaggerParser().read("./src/test/swagger/circuler-refs-SPLAT-56-2.yaml");
+        resolverUtil = new ResolverUtil();
+        resolverUtil.resolveFully(swagger);
+        String yaml2 = Yaml.pretty().writeValueAsString(swagger);
+        assertEquals(yaml, yaml2);
     }
 
     @Test

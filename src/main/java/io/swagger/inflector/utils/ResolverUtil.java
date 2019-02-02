@@ -34,6 +34,12 @@ public class ResolverUtil {
     private Map<String, Model> schemas;
     private Map<String, Model> resolvedModels = new HashMap<>();
     private Map<String, Property> resolvedProperties = new HashMap<>();
+    private Map<String, Model> processedModels = new HashMap<>();
+    private Map<String, Property> processedProperties = new HashMap<>();
+
+    /* set resolveCircularRefsAsObjectRefs to true to allow (in some cases) resolving circular refs in spec
+    as circular object references in models/properties, see issue #984 */
+    private boolean resolveCircularRefsAsObjectRefs = System.getProperty("resolveCircularRefsAsObjectRefs") == null ? false : Boolean.valueOf(System.getProperty("resolveCircularRefsAsObjectRefs"));
 
     public Map<String, Model> getResolvedModels() {
         return resolvedModels;
@@ -100,8 +106,8 @@ public class ResolverUtil {
     public Model resolveModel(Model schema) {
         if (schema instanceof RefModel) {
             String ref = ((RefModel) schema).getSimpleRef();
-            Model resolved = schemas.get(ref);
-            if (resolved == null) {
+            Model definitionsSchema = schemas.get(ref);
+            if (definitionsSchema == null) {
                 LOGGER.error("unresolved model " + ref);
                 return schema;
             }
@@ -109,13 +115,24 @@ public class ResolverUtil {
                 LOGGER.debug("avoiding infinite loop");
                 return this.resolvedModels.get(ref);
             }
-            this.resolvedModels.put(ref, schema);
+            if (!resolveCircularRefsAsObjectRefs) {
+                if (this.processedModels.containsKey(ref)) {
+                    return this.processedModels.get(ref);
+                }
 
-            Model model = resolveModel(resolved);
+                if (this.processedProperties.containsKey(ref)) {
+                    PropertyModelConverter converter = new PropertyModelConverter();
+                    return converter.propertyToModel(this.processedProperties.get(ref));
+                }
 
+                this.processedModels.put(ref, schema);
+            } else {
+                this.resolvedModels.put(ref, schema);
+            }
+            Model resolved = resolveModel(definitionsSchema);
             // if we make it without a resolution loop, we can update the reference
-            this.resolvedModels.put(ref, model);
-            return model;
+            this.resolvedModels.put(ref, resolved);
+            return resolved;
         }
         if (schema instanceof ArrayModel) {
             ArrayModel arrayModel = (ArrayModel) schema;
@@ -151,6 +168,7 @@ public class ResolverUtil {
                 }
                 return model;
             }
+            return schema;
         }
         if (schema instanceof ComposedModel) {
             ComposedModel composedSchema = (ComposedModel) schema;
@@ -166,7 +184,11 @@ public class ResolverUtil {
                             if (property.getRequired()) {
                                 requiredProperties.add(key);
                             }
-                            model.addProperty(key, resolveProperty(property));
+                            if (!resolveCircularRefsAsObjectRefs) {
+                                model.addProperty(key, property);
+                            } else {
+                                model.addProperty(key, resolveProperty(property));
+                            }
                         }
 
                     }
@@ -190,8 +212,8 @@ public class ResolverUtil {
     private Property resolveProperty(Property property) {
         if (property instanceof RefProperty) {
             String ref = ((RefProperty) property).getSimpleRef();
-            Model resolved = schemas.get(ref);
-            if (resolved == null) {
+            Model definitionsSchema = schemas.get(ref);
+            if (definitionsSchema == null) {
                 LOGGER.error("unresolved model " + ref);
                 return property;
             }
@@ -215,15 +237,38 @@ public class ResolverUtil {
 
             }
 
-            this.resolvedProperties.put(ref, property);
-            Model model = resolveModel(resolved);
+            if (!resolveCircularRefsAsObjectRefs) {
+                if (this.processedModels.containsKey(ref) || this.processedProperties.containsKey(ref)) {
+                    LOGGER.debug("avoiding infinite loop");
+                    Model modelResolved = this.processedModels.get(ref);
+                    Property propertyResolved = this.processedProperties.get(ref);
+                    if (modelResolved != null) {
+                        PropertyModelConverter converter = new PropertyModelConverter();
+                        Property convertedProperty = converter.modelToProperty(modelResolved);
+                        if (convertedProperty instanceof UntypedProperty && modelResolved instanceof ModelImpl) {
+                            Property property1 = createObjectProperty(modelResolved);
+                            this.processedProperties.put(ref, property1);
+                            return property1;
+                        } else {
+                            return convertedProperty;
+                        }
+                    } else if (propertyResolved != null) {
+                        return propertyResolved;
+                    }
+
+                }
+                this.processedProperties.put(ref, property);
+            } else {
+                this.resolvedProperties.put(ref, property);
+            }
+            Model resolved = resolveModel(definitionsSchema);
 
             // if we make it without a resolution loop, we can update the reference
-            this.resolvedModels.put(ref, model);
+            this.resolvedModels.put(ref, resolved);
             PropertyModelConverter converter = new PropertyModelConverter();
-            Property prop = converter.modelToProperty(model);
-            if (prop instanceof UntypedProperty && model instanceof ModelImpl) {
-                Property property1 = createObjectProperty(model);
+            Property prop = converter.modelToProperty(resolved);
+            if (prop instanceof UntypedProperty && resolved instanceof ModelImpl) {
+                Property property1 = createObjectProperty(resolved);
                 this.resolvedProperties.put(ref, property1);
                 return property1;
             } else {
