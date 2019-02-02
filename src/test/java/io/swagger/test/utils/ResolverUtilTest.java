@@ -25,6 +25,21 @@ import static org.testng.AssertJUnit.assertEquals;
 
 public class ResolverUtilTest {
 
+
+    @Test
+    public void testIssue294() {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/issue-294/issue-294.yaml");
+        new ResolverUtil().resolveFully(swagger);
+        Yaml.prettyPrint(swagger.getDefinitions());
+        try {
+            Json.mapper().writeValueAsString(swagger);
+
+        }
+        catch (Exception e) {
+            fail("Recursive loop found");
+        }
+    }
+
     @Test
     public void testRefs2() {
         Swagger swagger = new SwaggerParser().read("./src/test/swagger/anotherSpec.yaml");

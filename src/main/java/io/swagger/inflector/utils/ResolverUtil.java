@@ -132,8 +132,20 @@ public class ResolverUtil {
                 Map<String, Property> updated = new LinkedHashMap<String, Property>();
                 for (String propertyName : model.getProperties().keySet()) {
                     Property property = model.getProperties().get(propertyName);
+                    if(resolvedProperties.get(propertyName) == null || resolvedProperties.get(propertyName) != property) {
+                        LOGGER.debug("avoiding infinite loop");
+                        Property resolved = resolveProperty(property);
+                        updated.put(propertyName, resolved);
+                        resolvedProperties.put(propertyName, resolved);
+                    }else {
+                        updated.put(propertyName, resolvedProperties.get(propertyName));
+                    }
+
+
+
+                    /*Property property = model.getProperties().get(propertyName);
                     Property resolved = resolveProperty(property);
-                    updated.put(propertyName, resolved);
+                    updated.put(propertyName, resolved);*/
                 }
 
                 for (String key : updated.keySet()) {
@@ -238,8 +250,16 @@ public class ResolverUtil {
                     Property innerProperty = obj.getProperties().get(propertyName);
                     // reference check
                     if (property != innerProperty) {
-                        Property resolved = resolveProperty(innerProperty);
-                        updated.put(propertyName, resolved);
+                        if(resolvedProperties.get(propertyName) == null || resolvedProperties.get(propertyName) != innerProperty) {
+                            LOGGER.debug("avoiding infinite loop");
+                            Property resolved = resolveProperty(innerProperty);
+                            updated.put(propertyName, resolved);
+                            resolvedProperties.put(propertyName, resolved);
+                        }else {
+                            updated.put(propertyName, resolvedProperties.get(propertyName));
+                        }
+                        /*Property resolved = resolveProperty(innerProperty);
+                        updated.put(propertyName, resolved);*/
                     }
                 }
                 obj.setProperties(updated);
@@ -247,11 +267,18 @@ public class ResolverUtil {
             return obj;
         } else if (property instanceof ArrayProperty) {
             ArrayProperty array = (ArrayProperty) property;
-            if (array.getItems() != null) {
+            if(array.getItems() instanceof RefProperty ) {
+                array.setItems(resolveProperty(array.getItems()));
+            } else {
+                array.setItems(array.getItems());
+            }
+
+            return array;
+            /*if (array.getItems() != null) {
                 Property resolved = resolveProperty(array.getItems());
                 array.setItems(resolved);
             }
-            return array;
+            return array;*/
         }
         return property;
     }
