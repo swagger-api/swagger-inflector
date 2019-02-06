@@ -158,9 +158,6 @@ public class ResolverUtil {
                             LOGGER.debug("not adding recursive properties, using generic object");
                             model.addProperty(key, new ObjectProperty());
                         }
-                    }else if (property instanceof ArrayProperty){
-                        ArrayProperty ap = (ArrayProperty) property;
-                        ap.getItems();
                     }
                 }
                 return model;
