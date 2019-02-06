@@ -33,7 +33,10 @@ public class ResolverUtil {
 
     private Map<String, Model> schemas;
     private Map<String, Model> resolvedModels = new HashMap<>();
+    private Map<String, Integer> timesResolvedModels = new HashMap<>();
     private Map<String, Property> resolvedProperties = new HashMap<>();
+    private Map<String, Integer> timesResolvedProperties = new HashMap<>();
+    int counter = 0;
 
     public Map<String, Model> getResolvedModels() {
         return resolvedModels;
@@ -115,6 +118,8 @@ public class ResolverUtil {
 
             // if we make it without a resolution loop, we can update the reference
             this.resolvedModels.put(ref, model);
+            this.timesResolvedModels.put(ref,counter);
+            counter++;
             return model;
         }
         if (schema instanceof ArrayModel) {
@@ -140,12 +145,6 @@ public class ResolverUtil {
                     }else {
                         updated.put(propertyName, resolvedProperties.get(propertyName));
                     }
-
-
-
-                    /*Property property = model.getProperties().get(propertyName);
-                    Property resolved = resolveProperty(property);
-                    updated.put(propertyName, resolved);*/
                 }
 
                 for (String key : updated.keySet()) {
@@ -159,6 +158,9 @@ public class ResolverUtil {
                             LOGGER.debug("not adding recursive properties, using generic object");
                             model.addProperty(key, new ObjectProperty());
                         }
+                    }else if (property instanceof ArrayProperty){
+                        ArrayProperty ap = (ArrayProperty) property;
+                        ap.getItems();
                     }
                 }
                 return model;
@@ -170,16 +172,24 @@ public class ResolverUtil {
             Set<String> requiredProperties = new HashSet<>();
             if (composedSchema.getAllOf() != null) {
                 for (Model innerModel : composedSchema.getAllOf()) {
-                    Model resolved = resolveModel(innerModel);
-                    Map<String, Property> properties = resolved.getProperties();
-                    if (resolved.getProperties() != null) {
-                        for (String key : properties.keySet()) {
-                            Property property = resolved.getProperties().get(key);
-                            if (property.getRequired()) {
+
+                Model resolved = resolveModel(innerModel);
+                Map<String, Property> properties = resolved.getProperties();
+                if (resolved.getProperties() != null) {
+                    for (String key : properties.keySet()) {
+                        Property prop = resolved.getProperties().get(key);
+                        if(resolvedProperties.get(key) == null || resolvedProperties.get(key) != prop) {
+                            LOGGER.debug("avoiding infinite loop");
+                            Property resolvedProp = resolveProperty(prop);
+                            if (prop.getRequired()) {
                                 requiredProperties.add(key);
                             }
-                            model.addProperty(key, resolveProperty(property));
+                            model.addProperty(key,resolvedProp );
+                            resolvedProperties.put(key, resolvedProp);
+                        }else {
+                            model.addProperty(key,resolvedProperties.get(key));
                         }
+                    }
 
                     }
                     if (requiredProperties.size() > 0) {
@@ -200,6 +210,7 @@ public class ResolverUtil {
     }
 
     private Property resolveProperty(Property property) {
+        boolean alreadyResolved  = false;
         if (property instanceof RefProperty) {
             String ref = ((RefProperty) property).getSimpleRef();
             Model resolved = schemas.get(ref);
@@ -208,9 +219,11 @@ public class ResolverUtil {
                 return property;
             }
             if (this.resolvedModels.containsKey(ref) || this.resolvedProperties.containsKey(ref)) {
+                alreadyResolved = true;
                 LOGGER.debug("avoiding infinite loop");
                 Model modelResolved = this.resolvedModels.get(ref);
                 Property propertyResolved = this.resolvedProperties.get(ref);
+
                 if (modelResolved != null) {
                     PropertyModelConverter converter = new PropertyModelConverter();
                     Property convertedProperty = converter.modelToProperty(modelResolved);
@@ -228,6 +241,10 @@ public class ResolverUtil {
             }
 
             this.resolvedProperties.put(ref, property);
+            this.timesResolvedProperties.put(ref,counter++);
+            if (alreadyResolved) {
+                counter++;
+            }
             Model model = resolveModel(resolved);
 
             // if we make it without a resolution loop, we can update the reference
@@ -258,8 +275,6 @@ public class ResolverUtil {
                         }else {
                             updated.put(propertyName, resolvedProperties.get(propertyName));
                         }
-                        /*Property resolved = resolveProperty(innerProperty);
-                        updated.put(propertyName, resolved);*/
                     }
                 }
                 obj.setProperties(updated);
@@ -274,11 +289,6 @@ public class ResolverUtil {
             }
 
             return array;
-            /*if (array.getItems() != null) {
-                Property resolved = resolveProperty(array.getItems());
-                array.setItems(resolved);
-            }
-            return array;*/
         }
         return property;
     }
