@@ -10,8 +10,6 @@ import io.swagger.models.parameters.Parameter;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.ObjectProperty;
 import io.swagger.models.properties.Property;
-import io.swagger.models.properties.RefProperty;
-import io.swagger.models.properties.UntypedProperty;
 import io.swagger.parser.SwaggerParser;
 import io.swagger.sample.models.Dog;
 import io.swagger.util.Json;
@@ -24,6 +22,21 @@ import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 
 public class ResolverUtilTest {
+
+
+    @Test
+    public void testIssue294() throws Exception {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/issue-294/issue-294.yaml");
+        new ResolverUtil().resolveFully(swagger);
+        Yaml.prettyPrint(swagger);
+        try {
+            Json.mapper().writeValueAsString(swagger);
+
+        }
+        catch (Exception e) {
+            fail("Recursive loop found");
+        }
+    }
 
     @Test
     public void testRefs2() {
