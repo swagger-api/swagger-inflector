@@ -894,4 +894,16 @@ public class ExampleBuilderTest {
         Assert.assertNotNull(openAPI.getComponents().getSchemas().get("User"));
         Assert.assertTrue(openAPI.getPaths().get("/refToAllOf").getGet().getResponses().get("200").getContent().get("application/json").getSchema().getProperties().size() == 2);
     }
+
+    @Test(description = "JSON example with xml name on array item")
+    public void testIssue300() throws Exception {
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/issue-300.yaml");
+        Schema schema = openAPI.getComponents().getSchemas().get("Pet");
+        Example example = ExampleBuilder.fromSchema(schema, openAPI.getComponents().getSchemas());
+        String jsonExample = Json.pretty(example);
+        assertEqualsIgnoreLineEnding(jsonExample, "{\n  \"name\" : \"doggie\",\n  \"shots\" : [ \"rabies\" ]\n}");
+        
+        String xmlExample = new XmlExampleSerializer().serialize(example);
+        assertEquals(xmlExample, "<?xml version='1.1' encoding='UTF-8'?><Pet><name>doggie</name><shots><shot>rabies</shot></shots></Pet>");
+    }
 }
