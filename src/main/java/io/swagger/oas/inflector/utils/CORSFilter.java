@@ -31,7 +31,8 @@ public class CORSFilter implements javax.servlet.Filter {
         HttpServletResponse res = (HttpServletResponse) response;
         res.addHeader("Access-Control-Allow-Origin", "*");
         res.addHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
-        res.addHeader("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization, Content-Disposition");
+        res.addHeader("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization");
+        res.addHeader("Access-Control-Expose-Headers", "Content-Disposition");
         chain.doFilter(request, response);
     }
 
