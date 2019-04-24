@@ -1,8 +1,6 @@
 package io.swagger.oas.test.utils;
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.sun.org.apache.xerces.internal.xs.StringList;
-import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.oas.sample.models.Dog;
 import io.swagger.oas.inflector.config.Configuration;
@@ -22,7 +20,6 @@ import io.swagger.v3.parser.core.models.AuthorizationValue;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import io.swagger.v3.parser.util.ResolverFully;
-import io.swagger.v3.parser.util.SchemaTypeUtil;
 import mockit.Injectable;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
@@ -32,7 +29,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -57,7 +53,7 @@ public class ExtensionsUtilTest {
         OpenAPI openAPI = result.getOpenAPI();
         Assert.assertEquals(result.getOpenAPI().getOpenapi(), "3.0.0");
         List<String> messages = result.getMessages();
-        assertTrue(messages.isEmpty(), messages.stream().collect(Collectors.joining("\n")));
+        assertTrue(messages.get(0).contains("attribute components.schemas.someObject.additionalProperties is not of type `object`"), messages.stream().collect(Collectors.joining("\n")));
 
         Assert.assertTrue(openAPI.getComponents().getSchemas().get("someObject").getAdditionalProperties() instanceof Schema);
         Assert.assertTrue(((Schema)(openAPI.getComponents().getSchemas().get("someObject").getProperties().get("innerObject"))).getAdditionalProperties() instanceof Boolean);
