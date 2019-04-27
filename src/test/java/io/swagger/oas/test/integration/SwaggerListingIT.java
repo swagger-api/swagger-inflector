@@ -33,10 +33,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static org.junit.Assert.assertTrue;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 
 public class SwaggerListingIT {
+
+    @Test
+    public void verifySwaggerYamlWithoutExtensions() throws Exception {
+        OpenAPI openAPI = getYamlSwaggerWithoutExtensions();
+        assertNotNull(openAPI);
+        assertNotNull(openAPI.getPaths());
+        assertNotNull(openAPI.getPaths().get("/fileUpload"));
+        assertNotNull(openAPI.getPaths().get("/fileUpload").getPost());
+        assertNull(openAPI.getPaths().get("/fileUpload").getPost().getExtensions());
+
+    }
 
     @Test
     public void verifySwaggerJson() throws Exception {
@@ -50,6 +63,17 @@ public class SwaggerListingIT {
         OpenAPI openAPI = getYamlSwagger();
         assertNotNull(openAPI);
         assertEquals(openAPI.getInfo().getDescription(), "processed");
+    }
+
+    @Test
+    public void verifySwaggerYamlWithoutExtensions() throws Exception {
+        OpenAPI openAPI = getYamlSwaggerWithoutExtensions();
+        assertNotNull(openAPI);
+        assertNotNull(openAPI.getPaths());
+        assertNotNull(openAPI.getPaths().get("/fileUpload"));
+        assertNotNull(openAPI.getPaths().get("/fileUpload").getPost());
+        assertNull(openAPI.getPaths().get("/fileUpload").getPost().getExtensions());
+
     }
 
     @Test
@@ -103,6 +127,13 @@ public class SwaggerListingIT {
     }
 
     private OpenAPI getYamlSwagger() throws Exception {
+        ApiClient client = new ApiClient();
+
+        String str = client.invokeAPI("swagger/openapi.yaml", "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/yaml", null, new String[0]);
+        return Yaml.mapper().readValue(str, OpenAPI.class);
+    }
+
+    private OpenAPI getYamlSwaggerWithoutExtensions() throws Exception {
         ApiClient client = new ApiClient();
 
         String str = client.invokeAPI("swagger/openapi.yaml", "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/yaml", null, new String[0]);

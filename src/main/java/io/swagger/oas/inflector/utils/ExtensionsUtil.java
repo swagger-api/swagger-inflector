@@ -27,6 +27,35 @@ public class ExtensionsUtil {
 
     private Map<String, Schema> schemas;
 
+    public  void removeExtensions(OpenAPI openAPI) {
+        if (openAPI.getComponents() != null) {
+            if (openAPI.getComponents().getSchemas() != null) {
+                schemas = openAPI.getComponents().getSchemas();
+                if (schemas == null) {
+                    schemas = new HashMap<>();
+                }
+            }
+
+            for (String name : schemas.keySet()) {
+                Schema schema = schemas.get(name);
+                if (schema.getExtensions() != null) {
+                    if (schema.getExtensions().containsKey(Constants.X_SWAGGER_ROUTER_MODEL)) {
+                        Map<String,Schema> extensions = schema.getExtensions();
+                        Object value = extensions.get(Constants.X_SWAGGER_ROUTER_MODEL);
+                        extensions.remove(Constants.X_SWAGGER_ROUTER_MODEL,value);
+                    }
+                }
+            }
+        }
+        if (openAPI.getPaths() != null) {
+            for (String pathname : openAPI.getPaths().keySet()) {
+                PathItem pathItem = openAPI.getPaths().get(pathname);
+                resolvePath(pathItem,false);
+            }
+        }
+
+    }
+
     public void addExtensions(OpenAPI openAPI) {
         if (openAPI.getComponents() != null) {
             if (openAPI.getComponents().getSchemas() != null) {
@@ -50,14 +79,23 @@ public class ExtensionsUtil {
         if (openAPI.getPaths() != null) {
             for (String pathname : openAPI.getPaths().keySet()) {
                 PathItem pathItem = openAPI.getPaths().get(pathname);
-                resolvePath(pathItem);
+                resolvePath(pathItem, true);
             }
         }
 
     }
 
-     public void resolvePath(PathItem pathItem){
+     public void resolvePath(PathItem pathItem, boolean add){
         for(Operation operation : pathItem.readOperations()) {
+            // Removing extension in case the flag is true.
+            if(operation.getExtensions() != null) {
+                final String controllerExtension = (String) operation.getExtensions().get(Constants.X_SWAGGER_ROUTER_CONTROLLER);
+                if (controllerExtension != null) {
+                    if (!add) {
+                        operation.getExtensions().remove(Constants.X_SWAGGER_ROUTER_CONTROLLER, controllerExtension);
+                    }
+                }
+            }
             // inputs
             if (operation.getParameters() != null) {
                 for (Parameter parameter : operation.getParameters()) {
@@ -69,11 +107,14 @@ public class ExtensionsUtil {
                                 if (resolved.equals(schema)){
                                     final String constant = (String) schema.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
                                     if (constant != null) {
-                                        resolved.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, constant);
+                                        if (add) {
+                                            resolved.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, constant);
+                                        }else {
+                                            resolved.getExtensions().remove(Constants.X_SWAGGER_ROUTER_MODEL, constant);
+                                        }
                                     }
                                 }
                             }
-
                             parameter.setSchema(resolved);
                         }
                     }
@@ -88,7 +129,11 @@ public class ExtensionsUtil {
                                         if (resolved.equals(schema)){
                                             final String constant = (String) schema.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
                                             if (constant != null) {
-                                                resolved.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, constant);
+                                                if (add) {
+                                                    resolved.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, constant);
+                                                }else {
+                                                    resolved.getExtensions().remove(Constants.X_SWAGGER_ROUTER_MODEL, constant);
+                                                }
                                             }
                                         }
                                     }
@@ -108,7 +153,7 @@ public class ExtensionsUtil {
                         for(String callbackName : callback.keySet()) {
                             PathItem path = callback.get(callbackName);
                             if(path != null){
-                                resolvePath(path);
+                                resolvePath(path,add);
                             }
 
                         }
@@ -125,9 +170,15 @@ public class ExtensionsUtil {
                             for (String name : schemas.keySet()) {
                                 Schema schema = schemas.get(name);
                                 if (resolved.equals(schema)){
-                                    final String constant = (String) schema.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
-                                    if (constant != null) {
-                                        resolved.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, constant);
+                                    if (schema.getExtensions() != null){
+                                        final String constant = (String) schema.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
+                                        if (constant != null) {
+                                            if (add) {
+                                                resolved.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, constant);
+                                            } else {
+                                                resolved.getExtensions().remove(Constants.X_SWAGGER_ROUTER_MODEL, constant);
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -149,9 +200,15 @@ public class ExtensionsUtil {
                                     for (String name : schemas.keySet()) {
                                         Schema schema = schemas.get(name);
                                         if (resolved.equals(schema)){
-                                            final String constant = (String) schema.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
-                                            if (constant != null) {
-                                                resolved.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, constant);
+                                            if (schema.getExtensions() != null) {
+                                                final String constant = (String) schema.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
+                                                if (constant != null) {
+                                                    if (add) {
+                                                        resolved.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, constant);
+                                                    } else {
+                                                        resolved.getExtensions().remove(Constants.X_SWAGGER_ROUTER_MODEL, constant);
+                                                    }
+                                                }
                                             }
                                         }
                                     }

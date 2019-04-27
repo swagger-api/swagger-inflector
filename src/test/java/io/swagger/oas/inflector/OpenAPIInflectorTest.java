@@ -19,8 +19,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.oas.inflector.config.Configuration;
+import io.swagger.oas.inflector.config.ExposedSpecOptions;
 import io.swagger.oas.inflector.processors.JsonProvider;
 import io.swagger.v3.core.util.Json;
+import io.swagger.v3.core.util.Yaml;
+import io.swagger.v3.parser.core.models.ParseOptions;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -37,6 +40,7 @@ public class OpenAPIInflectorTest {
         System.setProperty("config", "src/test/config/config1.yaml");
         config = Configuration.read();
     }
+
 
     @Test
     public void testLoadWithDefaultObjectMapper() throws Exception {
@@ -57,6 +61,7 @@ public class OpenAPIInflectorTest {
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
         OpenAPIInflector inflector = new OpenAPIInflector(config,objectMapper);
+
         assertEquals(objectMapper,inflector.getObjectMapper());
         assertNotEquals(Json.mapper(),inflector.getObjectMapper());
         // This class SHOULD NOT be registered since the custom mapper

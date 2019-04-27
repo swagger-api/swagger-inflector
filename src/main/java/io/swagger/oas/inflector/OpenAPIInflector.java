@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider;
+import io.swagger.oas.inflector.config.ExposedSpecOptions;
 import io.swagger.oas.inflector.config.FilterFactory;
 
 import io.swagger.oas.inflector.config.Configuration;
@@ -126,10 +127,19 @@ public class OpenAPIInflector extends ResourceConfig {
         }
         
         OpenAPI openAPI = swaggerParseResult.getOpenAPI();
-        
+
+        OpenAPI exposedAPI = getExposedAPI(config);
+
         if(!config.getValidatePayloads().isEmpty()) {
             LOGGER.info("resolving openAPI");
             new ExtensionsUtil().addExtensions(openAPI);
+
+
+            if (!config.getExposedSpecOptions().isHideInflectorExtensions()){
+                new ExtensionsUtil().addExtensions(exposedAPI);
+            }
+
+
         }
 
         if (openAPI != null) {
@@ -236,7 +246,7 @@ public class OpenAPIInflector extends ResourceConfig {
                             ContextResolver.class);
                 }
                 enableProcessor(JacksonProcessor.class, MediaType.APPLICATION_JSON_TYPE);
-                enableSwaggerJSON(openAPI, configuration.getSwaggerProcessors());
+                enableSwaggerJSON(exposedAPI, configuration.getSwaggerProcessors());
             } else if ("xml".equalsIgnoreCase(item)) {
                 // XML
                 if (!isRegistered(DefaultContentTypeProvider.class)) {
@@ -251,7 +261,7 @@ public class OpenAPIInflector extends ResourceConfig {
                 Yaml.mapper().registerModule(simpleModule);
                 register(YamlExampleProvider.class);
                 enableProcessor(JacksonProcessor.class, JacksonProcessor.APPLICATION_YAML_TYPE);
-                enableSwaggerYAML(openAPI, configuration.getSwaggerProcessors());
+                enableSwaggerYAML(exposedAPI, configuration.getSwaggerProcessors());
             }else if ("plain".equalsIgnoreCase(item)) {
                 // PLAIN
                 register(PlainExampleProvider.class);
@@ -372,6 +382,21 @@ public class OpenAPIInflector extends ResourceConfig {
                 throw new RuntimeException("Unable to start due to unimplemented methods");
             }
         }
+    }
+
+    private OpenAPI getExposedAPI(Configuration config) {
+        ExposedSpecOptions exposedSpecOptions =  config.getExposedSpecOptions();
+        boolean hideExtension = exposedSpecOptions.isHideInflectorExtensions();
+        SwaggerParseResult exposedSwaggerParseResult = new OpenAPIV3Parser().readLocation(config.getSwaggerUrl(), null, exposedSpecOptions.getParseOptions());
+        OpenAPI exposedAPI = exposedSwaggerParseResult.getOpenAPI();
+        if (hideExtension) {
+            hideExtensions(exposedAPI);
+        }
+        return exposedAPI;
+    }
+
+    private void hideExtensions(OpenAPI exposedAPI) {
+        new ExtensionsUtil().removeExtensions(exposedAPI);
     }
 
     public static String basePath(String basePath, String path) {

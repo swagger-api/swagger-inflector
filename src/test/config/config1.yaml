@@ -3,6 +3,11 @@ modelPackage: io.swagger.oas.sample.models
 swaggerUrl: ./src/test/swagger/oas3.yaml
 modelMappings:
   User: io.swagger.oas.test.models.User
+#Allows to configure the exposed spec
+exposedSpecOptions:
+  parseOptions:
+    resolve: false
+  hideInflectorExtensions: true
 swaggerBase: /swagger
 
 # allows environment to be develop, staging, production.  Production will not start if
@@ -21,6 +26,12 @@ entityProcessors:
 # Allows to configure the examples
 exampleProcessors:
   - sequence
+
+#Allows to configure the exposed spec
+exposedSpecOptions:
+  parseOptions:
+    resolve: false
+  hideInflectorExtensions: true
 
 # loads all by default, or pick and choose
 inputValidators:

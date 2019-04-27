@@ -16,9 +16,12 @@
 
 package io.swagger.oas.test;
 
+
 import org.testng.annotations.Test;
 
+import static org.junit.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
+
 
 public class ConfigurationLoaderTest {
     @Test
@@ -27,4 +30,13 @@ public class ConfigurationLoaderTest {
         io.swagger.oas.inflector.config.Configuration config = io.swagger.oas.inflector.config.Configuration.read();
         assertNotNull(config);
     }
+
+    @Test
+    public void testExposedSpecFromFile() throws Exception {
+        System.setProperty("config", "src/test/config/config1.yaml");
+        io.swagger.oas.inflector.config.Configuration config = io.swagger.oas.inflector.config.Configuration.read();
+        assertFalse(config.getExposedSpecOptions().getParseOptions().isResolve());
+    }
+
+
 }

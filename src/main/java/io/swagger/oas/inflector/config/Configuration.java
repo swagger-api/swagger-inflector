@@ -16,6 +16,7 @@
 
 package io.swagger.oas.inflector.config;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -46,6 +47,7 @@ public class Configuration {
     private String swaggerUrl;
     private List<String> swaggerProcessors = new ArrayList<>();
     private List<String> exampleProcessors = new ArrayList<>();
+    private ExposedSpecOptions exposedSpecOptions = new ExposedSpecOptions();
     private String filterClass;
     private int invalidRequestCode = 400;
     private String rootPath = "";
@@ -72,6 +74,16 @@ public class Configuration {
         return swaggerBase;
     }
 
+
+
+
+    public ExposedSpecOptions getExposedSpecOptions() {
+        return this.exposedSpecOptions;
+    }
+
+
+
+
     public static enum Environment {
         DEVELOPMENT(1, "development"), STAGING(2, "staging"), PRODUCTION(3, "production");
 
@@ -88,6 +100,7 @@ public class Configuration {
             return name;
         }
     }
+
 
     public enum Direction {
         IN, OUT;
@@ -139,9 +152,11 @@ public class Configuration {
             config.setExceptionMappers(Configuration.defaultConfiguration().getExceptionMappers());
         }
         String environment = System.getProperty("environment");
+
         if(environment != null) {
             System.out.println("Overriding environment to " + environment);
             config.setEnvironment(Environment.valueOf(environment));
+
         }
         return config;
     }
@@ -262,6 +277,10 @@ public class Configuration {
             }
         }
     }
+    public void setExposedSpecOptions(ExposedSpecOptions exposedSpecOptions) {
+        this.exposedSpecOptions = exposedSpecOptions;
+    }
+
 
     public Map<String, String> getModelMappings() {
         Map<String, String> output = new HashMap<String, String>();
@@ -279,6 +298,8 @@ public class Configuration {
     public Class<?> getModelMapping(String name) {
         return modelMap.get(name);
     }
+
+
 
     public String getSwaggerUrl() {
         if(System.getProperty("swaggerUrl") != null) {
@@ -403,4 +424,5 @@ public class Configuration {
     public void setPrettyPrint(boolean prettyPrint) {
         this.prettyPrint = prettyPrint;
     }
+
 }
