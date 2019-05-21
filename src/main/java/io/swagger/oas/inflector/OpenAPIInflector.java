@@ -117,8 +117,16 @@ public class OpenAPIInflector extends ResourceConfig {
         options.setResolve(true);
         options.setResolveFully(true);
         SwaggerParseResult swaggerParseResult = new OpenAPIV3Parser().readLocation(config.getSwaggerUrl(), null, options);
+        
+        // Dump any warning messages the parser might produce
+        if (!swaggerParseResult.getMessages().isEmpty()) {
+            for (String message : swaggerParseResult.getMessages()) {
+                LOGGER.warn(message);
+            }
+        }
+        
         OpenAPI openAPI = swaggerParseResult.getOpenAPI();
-
+        
         if(!config.getValidatePayloads().isEmpty()) {
             LOGGER.info("resolving openAPI");
             new ExtensionsUtil().addExtensions(openAPI);
