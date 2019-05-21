@@ -377,6 +377,16 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
                             }
                         }
+                    } else if (operation.getRequestBody().getRequired()) {
+                        ValidationException e = new ValidationException();
+                        e.message(new ValidationMessage()
+                                .message("The input body `" + operation.getRequestBody() + "` is required but was provided with an unsupported media type `" + 
+                                            mediaType + "`"));
+                        try {
+                            throw e;
+                        } catch (ValidationException e1) {
+                            missingParams.add(e.getValidationMessage());
+                        }
                     }
                 } catch (ConversionException e) {
                     missingParams.add(e.getError());
