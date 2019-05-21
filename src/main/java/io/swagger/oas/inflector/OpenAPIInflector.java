@@ -162,6 +162,10 @@ public class OpenAPIInflector extends ResourceConfig {
                 if (operation != null) {
                     addOperation(pathString, builder, HttpMethod.GET, operation, definitions);
                 }
+                operation = pathItem.getHead();
+                if (operation != null) {
+                    addOperation(pathString, builder, HttpMethod.HEAD, operation, definitions);
+                }
                 operation = pathItem.getPost();
                 if (operation != null) {
                     addOperation(pathString, builder, HttpMethod.POST, operation, definitions);
