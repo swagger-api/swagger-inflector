@@ -375,7 +375,6 @@ You will soon find samples for the inflector project in the [Swagger-Samples](ht
 Please disclose any security-related issues or vulnerabilities by emailing [security@swagger.io](mailto:security@swagger.io), instead of using the public issue tracker.
 
 ## License
--------
 
 ```
 Copyright 2019 SmartBear Software
