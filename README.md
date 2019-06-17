@@ -4,6 +4,8 @@
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector)
 
+[![Build Status](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-master/badge/icon?subject=jenkins$20build)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-master/)
+
 
 This project uses the OpenAPI Specification to drive an API implementation.  Rather than a typical top-down or bottom-up integration, the Inflector uses the OpenAPI Specification as a DSL for the REST API.  The spec drives the creation of routes and controllers automatically, matching methods and method signatures from the implementation.  This brings a similar integration approach to the JVM as [swagger-node](https://github.com/swagger-api/swagger-node) brings to the javascript world.
 
