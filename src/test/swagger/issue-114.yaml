@@ -1,0 +1,1232 @@
+---
+swagger: '2.0'
+info:
+  title: java heap space test
+paths:
+  "/api/applicationrole":
+    get:
+      tags:
+        - ApplicationRoles
+      operationId: ApiApplicationroleGet
+      consumes: []
+      produces: []
+      parameters: []
+      responses:
+        '200':
+          description: Success
+    post:
+      tags:
+        - ApplicationRoles
+      operationId: ApiApplicationrolePost
+      consumes:
+        - application/json-patch+json
+        - application/json
+        - text/json
+        - application/*+json
+      produces: []
+      parameters:
+        - name: applicationRoleModel
+          in: body
+          required: false
+          schema:
+            "$ref": "#/definitions/ApplicationRoleModel"
+      responses:
+        '200':
+          description: Success
+definitions:
+  ApplicationRoleModel:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      riskApplicationId:
+        format: int32
+        type: integer
+      name:
+        type: string
+      description:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      riskApplication:
+        "$ref": "#/definitions/RiskApplication"
+      riskUserRole:
+        "$ref": "#/definitions/RiskUserRole"
+      featurePermission:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/FeaturePermission"
+  RiskApplication:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      name:
+        type: string
+      description:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createdUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      applicationRole:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/ApplicationRole"
+      feature:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/Feature"
+  RiskUserRole:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      applicationRoleId:
+        format: int32
+        type: integer
+      riskUserId:
+        format: int32
+        type: integer
+      createDatetime:
+        format: date-time
+        type: string
+      createdUser:
+        type: string
+      applicationRole:
+        "$ref": "#/definitions/ApplicationRole"
+      riskUser:
+        "$ref": "#/definitions/RiskUser"
+  FeaturePermission:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      applicationRoleId:
+        format: int32
+        type: integer
+      featureId:
+        format: int32
+        type: integer
+      permissionId:
+        format: int32
+        type: integer
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      applicationRole:
+        "$ref": "#/definitions/ApplicationRole"
+      feature:
+        "$ref": "#/definitions/Feature"
+      permission:
+        "$ref": "#/definitions/Permission"
+  ApplicationRole:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      riskApplicationId:
+        format: int32
+        type: integer
+      name:
+        type: string
+      description:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      riskApplication:
+        "$ref": "#/definitions/RiskApplication"
+      riskUserRole:
+        "$ref": "#/definitions/RiskUserRole"
+      featurePermission:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/FeaturePermission"
+  Feature:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      riskApplicationId:
+        format: int32
+        type: integer
+      name:
+        type: string
+      description:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      riskApplication:
+        "$ref": "#/definitions/RiskApplication"
+      featurePermission:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/FeaturePermission"
+  RiskUser:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      employeeLogin:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+      approvedBy:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      preference:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/Preference"
+      reportPrimaryReportCreator:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/Report"
+      reportSecondaryReportCreator:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/Report"
+      riskUserRole:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/RiskUserRole"
+  Permission:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      permissionName:
+        type: string
+      permissionDescription:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      featurePermission:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/FeaturePermission"
+  Preference:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      riskUserId:
+        format: int32
+        type: integer
+      preferenceTypeId:
+        format: int32
+        type: integer
+      title:
+        type: string
+      setting:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      preferenceType:
+        "$ref": "#/definitions/PreferenceType"
+      riskUser:
+        "$ref": "#/definitions/RiskUser"
+  Report:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      reportTypeId:
+        format: int32
+        type: integer
+      name:
+        type: string
+      rcisreferenceNumber:
+        type: string
+      primaryReportCreatorId:
+        format: int32
+        type: integer
+      secondaryReportCreatorId:
+        format: int32
+        type: integer
+      surveyDate:
+        format: date-time
+        type: string
+      inspectionId:
+        type: string
+      clientId:
+        type: string
+      contactId:
+        format: int32
+        type: integer
+      assignmentId:
+        format: int32
+        type: integer
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      assignment:
+        "$ref": "#/definitions/Assignment"
+      contact:
+        "$ref": "#/definitions/Contact"
+      primaryReportCreator:
+        "$ref": "#/definitions/RiskUser"
+      reportType:
+        "$ref": "#/definitions/ReportType"
+      secondaryReportCreator:
+        "$ref": "#/definitions/RiskUser"
+      reportContact:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/ReportContact"
+      reportWorkflow:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/ReportWorkflow"
+      section:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/Section"
+      sectionReportOrder:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SectionReportOrder"
+  PreferenceType:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      name:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      preference:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/Preference"
+  Assignment:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      policyNumber:
+        type: string
+      accountName:
+        type: string
+      expirationDate:
+        format: date-time
+        type: string
+      occupancy:
+        type: string
+      locationName:
+        type: string
+      street:
+        type: string
+      city:
+        type: string
+      stateCode:
+        type: string
+      zipCode:
+        type: string
+      branchCode:
+        type: string
+      agencyName:
+        type: string
+      underWriterName:
+        type: string
+      underWriterBranchCode:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      report:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/Report"
+  Contact:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      contactTypeId:
+        format: int32
+        type: integer
+      name:
+        type: string
+      title:
+        type: string
+      workPhone:
+        type: string
+      cellPhone:
+        type: string
+      email:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      contactType:
+        "$ref": "#/definitions/ContactType"
+      report:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/Report"
+      reportContact:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/ReportContact"
+  ReportType:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      name:
+        type: string
+      description:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      report:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/Report"
+      reportTemplate:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/ReportTemplate"
+      sectionTemplateReportType:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SectionTemplateReportType"
+  ReportContact:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      contactId:
+        format: int32
+        type: integer
+      reportId:
+        format: int32
+        type: integer
+      reportContactDetailId:
+        format: int32
+        type: integer
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      contact:
+        "$ref": "#/definitions/Contact"
+      report:
+        "$ref": "#/definitions/Report"
+      reportContactDetail:
+        "$ref": "#/definitions/ReportContactDetail"
+  ReportWorkflow:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      reportId:
+        format: int32
+        type: integer
+      workflowActivityTypeId:
+        format: int32
+        type: integer
+      workflowStatusId:
+        format: int32
+        type: integer
+      activityOrder:
+        format: int32
+        type: integer
+      isCompleted:
+        type: boolean
+      completedDatetime:
+        format: date-time
+        type: string
+      startDate:
+        format: date-time
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      report:
+        "$ref": "#/definitions/Report"
+      workflowActivityType:
+        "$ref": "#/definitions/WorkflowActivity"
+      workflowStatus:
+        "$ref": "#/definitions/WorkflowStatus"
+  Section:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      reportId:
+        format: int32
+        type: integer
+      sectionTypeId:
+        format: int32
+        type: integer
+      title:
+        type: string
+      sectionText:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      report:
+        "$ref": "#/definitions/Report"
+      sectionType:
+        "$ref": "#/definitions/SectionType"
+      sectionReportOrder:
+        "$ref": "#/definitions/SectionReportOrder"
+      sectionAttachment:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SectionAttachment"
+      sectionAttribute:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SectionAttribute"
+      sectionTable:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SectionTable"
+      sectionXrefChildSection:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SectionXref"
+      sectionXrefParentSection:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SectionXref"
+  SectionReportOrder:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      sectionId:
+        format: int32
+        type: integer
+      reportId:
+        format: int32
+        type: integer
+      reportOrder:
+        format: int32
+        type: integer
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      report:
+        "$ref": "#/definitions/Report"
+      section:
+        "$ref": "#/definitions/Section"
+  ContactType:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      name:
+        type: string
+      description:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      contact:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/Contact"
+  ReportTemplate:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      reportTypeId:
+        format: int32
+        type: integer
+      title:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      reportType:
+        "$ref": "#/definitions/ReportType"
+      reportTemplateSectionOrder:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/ReportTemplateSectionOrder"
+      reportTemplateWorkflowActivity:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/ReportTemplateWorkflowActivity"
+  SectionTemplateReportType:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      reportTypeId:
+        format: int32
+        type: integer
+      sectionTemplateId:
+        format: int32
+        type: integer
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      reportType:
+        "$ref": "#/definitions/ReportType"
+      sectionTemplate:
+        "$ref": "#/definitions/SectionTemplate"
+  ReportContactDetail:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      firstName:
+        type: string
+      lastName:
+        type: string
+      title:
+        type: string
+      phoneNumber:
+        type: string
+      addressLine1:
+        type: string
+      addressLine2:
+        type: string
+      zipCode:
+        type: string
+      stateCode:
+        type: string
+      email:
+        type: string
+      organization:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      reportContact:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/ReportContact"
+  WorkflowActivity:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      name:
+        type: string
+      description:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updatedDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      reportTemplateWorkflowActivity:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/ReportTemplateWorkflowActivity"
+      reportWorkflow:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/ReportWorkflow"
+  WorkflowStatus:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      name:
+        type: string
+      description:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updatedDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      reportWorkflow:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/ReportWorkflow"
+  SectionType:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      name:
+        type: string
+      description:
+        type: string
+      allowChild:
+        type: boolean
+      isVisible:
+        type: boolean
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      section:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/Section"
+      sectionTemplate:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SectionTemplate"
+  SectionAttachment:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      sectionId:
+        format: int32
+        type: integer
+      name:
+        type: string
+      fileLocation:
+        type: string
+      caption:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      section:
+        "$ref": "#/definitions/Section"
+  SectionAttribute:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      sectionId:
+        format: int32
+        type: integer
+      attributeTypeId:
+        format: int32
+        type: integer
+      attributeText:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      attributeType:
+        "$ref": "#/definitions/AttributeType"
+      section:
+        "$ref": "#/definitions/Section"
+  SectionTable:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      sectionId:
+        format: int32
+        type: integer
+      title:
+        type: string
+      footer:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      section:
+        "$ref": "#/definitions/Section"
+      sectionTableData:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SectionTableData"
+  SectionXref:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      parentSectionId:
+        format: int32
+        type: integer
+      childSectionId:
+        format: int32
+        type: integer
+      sectionOrder:
+        format: int32
+        type: integer
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      childSection:
+        "$ref": "#/definitions/Section"
+      parentSection:
+        "$ref": "#/definitions/Section"
+  ReportTemplateSectionOrder:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      reportTemplateId:
+        format: int32
+        type: integer
+      sectionTemplateId:
+        format: int32
+        type: integer
+      reportTemplateOrder:
+        format: int32
+        type: integer
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      reportTemplate:
+        "$ref": "#/definitions/ReportTemplate"
+      sectionTemplate:
+        "$ref": "#/definitions/SectionTemplate"
+  ReportTemplateWorkflowActivity:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      workflowActivityId:
+        format: int32
+        type: integer
+      reportTemplateId:
+        format: int32
+        type: integer
+      activityOrder:
+        format: int32
+        type: integer
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      reportTemplate:
+        "$ref": "#/definitions/ReportTemplate"
+      workflowActivity:
+        "$ref": "#/definitions/WorkflowActivity"
+  SectionTemplate:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      sectionTypeId:
+        format: int32
+        type: integer
+      sectionCategoryId:
+        format: int32
+        type: integer
+      title:
+        type: string
+      sectionText:
+        type: string
+      reference:
+        type: string
+      submitDatetime:
+        format: date-time
+        type: string
+      isActive:
+        type: boolean
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      sectionCategory:
+        "$ref": "#/definitions/SectionCategory"
+      sectionType:
+        "$ref": "#/definitions/SectionType"
+      reportTemplateSectionOrder:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/ReportTemplateSectionOrder"
+      searchTag:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SearchTag"
+      sectionTemplateReportType:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SectionTemplateReportType"
+      sectionTemplateStockImage:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SectionTemplateStockImage"
+      sectionTemplateXrefChildSectionTemplate:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SectionTemplateXref"
+      sectionTemplateXrefParentSectionTemplate:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SectionTemplateXref"
+  AttributeType:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      name:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      sectionAttribute:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SectionAttribute"
+  SectionTableData:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      sectionTableId:
+        format: int32
+        type: integer
+      rowType:
+        format: int32
+        type: integer
+      rowId:
+        format: int32
+        type: integer
+      columnId:
+        format: int32
+        type: integer
+      value:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      sectionTable:
+        "$ref": "#/definitions/SectionTable"
+  SectionCategory:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      name:
+        type: string
+      description:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      sectionTemplate:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SectionTemplate"
+  SearchTag:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      sectionTemplateId:
+        format: int32
+        type: integer
+      tag:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      sectionTemplate:
+        "$ref": "#/definitions/SectionTemplate"
+  SectionTemplateStockImage:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      stockImageId:
+        format: int32
+        type: integer
+      sectionTemplateId:
+        format: int32
+        type: integer
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      sectionTemplate:
+        "$ref": "#/definitions/SectionTemplate"
+      stockImage:
+        "$ref": "#/definitions/StockImage"
+  SectionTemplateXref:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      parentSectionTemplateId:
+        format: int32
+        type: integer
+      childSectionTemplateId:
+        format: int32
+        type: integer
+      sectionTemplateOrder:
+        format: int32
+        type: integer
+      isDefault:
+        type: boolean
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      updateDatetime:
+        format: date-time
+        type: string
+      updateUser:
+        type: string
+      childSectionTemplate:
+        "$ref": "#/definitions/SectionTemplate"
+      parentSectionTemplate:
+        "$ref": "#/definitions/SectionTemplate"
+  StockImage:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      name:
+        type: string
+      caption:
+        type: string
+      imagePath:
+        type: string
+      createDatetime:
+        format: date-time
+        type: string
+      createUser:
+        type: string
+      sectionTemplateStockImage:
+        uniqueItems: false
+        type: array
+        items:
+          "$ref": "#/definitions/SectionTemplateStockImage"

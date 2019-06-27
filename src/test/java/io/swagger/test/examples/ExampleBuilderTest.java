@@ -16,6 +16,8 @@
 
 package io.swagger.test.examples;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.swagger.converter.ModelConverters;
 import io.swagger.inflector.examples.ExampleBuilder;
@@ -29,12 +31,17 @@ import io.swagger.inflector.examples.models.StringExample;
 import io.swagger.inflector.processors.JsonExampleDeserializer;
 import io.swagger.inflector.processors.JsonNodeExampleSerializer;
 import io.swagger.inflector.utils.ResolverUtil;
+import io.swagger.models.ComposedModel;
 import io.swagger.models.HttpMethod;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
+import io.swagger.models.Operation;
+import io.swagger.models.RefModel;
 import io.swagger.models.Response;
 import io.swagger.models.Swagger;
 import io.swagger.models.Xml;
+import io.swagger.models.parameters.BodyParameter;
+import io.swagger.models.parameters.Parameter;
 import io.swagger.models.properties.AbstractProperty;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.BaseIntegerProperty;
@@ -45,6 +52,7 @@ import io.swagger.models.properties.FloatProperty;
 import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.LongProperty;
 import io.swagger.models.properties.MapProperty;
+import io.swagger.models.properties.ObjectProperty;
 import io.swagger.models.properties.RefProperty;
 import io.swagger.models.properties.StringProperty;
 import io.swagger.parser.SwaggerParser;
@@ -57,6 +65,7 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -68,6 +77,11 @@ public class ExampleBuilderTest {
         simpleModule.addSerializer(new JsonNodeExampleSerializer());
         Json.mapper().registerModule(simpleModule);
         Yaml.mapper().registerModule(simpleModule);
+    }
+
+    @Test
+    public void testIssue114() throws Exception {
+
     }
 
     @Test
@@ -732,10 +746,69 @@ public class ExampleBuilderTest {
                 "}");
     }
 
+    @Test
+    public void testPathExample(){
+        Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-114.yaml");
+        ResolverUtil swaggerResolver = new ResolverUtil();
+        swaggerResolver.resolveFully(swagger);
+
+        Operation operation = swagger.getPath("/api/applicationrole").getPost();
+        Optional<Parameter> bodyParameter = operation.getParameters().stream().filter(parameter -> parameter.getIn().equals("body")).findFirst();
+
+        Model bodyParameterModel = ((BodyParameter) bodyParameter.get()).getSchema();
+        if (bodyParameterModel != null) {
+            ObjectProperty objectProperty = new ObjectProperty(bodyParameterModel.getProperties());
+            if (bodyParameterModel instanceof RefModel) {
+                RefModel refModel = (RefModel) bodyParameterModel;
+                Model modelDefinition = swagger.getDefinitions().get(refModel.getSimpleRef());
+                if (modelDefinition instanceof ComposedModel) {
+                    objectProperty = null;
+                } else if (modelDefinition != null) {
+                    objectProperty = new ObjectProperty(modelDefinition.getProperties());
+                    objectProperty.name(refModel.getSimpleRef());
+                }
+            }
+
+            Example example = objectProperty != null ? ExampleBuilder.fromProperty(objectProperty, swagger.getDefinitions()) :
+                    ExampleBuilder.fromModel(null, bodyParameterModel, swagger.getDefinitions(), new HashSet<>());
+
+            if (example != null) {
+                try {
+                    String sampleValue = serializeExample("application/json", example);
+                    System.out.println(sampleValue);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+
 
     private String getExampleForPath(Swagger swagger, String s) {
         Response response = swagger.getPath(s).getGet().getResponses().get("200");
         Example example = ExampleBuilder.fromModel("test", response.getResponseSchema(), swagger.getDefinitions(), new HashMap<String, Example>());
         return Json.pretty(example);
+    }
+
+
+    private static String serializeExample(String mediaType, Example output) throws JsonProcessingException {
+        String sampleValue = null;
+        ObjectMapper mapper = null;
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addSerializer(new JsonNodeExampleSerializer());
+
+        if (mediaType.equalsIgnoreCase("application/yaml")) {
+            mapper = Yaml.mapper();
+        } else if (mediaType.equalsIgnoreCase("application/json")) {
+            mapper = Json.mapper();
+        }
+
+        if (mapper != null) {
+            mapper.registerModule(simpleModule);
+            System.out.println("Name: " + output.getName());
+            sampleValue = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(output);
+        }
+        return sampleValue;
     }
 }

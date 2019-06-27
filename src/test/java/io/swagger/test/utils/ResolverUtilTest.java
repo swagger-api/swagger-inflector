@@ -23,6 +23,21 @@ import static org.testng.AssertJUnit.assertEquals;
 
 public class ResolverUtilTest {
 
+    @Test
+    public void testIssue114() throws Exception {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/issue-114.yaml");
+        new ResolverUtil().resolveFully(swagger);
+        //Yaml.prettyPrint(swagger);
+        try {
+            //Json.mapper().writeValueAsString(swagger);
+            Yaml.prettyPrint(swagger.getPaths().get("/api/applicationrole").getPost());
+
+        }
+        catch (Exception e) {
+            fail("Recursive loop found");
+        }
+    }
+
 
     @Test
     public void testIssue294() throws Exception {
