@@ -53,7 +53,6 @@ public class ExtensionsUtilTest {
         OpenAPI openAPI = result.getOpenAPI();
         Assert.assertEquals(result.getOpenAPI().getOpenapi(), "3.0.0");
         List<String> messages = result.getMessages();
-        assertTrue(messages.get(0).contains("attribute components.schemas.someObject.additionalProperties is not of type `object`"), messages.stream().collect(Collectors.joining("\n")));
 
         Assert.assertTrue(openAPI.getComponents().getSchemas().get("someObject").getAdditionalProperties() instanceof Schema);
         Assert.assertTrue(((Schema)(openAPI.getComponents().getSchemas().get("someObject").getProperties().get("innerObject"))).getAdditionalProperties() instanceof Boolean);
