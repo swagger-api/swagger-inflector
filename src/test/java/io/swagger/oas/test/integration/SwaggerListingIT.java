@@ -33,23 +33,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertTrue;
+
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 
 public class SwaggerListingIT {
 
-    @Test
-    public void verifySwaggerYamlWithoutExtensions() throws Exception {
-        OpenAPI openAPI = getYamlSwaggerWithoutExtensions();
-        assertNotNull(openAPI);
-        assertNotNull(openAPI.getPaths());
-        assertNotNull(openAPI.getPaths().get("/fileUpload"));
-        assertNotNull(openAPI.getPaths().get("/fileUpload").getPost());
-        assertNull(openAPI.getPaths().get("/fileUpload").getPost().getExtensions());
 
-    }
 
     @Test
     public void verifySwaggerJson() throws Exception {
