@@ -22,6 +22,13 @@ entityProcessors:
 exampleProcessors:
   - sequence
 
+#Allows to configure the exposed spec
+exposedSpecOptions:
+  parseOptions:
+    resolve: true
+    resolveFully: true
+  hideInflectorExtensions: false
+
 # loads all by default, or pick and choose
 inputValidators:
   - requiredFieldValidator

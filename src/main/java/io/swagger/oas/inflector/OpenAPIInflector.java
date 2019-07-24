@@ -37,7 +37,6 @@ import io.swagger.v3.oas.models.PathItem;
 
 
 import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.parser.OpenAPIV3Parser;
@@ -49,7 +48,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.model.Resource;
-import org.glassfish.jersey.server.model.ResourceMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,13 +131,6 @@ public class OpenAPIInflector extends ResourceConfig {
         if(!config.getValidatePayloads().isEmpty()) {
             LOGGER.info("resolving openAPI");
             new ExtensionsUtil().addExtensions(openAPI);
-
-
-            if (!config.getExposedSpecOptions().isHideInflectorExtensions()){
-                new ExtensionsUtil().addExtensions(exposedAPI);
-            }
-
-
         }
 
         if (openAPI != null) {
@@ -390,13 +381,11 @@ public class OpenAPIInflector extends ResourceConfig {
         SwaggerParseResult exposedSwaggerParseResult = new OpenAPIV3Parser().readLocation(config.getSwaggerUrl(), null, exposedSpecOptions.getParseOptions());
         OpenAPI exposedAPI = exposedSwaggerParseResult.getOpenAPI();
         if (hideExtension) {
-            hideExtensions(exposedAPI);
+            new ExtensionsUtil().removeExtensions(exposedAPI);
+        } else {
+            new ExtensionsUtil().addExtensions(exposedAPI);
         }
         return exposedAPI;
-    }
-
-    private void hideExtensions(OpenAPI exposedAPI) {
-        new ExtensionsUtil().removeExtensions(exposedAPI);
     }
 
     public static String basePath(String basePath, String path) {

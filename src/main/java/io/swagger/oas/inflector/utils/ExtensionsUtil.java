@@ -2,40 +2,31 @@ package io.swagger.oas.inflector.utils;
 
 import io.swagger.oas.inflector.Constants;
 
+import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.callbacks.Callback;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class ExtensionsUtil {
 
     private Map<String, Schema> schemas;
 
     public  void removeExtensions(OpenAPI openAPI) {
-        if (openAPI.getComponents() != null) {
-            if (openAPI.getComponents().getSchemas() != null) {
-                schemas = openAPI.getComponents().getSchemas();
-                if (schemas == null) {
-                    schemas = new HashMap<>();
-                }
-            }
 
+        if (openAPI.getComponents() == null || openAPI.getComponents().getSchemas() == null) {
+            schemas = new HashMap<>();
+        } else {
+            schemas = openAPI.getComponents().getSchemas();
             for (String name : schemas.keySet()) {
                 Schema schema = schemas.get(name);
                 if (schema.getExtensions() != null) {
@@ -57,14 +48,10 @@ public class ExtensionsUtil {
     }
 
     public void addExtensions(OpenAPI openAPI) {
-        if (openAPI.getComponents() != null) {
-            if (openAPI.getComponents().getSchemas() != null) {
-                schemas = openAPI.getComponents().getSchemas();
-                if (schemas == null) {
-                    schemas = new HashMap<>();
-                }
-            }
-
+        if (openAPI.getComponents() == null || openAPI.getComponents().getSchemas() == null) {
+            schemas = new HashMap<>();
+        } else {
+            schemas = openAPI.getComponents().getSchemas();
             for (String name : schemas.keySet()) {
                 Schema schema = schemas.get(name);
                 if (schema.getExtensions() != null) {
@@ -85,13 +72,13 @@ public class ExtensionsUtil {
 
     }
 
-     public void resolvePath(PathItem pathItem, boolean add){
+     public void resolvePath(PathItem pathItem, boolean addExtensions){
         for(Operation operation : pathItem.readOperations()) {
-            // Removing extension in case the flag is true.
-            if(operation.getExtensions() != null) {
-                final String controllerExtension = (String) operation.getExtensions().get(Constants.X_SWAGGER_ROUTER_CONTROLLER);
-                if (controllerExtension != null) {
-                    if (!add) {
+            // Removing extension if called by removeExtensions.
+            if (!addExtensions) {
+                if(operation.getExtensions() != null) {
+                    final String controllerExtension = (String) operation.getExtensions().get(Constants.X_SWAGGER_ROUTER_CONTROLLER);
+                    if (controllerExtension != null) {
                         operation.getExtensions().remove(Constants.X_SWAGGER_ROUTER_CONTROLLER, controllerExtension);
                     }
                 }
@@ -107,7 +94,7 @@ public class ExtensionsUtil {
                                 if (resolved.equals(schema)){
                                     final String constant = (String) schema.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
                                     if (constant != null) {
-                                        if (add) {
+                                        if (addExtensions) {
                                             resolved.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, constant);
                                         }else {
                                             resolved.getExtensions().remove(Constants.X_SWAGGER_ROUTER_MODEL, constant);
@@ -129,7 +116,7 @@ public class ExtensionsUtil {
                                         if (resolved.equals(schema)){
                                             final String constant = (String) schema.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
                                             if (constant != null) {
-                                                if (add) {
+                                                if (addExtensions) {
                                                     resolved.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, constant);
                                                 }else {
                                                     resolved.getExtensions().remove(Constants.X_SWAGGER_ROUTER_MODEL, constant);
@@ -153,7 +140,7 @@ public class ExtensionsUtil {
                         for(String callbackName : callback.keySet()) {
                             PathItem path = callback.get(callbackName);
                             if(path != null){
-                                resolvePath(path,add);
+                                resolvePath(path,addExtensions);
                             }
 
                         }
@@ -173,7 +160,7 @@ public class ExtensionsUtil {
                                     if (schema.getExtensions() != null){
                                         final String constant = (String) schema.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
                                         if (constant != null) {
-                                            if (add) {
+                                            if (addExtensions) {
                                                 resolved.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, constant);
                                             } else {
                                                 resolved.getExtensions().remove(Constants.X_SWAGGER_ROUTER_MODEL, constant);
@@ -203,7 +190,7 @@ public class ExtensionsUtil {
                                             if (schema.getExtensions() != null) {
                                                 final String constant = (String) schema.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
                                                 if (constant != null) {
-                                                    if (add) {
+                                                    if (addExtensions) {
                                                         resolved.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, constant);
                                                     } else {
                                                         resolved.getExtensions().remove(Constants.X_SWAGGER_ROUTER_MODEL, constant);

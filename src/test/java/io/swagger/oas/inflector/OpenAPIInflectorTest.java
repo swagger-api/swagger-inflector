@@ -19,11 +19,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.oas.inflector.config.Configuration;
-import io.swagger.oas.inflector.config.ExposedSpecOptions;
 import io.swagger.oas.inflector.processors.JsonProvider;
 import io.swagger.v3.core.util.Json;
-import io.swagger.v3.core.util.Yaml;
-import io.swagger.v3.parser.core.models.ParseOptions;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -41,7 +38,6 @@ public class OpenAPIInflectorTest {
         config = Configuration.read();
     }
 
-
     @Test
     public void testLoadWithDefaultObjectMapper() throws Exception {
         OpenAPIInflector inflector = new OpenAPIInflector(config);
@@ -49,7 +45,6 @@ public class OpenAPIInflectorTest {
         assertTrue(inflector.isRegistered(JsonProvider.class));
 
     }
-
 
     @Test
     public void testLoadWithCustomObjectMapper() throws Exception {
@@ -68,6 +63,5 @@ public class OpenAPIInflectorTest {
         // is providing this functionality.
         assertFalse(inflector.isRegistered(JsonProvider.class));
     }
-
 
 }

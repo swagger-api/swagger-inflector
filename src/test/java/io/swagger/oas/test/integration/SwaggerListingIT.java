@@ -27,12 +27,12 @@ import io.swagger.oas.test.client.ApiClient;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import junit.framework.Assert;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -40,13 +40,13 @@ import static org.testng.Assert.assertNull;
 
 public class SwaggerListingIT {
 
-
-
     @Test
     public void verifySwaggerJson() throws Exception {
         OpenAPI openAPI = getJsonSwagger();
         assertNotNull(openAPI);
         assertEquals(openAPI.getInfo().getDescription(), "processed");
+        verifySwaggerExtensions(openAPI);
+
     }
 
     @Test
@@ -54,17 +54,28 @@ public class SwaggerListingIT {
         OpenAPI openAPI = getYamlSwagger();
         assertNotNull(openAPI);
         assertEquals(openAPI.getInfo().getDescription(), "processed");
+        verifySwaggerExtensions(openAPI);
     }
 
-    @Test
-    public void verifySwaggerYamlWithoutExtensions() throws Exception {
-        OpenAPI openAPI = getYamlSwaggerWithoutExtensions();
-        assertNotNull(openAPI);
-        assertNotNull(openAPI.getPaths());
-        assertNotNull(openAPI.getPaths().get("/fileUpload"));
-        assertNotNull(openAPI.getPaths().get("/fileUpload").getPost());
-        assertNull(openAPI.getPaths().get("/fileUpload").getPost().getExtensions());
-
+    private void verifySwaggerExtensions(OpenAPI openAPI) {
+        openAPI.getPaths().forEach((k, p) -> {
+            if (p.getPost() != null && p.getPost().getExtensions() != null) {
+                assertNull(p.getPost().getExtensions().get("x-swagger-router-controller"));
+            }
+            if (p.getGet() != null && p.getGet().getExtensions() != null) {
+                assertNull(p.getGet().getExtensions().get("x-swagger-router-controller"));
+            }
+        });
+        openAPI.getComponents().getSchemas().forEach((k, s) -> {
+            if (s.getProperties() != null) {
+                for (Object o: s.getProperties().values()) {
+                    Schema p = (Schema)o;
+                    if (p.getExtensions() != null) {
+                        assertNull(p.getExtensions().get("x-swagger-router-model"));
+                    }
+                }
+            }
+        });
     }
 
     @Test
@@ -121,19 +132,14 @@ public class SwaggerListingIT {
         ApiClient client = new ApiClient();
 
         String str = client.invokeAPI("swagger/openapi.yaml", "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/yaml", null, new String[0]);
-        return Yaml.mapper().readValue(str, OpenAPI.class);
-    }
-
-    private OpenAPI getYamlSwaggerWithoutExtensions() throws Exception {
-        ApiClient client = new ApiClient();
-
-        String str = client.invokeAPI("swagger/openapi.yaml", "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/yaml", null, new String[0]);
+        LoggerFactory.getLogger(this.getClass().getName()).error("TEST string\n" + str);
         return Yaml.mapper().readValue(str, OpenAPI.class);
     }
 
     public static class SwaggerProcessorImpl implements OpenAPIProcessor {
         @Override
         public void process(OpenAPI openAPI) {
+
             openAPI.getInfo().setDescription("processed");
         }
     }
