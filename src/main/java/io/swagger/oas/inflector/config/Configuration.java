@@ -46,6 +46,7 @@ public class Configuration {
     private String swaggerUrl;
     private List<String> swaggerProcessors = new ArrayList<>();
     private List<String> exampleProcessors = new ArrayList<>();
+    private ExposedSpecOptions exposedSpecOptions = new ExposedSpecOptions();
     private String filterClass;
     private int invalidRequestCode = 400;
     private String rootPath = "";
@@ -278,6 +279,14 @@ public class Configuration {
     }
     public Class<?> getModelMapping(String name) {
         return modelMap.get(name);
+    }
+
+    public void setExposedSpecOptions(ExposedSpecOptions exposedSpecOptions) {
+        this.exposedSpecOptions = exposedSpecOptions;
+    }
+
+    public ExposedSpecOptions getExposedSpecOptions() {
+        return this.exposedSpecOptions;
     }
 
     public String getSwaggerUrl() {

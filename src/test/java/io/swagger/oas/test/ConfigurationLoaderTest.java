@@ -18,13 +18,28 @@ package io.swagger.oas.test;
 
 import org.testng.annotations.Test;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.testng.Assert.assertNotNull;
 
 public class ConfigurationLoaderTest {
     @Test
     public void testLoadSampleConfiguration() throws Exception {
+        System.setProperty("config", "src/test/config/config2.yaml");
+        io.swagger.oas.inflector.config.Configuration config = io.swagger.oas.inflector.config.Configuration.read();
+        assertNotNull(config);
+        assertTrue(config.getExposedSpecOptions().getParseOptions().isResolve());
+        assertFalse(config.getExposedSpecOptions().isHideInflectorExtensions());
+    }
+
+    @Test
+    public void testExposedSpecFromFileDefaults() throws Exception {
         System.setProperty("config", "src/test/config/config1.yaml");
         io.swagger.oas.inflector.config.Configuration config = io.swagger.oas.inflector.config.Configuration.read();
         assertNotNull(config);
+        assertFalse(config.getExposedSpecOptions().getParseOptions().isResolve());
+        assertTrue(config.getExposedSpecOptions().isHideInflectorExtensions());
     }
+
+
 }

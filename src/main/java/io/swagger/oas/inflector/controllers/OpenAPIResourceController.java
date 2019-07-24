@@ -18,7 +18,6 @@ package io.swagger.oas.inflector.controllers;
 
 import io.swagger.oas.inflector.config.FilterFactory;
 import io.swagger.oas.inflector.config.OpenAPIProcessor;
-import io.swagger.oas.inflector.utils.VendorSpecFilter;
 import io.swagger.v3.core.filter.OpenAPISpecFilter;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -71,8 +70,8 @@ public class OpenAPIResourceController implements Inflector<ContainerRequestCont
             }
 
             MultivaluedMap<String, String> headers = arg0.getHeaders();
-            return Response.ok().entity(new VendorSpecFilter().filter(getOpenAPI(), filter, null, cookies, headers)).build();
-
+            // since https://github.com/swagger-api/swagger-inflector/issues/305 filtering of inflector extensions is handled at init time by ExtensionsUtils, and VendorSpecFilter is not needed anymore
+            return Response.ok().entity(getOpenAPI()).build();
         }
         return Response.ok().entity(getOpenAPI()).build();
     }

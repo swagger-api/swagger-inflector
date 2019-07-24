@@ -46,7 +46,6 @@ public class OpenAPIInflectorTest {
 
     }
 
-
     @Test
     public void testLoadWithCustomObjectMapper() throws Exception {
         // ensure that pretty print is enabled
@@ -57,12 +56,12 @@ public class OpenAPIInflectorTest {
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
         OpenAPIInflector inflector = new OpenAPIInflector(config,objectMapper);
+
         assertEquals(objectMapper,inflector.getObjectMapper());
         assertNotEquals(Json.mapper(),inflector.getObjectMapper());
         // This class SHOULD NOT be registered since the custom mapper
         // is providing this functionality.
         assertFalse(inflector.isRegistered(JsonProvider.class));
     }
-
 
 }

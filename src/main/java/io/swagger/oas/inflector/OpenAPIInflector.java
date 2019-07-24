@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider;
+import io.swagger.oas.inflector.config.ExposedSpecOptions;
 import io.swagger.oas.inflector.config.FilterFactory;
 
 import io.swagger.oas.inflector.config.Configuration;
@@ -36,7 +37,6 @@ import io.swagger.v3.oas.models.PathItem;
 
 
 import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.parser.OpenAPIV3Parser;
@@ -48,7 +48,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.model.Resource;
-import org.glassfish.jersey.server.model.ResourceMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,7 +125,9 @@ public class OpenAPIInflector extends ResourceConfig {
         }
         
         OpenAPI openAPI = swaggerParseResult.getOpenAPI();
-        
+
+        OpenAPI exposedAPI = getExposedAPI(config);
+
         if(!config.getValidatePayloads().isEmpty()) {
             LOGGER.info("resolving openAPI");
             new ExtensionsUtil().addExtensions(openAPI);
@@ -236,7 +237,7 @@ public class OpenAPIInflector extends ResourceConfig {
                             ContextResolver.class);
                 }
                 enableProcessor(JacksonProcessor.class, MediaType.APPLICATION_JSON_TYPE);
-                enableSwaggerJSON(openAPI, configuration.getSwaggerProcessors());
+                enableSwaggerJSON(exposedAPI, configuration.getSwaggerProcessors());
             } else if ("xml".equalsIgnoreCase(item)) {
                 // XML
                 if (!isRegistered(DefaultContentTypeProvider.class)) {
@@ -251,7 +252,7 @@ public class OpenAPIInflector extends ResourceConfig {
                 Yaml.mapper().registerModule(simpleModule);
                 register(YamlExampleProvider.class);
                 enableProcessor(JacksonProcessor.class, JacksonProcessor.APPLICATION_YAML_TYPE);
-                enableSwaggerYAML(openAPI, configuration.getSwaggerProcessors());
+                enableSwaggerYAML(exposedAPI, configuration.getSwaggerProcessors());
             }else if ("plain".equalsIgnoreCase(item)) {
                 // PLAIN
                 register(PlainExampleProvider.class);
@@ -372,6 +373,19 @@ public class OpenAPIInflector extends ResourceConfig {
                 throw new RuntimeException("Unable to start due to unimplemented methods");
             }
         }
+    }
+
+    private OpenAPI getExposedAPI(Configuration config) {
+        ExposedSpecOptions exposedSpecOptions =  config.getExposedSpecOptions();
+        boolean hideExtension = exposedSpecOptions.isHideInflectorExtensions();
+        SwaggerParseResult exposedSwaggerParseResult = new OpenAPIV3Parser().readLocation(config.getSwaggerUrl(), null, exposedSpecOptions.getParseOptions());
+        OpenAPI exposedAPI = exposedSwaggerParseResult.getOpenAPI();
+        if (hideExtension) {
+            new ExtensionsUtil().removeExtensions(exposedAPI);
+        } else {
+            new ExtensionsUtil().addExtensions(exposedAPI);
+        }
+        return exposedAPI;
     }
 
     public static String basePath(String basePath, String path) {
