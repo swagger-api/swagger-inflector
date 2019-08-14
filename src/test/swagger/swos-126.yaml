@@ -1,0 +1,11 @@
+MyModel:
+  type: object
+  properties:
+    date:
+      type: string
+      format: date
+      example: '2019-08-05'
+    dateTime:
+      type: string
+      format: date-time
+      example: '2019-08-05T12:34:56Z'

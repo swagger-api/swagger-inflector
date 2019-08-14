@@ -29,20 +29,16 @@ import io.swagger.oas.inflector.examples.models.StringExample;
 import io.swagger.oas.inflector.processors.JsonExampleDeserializer;
 import io.swagger.oas.inflector.processors.JsonNodeExampleSerializer;
 
-import io.swagger.parser.SwaggerParser;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
-import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.media.XML;
 
-
-import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.oas.test.models.User;
 import io.swagger.v3.core.util.Json;
@@ -59,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class ExampleBuilderTest {
     static {
@@ -905,5 +902,46 @@ public class ExampleBuilderTest {
         
         String xmlExample = new XmlExampleSerializer().serialize(example);
         assertEquals(xmlExample, "<?xml version='1.1' encoding='UTF-8'?><Pet><name>doggie</name><shots><shot>rabies</shot></shots></Pet>");
+    }
+
+    @Test
+    public void testSwos126() throws Exception {
+
+        String spec = "openapi: 3.0.0\n" +
+                "info:\n" +
+                "  title: ExampleBuilder and date-time examples\n" +
+                "  version: 0.0.0\n" +
+                "paths: {}\n" +
+                "\n" +
+                "components:\n" +
+                "  schemas:\n" +
+                "    MyModel:\n" +
+                "      type: object\n" +
+                "      properties:\n" +
+                "        date:\n" +
+                "          type: string\n" +
+                "          format: date\n" +
+                "          example: '2019-08-05'\n" +
+                "        dateTime:\n" +
+                "          type: string\n" +
+                "          format: date-time\n" +
+                "          example: '2019-08-05T12:34:56Z'";
+        String schemaName = "MyModel";
+        // Load OAS3 definition
+        OpenAPI openapi = new OpenAPIV3Parser().readContents(spec).getOpenAPI();
+
+        // Create an Example object for the MyModel model
+        Map<String, Schema> allSchemas = openapi.getComponents().getSchemas();
+        Schema schema = allSchemas.get(schemaName);
+        Example example = ExampleBuilder.fromSchema(schema, allSchemas, ExampleBuilder.RequestType.READ);
+
+        // Configure JSON example serializer
+        SimpleModule simpleModule = new SimpleModule().addSerializer(new JsonNodeExampleSerializer());
+        Json.mapper().registerModule(simpleModule);
+
+        // Convert the Example object to a JSON string
+        String jsonExample = Json.pretty(example);
+        assertTrue(jsonExample.contains("\"date\" : \"2019-08-05\""));
+        assertTrue(jsonExample.contains("\"dateTime\" : \"2019-08-05T12:34:56Z\""));
     }
 }

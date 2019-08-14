@@ -47,12 +47,15 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.UUID;
 
 public class ExampleBuilder {
@@ -282,27 +285,32 @@ public class ExampleBuilder {
                 output = new BooleanExample( defaultValue == null ? SAMPLE_BOOLEAN_PROPERTY_VALUE : defaultValue.booleanValue());
             }
         } else if (property instanceof DateSchema) {
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
             if (example != null) {
-                output = new StringExample(example.toString());
+                String exampleAsString = format.format(example);
+                output = new StringExample(exampleAsString);
             }
             else {
 
                 List<Date> enums = ((DateSchema) property).getEnum();
                 if( enums != null && !enums.isEmpty()) {
-                    output = new StringExample(enums.get(0).toString());
+                    output = new StringExample(format.format(enums.get(0)));
                 }
                 else {
                     output = new StringExample(SAMPLE_DATE_PROPERTY_VALUE);
                 }
             }
         } else if (property instanceof DateTimeSchema) {
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+            format.setTimeZone(TimeZone.getTimeZone("UTC"));
             if (example != null) {
-                output = new StringExample(example.toString());
+                String exampleAsString = format.format(example);
+                output = new StringExample(exampleAsString);
             }
             else {
                 List<Date> enums = ((DateTimeSchema) property).getEnum();
                 if( enums != null && !enums.isEmpty()) {
-                    output = new StringExample(enums.get(0).toString());
+                    output = new StringExample(format.format(enums.get(0)));
                 }
                 else {
                     output = new StringExample(SAMPLE_DATETIME_PROPERTY_VALUE);
