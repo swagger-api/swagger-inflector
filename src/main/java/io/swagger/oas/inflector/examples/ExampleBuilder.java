@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -301,16 +302,14 @@ public class ExampleBuilder {
                 }
             }
         } else if (property instanceof DateTimeSchema) {
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-            format.setTimeZone(TimeZone.getTimeZone("UTC"));
             if (example != null) {
-                String exampleAsString = format.format(example);
+                String exampleAsString = example.toString();
                 output = new StringExample(exampleAsString);
             }
             else {
-                List<Date> enums = ((DateTimeSchema) property).getEnum();
+                List<OffsetDateTime> enums = ((DateTimeSchema) property).getEnum();
                 if( enums != null && !enums.isEmpty()) {
-                    output = new StringExample(format.format(enums.get(0)));
+                    output = new StringExample(enums.get(0).toString());
                 }
                 else {
                     output = new StringExample(SAMPLE_DATETIME_PROPERTY_VALUE);
