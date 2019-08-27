@@ -44,6 +44,9 @@ import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
+import io.swagger.v3.parser.util.ClasspathHelper;
+import io.swagger.v3.parser.util.RemoteUrl;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -51,11 +54,17 @@ import org.glassfish.jersey.server.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLHandshakeException;
 import javax.servlet.ServletContext;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ContextResolver;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -155,10 +164,18 @@ public class OpenAPIInflector extends ResourceConfig {
             }
             if (b.length() > 0) {
                 openAPI.getServers().get(0).setUrl(b.toString());
+                if (configuration.getExposedSpecOptions().isMergeRootPath()) {
+                    exposedAPI.getServers().get(0).setUrl(b.toString());
+                }
             }
 
             Map<String, PathItem> paths = openAPI.getPaths();
-            Map<String, Schema> definitions = openAPI.getComponents().getSchemas();
+            Map<String, Schema> definitions = null;
+            if (openAPI.getComponents() == null || openAPI.getComponents().getSchemas() == null) {
+                definitions = new HashMap<>();
+            } else {
+                definitions = openAPI.getComponents().getSchemas();
+            }
             for (String pathString : paths.keySet()) {
                 PathItem pathItem = paths.get(pathString);
                 final Resource.Builder builder = Resource.builder();
@@ -375,19 +392,6 @@ public class OpenAPIInflector extends ResourceConfig {
         }
     }
 
-    private OpenAPI getExposedAPI(Configuration config) {
-        ExposedSpecOptions exposedSpecOptions =  config.getExposedSpecOptions();
-        boolean hideExtension = exposedSpecOptions.isHideInflectorExtensions();
-        SwaggerParseResult exposedSwaggerParseResult = new OpenAPIV3Parser().readLocation(config.getSwaggerUrl(), null, exposedSpecOptions.getParseOptions());
-        OpenAPI exposedAPI = exposedSwaggerParseResult.getOpenAPI();
-        if (hideExtension) {
-            new ExtensionsUtil().removeExtensions(exposedAPI);
-        } else {
-            new ExtensionsUtil().addExtensions(exposedAPI);
-        }
-        return exposedAPI;
-    }
-
     public static String basePath(String basePath, String path) {
         if(StringUtils.isBlank(basePath)) {
             basePath = "/";
@@ -507,4 +511,67 @@ public class OpenAPIInflector extends ResourceConfig {
             builder.addMethod(method).handledBy(controller);
         }
     }
+
+    private OpenAPI getExposedAPI(Configuration config) {
+        ExposedSpecOptions exposedSpecOptions =  config.getExposedSpecOptions();
+        boolean hideExtension = exposedSpecOptions.isHideInflectorExtensions();
+        OpenAPI exposedAPI = null;
+        if (exposedSpecOptions.isUseOriginalNotParsed()) {
+            exposedAPI = deserializeSpec(config.getSwaggerUrl());
+        }
+        if (exposedAPI == null) {
+            SwaggerParseResult exposedSwaggerParseResult = new OpenAPIV3Parser().readLocation(config.getSwaggerUrl(), null, exposedSpecOptions.getParseOptions());
+            exposedAPI = exposedSwaggerParseResult.getOpenAPI();
+        }
+        if (hideExtension) {
+            new ExtensionsUtil().removeExtensions(exposedAPI);
+        } else {
+            new ExtensionsUtil().addExtensions(exposedAPI);
+        }
+        return exposedAPI;
+    }
+
+    // deserialize with swagger-core
+    private OpenAPI deserializeSpec(String swaggerUrl) {
+        OpenAPI exposedAPI = null;
+        String location = config.getSwaggerUrl().replaceAll("\\\\", "/");
+        try {
+            String data = null;
+            if (location.toLowerCase().startsWith("http")) {
+                data = RemoteUrl.urlToString(location, null);
+            } else {
+                String fileScheme = "file:";
+                Path path;
+                if (location.toLowerCase().startsWith("file:")) {
+                    path = Paths.get(URI.create(location));
+                } else {
+                    path = Paths.get(location);
+                }
+
+                if (Files.exists(path, new LinkOption[0])) {
+                    data = FileUtils.readFileToString(path.toFile(), "UTF-8");
+                } else {
+                    data = ClasspathHelper.loadFileFromClasspath(location);
+                }
+                exposedAPI = getRightMapper(data).readValue(data, OpenAPI.class);
+            }
+        } catch (SSLHandshakeException e) {
+            LOGGER.error("unable to read location `" + location + "` due to a SSL configuration error.  It is possible that the server SSL certificate is invalid, self-signed, or has an untrusted Certificate Authority.", e);
+        } catch (Exception e1) {
+            LOGGER.error("unable to read location `" + location + "`", e1);
+        }
+        return exposedAPI;
+    }
+
+    private ObjectMapper getRightMapper(String data) {
+        ObjectMapper mapper;
+        if (data.trim().startsWith("{")) {
+            mapper = Json.mapper();
+        } else {
+            mapper = Yaml.mapper();
+        }
+
+        return mapper;
+    }
+
 }
