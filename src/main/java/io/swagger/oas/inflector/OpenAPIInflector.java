@@ -170,7 +170,12 @@ public class OpenAPIInflector extends ResourceConfig {
             }
 
             Map<String, PathItem> paths = openAPI.getPaths();
-            Map<String, Schema> definitions = openAPI.getComponents().getSchemas();
+            Map<String, Schema> definitions = null;
+            if (openAPI.getComponents() == null || openAPI.getComponents().getSchemas() == null) {
+                definitions = new HashMap<>();
+            } else {
+                definitions = openAPI.getComponents().getSchemas();
+            }
             for (String pathString : paths.keySet()) {
                 PathItem pathItem = paths.get(pathString);
                 final Resource.Builder builder = Resource.builder();
