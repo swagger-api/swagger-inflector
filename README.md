@@ -83,6 +83,16 @@ modelMappings:
 
 # HTTP response code when required parameters are missing
 invalidRequestCode: 400
+
+#Allows to configure the exposed spec (values in example are the defaults)
+exposedSpecOptions:
+  parseOptions:
+    resolve: false
+    resolveFully: false
+  useOriginalNotParsed: false
+  hideInflectorExtensions: true
+  mergeRootPath: true
+
 ```
 
 ### Locating the controller class
