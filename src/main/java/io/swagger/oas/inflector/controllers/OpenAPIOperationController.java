@@ -352,7 +352,12 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
                             if (argument instanceof Object[]){
                                 Object[] args2 = (Object[]) argument;
-                                args2[0]= args[0];
+                                // populate with request context and any other parameters
+                                for (int ii = 0; ii < args.length; ii++) {
+                                    if (args[ii] != null) {
+                                        args2[ii]= args[ii];
+                                    }
+                                }
                                 args = args2;
                             }else {
                                 args[i] = argument;

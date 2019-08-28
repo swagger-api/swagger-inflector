@@ -35,7 +35,7 @@ import java.io.File;
 import java.util.List;
 
 public class TestController {
-    public ResponseContext uploadFile(RequestContext request, File inputFile, String stringMetadata, Integer integerMetadata) {
+    public ResponseContext uploadFile(RequestContext request, File inputFile, String stringMetadata, Integer intMetadata) {
         if(inputFile != null) {
             stringMetadata += ": " + String.valueOf(inputFile.length());
         }
@@ -44,6 +44,27 @@ public class TestController {
                 .status(200)
                 .entity(stringMetadata);
     }
+
+    public ResponseContext uploadFilePathParam(RequestContext request, String testId, File inputFile) {
+        if(inputFile != null) {
+            testId += ": " + String.valueOf(inputFile.length());
+        }
+
+        return new ResponseContext()
+                .status(200)
+                .entity(testId);
+    }
+
+    public ResponseContext uploadFilePathParamQueryParam(RequestContext request, String testId, String testId2, String queryId, File inputFile, String stringMetadata, Integer intMetadata) {
+        if(inputFile != null) {
+            testId += ": " + String.valueOf(inputFile.length());
+        }
+
+        return new ResponseContext()
+                .status(200)
+                .entity(testId + " " + testId2 + " " + queryId + " " + stringMetadata + " " + intMetadata);
+    }
+
 
     public ResponseContext inlineRequiredBody(RequestContext request, com.fasterxml.jackson.databind.JsonNode inlineBody) {
         return new ResponseContext()
