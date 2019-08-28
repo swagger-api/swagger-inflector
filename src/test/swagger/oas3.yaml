@@ -82,6 +82,59 @@ paths:
                 intMetadata:
                   type: integer
                   format: int32
+  "/fileUploadPathParam/{testId}/content":
+    post:
+      x-swagger-router-controller: TestController
+      operationId: uploadFilePathParam
+      parameters:
+        - name: testId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                theFile:
+                  type: string
+                  format: binary
+  "/fileUploadPathParamQueryParam/{testId}/content/{testId2}/content":
+    post:
+      x-swagger-router-controller: TestController
+      operationId: uploadFilePathParamQueryParam
+      parameters:
+        - name: testId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: testId2
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: queryId
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                theFile:
+                  type: string
+                  format: binary
+                stringMetadata:
+                  type: string
+                intMetadata:
+                  type: integer
+                  format: int32
   "/primitiveBody/binary":
     post:
       x-swagger-router-controller: TestController

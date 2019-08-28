@@ -129,7 +129,12 @@ public class BinaryProcessor implements EntityProcessor {
                 return argument;
 
             }else if (mediaType.isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE)){
-                int i = 1;
+                int i =
+                        (controller
+                                .getOperation()
+                                .getParameters() == null || controller
+                                        .getOperation().getParameters().isEmpty())? 1 : 1 + controller
+                                .getOperation().getParameters().size();
                 // get the boundary
                 String boundary = mediaType.getParameters().get("boundary");
 
