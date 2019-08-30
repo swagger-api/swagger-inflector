@@ -17,9 +17,6 @@
 package io.swagger.oas.inflector.controllers;
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.common.io.Files;
-import io.swagger.models.parameters.FormParameter;
 import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.config.ControllerFactory;
 import io.swagger.oas.inflector.converters.ConversionException;
@@ -31,7 +28,6 @@ import io.swagger.oas.inflector.examples.models.ObjectExample;
 import io.swagger.oas.inflector.models.ApiError;
 import io.swagger.oas.inflector.models.RequestContext;
 import io.swagger.oas.inflector.models.ResponseContext;
-import io.swagger.oas.inflector.processors.BinaryProcessor;
 import io.swagger.oas.inflector.processors.EntityProcessor;
 import io.swagger.oas.inflector.processors.EntityProcessorFactory;
 import io.swagger.oas.inflector.schema.SchemaValidator;
@@ -50,12 +46,6 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.core.util.Json;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.fileupload.MultipartStream;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.glassfish.jersey.process.Inflector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,24 +61,15 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Providers;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -348,26 +329,26 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     if (argument != null) {
                         if (mediaType.isCompatible(MediaType.APPLICATION_FORM_URLENCODED_TYPE) ||
                                 mediaType.isCompatible(MediaType.MULTIPART_FORM_DATA_TYPE) ||
-                                mediaType.isCompatible(MediaType.APPLICATION_OCTET_STREAM_TYPE)){
+                                mediaType.isCompatible(MediaType.APPLICATION_OCTET_STREAM_TYPE)) {
 
-                            if (argument instanceof Object[]){
+                            if (argument instanceof Object[]) {
                                 Object[] args2 = (Object[]) argument;
                                 // populate with request context and any other parameters
                                 for (int ii = 0; ii < args.length; ii++) {
                                     if (args[ii] != null) {
-                                        args2[ii]= args[ii];
+                                        args2[ii] = args[ii];
                                     }
                                 }
                                 args = args2;
-                            }else {
+                            } else {
                                 args[i] = argument;
                             }
-                        }else {
+                        } else {
                             if (body.getContent() != null) {
                                 Content content = body.getContent();
                                 io.swagger.v3.oas.models.media.MediaType media = content.get(mediaType.toString());
 
-                                if (media == null){
+                                if (media == null) {
                                     media = content.get(MediaType.WILDCARD);
                                 }
 
@@ -435,6 +416,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     Object response = method.invoke(controller, args);
                     if (response instanceof ResponseContext) {
                         ResponseContext wrapper = (ResponseContext) response;
+                        setResponseContentType(requestContext, wrapper, operation);
                         ResponseBuilder builder = Response.status(wrapper.getStatus());
 
                         // response headers
@@ -485,8 +467,15 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                         }
 
                         return builder.build();
+                    } else {
+                        MediaType type = identifyResponseContentType(requestContext, operation);
+                        if (type != null) {
+                            return Response.ok(response, type).entity(response).build();
+                        } else {
+                            return Response.ok(response).entity(response).build();
+                        }
                     }
-                    return Response.ok().entity(response).build();
+
                 } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
                     for (Throwable cause = e.getCause(); cause != null; ) {
                         if (cause instanceof ApiException) {
@@ -527,7 +516,6 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     ApiResponse response = responses.get(defaultKey);
 
                     if(response.getHeaders() != null && response.getHeaders().size() > 0) {
-                        Schema property = null;
                         Object output = null;
                         for(String key: response.getHeaders().keySet()) {
                             Header headerProperty = response.getHeaders().get(key);
@@ -635,7 +623,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
                     if (output != null) {
                         ResponseContext resp = new ResponseContext().entity(output);
-                        setContentType(requestContext, resp, operation);
+                        setResponseContentType(requestContext, resp, operation);
                         builder.entity(output);
                         if (resp.getContentType() != null) {
                             // this comes from the operation itself
@@ -702,18 +690,26 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         doValidation(o, property, direction);
     }
 
-    public void setContentType(RequestContext res, ResponseContext resp, Operation operation) {
+    public void setResponseContentType(RequestContext res, ResponseContext resp, Operation operation) {
         // honor what has been set, it may be determined by business logic in the controller
-       if (resp.getContentType() != null) {
+        if (resp.getContentType() != null) {
             return;
         }
+        MediaType type = identifyResponseContentType(res, operation);
+        if (type != null) {
+            resp.setContentType(type);
+        }
+    }
+
+    public MediaType identifyResponseContentType(RequestContext res, Operation operation) {
+        MediaType type = null;
         ApiResponses responses = operation.getResponses();
         if (responses != null) {
             for (String responseCode : responses.keySet()) {
                 final ApiResponse response = responses.get(responseCode);
                 Content content = response.getContent();
                 if(content == null) {
-                    return;
+                    continue;
                 }
 
                 for(String key : content.keySet()) {
@@ -721,21 +717,24 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     if (res.getHeaders().get("Accept")!= null) {
                         for (String acceptable : res.getHeaders().get("Accept")) {
                             String subtype = acceptable.substring(acceptable.lastIndexOf("/") + 1);
-                            resp.setContentType(mediaType);
-                            if (subtype.equals(mediaType.getSubtype())) {
-                                return;
+                            if (!MediaType.WILDCARD_TYPE.equals(mediaType)) {
+                                type = mediaType;
+                                if (subtype.equals(mediaType.getSubtype())) {
+                                    return type;
+                                }
                             }
 
                         }
                     }else {
                         for (MediaType acceptable : res.getAcceptableMediaTypes()){
-                            resp.setContentType(mediaType);
-                            if (mediaType.isCompatible(acceptable)) {
-                                return;
+                            if (!MediaType.WILDCARD_TYPE.equals(mediaType)) {
+                                type = mediaType;
+                                if (mediaType.isCompatible(acceptable)) {
+                                    return type;
+                                }
+
                             }
-
                         }
-
                     }
 
                 }
@@ -743,6 +742,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
             }
 
         }
+        return type;
     }
 
     public String getOperationSignature() {

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider;
+import com.fasterxml.jackson.jaxrs.yaml.JacksonYAMLProvider;
 import io.swagger.oas.inflector.config.ExposedSpecOptions;
 import io.swagger.oas.inflector.config.FilterFactory;
 
@@ -268,6 +269,7 @@ public class OpenAPIInflector extends ResourceConfig {
                 // YAML
                 Yaml.mapper().registerModule(simpleModule);
                 register(YamlExampleProvider.class);
+                register(JacksonYAMLProvider.class);
                 enableProcessor(JacksonProcessor.class, JacksonProcessor.APPLICATION_YAML_TYPE);
                 enableSwaggerYAML(exposedAPI, configuration.getSwaggerProcessors());
             }else if ("plain".equalsIgnoreCase(item)) {
