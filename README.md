@@ -1,11 +1,16 @@
 # Swagger Inflector <img src="https://raw.githubusercontent.com/swagger-api/swagger.io/wordpress/images/assets/SW-logo-clr.png" height="50" align="right">
 
-[![Build Status](https://img.shields.io/jenkins/s/https/jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-master.svg)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-master)
+[![Build Status](https://img.shields.io/jenkins/s/https/jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-v1.svg)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-v1)
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector)
 
-[![Build Status](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-master/badge/icon?subject=jenkins%20build)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-master/)
+[![Build Status](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-v1/badge/icon?subject=jenkins%20build)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-v1/)
 
+----
+
+**NOTE:** If you're looking for `swagger-inflector` 2.X and OpenApi 3.0, please refer to [master branch](https://github.com/swagger-api/swagger-inflector)
+
+----
 
 This project uses the OpenAPI Specification to drive an API implementation.  Rather than a typical top-down or bottom-up integration, the Inflector uses the OpenAPI Specification as a DSL for the REST API.  The spec drives the creation of routes and controllers automatically, matching methods and method signatures from the implementation.  This brings a similar integration approach to the JVM as [swagger-node](https://github.com/swagger-api/swagger-node) brings to the javascript world.
 
@@ -17,7 +22,7 @@ You have full control over the mapping of controllers to classes and methods as 
 
 Run this command to start in a hurry.  It will create a project named `my-project`
 ```
-curl -L https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/setup.sh | project=my-project bash
+curl -L https://raw.githubusercontent.com/swagger-api/swagger-inflector/v1/setup.sh | project=my-project bash
 ```
 
 This will download everything you need to start editing and running a Swagger Inflector based project.  See the output of the command for instructions.
