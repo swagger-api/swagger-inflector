@@ -1,13 +1,11 @@
-# Swagger Inflector <img src="https://raw.githubusercontent.com/swagger-api/swagger.io/wordpress/images/assets/SW-logo-clr.png" height="50" align="right">
+# Swagger Inflector
 
 [![Build Status](https://img.shields.io/jenkins/s/https/jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-master.svg)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-master)
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector)
 
-[![Build Status](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-master/badge/icon?subject=jenkins%20build)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-master/)
 
-
-This project uses the OpenAPI Specification to drive an API implementation.  Rather than a typical top-down or bottom-up integration, the Inflector uses the OpenAPI Specification as a DSL for the REST API.  The spec drives the creation of routes and controllers automatically, matching methods and method signatures from the implementation.  This brings a similar integration approach to the JVM as [swagger-node](https://github.com/swagger-api/swagger-node) brings to the javascript world.
+This project uses the Swagger Specification to drive an API implementation.  Rather than a typical top-down or bottom-up swagger integration, the Inflector uses the swagger specification as a DSL for the REST API.  The spec drives the creation of routes and controllers automatically, matching methods and method signatures from the implementation.  This brings a similar integration approach to the JVM as [swagger-node](https://github.com/swagger-api/swagger-node) brings to the javascript world.
 
 To allow for an iterative development, the framework will mock responses for any unimplemented methods, based on the specification.  That means you can ship your API to your consumers for review immediately as you build it out.
 
@@ -20,16 +18,16 @@ Run this command to start in a hurry.  It will create a project named `my-projec
 curl -L https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/setup.sh | project=my-project bash
 ```
 
-This will download everything you need to start editing and running a Swagger Inflector based project.  See the output of the command for instructions.
+This will download everything you need to start editing and running a swagger-inflector based project.  See the output of the command for instructions.
 
 ### Components
 
 Inflector uses the following libraries:
 
- - Swagger models for the swagger definition
+ - swagger models for the swagger definition
  - Jackson for JSON processing
- - Jersey 2.6 for REST
- - Minimum Java 7 
+ - Jersey 2.26 for REST
+ - Minimum Java 8
 
 ### Integration
 
@@ -43,7 +41,7 @@ To add inflector via `web.xml`:
   <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
   <init-param>
     <param-name>javax.ws.rs.Application</param-name>
-    <param-value>io.swagger.inflector.SwaggerInflector</param-value>
+    <param-value>io.swagger.oas.inflector.OpenAPIInflector</param-value>
   </init-param>
   <load-on-startup>1</load-on-startup>
 </servlet>
@@ -71,20 +69,30 @@ The configuration supports the following:
 environment: development
 
 # configure your default controller package for method discovery
-controllerPackage: io.swagger.sample.controllers
+controllerPackage: io.swagger.oas.sample.controllers
 
 # configure the default model package for model discovery
-modelPackage: io.swagger.sample.models
+modelPackage: io.swagger.oas.sample.models
 
 # the path to the swagger definition (Note! this can be overridden with -DswaggerUrl as a system property
-swaggerUrl: swagger.yaml
+swaggerUrl: openapi.yaml
 
 # specific mappings for models, used to locate models in the `#/definitions/${model}`
 modelMappings:
-  User: io.swagger.sample.models.User
+  User: io.swagger.oas.sample.models.User
 
 # HTTP response code when required parameters are missing
 invalidRequestCode: 400
+
+#Allows to configure the exposed spec (values in example are the defaults)
+exposedSpecOptions:
+  parseOptions:
+    resolve: false
+    resolveFully: false
+  useOriginalNotParsed: false
+  hideInflectorExtensions: true
+  mergeRootPath: true
+
 ```
 
 ### Locating the controller class
@@ -116,12 +124,8 @@ paths:
       x-swagger-router-controller: SampleController
       operationId: getTest1
       parameters:
-        - name: id
-          in: formData
-          type: integer
-          format: int64
         - name: name
-          in: formData
+          in: query
           type: string
       responses:
         200:
@@ -138,8 +142,7 @@ with the following method:
 
 ```
 method: public Object getTest1(
-    io.swagger.inflector.models.RequestContext,
-    java.lang.Integer id,
+    RequestContext,
     java.lang.String name)
 ```
 
@@ -153,11 +156,12 @@ paths:
     post:
       x-swagger-router-controller: SampleController
       operationId: addUser
+      requestBody:
+          content:
+            "application/json":
+              schema:
+                $ref: '#/definitions/User'
       parameters:
-        - name: user
-          in: body
-          schema:
-            $ref: '#/definitions/User'
         - name: name
           in: query
           type: string
@@ -200,9 +204,8 @@ the Inflector will do the following:
  - If the definition does not exist, the `modelPackage` from the configuration will be used to attempt to load the class:
 
  ```
- // ref.getSimpleRef() returns only the `User` from `#/definitions/User`
 
- Class<?> cls = Class.forName(config.getModelPackage() + "." + ref.getSimpleRef())
+
  ```
 
  If the definition can be loaded it will be used as the method signature
@@ -223,7 +226,7 @@ The RequestWrapper and ResponseContext contain information about headers (in and
 
 #### Outputs
 
-Your controllers can return null (void response), an object (entity), or a `io.swagger.inflector.models.ResponseContext`, which allows you to send specific error codes, headers, and an optional entity.
+Your controllers can return null (void response), an object (entity), or a `ResponseContext`, which allows you to send specific error codes, headers, and an optional entity.
 
 For example, if you want to return a `Pet` from a controller:
 
@@ -334,7 +337,7 @@ Will fail if the incoming body looks like this:
   "name": "Tony"
 }
 ```
-becase the required field `id` is missing.
+because the required field `id` is missing.
 
 The same goes for responses generated by the server.  Any response code that you send will 
 be validated against it's corresponding schema.
@@ -370,15 +373,18 @@ If your Swagger Description is unparsable, the server will throw ugly errors on 
    give indications as to why.
 
 #### Samples
+The samples are a being refactor to support the new inflector.
 
-You can find samples for the inflector project in the [Swagger-Samples](https://github.com/swagger-api/swagger-samples) repository.  The inflector projects start with `inflector-`
+You will soon find samples for the inflector project in the [Swagger-Samples](https://github.com/swagger-api/swagger-samples) repository.  The inflector projects start with `inflector-`
+
+---
+<img src="http://swagger.io/wp-content/uploads/2016/02/logo.jpg"/>
 
 ## Security contact
 
 Please disclose any security-related issues or vulnerabilities by emailing [security@swagger.io](mailto:security@swagger.io), instead of using the public issue tracker.
 
 ## License
-
 ```
 Copyright 2019 SmartBear Software
 

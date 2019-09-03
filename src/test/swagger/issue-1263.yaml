@@ -1,4 +1,4 @@
-swagger: '2.0'
+openapi: '3.0'
 info:
   version: 1.0.0
   title: Nested object example
@@ -6,26 +6,27 @@ info:
 paths:
   /nested_object:
     get:
-      produces:
-        - application/json
       responses:
         200:
           description: OK
-          schema:
-            $ref: '#/definitions/ComplexObject'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplexObject'
 
-definitions:
-  ComplexObject:
-    type: object
-    properties:
-      nested_object:
-        type: object
-        properties:
-          foo:
-            type: string
-        required: [foo]
-    required: [nested_object]
-    # If you remove this example, the generated response structure is correct
-    example:
-      nested_object:
-         foo: bar
+components:
+  schemas:
+    ComplexObject:
+      type: object
+      properties:
+        nested_object:
+          type: object
+          properties:
+            foo:
+              type: string
+          required: [foo]
+      required: [nested_object]
+      # If you remove this example, the generated response structure is correct
+      example:
+        nested_object:
+           foo: bar

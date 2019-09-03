@@ -1,35 +1,35 @@
-swagger: '2.0'
+openapi: 3.0.0
+servers: []
 info:
-  version: "0.1.1"
-  title: VirtServer, allOf and $ref
-
-produces:
-  - application/json
-
+  version: 0.1.1
+  title: 'VirtServer, allOf and $ref'
 paths:
   /refToAllOf:
     get:
       responses:
-        200:
+        '200':
           description: OK
-          schema:
-            $ref: '#/definitions/UserEx'
-
-definitions:
-  User:
-    type: object
-    properties:
-      username:
-        type: string
-        example: trillian
-    required: [username]
-
-  UserEx:
-    allOf:
-      - $ref: '#/definitions/User'
-      - type: object
-        properties:
-          id:
-            type: integer
-            example: 4
-        required: [id]
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEx'
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          example: trillian
+      required:
+        - username
+    UserEx:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            id:
+              type: integer
+              example: 4
+          required:
+            - id

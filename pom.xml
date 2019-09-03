@@ -26,7 +26,7 @@
     <artifactId>swagger-inflector</artifactId>
     <packaging>jar</packaging>
     <name>swagger-inflector</name>
-    <version>1.0.18-SNAPSHOT</version>
+    <version>2.0.4-SNAPSHOT</version>
     <url>https://github.com/swagger-api/swagger-inflector</url>
     <scm>
         <connection>scm:git:git@github.com:swagger-api/swagger-inflector.git</connection>
@@ -68,7 +68,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.4</version>
+                <version>3.0.0-M1</version>
                 <executions>
                     <execution>
                         <id>enforce-versions</id>
@@ -78,7 +78,7 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <version>1.7</version>
+                                    <version>1.8</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
@@ -135,10 +135,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.7</version>
+                <version>3.0.0</version>
                 <configuration>
                     <aggregate>true</aggregate>
-                    <source>1.7</source>
+                    <source>1.8</source>
                     <encoding>UTF-8</encoding>
                     <maxmemory>1g</maxmemory>
                     <links>
@@ -160,8 +160,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.0</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -222,6 +222,9 @@
                         <port>8080</port>
                         <idleTimeout>60000</idleTimeout>
                     </httpConnector>
+                    <supportedPackagings>
+                        <supportedPackaging>jar</supportedPackaging>
+                    </supportedPackagings>
                 </configuration>
                 <executions>
                     <execution>
@@ -247,7 +250,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.2.201409121644</version>
+                <version>0.8.1</version>
             </plugin>
         </plugins>
     </build>
@@ -293,22 +296,33 @@
     <dependencies>
         <!-- Swagger -->
         <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-jersey2-jaxrs</artifactId>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-jaxrs2</artifactId>
             <version>${swagger-core-version}</version>
         </dependency>
         <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-core</artifactId>
-            <version>${swagger-core-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.swagger</groupId>
+            <groupId>io.swagger.parser.v3</groupId>
             <artifactId>swagger-parser</artifactId>
             <version>${swagger-parser-version}</version>
         </dependency>
 
         <!-- Jersey -->
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>${jersey2-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>${jersey2-version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.javassist</groupId>
+                    <artifactId>javassist</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet-core</artifactId>
@@ -326,7 +340,7 @@
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <artifactId>javax.servlet-api</artifactId>
             <version>${servlet-api-version}</version>
             <scope>provided</scope>
         </dependency>
@@ -366,6 +380,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.jmockit</groupId>
+            <artifactId>jmockit</artifactId>
+            <version>${jmockit-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <version>6.8.8</version>
@@ -402,6 +422,11 @@
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-yaml-provider</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-joda</artifactId>
             <version>${jackson.version}</version>
@@ -425,7 +450,7 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.3.3</version>
+            <version>1.3.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -434,14 +459,12 @@
         </dependency>
     </dependencies>
     <properties>
-        <swagger-core-version>1.5.24-SNAPSHOT</swagger-core-version>
-        <swagger-parser-version>1.0.47-SNAPSHOT</swagger-parser-version>
+        <swagger-core-version>2.0.9</swagger-core-version>
+        <swagger-parser-version>2.0.14</swagger-parser-version>
         <jackson.version>2.9.9</jackson.version>
-        <joda-time-version>2.9.1</joda-time-version>
-        <joda-version>1.8.1</joda-version>
-        <jetty-version>9.2.9.v20150224</jetty-version>
-        <jersey2-version>2.25.1</jersey2-version>
-        <servlet-api-version>2.5</servlet-api-version>
+        <jetty-version>9.4.11.v20180605</jetty-version>
+        <jersey2-version>2.26</jersey2-version>
+        <servlet-api-version>3.1.0</servlet-api-version>
         <commons-io-version>2.5</commons-io-version>
         <commons-string-utils-version>3.4</commons-string-utils-version>
         <commons-lang-version>2.4</commons-lang-version>
@@ -451,5 +474,6 @@
         <logback-version>1.0.1</logback-version>
         <junit-version>4.8.2</junit-version>
         <slf4j-version>1.7.22</slf4j-version>
+        <jmockit-version>1.19</jmockit-version>
     </properties>
 </project>

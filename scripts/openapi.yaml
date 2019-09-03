@@ -1,0 +1,47 @@
+openapi: 3.0.0
+servers:
+  - url: /v1
+info:
+  version: 1.0.0
+  title: Sample API
+paths:
+  /people:
+    get:
+      tags:
+        - People
+      description: |
+        Gets `Person` objects.
+        Optional query param of **size** determines
+      parameters:
+        - name: size
+          in: query
+          description: Size of array
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+components:
+  schemas:
+    Person:
+      type: object
+      properties:
+        firstname:
+          type: string
+        lastname:
+          type: string
+        single:
+          type: boolean
