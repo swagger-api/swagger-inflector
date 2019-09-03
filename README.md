@@ -1,6 +1,6 @@
 # Swagger Inflector
 
-[![Build Status](https://img.shields.io/jenkins/s/https/jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-2.0.svg)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-2.0)
+[![Build Status](https://img.shields.io/jenkins/s/https/jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-master.svg)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-master)
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector)
 
@@ -15,7 +15,7 @@ You have full control over the mapping of controllers to classes and methods as 
 
 Run this command to start in a hurry.  It will create a project named `my-project`
 ```
-curl -L https://raw.githubusercontent.com/swagger-api/swagger-inflector/2.0/setup.sh | project=my-project bash
+curl -L https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/setup.sh | project=my-project bash
 ```
 
 This will download everything you need to start editing and running a swagger-inflector based project.  See the output of the command for instructions.
