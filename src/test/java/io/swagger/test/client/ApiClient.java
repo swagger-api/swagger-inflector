@@ -23,7 +23,7 @@ import io.swagger.test.client.auth.HttpBasicAuth;
 import io.swagger.test.client.auth.OAuth;
 import io.swagger.util.Json;
 import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.filter.LoggingFilter;
+import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import javax.ws.rs.client.Client;
@@ -360,7 +360,7 @@ public class ApiClient {
         final ClientConfig clientConfig = new ClientConfig();
         clientConfig.register(MultiPartFeature.class);
         if (debugging) {
-            clientConfig.register(LoggingFilter.class);
+            clientConfig.register(LoggingFeature.class);
         }
         Client client = ClientBuilder.newClient(clientConfig);
 

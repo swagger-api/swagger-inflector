@@ -33,8 +33,8 @@ Inflector uses the following libraries:
 
  - Swagger models for the swagger definition
  - Jackson for JSON processing
- - Jersey 2.6 for REST
- - Minimum Java 7 
+ - Jersey 2.29.1 for REST
+ - Minimum Java 8 
 
 ### Integration
 
