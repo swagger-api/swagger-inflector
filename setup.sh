@@ -17,26 +17,26 @@ mkdir -p src/main/webapp/WEB-INF
 
 if [ ! -f editor/swagger-editor.war ]; then
   echo "...fetching editor webapp"
-  wget --quiet --no-check-certificate "https://github.com/swagger-api/swagger-inflector/raw/master/scripts/bin/swagger-editor.war" -O editor/swagger-editor.war
+  curl "https://github.com/swagger-api/swagger-inflector/raw/master/scripts/bin/swagger-editor.war" -o editor/swagger-editor.war
 fi
 
 echo "...fetching editor scripts"
-wget --quiet --no-check-certificate "https://github.com/swagger-api/swagger-inflector/raw/master/scripts/editor.xml" -O editor/editor.xml
-wget --quiet --no-check-certificate "https://github.com/swagger-api/swagger-inflector/raw/master/scripts/editor.sh" -O ./editor.sh
+curl "https://github.com/swagger-api/swagger-inflector/raw/master/scripts/editor.xml" -o editor/editor.xml
+curl "https://github.com/swagger-api/swagger-inflector/raw/master/scripts/editor.sh" -o ./editor.sh
 
 echo "...fetching sample swagger description"
 
-wget --quiet --no-check-certificate "https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/scripts/openapi.yaml" -O src/main/swagger/openapi.yaml
+curl "https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/scripts/openapi.yaml" -o src/main/swagger/openapi.yaml
 
 
 echo "...fetching inflector configuration"
-wget --quiet --no-check-certificate "https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/scripts/inflector.yaml" -O ./inflector.yaml
+curl "https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/scripts/inflector.yaml" -o ./inflector.yaml
 
 echo "...fetching project pom"
-wget --quiet --no-check-certificate "https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/scripts/pom.xml" -O ./pom.xml
+curl "https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/scripts/pom.xml" -o ./pom.xml
 
 echo "...fetching web.xml"
-wget --quiet --no-check-certificate "https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/scripts/web.xml" -O src/main/webapp/WEB-INF/web.xml
+curl "https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/scripts/web.xml" -o src/main/webapp/WEB-INF/web.xml
 chmod a+x ./editor.sh
 
 rp="s/SAMPLE_PROJECT/$PROJECT/g"
