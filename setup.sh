@@ -1,4 +1,5 @@
 PROJECT=$project
+FORK=${FORK:-"swagger-api/swagger-inflector/raw/master"}
 
 if [ "$PROJECT" == "" ]
 then
@@ -10,6 +11,8 @@ then
   exit
 fi
 
+echo "fetching setup files from $FORK"
+
 # setup dirs
 mkdir -p editor
 mkdir -p src/main/swagger
@@ -17,26 +20,27 @@ mkdir -p src/main/webapp/WEB-INF
 
 if [ ! -f editor/swagger-editor.war ]; then
   echo "...fetching editor webapp"
-  curl "https://github.com/swagger-api/swagger-inflector/raw/master/scripts/bin/swagger-editor.war" -o editor/swagger-editor.war
+  echo "https://github.com/$FORK/scripts/bin/swagger-editor.war"
+  curl -L "https://github.com/$FORK/scripts/bin/swagger-editor.war" -o editor/swagger-editor.war
 fi
 
 echo "...fetching editor scripts"
-curl "https://github.com/swagger-api/swagger-inflector/raw/master/scripts/editor.xml" -o editor/editor.xml
-curl "https://github.com/swagger-api/swagger-inflector/raw/master/scripts/editor.sh" -o ./editor.sh
+curl -sL "https://raw.githubusercontent.com/$FORK/scripts/editor.xml" -o editor/editor.xml
+curl -sL "https://raw.githubusercontent.com/$FORK/scripts/editor.sh" -o ./editor.sh
 
 echo "...fetching sample swagger description"
 
-curl "https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/scripts/openapi.yaml" -o src/main/swagger/openapi.yaml
+curl -sL "https://raw.githubusercontent.com/$FORK/scripts/openapi.yaml" -o src/main/swagger/openapi.yaml
 
 
 echo "...fetching inflector configuration"
-curl "https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/scripts/inflector.yaml" -o ./inflector.yaml
+curl -sL "https://raw.githubusercontent.com/$FORK/scripts/inflector.yaml" -o ./inflector.yaml
 
 echo "...fetching project pom"
-curl "https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/scripts/pom.xml" -o ./pom.xml
+curl -sL "https://raw.githubusercontent.com/$FORK/scripts/pom.xml" -o ./pom.xml
 
 echo "...fetching web.xml"
-curl "https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/scripts/web.xml" -o src/main/webapp/WEB-INF/web.xml
+curl -sL "https://raw.githubusercontent.com/$FORK/scripts/web.xml" -o src/main/webapp/WEB-INF/web.xml
 chmod a+x ./editor.sh
 
 rp="s/SAMPLE_PROJECT/$PROJECT/g"
