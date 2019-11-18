@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-mvn -f editor/editor.xml jetty:run-war
+java -jar jetty-runner.jar --port 8000 editor/swagger-editor.war
