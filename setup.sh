@@ -22,7 +22,7 @@ mkdir -p src/main/webapp/WEB-INF
 if [ ! -f editor/swagger-editor.war ]; then
   echo "...fetching editor webapp"
   echo "https://github.com/$FORK/scripts/bin/swagger-editor.war"
-  curl -L "https://github.com/$FORK/scripts/bin/swagger-editor.war" -o editor/swagger-editor.war
+  curl -L "https://raw.githubusercontent.com/$FORK/scripts/bin/swagger-editor.war" -o editor/swagger-editor.war
 fi
 
 echo "...fetching editor scripts"
