@@ -24,9 +24,9 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.swagger</groupId>
     <artifactId>SAMPLE_PROJECT</artifactId>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
     <name>SAMPLE_PROJECT</name>
-    <version>1.0.1</version>
+    <version>1.0.0</version>
     <prerequisites>
         <maven>2.2.0</maven>
     </prerequisites>
