@@ -15,13 +15,15 @@
       <plugin>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
-        <version>9.2.9.v20150224</version>
+        <version>${jetty-version}</version>
         <configuration>
-          <war>swagger-editor.war</war>
           <httpConnector>
-            <port>8000</port>
+            <port>8080</port>
             <idleTimeout>60000</idleTimeout>
           </httpConnector>
+          <supportedPackagings>
+            <supportedPackaging>jar</supportedPackaging>
+          </supportedPackagings>
         </configuration>
       </plugin>
     </plugins>
