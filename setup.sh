@@ -21,7 +21,6 @@ mkdir -p src/main/webapp/WEB-INF
 
 if [ ! -f editor/swagger-editor.war ]; then
   echo "...fetching editor webapp"
-  echo "https://github.com/$FORK/scripts/bin/swagger-editor.war"
   curl -sL "https://raw.githubusercontent.com/$FORK/scripts/bin/swagger-editor.war" -o editor/swagger-editor.war
   curl -sL "https://raw.githubusercontent.com/$FORK/scripts/bin/jetty-runner.jar" -o editor/jetty-runner.jar
 fi
