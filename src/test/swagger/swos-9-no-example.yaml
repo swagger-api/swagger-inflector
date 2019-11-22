@@ -1,0 +1,92 @@
+swagger: '2.0'
+
+info:
+  version: "1.0.0"
+  title: "test"
+
+basePath: /api
+host: "test.com"
+consumes:
+  - application/json
+produces:
+  - application/json
+
+paths:
+  /testExamples:
+    get:
+      summary: test
+      operationId: getMatchingRolesMediaTypes
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/GetMediaTypesResponse"
+  /testExamples2:
+    get:
+      summary: test2
+      operationId: getMatchingRolesMediaTypes2
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/GetMediaTypesResponse2"
+  /testExamples2Int:
+    get:
+      summary: test2Int
+      operationId: getMatchingRolesMediaTypes2Int
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/GetMediaTypesResponse2Int"
+definitions:
+  MediaType:
+    type: string
+    enum:
+      - "AUDIO"
+      - "VIDEO"
+      - "ALBUM_COVER"
+      - "UNKNOWN"
+    description: "Type of media"
+
+  GetMediaTypesResponse:
+    type: object
+    required:
+      - data
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/MediaType"
+
+  MediaType2:
+    type: object
+    description: "Type of media2"
+    properties:
+      foo:
+        type: string
+        example: "test"
+
+  GetMediaTypesResponse2:
+    type: object
+    required:
+      - data
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/MediaType2"
+
+  GetMediaTypesResponse2Int:
+    type: object
+    required:
+      - data
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/MediaType2Int"
+
+  MediaType2Int:
+    type: integer
+    description: "Type of media2"

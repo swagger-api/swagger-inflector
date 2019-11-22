@@ -16,6 +16,8 @@
 
 package io.swagger.test.examples;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.swagger.converter.ModelConverters;
 import io.swagger.inflector.examples.ExampleBuilder;
@@ -32,6 +34,7 @@ import io.swagger.inflector.utils.ResolverUtil;
 import io.swagger.models.HttpMethod;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
+import io.swagger.models.Operation;
 import io.swagger.models.Response;
 import io.swagger.models.Swagger;
 import io.swagger.models.Xml;
@@ -730,6 +733,92 @@ public class ExampleBuilderTest {
                 "    \"myProp\" : \"string\"\n" +
                 "  }\n" +
                 "}");
+    }
+
+    @Test
+    public void testArrayExamplesWithouResolveFully() throws Exception {
+
+        String location = "src/test/swagger/swos-9-no-example.yaml";
+        Swagger swagger = new SwaggerParser().read(location);
+
+        Operation operation = swagger.getPath("/testExamples").getOperations().get(0);
+        Response response = operation.getResponses().get("200");
+        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+        String sampleValue = serializeExample("application/json", example);
+        assertEqualsIgnoreLineEnding(sampleValue, "{\n" +
+                "  \"data\" : [ \"AUDIO\" ]\n" +
+                "}");
+
+        operation = swagger.getPath("/testExamples2").getOperations().get(0);
+        response = operation.getResponses().get("200");
+        example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+
+        sampleValue = serializeExample("application/json", example);
+        assertEqualsIgnoreLineEnding(sampleValue, "{\n" +
+                "  \"data\" : [ {\n" +
+                "    \"foo\" : \"test\"\n" +
+                "  } ]\n" +
+                "}");
+
+        operation = swagger.getPath("/testExamples2Int").getOperations().get(0);
+        response = operation.getResponses().get("200");
+        example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+
+        sampleValue = serializeExample("application/json", example);
+        assertEqualsIgnoreLineEnding(sampleValue, "{\n" +
+                "  \"data\" : [ 0 ]\n" +
+                "}");
+
+
+        location = "src/test/swagger/swos-9.yaml";
+        swagger = new SwaggerParser().read(location);
+
+        operation = swagger.getPath("/testExamples").getOperations().get(0);
+        response = operation.getResponses().get("200");
+        example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+        sampleValue = serializeExample("application/json", example);
+        assertEqualsIgnoreLineEnding(sampleValue, "{\n" +
+                "  \"data\" : [ \"AUDIO\" ]\n" +
+                "}");
+        operation = swagger.getPath("/testExamples2").getOperations().get(0);
+        response = operation.getResponses().get("200");
+        example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+
+        sampleValue = serializeExample("application/json", example);
+        assertEqualsIgnoreLineEnding(sampleValue, "{\n" +
+                "  \"data\" : [ {\n" +
+                "    \"foo\" : \"extest\"\n" +
+                "  } ]\n" +
+                "}");
+
+        operation = swagger.getPath("/testExamples2Int").getOperations().get(0);
+        response = operation.getResponses().get("200");
+        example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+
+        sampleValue = serializeExample("application/json", example);
+        assertEqualsIgnoreLineEnding(sampleValue, "{\n" +
+                "  \"data\" : [ 2 ]\n" +
+                "}");
+
+    }
+
+    private String serializeExample(String mediaType, Example output) throws JsonProcessingException {
+        String sampleValue = null;
+        ObjectMapper mapper = null;
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addSerializer(new JsonNodeExampleSerializer());
+
+        if (mediaType.equalsIgnoreCase("application/yaml")) {
+            mapper = Yaml.mapper();
+        } else if (mediaType.equalsIgnoreCase("application/json")) {
+            mapper = Json.mapper();
+        }
+
+        if (mapper != null) {
+            mapper.registerModule(simpleModule);
+            sampleValue = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(output);
+        }
+        return sampleValue;
     }
 
 
