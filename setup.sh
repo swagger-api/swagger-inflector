@@ -1,4 +1,6 @@
+#!/usr/bin/env bash
 PROJECT=$project
+FORK=${FORK:-"swagger-api/swagger-inflector/master"}
 
 if [ "$PROJECT" == "" ]
 then
@@ -10,6 +12,8 @@ then
   exit
 fi
 
+echo "fetching setup files from $FORK"
+
 # setup dirs
 mkdir -p editor
 mkdir -p src/main/swagger
@@ -17,26 +21,22 @@ mkdir -p src/main/webapp/WEB-INF
 
 if [ ! -f editor/swagger-editor.war ]; then
   echo "...fetching editor webapp"
-  wget --quiet --no-check-certificate "https://github.com/swagger-api/swagger-inflector/raw/master/scripts/bin/swagger-editor.war" -O editor/swagger-editor.war
+  curl -sL "https://raw.githubusercontent.com/$FORK/scripts/bin/swagger-editor.war" -o editor/swagger-editor.war
+  curl -sL "https://raw.githubusercontent.com/$FORK/scripts/bin/jetty-runner.jar" -o editor/jetty-runner.jar
 fi
 
 echo "...fetching editor scripts"
-wget --quiet --no-check-certificate "https://github.com/swagger-api/swagger-inflector/raw/master/scripts/editor.xml" -O editor/editor.xml
-wget --quiet --no-check-certificate "https://github.com/swagger-api/swagger-inflector/raw/master/scripts/editor.sh" -O ./editor.sh
-
-echo "...fetching sample swagger description"
-
-wget --quiet --no-check-certificate "https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/scripts/openapi.yaml" -O src/main/swagger/openapi.yaml
+curl -sL "https://raw.githubusercontent.com/$FORK/scripts/editor.sh" -o ./editor.sh
 
 
 echo "...fetching inflector configuration"
-wget --quiet --no-check-certificate "https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/scripts/inflector.yaml" -O ./inflector.yaml
+curl -sL "https://raw.githubusercontent.com/$FORK/scripts/inflector.yaml" -o ./inflector.yaml
 
 echo "...fetching project pom"
-wget --quiet --no-check-certificate "https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/scripts/pom.xml" -O ./pom.xml
+curl -sL "https://raw.githubusercontent.com/$FORK/scripts/pom.xml" -o ./pom.xml
 
 echo "...fetching web.xml"
-wget --quiet --no-check-certificate "https://raw.githubusercontent.com/swagger-api/swagger-inflector/master/scripts/web.xml" -O src/main/webapp/WEB-INF/web.xml
+curl -sL "https://raw.githubusercontent.com/$FORK/scripts/web.xml" -o src/main/webapp/WEB-INF/web.xml
 chmod a+x ./editor.sh
 
 rp="s/SAMPLE_PROJECT/$PROJECT/g"
