@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 PROJECT=$project
-FORK=${FORK:-"swagger-api/swagger-inflector/raw/master"}
+FORK=${FORK:-"swagger-api/swagger-inflector/master"}
 
 if [ "$PROJECT" == "" ]
 then
