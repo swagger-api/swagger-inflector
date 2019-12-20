@@ -1,6 +1,6 @@
 # Swagger Inflector <img src="https://raw.githubusercontent.com/swagger-api/swagger.io/wordpress/images/assets/SW-logo-clr.png" height="50" align="right">
 
-[![Build Status](https://img.shields.io/jenkins/build.svg?jobUrl=https://jenkins.swagger.io/job/oss-swagger-inflector-v1.svg)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-v1)
+[![Build Status](https://img.shields.io/jenkins/build.svg?jobUrl=https://jenkins.swagger.io/job/oss-swagger-inflector-v1)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-v1)
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector)
 
