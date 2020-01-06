@@ -57,6 +57,20 @@ public class SwaggerListingIT {
         verifySwaggerExtensions(openAPI);
     }
 
+    @Test
+    public void verifyDebugJson() throws Exception {
+        ApiClient client = new ApiClient();
+        client.invokeAPI("/swagger/debug.json",
+                "GET",
+                new HashMap<String, String>(),
+                null,
+                new HashMap<String, String>(),
+                null,
+                "application/json",
+                null,
+                new String[0]);
+    }
+
     private void verifySwaggerExtensions(OpenAPI openAPI) {
         openAPI.getPaths().forEach((k, p) -> {
             if (p.getPost() != null && p.getPost().getExtensions() != null) {
