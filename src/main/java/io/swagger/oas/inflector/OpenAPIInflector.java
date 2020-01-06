@@ -358,7 +358,17 @@ public class OpenAPIInflector extends ResourceConfig {
                 }
             }
             final Resource.Builder builder = Resource.builder();
-            builder.path(basePath(originalBasePath, config.getSwaggerBase() + "debug.json"))
+            String debugPath;
+
+            if(config.getSwaggerBase().endsWith("/")) {
+                debugPath = basePath(originalBasePath, config.getSwaggerBase() + "debug.json");
+            }
+            else {
+                debugPath = basePath(originalBasePath, config.getSwaggerBase() + "/debug.json");
+            }
+
+            LOGGER.debug("using debug path: `" + debugPath + "`");
+            builder.path(debugPath)
                     .addMethod(HttpMethod.GET)
                     .produces(MediaType.APPLICATION_JSON)
                     .handledBy(new InflectResultController(result))
