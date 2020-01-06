@@ -158,7 +158,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
     public Method detectMethod(Operation operation, String mediaType) {
         controllerName = getControllerName(operation);
         methodName = getMethodName(path, httpMethod, operation);
-        JavaType[] args = getOperationParameterClasses(operation, mediaType ,definitions);
+        JavaType[] args = getOperationParameterClasses(operation, mediaType, definitions);
 
         buildOperationSignature(args);
 
@@ -239,8 +239,9 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                         className = className.substring("java.lang.".length());
                     }
                     builder.append(className);
-                    builder.append(" ").append(args[i]);
 
+                    // TODO: we should really show the actual parameter name here
+                    builder.append(" ").append("p" + i);
                 }
             }
         }
