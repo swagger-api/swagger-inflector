@@ -37,6 +37,7 @@ import java.util.Set;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 public class SwaggerListingIT {
 
@@ -69,6 +70,27 @@ public class SwaggerListingIT {
                 "application/json",
                 null,
                 new String[0]);
+    }
+
+    @Test
+    public void verifyDebugJsonParameterNames() throws Exception {
+        ApiClient client = new ApiClient();
+        String response = client.invokeAPI("/swagger/debug.json",
+                "GET",
+                new HashMap<String, String>(),
+                null,
+                new HashMap<String, String>(),
+                null,
+                "application/json",
+                null,
+                new String[0]);
+
+        String [] substr = response.split("\"public ResponseContext updatePet");
+        assertTrue(substr.length > 1);
+
+        String signature = substr[1];
+        String paramName = signature.split("io.swagger.oas.sample.models.Pet", 2)[1].trim();
+        assertTrue(paramName.startsWith("p1"));
     }
 
     private void verifySwaggerExtensions(OpenAPI openAPI) {
