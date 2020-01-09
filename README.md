@@ -1,11 +1,18 @@
-# Swagger Inflector
+# Swagger Inflector <img src="https://raw.githubusercontent.com/swagger-api/swagger.io/wordpress/images/assets/SW-logo-clr.png" height="50" align="right">
 
-[![Build Status](https://travis-ci.org/swagger-api/swagger-inflector.svg?branch=master)](https://travis-ci.org/swagger-api/swagger-inflector)
+[![Build Status](https://img.shields.io/jenkins/build.svg?jobUrl=https://jenkins.swagger.io/job/oss-swagger-inflector-v1)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-v1)
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector)
 
+[![Build Status](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-v1/badge/icon?subject=jenkins%20build)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-v1/)
 
-This project uses the Swagger Specification to drive an API implementation.  Rather than a typical top-down or bottom-up swagger integration, the Inflector uses the swagger specification as a DSL for the REST API.  The spec drives the creation of routes and controllers automatically, matching methods and method signatures from the implementation.  This brings a similar integration approach to the JVM as [swagger-node](https://github.com/swagger-api/swagger-node) brings to the javascript world.
+----
+
+**NOTE:** If you're looking for `swagger-inflector` 2.X and OpenApi 3.0, please refer to [master branch](https://github.com/swagger-api/swagger-inflector)
+
+----
+
+This project uses the OpenAPI Specification to drive an API implementation.  Rather than a typical top-down or bottom-up integration, the Inflector uses the OpenAPI Specification as a DSL for the REST API.  The spec drives the creation of routes and controllers automatically, matching methods and method signatures from the implementation.  This brings a similar integration approach to the JVM as [swagger-node](https://github.com/swagger-api/swagger-node) brings to the javascript world.
 
 To allow for an iterative development, the framework will mock responses for any unimplemented methods, based on the specification.  That means you can ship your API to your consumers for review immediately as you build it out.
 
@@ -15,10 +22,10 @@ You have full control over the mapping of controllers to classes and methods as 
 
 Run this command to start in a hurry.  It will create a project named `my-project`
 ```
-curl -L http://bit.ly/1Pl62pe | project=my-project bash
+curl -L https://raw.githubusercontent.com/swagger-api/swagger-inflector/v1/setup.sh | project=my-project bash
 ```
 
-This will download everything you need to start editing and running a swagger-inflector based project.  See the output of the command for instructions.
+This will download everything you need to start editing and running a Swagger Inflector based project.  See the output of the command for instructions.
 
 ### Components
 
@@ -26,8 +33,8 @@ Inflector uses the following libraries:
 
  - Swagger models for the swagger definition
  - Jackson for JSON processing
- - Jersey 2.6 for REST
- - Minimum Java 7 
+ - Jersey 2.29.1 for REST
+ - Minimum Java 8 
 
 ### Integration
 
@@ -371,5 +378,22 @@ If your Swagger Description is unparsable, the server will throw ugly errors on 
 
 You can find samples for the inflector project in the [Swagger-Samples](https://github.com/swagger-api/swagger-samples) repository.  The inflector projects start with `inflector-`
 
----
-<img src="http://swagger.io/wp-content/uploads/2016/02/logo.jpg"/>
+## Security contact
+
+Please disclose any security-related issues or vulnerabilities by emailing [security@swagger.io](mailto:security@swagger.io), instead of using the public issue tracker.
+
+## License
+
+```
+Copyright 2019 SmartBear Software
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at [apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```

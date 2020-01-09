@@ -16,6 +16,7 @@ import io.swagger.util.Json;
 import org.apache.commons.io.IOUtils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
+import io.swagger.util.Yaml;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertNotNull;
@@ -27,7 +28,52 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class ResolverUtilTest {
+  
     private static final String REQUIRED_PROPERTY = "requiredProperty";
+
+
+    @Test
+    public void testIssue294() throws Exception {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/issue-294/issue-294.yaml");
+        new ResolverUtil().resolveFully(swagger);
+        Yaml.prettyPrint(swagger);
+        try {
+            Json.mapper().writeValueAsString(swagger);
+
+        }
+        catch (Exception e) {
+            fail("Recursive loop found");
+        }
+    }
+
+    @Test
+    public void testRefs2() {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/anotherSpec.yaml");
+        new ResolverUtil().resolveFully(swagger);
+        try {
+            Json.mapper().writeValueAsString(swagger);
+
+        }
+        catch (Exception e) {
+            fail("Recursive loop found");
+        }
+    }
+
+
+    @Test
+    public void testCircularRefs() {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/circular_refs.yaml");
+        new ResolverUtil().resolveFully(swagger);
+        try {
+            Json.mapper().writeValueAsString(swagger);
+
+        }
+        catch (Exception e) {
+            fail("Recursive loop found");
+        }
+    }
+
+
 
     @Test
     public void testArrayParam() {
@@ -37,13 +83,44 @@ public class ResolverUtilTest {
         Operation operation = swagger.getPath("/withModelArray/{id}").getPost();
         Parameter param = operation.getParameters().get(1);
 
-        Json.prettyPrint(swagger);
-
         assertTrue(param instanceof BodyParameter);
         BodyParameter body = (BodyParameter) param;
         Model model = body.getSchema();
         assertTrue(model instanceof ArrayModel);
         assertTrue(((ArrayModel)model).getItems() instanceof ObjectProperty);
+    }
+
+    @Test
+    public void testComposedModel() {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/sample1.yaml");
+
+        new ResolverUtil().resolveFully(swagger);
+        Yaml.prettyPrint(swagger);
+        Operation operation = swagger.getPath("/withInvalidComposedModel").getPost();
+        Parameter param = operation.getParameters().get(0);
+
+        assertTrue(param instanceof BodyParameter);
+        BodyParameter body = (BodyParameter) param;
+        Model model = body.getSchema();
+        assertTrue(model instanceof ModelImpl);
+        assertTrue(model.getProperties().size() == 5);
+
+    }
+
+    @Test
+    public void testInvalidComposedModel() {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/sample1.yaml");
+
+        new ResolverUtil().resolveFully(swagger);
+
+        Operation operation = swagger.getPath("/withInvalidComposedModelArray").getPost();
+        Parameter param = operation.getParameters().get(0);
+        assertTrue(param instanceof BodyParameter);
+        BodyParameter body = (BodyParameter) param;
+        Model model = body.getSchema();
+        assertTrue(model instanceof ArrayModel);
+        assertTrue(((ArrayModel)model).getItems() instanceof ObjectProperty);
+
     }
 
     @Test
@@ -166,6 +243,13 @@ public class ResolverUtilTest {
 
         Swagger swagger = new SwaggerParser().parse(yaml);
         new ResolverUtil().resolveFully(swagger);
+        try {
+            Json.mapper().writeValueAsString(swagger);
+
+        }
+        catch (Exception e) {
+            fail("Recursive loop found");
+        }
     }
 
     @Test
@@ -206,6 +290,7 @@ public class ResolverUtilTest {
         }
     }
 
+
     @Test(dataProvider = REQUIRED_PROPERTY)
     public void testRequiredProperty(String yml, final String model, final String property,
             final boolean required) throws Exception {
@@ -237,5 +322,27 @@ public class ResolverUtilTest {
                 {yml, "One", "nested", false},
                 {yml, "Two", "nested", true}
         };
+
+
+    @Test
+    public void testResolvingWithoutDefinitions() {
+        String yaml =
+                "swagger: '2.0'\n" +
+                        "info:\n" +
+                        "  version: '1.0'\n" +
+                        "  title: No definition example\n" +
+                        "\n" +
+                        "paths:\n" +
+                        "  /:\n" +
+                        "    get:\n" +
+                        "      produces:\n" +
+                        "        - application/json\n" +
+                        "      responses:\n" +
+                        "        200:\n" +
+                        "          description: completed successfully\n";
+
+        Swagger swagger = new SwaggerParser().parse(yaml);
+        new ResolverUtil().resolveFully(swagger);
+
     }
 }

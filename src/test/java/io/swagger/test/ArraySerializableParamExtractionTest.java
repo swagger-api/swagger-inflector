@@ -39,7 +39,7 @@ public class ArraySerializableParamExtractionTest {
     DefaultConverter utils = new DefaultConverter();
     TypeFactory tf = Json.mapper().getTypeFactory();
 
-    @org.junit.Test
+    @Test
     public void testConvertStringArray() throws Exception {
         List<String> values = Arrays.asList("a", "b");
 

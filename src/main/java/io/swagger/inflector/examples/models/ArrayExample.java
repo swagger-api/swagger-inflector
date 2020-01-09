@@ -16,9 +16,13 @@
 
 package io.swagger.inflector.examples.models;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import io.swagger.inflector.processors.JsonExampleDeserializer;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonDeserialize(using = JsonExampleDeserializer.class)
 public class ArrayExample extends AbstractExample {
     List<Example> values = null;
     

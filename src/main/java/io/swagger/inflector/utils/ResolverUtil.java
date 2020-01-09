@@ -16,6 +16,8 @@ import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.ObjectProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.RefProperty;
+import io.swagger.models.properties.UntypedProperty;
+import io.swagger.models.utils.PropertyModelConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,109 +31,136 @@ import java.util.Set;
 public class ResolverUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResolverUtil.class);
 
-    private Map<String, Model> models;
-    private Map<String, Model> resolvedModels = new HashMap<String, Model>();
-    private Map<String, Property> resolvedProperties = new HashMap<String, Property>();
+    private Map<String, Model> schemas;
+    private Map<String, Model> resolvedModels = new HashMap<>();
+    private Map<String, Property> resolvedProperties = new HashMap<>();
+    private Map<String, Model> processedModels = new HashMap<>();
+    private Map<String, Property> processedProperties = new HashMap<>();
+
+    /* set resolveCircularRefsAsObjectRefs to true to allow (in some cases) resolving circular refs in spec
+    as circular object references in models/properties, see issue #984 */
+    private boolean resolveCircularRefsAsObjectRefs = System.getProperty("resolveCircularRefsAsObjectRefs") == null ? false : Boolean.valueOf(System.getProperty("resolveCircularRefsAsObjectRefs"));
+
+    public Map<String, Model> getResolvedModels() {
+        return resolvedModels;
+    }
 
     public void resolveFully(Swagger swagger) {
-        models = swagger.getDefinitions();
-        if(models == null) {
-            models = new HashMap<String, Model>();
+        if (swagger.getDefinitions() != null) {
+            schemas = swagger.getDefinitions();
+        }
+        if (schemas == null) {
+            schemas = new HashMap<>();
         }
 
-        for(String name: models.keySet()) {
-            Model model = models.get(name);
-            if(model instanceof ModelImpl) {
+        for (String name : schemas.keySet()) {
+            Model model = schemas.get(name);
+            if (model instanceof ModelImpl) {
                 ModelImpl impl = (ModelImpl) model;
-                if(!impl.getVendorExtensions().containsKey(Constants.X_SWAGGER_ROUTER_MODEL))
+                if (!impl.getVendorExtensions().containsKey(Constants.X_SWAGGER_ROUTER_MODEL))
                     impl.setVendorExtension(Constants.X_SWAGGER_ROUTER_MODEL, name);
-            }
-            else if(model instanceof ComposedModel) {
+            } else if (model instanceof ComposedModel) {
                 ComposedModel cm = (ComposedModel) model;
-                if(!cm.getVendorExtensions().containsKey(Constants.X_SWAGGER_ROUTER_MODEL))
+                if (!cm.getVendorExtensions().containsKey(Constants.X_SWAGGER_ROUTER_MODEL))
                     cm.setVendorExtension(Constants.X_SWAGGER_ROUTER_MODEL, name);
-            }
-            else if(model instanceof ArrayModel) {
+            } else if (model instanceof ArrayModel) {
                 ArrayModel am = (ArrayModel) model;
-                if(!am.getVendorExtensions().containsKey(Constants.X_SWAGGER_ROUTER_MODEL))
+                if (!am.getVendorExtensions().containsKey(Constants.X_SWAGGER_ROUTER_MODEL))
                     am.setVendorExtension(Constants.X_SWAGGER_ROUTER_MODEL, name);
             }
         }
 
-        for(String pathname : swagger.getPaths().keySet()) {
-            Path path = swagger.getPath(pathname);
-            for(Operation op : path.getOperations()) {
-                // inputs
-                for(Parameter parameter : op.getParameters()) {
-                    if(parameter instanceof BodyParameter) {
-                        BodyParameter body = (BodyParameter) parameter;
-                        Model resolved = resolveFully(body.getSchema());
-                        body.setSchema(resolved);
-                    }
-                }
+        if (swagger.getPaths() != null) {
+            for (String pathname : swagger.getPaths().keySet()) {
+                Path pathItem = swagger.getPaths().get(pathname);
+                resolvePath(pathItem);
+            }
+        }
+    }
 
-                // responses
-                if(op.getResponses() != null) {
-                    for(String code : op.getResponses().keySet()) {
-                        Response response = op.getResponses().get(code);
-                        if (response.getSchema() != null) {
-                            Property resolved = resolveFully(response.getSchema());
-                            response.setSchema(resolved);
-                        }
+    public void resolvePath(Path path) {
+        for (Operation op : path.getOperations()) {
+            // inputs
+            for (Parameter parameter : op.getParameters()) {
+                if (parameter instanceof BodyParameter) {
+                    BodyParameter body = (BodyParameter) parameter;
+                    Model schema = body.getSchema();
+                    Model resolved = resolveModel(schema);
+                    body.setSchema(resolved);
+                }
+            }
+
+            // responses
+            if (op.getResponses() != null) {
+                for (String code : op.getResponses().keySet()) {
+                    Response response = op.getResponses().get(code);
+                    if (response.getResponseSchema() != null) {
+                        Model resolved = resolveModel(response.getResponseSchema());
+                        response.setResponseSchema(resolved);
                     }
                 }
             }
         }
     }
 
-    public Model resolveFully(Model schema) {
-        if(schema instanceof RefModel) {
-            RefModel ref = (RefModel) schema;
-            Model resolved = models.get(ref.getSimpleRef());
-            if(resolved == null) {
-                LOGGER.error("unresolved model " + ref.getSimpleRef());
+    public Model resolveModel(Model schema) {
+        if (schema instanceof RefModel) {
+            String ref = ((RefModel) schema).getSimpleRef();
+            Model definitionsSchema = schemas.get(ref);
+            if (definitionsSchema == null) {
+                LOGGER.error("unresolved model " + ref);
                 return schema;
             }
-            if(this.resolvedModels.containsKey(ref.getSimpleRef())) {
+            if (this.resolvedModels.containsKey(ref)) {
                 LOGGER.debug("avoiding infinite loop");
-                return this.resolvedModels.get(ref.getSimpleRef());
+                return this.resolvedModels.get(ref);
             }
-            this.resolvedModels.put(ref.getSimpleRef(), ref);
+            if (!resolveCircularRefsAsObjectRefs) {
+                if (this.processedModels.containsKey(ref)) {
+                    return this.processedModels.get(ref);
+                }
 
-            Model model = resolveFully(resolved);
+                if (this.processedProperties.containsKey(ref)) {
+                    PropertyModelConverter converter = new PropertyModelConverter();
+                    return converter.propertyToModel(this.processedProperties.get(ref));
+                }
 
+                this.processedModels.put(ref, schema);
+            } else {
+                this.resolvedModels.put(ref, schema);
+            }
+            Model resolved = resolveModel(definitionsSchema);
             // if we make it without a resolution loop, we can update the reference
-            this.resolvedModels.put(ref.getSimpleRef(), model);
-            return model;
+            this.resolvedModels.put(ref, resolved);
+            return resolved;
         }
-        if(schema instanceof ArrayModel) {
+        if (schema instanceof ArrayModel) {
             ArrayModel arrayModel = (ArrayModel) schema;
             Property property = arrayModel.getItems();
-            if(property instanceof RefProperty) {
-                Property resolved = resolveFully(property);
+            if (property instanceof RefProperty) {
+                Property resolved = resolveProperty(property);
                 arrayModel.setItems(resolved);
             }
             return arrayModel;
         }
-        if(schema instanceof ModelImpl) {
+        if (schema instanceof ModelImpl) {
             ModelImpl model = (ModelImpl) schema;
-            if(model.getProperties() != null) {
+            if (model.getProperties() != null) {
                 Map<String, Property> updated = new LinkedHashMap<String, Property>();
-                for(String propertyName : model.getProperties().keySet()) {
+                for (String propertyName : model.getProperties().keySet()) {
                     Property property = model.getProperties().get(propertyName);
-                    Property resolved = resolveFully(property);
+                    Property resolved = resolveProperty(property);
                     updated.put(propertyName, resolved);
                 }
-                Map<String, Property> existing = model.getProperties();
-                for(String key : updated.keySet()) {
+
+                for (String key : updated.keySet()) {
                     Property property = updated.get(key);
 
-                    if(property instanceof ObjectProperty) {
+                    if (property instanceof ObjectProperty) {
                         ObjectProperty op = (ObjectProperty) property;
-                        if(op.getProperties() != model.getProperties()) {
+                        if (op.getProperties() != model.getProperties()) {
                             model.addProperty(key, property);
-                        }
-                        else {
+                        } else {
                             LOGGER.debug("not adding recursive properties, using generic object");
                             model.addProperty(key, new ObjectProperty());
                         }
@@ -139,31 +168,39 @@ public class ResolverUtil {
                 }
                 return model;
             }
+            return schema;
         }
-        if(schema instanceof ComposedModel) {
-            ComposedModel cm = (ComposedModel) schema;
+        if (schema instanceof ComposedModel) {
+            ComposedModel composedSchema = (ComposedModel) schema;
             ModelImpl model = new ModelImpl();
             Set<String> requiredProperties = new HashSet<>();
-            for(Model innerModel : cm.getAllOf()) {
-                Model resolved = resolveFully(innerModel);
-                if(resolved instanceof ModelImpl) {
-                    if(resolved.getProperties() != null) {
-                        for(String key : resolved.getProperties().keySet()) {
-                            Property prop = resolved.getProperties().get(key);
-                            if(prop.getRequired()) {
+            if (composedSchema.getAllOf() != null) {
+                for (Model innerModel : composedSchema.getAllOf()) {
+                    Model resolved = resolveModel(innerModel);
+                    Map<String, Property> properties = resolved.getProperties();
+                    if (resolved.getProperties() != null) {
+                        for (String key : properties.keySet()) {
+                            Property property = resolved.getProperties().get(key);
+                            if (property.getRequired()) {
                                 requiredProperties.add(key);
                             }
-                            model.addProperty(key, resolveFully(prop));
+                            if (!resolveCircularRefsAsObjectRefs) {
+                                model.addProperty(key, property);
+                            } else {
+                                model.addProperty(key, resolveProperty(property));
+                            }
+                        }
+
+                    }
+                    if (requiredProperties.size() > 0) {
+                        model.setRequired(new ArrayList<>(requiredProperties));
+                    }
+                    if (composedSchema.getVendorExtensions() != null) {
+                        Map<String, Object> extensions = composedSchema.getVendorExtensions();
+                        for (String key : extensions.keySet()) {
+                            model.setVendorExtension(key, composedSchema.getVendorExtensions().get(key));
                         }
                     }
-                }
-            }
-            if(requiredProperties.size() > 0) {
-                model.setRequired(new ArrayList<String>(requiredProperties));
-            }
-            if(cm.getVendorExtensions() != null) {
-                for(String key : cm.getVendorExtensions().keySet()) {
-                    model.setVendorExtension(key, cm.getVendorExtensions().get(key));
                 }
             }
             return model;
@@ -172,51 +209,91 @@ public class ResolverUtil {
         return schema;
     }
 
-    public Property resolveFully(Property property) {
-        if(property instanceof RefProperty) {
-            RefProperty ref = (RefProperty) property;
-            if(this.resolvedProperties.containsKey(ref.getSimpleRef())) {
-                Property resolved = this.resolvedProperties.get(ref.getSimpleRef());
-                // don't return full recursion, check object address
-                if(resolved == property) {
-                    LOGGER.debug("avoiding infinite loop, using generic object property");
-                    return new ObjectProperty();
-                }
-                return this.resolvedProperties.get(ref.getSimpleRef());
-            }
-
-            this.resolvedProperties.put(ref.getSimpleRef(), ref);
-            Model model = models.get(ref.getSimpleRef());
-            if(model == null) {
-                LOGGER.error("unresolved model " + ref.getSimpleRef());
+    private Property resolveProperty(Property property) {
+        if (property instanceof RefProperty) {
+            String ref = ((RefProperty) property).getSimpleRef();
+            Model definitionsSchema = schemas.get(ref);
+            if (definitionsSchema == null) {
+                LOGGER.error("unresolved model " + ref);
                 return property;
             }
-            else {
-                Property output = createObjectProperty(model);
-                this.resolvedProperties.put(ref.getSimpleRef(), output);
-                return output;
+            if (this.resolvedModels.containsKey(ref) || this.resolvedProperties.containsKey(ref)) {
+                LOGGER.debug("avoiding infinite loop");
+                Model modelResolved = this.resolvedModels.get(ref);
+                Property propertyResolved = this.resolvedProperties.get(ref);
+                if (modelResolved != null) {
+                    PropertyModelConverter converter = new PropertyModelConverter();
+                    Property convertedProperty = converter.modelToProperty(modelResolved);
+                    if (convertedProperty instanceof UntypedProperty && modelResolved instanceof ModelImpl) {
+                        Property property1 = createObjectProperty(modelResolved);
+                        this.resolvedProperties.put(ref, property1);
+                        return property1;
+                    } else {
+                        return convertedProperty;
+                    }
+                } else if (propertyResolved != null) {
+                    return propertyResolved;
+                }
+
             }
-        }
-        else if (property instanceof ObjectProperty) {
+
+            if (!resolveCircularRefsAsObjectRefs) {
+                if (this.processedModels.containsKey(ref) || this.processedProperties.containsKey(ref)) {
+                    LOGGER.debug("avoiding infinite loop");
+                    Model modelResolved = this.processedModels.get(ref);
+                    Property propertyResolved = this.processedProperties.get(ref);
+                    if (modelResolved != null) {
+                        PropertyModelConverter converter = new PropertyModelConverter();
+                        Property convertedProperty = converter.modelToProperty(modelResolved);
+                        if (convertedProperty instanceof UntypedProperty && modelResolved instanceof ModelImpl) {
+                            Property property1 = createObjectProperty(modelResolved);
+                            this.processedProperties.put(ref, property1);
+                            return property1;
+                        } else {
+                            return convertedProperty;
+                        }
+                    } else if (propertyResolved != null) {
+                        return propertyResolved;
+                    }
+
+                }
+                this.processedProperties.put(ref, property);
+            } else {
+                this.resolvedProperties.put(ref, property);
+            }
+            Model resolved = resolveModel(definitionsSchema);
+
+            // if we make it without a resolution loop, we can update the reference
+            this.resolvedModels.put(ref, resolved);
+            PropertyModelConverter converter = new PropertyModelConverter();
+            Property prop = converter.modelToProperty(resolved);
+            if (prop instanceof UntypedProperty && resolved instanceof ModelImpl) {
+                Property property1 = createObjectProperty(resolved);
+                this.resolvedProperties.put(ref, property1);
+                return property1;
+            } else {
+                return prop;
+            }
+
+        } else if (property instanceof ObjectProperty) {
             ObjectProperty obj = (ObjectProperty) property;
-            if(obj.getProperties() != null) {
-                Map<String, Property> updated = new LinkedHashMap<String, Property>();
-                for(String propertyName : obj.getProperties().keySet()) {
+            if (obj.getProperties() != null) {
+                Map<String, Property> updated = new LinkedHashMap<>();
+                for (String propertyName : obj.getProperties().keySet()) {
                     Property innerProperty = obj.getProperties().get(propertyName);
                     // reference check
-                    if(property != innerProperty) {
-                        Property resolved = resolveFully(innerProperty);
+                    if (property != innerProperty) {
+                        Property resolved = resolveProperty(innerProperty);
                         updated.put(propertyName, resolved);
                     }
                 }
                 obj.setProperties(updated);
             }
             return obj;
-        }
-        else if (property instanceof ArrayProperty) {
+        } else if (property instanceof ArrayProperty) {
             ArrayProperty array = (ArrayProperty) property;
-            if(array.getItems() != null) {
-                Property resolved = resolveFully(array.getItems());
+            if (array.getItems() != null) {
+                Property resolved = resolveProperty(array.getItems());
                 array.setItems(resolved);
             }
             return array;
@@ -225,19 +302,19 @@ public class ResolverUtil {
     }
 
     public Property createObjectProperty(Model model) {
-        if(model instanceof ModelImpl) {
-            ModelImpl m = (ModelImpl) resolveFully(model);
+        if (model instanceof ModelImpl) {
+            ModelImpl m = (ModelImpl) model;
             ObjectProperty property = new ObjectProperty();
             property.setProperties(m.getProperties());
             property.setName(m.getName());
             property.setFormat(m.getFormat());
-            if(m.getDefaultValue() != null) {
+            if (m.getDefaultValue() != null) {
                 property.setDefault(m.getDefaultValue().toString());
             }
             property.setDescription(m.getDescription());
             property.setXml(m.getXml());
 
-            if(m.getExample() != null) {
+            if (m.getExample() != null) {
                 property.setExample(m.getExample().toString());
             }
             final String name = (String) m.getVendorExtensions()
@@ -248,47 +325,47 @@ public class ResolverUtil {
 
             return property;
         }
-        if(model instanceof ArrayModel) {
+        if (model instanceof ArrayModel) {
             ArrayModel m = (ArrayModel) model;
             ArrayProperty property = new ArrayProperty();
             Property inner = m.getItems();
-            Property resolved = resolveFully(inner);
+            Property resolved = resolveProperty(inner);
             property.setItems(resolved);
             property.setDescription(m.getDescription());
 
             return property;
         }
-        if(model instanceof RefModel) {
+        if (model instanceof RefModel) {
             RefModel ref = (RefModel) model;
-            Model inner = models.get(ref.getSimpleRef());
+            Model inner = schemas.get(ref.getSimpleRef());
             return createObjectProperty(inner);
         }
-        if(model instanceof ComposedModel) {
+        if (model instanceof ComposedModel) {
             ObjectProperty op = new ObjectProperty();
 
             ComposedModel cm = (ComposedModel) model;
             Set<String> requiredProperties = new HashSet<>();
-            for(Model item : cm.getAllOf()) {
+            for (Model item : cm.getAllOf()) {
                 Property itemProperty = createObjectProperty(item);
-                if(itemProperty instanceof ObjectProperty) {
+                if (itemProperty instanceof ObjectProperty) {
                     ObjectProperty itemPropertyObject = (ObjectProperty) itemProperty;
-                    if(itemPropertyObject.getProperties() != null) {
+                    if (itemPropertyObject.getProperties() != null) {
                         for (String key : itemPropertyObject.getProperties().keySet()) {
                             op.property(key, itemPropertyObject.getProperties().get(key));
                         }
                     }
-                    if(itemPropertyObject.getRequiredProperties() != null) {
-                        for(String req : itemPropertyObject.getRequiredProperties()) {
+                    if (itemPropertyObject.getRequiredProperties() != null) {
+                        for (String req : itemPropertyObject.getRequiredProperties()) {
                             requiredProperties.add(req);
                         }
                     }
                 }
             }
-            if(requiredProperties.size() > 0) {
+            if (requiredProperties.size() > 0) {
                 op.setRequiredProperties(new ArrayList(requiredProperties));
             }
-            if(cm.getVendorExtensions() != null) {
-                for(String key : cm.getVendorExtensions().keySet()) {
+            if (cm.getVendorExtensions() != null) {
+                for (String key : cm.getVendorExtensions().keySet()) {
                     op.vendorExtension(key, cm.getVendorExtensions().get(key));
                 }
             }

@@ -30,6 +30,7 @@ import io.swagger.models.ArrayModel;
 import io.swagger.models.ComposedModel;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
+import io.swagger.models.RefModel;
 import io.swagger.models.Xml;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.BaseIntegerProperty;
@@ -49,13 +50,14 @@ import io.swagger.models.properties.RefProperty;
 import io.swagger.models.properties.StringProperty;
 import io.swagger.models.properties.UUIDProperty;
 import io.swagger.util.Json;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -75,12 +77,15 @@ public class ExampleBuilder {
     public static final String SAMPLE_DATE_PROPERTY_VALUE = "2015-07-20";
     public static final String SAMPLE_DATETIME_PROPERTY_VALUE = "2015-07-20T15:49:04-07:00";
     public static final double SAMPLE_DECIMAL_PROPERTY_VALUE = 1.5;
-
     public static Example fromProperty(Property property, Map<String, Model> definitions) {
-        return fromProperty(property, definitions, new HashSet<String>());
+        return fromProperty(property, definitions, new HashMap<String, Example>());
     }
 
     public static Example fromProperty(Property property, Map<String, Model> definitions, Set<String> processedModels) {
+        return fromProperty(property, definitions, createNullFiledMap(processedModels));
+    }
+
+    public static Example fromProperty(Property property, Map<String, Model> definitions, Map<String, Example> processedModels) {
         if (property == null) {
             return null;
         }
@@ -105,15 +110,16 @@ public class ExampleBuilder {
         Object example = property.getExample();
         if (property instanceof RefProperty) {
             RefProperty ref = (RefProperty) property;
-            if(processedModels.contains(ref.getSimpleRef())) {
+            if(processedModels.containsKey(ref.getSimpleRef())) {
                 // return some sort of example
-                return alreadyProcessedRefExample(ref.getSimpleRef(), definitions);
+                return alreadyProcessedRefExample(ref.getSimpleRef(), definitions, processedModels);
             }
-            processedModels.add(ref.getSimpleRef());
+            processedModels.put(ref.getSimpleRef(), null);
             if( definitions != null ) {
                 Model model = definitions.get(ref.getSimpleRef());
                 if (model != null) {
                     output = fromModel(ref.getSimpleRef(), model, definitions, processedModels);
+                    processedModels.put(ref.getSimpleRef(), output);
                 }
             }
         } else if (property instanceof EmailProperty) {
@@ -301,9 +307,13 @@ public class ExampleBuilder {
                 output = new DecimalExample(new BigDecimal(SAMPLE_DECIMAL_PROPERTY_VALUE));
             }
         } else if (property instanceof ObjectProperty) {
+            if(processedModels.containsKey(property.getName())) {
+                // return some sort of example
+                return alreadyProcessedRefExample(property.getName(), definitions, processedModels);
+            }
             if (example != null) {
                 try {
-                    output = Json.mapper().readValue(example.toString(), ObjectExample.class);
+                    output = Json.mapper().readValue(Json.mapper().writeValueAsString(example), ObjectExample.class);
                 } catch (IOException e) {
                     LOGGER.error("unable to convert `" + example + "` to JsonNode");
                     output = new ObjectExample();
@@ -316,7 +326,7 @@ public class ExampleBuilder {
                 if(op.getProperties() != null) {
                     for(String propertyname : op.getProperties().keySet()) {
                         Property inner = op.getProperties().get(propertyname);
-                        Example innerExample = fromProperty(inner, definitions);
+                        Example innerExample = fromProperty(inner, definitions, processedModels);
                         outputExample.put(propertyname, innerExample);
                     }
                 }
@@ -324,7 +334,12 @@ public class ExampleBuilder {
             }
         } else if (property instanceof ArrayProperty) {
             if (example != null) {
-                output = new ArrayExample();
+                try {
+                    output = Json.mapper().readValue(Json.mapper().writeValueAsString(example), ArrayExample.class);
+                } catch (IOException e) {
+                    LOGGER.error("unable to convert `" + example + "` to JsonNode");
+                    output = new ArrayExample();
+                }
             }
             else {
                 ArrayProperty ap = (ArrayProperty) property;
@@ -333,6 +348,9 @@ public class ExampleBuilder {
                     Object innerExample = fromProperty(inner, definitions, processedModels);
                     if (innerExample != null) {
                         if (innerExample instanceof Example) {
+                            if (ap.getXml() == null || Boolean.FALSE.equals(ap.getXml().getWrapped())) {
+                                ((Example) innerExample).setName(null);
+                            }
                             ArrayExample an = new ArrayExample();
                             an.add((Example) innerExample);
                             an.setName(property.getName());
@@ -345,24 +363,13 @@ public class ExampleBuilder {
             MapProperty mp = (MapProperty) property;
             Property inner = mp.getAdditionalProperties();
             if (inner != null) {
-                Object innerExample = fromProperty(inner, definitions, processedModels);
-                if (innerExample != null) {
-                    ObjectExample on = new ObjectExample();
-
-                    if (innerExample instanceof Example) {
-                        StringExample key = new StringExample("key");
-                        key.setName("key");
-                        on.put("key", key);
-                        Example in = (Example) innerExample;
-                        if (in.getName() == null) {
-                            in.setName("value");
-                        }
-                        on.put("value", (Example) in);
+                ObjectExample on = new ObjectExample();
+                for (int i = 1; i <= 3; i++) {
+                    Example innerExample = fromProperty(inner, definitions, processedModels);
+                    if (innerExample != null) {
+                        String key = "additionalProp" + i;
+                        on.put(key, innerExample);
                         output = on;
-                    } else {
-                        ObjectExample outputMap = new ObjectExample();
-                        outputMap.put("key", new ObjectExample());
-                        output = outputMap;
                     }
                 }
             }
@@ -374,43 +381,7 @@ public class ExampleBuilder {
                 RefProperty ref = (RefProperty) property;
                 Model model = definitions.get(ref.getSimpleRef());
                 if (model != null) {
-                    if (model instanceof ModelImpl) {
-                        ModelImpl i = (ModelImpl) model;
-                        if (i.getXml() != null) {
-                            Xml xml = i.getXml();
-                            name = xml.getName();
-                            attribute = xml.getAttribute();
-                            namespace = xml.getNamespace();
-                            prefix = xml.getPrefix();
-                            wrapped = xml.getWrapped();
-                        }
-                    }
-                    if (model.getExample() != null) {
-                        try {
-                            Example n = Json.mapper().readValue(model.getExample().toString(), Example.class);
-                            output = n;
-                        } catch (IOException e) {
-                            LOGGER.error("unable to convert value", e);
-                        }
-                    } else {
-                        ObjectExample values = new ObjectExample();
-
-                        Map<String, Property> properties = model.getProperties();
-                        if (properties != null) {
-                            for (String key : properties.keySet()) {
-                                Property innerProp = properties.get(key);
-                                Example p = (Example) fromProperty(innerProp, definitions, processedModels);
-                                if (p != null) {
-                                    if (p.getName() == null) {
-                                        p.setName(key);
-                                    }
-                                    values.put(key, p);
-                                    processedModels.add(key);
-                                }
-                            }
-                        }
-                        output = values;
-                    }
+                    output = fromModel(ref.getSimpleRef(), model, definitions, processedModels);
                 }
                 if (output != null) {
                     output.setName(ref.getSimpleRef());
@@ -435,7 +406,12 @@ public class ExampleBuilder {
         return output;
     }
 
-    public static Example alreadyProcessedRefExample(String name, Map<String, Model> definitions) {
+
+    public static Example alreadyProcessedRefExample(String name, Map<String, Model> definitions, Map<String, Example> processedExamples) {
+        if (processedExamples.get(name) != null){
+            return processedExamples.get(name);
+        }
+
         Model model = definitions.get(name);
         if(model == null) {
             return null;
@@ -471,22 +447,99 @@ public class ExampleBuilder {
     }
 
     public static Example fromModel(String name, Model model, Map<String, Model> definitions, Set<String> processedModels) {
+        return fromModel(name, model, definitions, createNullFiledMap(processedModels));
+    }
+
+    private static Map<String, Example> createNullFiledMap(Set<String> processedModels) {
+        Map<String, Example> processedModelsMap = new HashMap<>();
+        if (processedModels != null) {
+            for (String processedModel : processedModels) {
+                processedModelsMap.put(processedModel, null);
+            }
+        }
+        return processedModelsMap;
+    }
+
+
+    public static <T extends Number> Example fromNumberModel(ModelImpl impl, Class<T> clazz) {
+        Object example = impl.getExample();
+        Example output = null;
+        if (example != null) {
+            try {
+                if(Integer.class.isAssignableFrom(clazz)) {
+                    output = new IntegerExample(Integer.parseInt(example.toString()));
+                } else if(Long.class.isAssignableFrom(clazz)) {
+                    output = new LongExample(Long.parseLong(example.toString()));
+                } else if(Double.class.isAssignableFrom(clazz)) {
+                    output = new DoubleExample(Double.parseDouble(example.toString()));
+                } else if(Float.class.isAssignableFrom(clazz)) {
+                    output = new FloatExample(Float.parseFloat(example.toString()));
+                } else {
+                    output = new IntegerExample(Integer.parseInt(example.toString()));
+                }
+            } catch( NumberFormatException e ){}
+        }
+        if( output == null )  {
+            T defaultValue = null;
+            try {
+                if(Integer.class.isAssignableFrom(clazz)) {
+                    defaultValue = impl.getDefaultValue() == null ? null : (T)Integer.valueOf(defaultValue.toString());
+                } else if(Long.class.isAssignableFrom(clazz)) {
+                    defaultValue = impl.getDefaultValue() == null ? null : (T)Long.valueOf(defaultValue.toString());
+                } else if(Double.class.isAssignableFrom(clazz)) {
+                    defaultValue = impl.getDefaultValue() == null ? null : (T)Double.valueOf(defaultValue.toString());
+                } else if(Float.class.isAssignableFrom(clazz)) {
+                    defaultValue = impl.getDefaultValue() == null ? null : (T)Float.valueOf(defaultValue.toString());
+                }
+
+            } catch( Exception e ){}
+
+            if( defaultValue == null ){
+                List<String> enums = impl.getEnum();
+                if( enums != null && !enums.isEmpty()) {
+                    try {
+                        if(Integer.class.isAssignableFrom(clazz)) {
+                            defaultValue = impl.getDefaultValue() == null ? null : (T)Integer.valueOf(enums.get(0));
+                        } else if(Long.class.isAssignableFrom(clazz)) {
+                            defaultValue = impl.getDefaultValue() == null ? null : (T)Long.valueOf(enums.get(0));
+                        } else if(Double.class.isAssignableFrom(clazz)) {
+                            defaultValue = impl.getDefaultValue() == null ? null : (T)Double.valueOf(enums.get(0));
+                        } else if(Float.class.isAssignableFrom(clazz)) {
+                            defaultValue = impl.getDefaultValue() == null ? null : (T)Float.valueOf(enums.get(0));
+                        }
+                    } catch( Exception e ){}
+                }
+            }
+            if(Integer.class.isAssignableFrom(clazz)) {
+                output = new IntegerExample( defaultValue == null ? SAMPLE_INT_PROPERTY_VALUE : (Integer)defaultValue );
+            } else if(Long.class.isAssignableFrom(clazz)) {
+                output = new LongExample( defaultValue == null ? SAMPLE_LONG_PROPERTY_VALUE : (Long)defaultValue );
+            } else if(Double.class.isAssignableFrom(clazz)) {
+                output = new DoubleExample( defaultValue == null ? SAMPLE_DOUBLE_PROPERTY_VALUE : (Double)defaultValue );
+            } else if(Float.class.isAssignableFrom(clazz)) {
+                output = new FloatExample( defaultValue == null ? SAMPLE_FLOAT_PROPERTY_VALUE : (Float)defaultValue );
+            }
+
+        }
+        return output;
+    }
+
+    public static Example fromModel(String name, Model model, Map<String, Model> definitions, Map<String, Example> processedModels) {
+        if (model == null) {
+            return null;
+        }
+
         String namespace = null;
         String prefix = null;
         Boolean attribute = false;
         Boolean wrapped = false;
 
         Example output = null;
-        if (model.getExample() != null) {
-            try {
-                String str = model.getExample().toString();
-                output = Json.mapper().readValue(str, ObjectExample.class);
-            } catch (IOException e) {
-                return null;
-            }
-        }
-        else if(model instanceof ModelImpl) {
+        Object example = model.getExample();
+        if (model instanceof ModelImpl) {
             ModelImpl impl = (ModelImpl) model;
+            String modelType = impl.getType() != null ? impl.getType() : "";
+
             if (impl.getXml() != null) {
                 Xml xml = impl.getXml();
                 name = xml.getName();
@@ -497,44 +550,180 @@ public class ExampleBuilder {
             }
 
             ObjectExample ex = new ObjectExample();
+            switch (modelType) {
+                case "string":
+                    if (example != null) {
+                        output = new StringExample(example.toString());
+                    } else {
+                        String defaultValue = impl.getDefaultValue() == null ? null : impl.getDefaultValue().toString();
+                        if( defaultValue == null ){
+                            List<String> enums = impl.getEnum();
+                            if( enums != null && !enums.isEmpty()) {
+                                defaultValue = enums.get(0);
+                            }
+                        }
+                        String samplePropertyValue = SAMPLE_STRING_PROPERTY_VALUE;
+                        if (!StringUtils.isBlank(impl.getFormat())) {
+                            switch (impl.getFormat()) {
+                                case "email":
+                                    samplePropertyValue = SAMPLE_EMAIL_PROPERTY_VALUE;
+                                    break;
+                                case "uuid":
+                                    samplePropertyValue = SAMPLE_UUID_PROPERTY_VALUE;
+                                    break;
+                                case "date":
+                                    samplePropertyValue = SAMPLE_DATE_PROPERTY_VALUE;
+                                    break;
+                                case "datetime":
+                                    samplePropertyValue = SAMPLE_DATETIME_PROPERTY_VALUE;
+                                    break;
+                                default:
+                                    samplePropertyValue = SAMPLE_STRING_PROPERTY_VALUE;
+                            }
+                        }
 
-            if(impl.getProperties() != null) {
-                for(String key : impl.getProperties().keySet()) {
-                    Property property = impl.getProperties().get(key);
-                    Example propExample = fromProperty(property, definitions, processedModels);
-                    ex.put(key, propExample);
-                }
+                        output = new StringExample( defaultValue == null ? samplePropertyValue : defaultValue );
+                    }
+                    break;
+                case "integer":
+                    if (StringUtils.isBlank(impl.getFormat())) {
+                        output = fromNumberModel(impl, Integer.class);
+                    } else {
+                        switch (impl.getFormat()) {
+                            case "int32":
+                                output = fromNumberModel(impl, Integer.class);
+                                break;
+                            case "int64":
+                                output = fromNumberModel(impl, Long.class);
+                                break;
+                            default:
+                                output = fromNumberModel(impl, Integer.class);
+                        }
+                    }
+                    break;
+                case "number":
+                    if (StringUtils.isBlank(impl.getFormat())) {
+                        output = fromNumberModel(impl, Double.class);
+                    } else {
+                        switch (impl.getFormat()) {
+                            case "double":
+                                output = fromNumberModel(impl, Double.class);
+                                break;
+                            case "float":
+                                output = fromNumberModel(impl, Float.class);
+                                break;
+                            default:
+                                output = fromNumberModel(impl, Double.class);
+                        }
+                    }
+                    break;
+                case "boolean":
+                    if (example != null) {
+                        output = new BooleanExample(Boolean.valueOf(example.toString()));
+                    } else {
+                        Boolean defaultValue = impl.getDefaultValue() == null ? null : Boolean.valueOf(impl.getDefaultValue().toString());
+                        output = new BooleanExample( defaultValue == null ? SAMPLE_BOOLEAN_PROPERTY_VALUE : defaultValue.booleanValue());
+                    }
+                    break;
+                case "object":
+                case "":
+                default:
+                    if (example != null) {
+                        try {
+                            output = Json.mapper().readValue(Json.mapper().writeValueAsString(example), ObjectExample.class);
+                        } catch (IOException e) {
+                            LOGGER.error("unable to convert `" + example + "` to JsonNode");
+                            output = new ObjectExample();
+                        }
+                    } else {
+
+                        if (impl.getProperties() != null) {
+                            for (String key : impl.getProperties().keySet()) {
+                                Property property = impl.getProperties().get(key);
+                                if (property instanceof ObjectProperty) {
+                                    property.setName(StringUtils.capitalize(key));
+                                }
+                                Example propExample = fromProperty(property, definitions, processedModels);
+                                ex.put(key, propExample);
+                            }
+                        }
+
+                        if (impl.getAdditionalProperties() != null) {
+                            Property additionalProperties = impl.getAdditionalProperties();
+                            for (int i = 1; i <= 3; i++) {
+                                Example propExample = fromProperty(additionalProperties, definitions, processedModels);
+                                String key = "additionalProp" + i;
+                                if (propExample != null && !ex.keySet().contains(key)) {
+                                    ex.put(key, propExample);
+                                }
+                            }
+                        }
+                        output = ex;
+                    }
             }
-            output = ex;
         }
         else if(model instanceof ComposedModel) {
-            ComposedModel cm = (ComposedModel) model;
-            List<Model> models = cm.getAllOf();
-            ObjectExample ex = new ObjectExample();
+            if (example != null) {
+                try {
+                    output = Json.mapper().readValue(Json.mapper().writeValueAsString(example), ObjectExample.class);
+                } catch (IOException e) {
+                    LOGGER.error("unable to convert `" + example + "` to JsonNode");
+                    output = new ObjectExample();
+                }
+            } else {
 
-            List<Example> innerExamples = new ArrayList<>();
-            if(models != null) {
-                for (Model im : models) {
-                    Example innerExample = fromModel(null, im, definitions, processedModels);
-                    if(innerExample != null) {
-                        innerExamples.add(innerExample);
+                ComposedModel cm = (ComposedModel) model;
+                List<Model> models = cm.getAllOf();
+                ObjectExample ex = new ObjectExample();
+
+                List<Example> innerExamples = new ArrayList<>();
+                if (models != null) {
+                    for (Model im : models) {
+                        Example innerExample = fromModel(null, im, definitions, processedModels);
+                        if (innerExample != null) {
+                            innerExamples.add(innerExample);
+                        }
+                    }
+                }
+                mergeTo(ex, innerExamples);
+                output = ex;
+            }
+        }
+        else if(model instanceof ArrayModel) {
+            if (example != null) {
+                try {
+                    output = Json.mapper().readValue(Json.mapper().writeValueAsString(example), ArrayExample.class);
+                } catch (IOException e) {
+                    LOGGER.error("unable to convert `" + example + "` to JsonNode");
+                    output = new ObjectExample();
+                }
+            } else {
+                ArrayModel am = (ArrayModel) model;
+
+                Property inner = am.getItems();
+                if (inner != null) {
+                    Example innerExample = fromProperty(inner, definitions, processedModels);
+                    if (innerExample != null) {
+                        ArrayExample an = new ArrayExample();
+                        an.add(innerExample);
+                        output = an;
                     }
                 }
             }
-            mergeTo(ex, innerExamples);
-            output = ex;
         }
-        else if(model instanceof ArrayModel) {
-            ArrayModel am = (ArrayModel) model;
-            ObjectExample ex = new ObjectExample();
-
-            Property inner = am.getItems();
-            if (inner != null) {
-                Example innerExample = fromProperty(inner, definitions, processedModels);
-                if (innerExample != null) {
-                    ArrayExample an = new ArrayExample();
-                    an.add(innerExample);
-                    output = an;
+        else if(model instanceof RefModel) {
+            RefModel ref = (RefModel) model;
+            if(processedModels.containsKey(ref.getSimpleRef())) {
+                // return some sort of example
+                output = alreadyProcessedRefExample(ref.getSimpleRef(), definitions, processedModels);
+            } else {
+                processedModels.put(ref.getSimpleRef(), null);
+                if (definitions != null) {
+                    Model refedModel = definitions.get(ref.getSimpleRef());
+                    if (refedModel != null) {
+                        output = fromModel(ref.getSimpleRef(), refedModel, definitions, processedModels);
+                        processedModels.put(ref.getSimpleRef(), output);
+                    }
                 }
             }
         }

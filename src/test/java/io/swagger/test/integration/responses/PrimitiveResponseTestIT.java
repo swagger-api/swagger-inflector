@@ -19,6 +19,7 @@ package io.swagger.test.integration.responses;
 import io.swagger.inflector.examples.ExampleBuilder;
 import io.swagger.test.client.ApiClient;
 import io.swagger.test.client.ApiException;
+import org.testng.annotations.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class PrimitiveResponseTestIT {
     /**
      * empty response
      */
-    @org.junit.Test
+    @Test
     public void verifyGetEmptyResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
         queryParams.put("user", "tony");
@@ -45,7 +46,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the return value is automatically created
      */
-    @org.junit.Test
+    @Test
     public void verifyGetFloatResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -56,7 +57,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the return value is automatically created
      */
-    @org.junit.Test
+    @Test
     public void verifyGetDoubleResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -67,7 +68,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the return value is automatically created
      */
-    @org.junit.Test
+    @Test
     public void verifyGetUUIDResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -82,7 +83,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the return value is automatically created
      */
-    @org.junit.Test
+    @Test
     public void verifyGetStringResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -93,7 +94,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the return value uses the schema example
      */
-    @org.junit.Test
+    @Test
     public void verifyGetStringResponseWithExample() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -104,7 +105,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the date return value is automatically created
      */
-    @org.junit.Test
+    @Test
     public void verifyGetDateResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -115,7 +116,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the date-time return value is automatically created
      */
-    @org.junit.Test
+    @Test
     public void verifyGetDateTimeResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -126,7 +127,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the BigDecimal return value is automatically created
      */
-    @org.junit.Test
+    @Test
     public void verifyGetBigDecimalResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -137,7 +138,7 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the email return value is automatically created
      */
-    @org.junit.Test
+    @Test
     public void verifyGetEmailResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -148,18 +149,18 @@ public class PrimitiveResponseTestIT {
     /**
      * verifies that the email return value is automatically created
      */
-    @org.junit.Test
+    @Test
     public void verifyGetMapResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
         String str = client.invokeAPI("/mockResponses/primitiaveMapResponse", "GET", queryParams, null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        assertEquals(str, "{\"key\":\"key\",\"value\":\"string\"}");
+        assertEquals(str, "{\"additionalProp1\":\"string\",\"additionalProp2\":\"string\",\"additionalProp3\":\"string\"}");
     }
 
     /**
      * test for https://github.com/swagger-api/swagger-inflector/issues/125
      */
-    @org.junit.Test
+    @Test
     public void verifyBaseIntegerResponse() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 
@@ -170,7 +171,7 @@ public class PrimitiveResponseTestIT {
     /**
      * test for https://github.com/swagger-api/swagger-inflector/issues/128
      */
-    @org.junit.Test
+    @Test
     public void verify303Response() throws Exception {
         Map<String, String> queryParams = new HashMap<String, String>();
 

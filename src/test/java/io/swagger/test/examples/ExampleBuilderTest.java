@@ -16,6 +16,8 @@
 
 package io.swagger.test.examples;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.swagger.converter.ModelConverters;
 import io.swagger.inflector.examples.ExampleBuilder;
@@ -28,8 +30,11 @@ import io.swagger.inflector.examples.models.ObjectExample;
 import io.swagger.inflector.examples.models.StringExample;
 import io.swagger.inflector.processors.JsonExampleDeserializer;
 import io.swagger.inflector.processors.JsonNodeExampleSerializer;
+import io.swagger.inflector.utils.ResolverUtil;
+import io.swagger.models.HttpMethod;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
+import io.swagger.models.Operation;
 import io.swagger.models.Response;
 import io.swagger.models.Swagger;
 import io.swagger.models.Xml;
@@ -53,9 +58,11 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 public class ExampleBuilderTest {
     static {
@@ -120,8 +127,8 @@ public class ExampleBuilderTest {
         Example rep = ExampleBuilder.fromProperty(new RefProperty("User"), definitions);
 
         String xmlString = new XmlExampleSerializer().serialize(rep);
-        assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><user><userName>fehguy</userName><addressess><address><street>12345 El Monte Blvd</street><city>Los Altos Hills</city><state>CA</state><zip>94022</zip></address></addressess><managers><key>key</key><value>SVP Engineering</value></managers><kidsAges>9</kidsAges></user>");
-        assertEqualsIgnoreLineEnding(Yaml.pretty().writeValueAsString(rep), "---\nusername: \"fehguy\"\naddresses:\n- street: \"12345 El Monte Blvd\"\n  city: \"Los Altos Hills\"\n  state: \"CA\"\n  zip: \"94022\"\nmanagers:\n  key: \"key\"\n  value: \"SVP Engineering\"\nkidsAges:\n- 9\n");
+        assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><user><userName>fehguy</userName><addressess><address><street>12345 El Monte Blvd</street><city>Los Altos Hills</city><state>CA</state><zip>94022</zip></address></addressess><managers><additionalProp1>SVP Engineering</additionalProp1><additionalProp2>SVP Engineering</additionalProp2><additionalProp3>SVP Engineering</additionalProp3></managers><kidsAges>9</kidsAges></user>");
+        assertEqualsIgnoreLineEnding(Yaml.pretty().writeValueAsString(rep), "---\nusername: \"fehguy\"\naddresses:\n- street: \"12345 El Monte Blvd\"\n  city: \"Los Altos Hills\"\n  state: \"CA\"\n  zip: \"94022\"\nmanagers:\n  additionalProp1: \"SVP Engineering\"\n  additionalProp2: \"SVP Engineering\"\n  additionalProp3: \"SVP Engineering\"\nkidsAges:\n- 9\n");
     }
 
     @Test
@@ -529,10 +536,7 @@ public class ExampleBuilderTest {
     public void testObjectsWithAnonymousObjectArrays() throws Exception {
         Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-171.yaml");
 
-        Response response = swagger.getPath("/test").getGet().getResponses().get( "200" );
-        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
-
-        String output = Json.pretty(example);
+        String output = getExampleForPath(swagger, "/test");
 
         assertEqualsIgnoreLineEnding(output, "[ {\n" +
                 "  \"id\" : \"string\",\n" +
@@ -543,8 +547,8 @@ public class ExampleBuilderTest {
                 "} ]");
 
 
-        response = swagger.getPath("/anothertest").getGet().getResponses().get( "200" );
-        example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+        Response response = swagger.getPath("/anothertest").getGet().getResponses().get( "200" );
+        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
 
         output = new XmlExampleSerializer().serialize(example);
         assertEquals( output, "<?xml version='1.1' encoding='UTF-8'?><string>string</string>");
@@ -554,10 +558,7 @@ public class ExampleBuilderTest {
     public void testEnumExample() throws Exception {
         Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-171.yaml");
 
-        Response response = swagger.getPath("/color").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
-
-        String output = Json.pretty(example);
+        String output = getExampleForPath(swagger, "/color");
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"color\" : \"black\"\n" +
                 "}");
@@ -567,10 +568,7 @@ public class ExampleBuilderTest {
     public void testIssue1261InlineSchemaExample() throws Exception {
         Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-1261.yaml");
 
-        Response response = swagger.getPath("/user").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
-
-        String output = Json.pretty(example);
+        String output = getExampleForPath(swagger, "/user");
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"id\" : 42,\n" +
                 "  \"name\" : \"Arthur Dent\"\n" +
@@ -581,21 +579,29 @@ public class ExampleBuilderTest {
     public void testIssue1177RefArrayExample() throws Exception {
         Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-1177.yaml");
 
-        Response response = swagger.getPath("/array").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
-
-        String output = Json.pretty(example);
+        String output = getExampleForPath(swagger, "/array");
         assertEqualsIgnoreLineEnding(output, "[ \"string\" ]");
+    }
+
+    @Test
+    public void testInlinedArrayExample() throws Exception {
+        Swagger swagger = new SwaggerParser().read("src/test/swagger/array-example.yaml");
+
+        String output = getExampleForPath(swagger, "/");
+        assertEqualsIgnoreLineEnding(output, "[ {\n" +
+                "  \"id\" : 1,\n" +
+                "  \"name\" : \"Arthur Dent\"\n" +
+                "}, {\n" +
+                "  \"id\" : 2,\n" +
+                "  \"name\" : \"Ford Prefect\"\n" +
+                "} ]");
     }
 
     @Test
     public void testIssue1263SchemaExampleNestedObjects() throws Exception {
         Swagger swagger = new SwaggerParser().read("src/test/swagger/issue-1263.yaml");
 
-        Response response = swagger.getPath("/nested_object").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
-
-        String output = Json.pretty(example);
+        String output = getExampleForPath(swagger, "/nested_object");
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"nested_object\" : {\n" +
                 "    \"foo\" : \"bar\"\n" +
@@ -607,10 +613,7 @@ public class ExampleBuilderTest {
     public void testDifferentExampleTypes() throws Exception {
         Swagger swagger = new SwaggerParser().read("src/test/swagger/example-types.yaml");
 
-        Response response = swagger.getPath("/user").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
-
-        String output = Json.pretty(example);
+        String output = getExampleForPath(swagger, "/user");
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"obj\" : {\n" +
                 "    \"b\" : \"ho\",\n" +
@@ -624,5 +627,204 @@ public class ExampleBuilderTest {
                 "  \"boolean\" : true,\n" +
                 "  \"string\" : \"Arthur Dent\"\n" +
                 "}");
+    }
+
+    @Test
+    public void testAllOfAndRef() throws Exception {
+        Swagger swagger = new SwaggerParser().read("src/test/swagger/allOfAndRef.yaml");
+
+        String output = getExampleForPath(swagger, "/refToAllOf");
+        assertEqualsIgnoreLineEnding(output, "{\n" +
+                "  \"username\" : \"trillian\",\n" +
+                "  \"id\" : 4\n" +
+                "}");
+    }
+
+    @Test
+    public void testCircularRefSchema() throws Exception {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/circuler-refs-SPLAT-56.yaml");
+        ResolverUtil resolverUtil = new ResolverUtil();
+        resolverUtil.resolveFully(swagger);
+        Example example = ExampleBuilder.fromProperty(new RefProperty("Source"), resolverUtil.getResolvedModels());
+        assertEqualsIgnoreLineEnding(Json.pretty(example), "{\n" +
+                "  \"id\" : 0,\n" +
+                "  \"name\" : \"CDR\",\n" +
+                "  \"candidates\" : {\n" +
+                "    \"id\" : 0,\n" +
+                "    \"firstName\" : \"Jean\",\n" +
+                "    \"lastName\" : \"Dupont\",\n" +
+                "    \"source\" : { }\n" +
+                "  }\n" +
+                "}");
+    }
+
+    @Test
+    public void testCircularRefSchemaInResponse() throws Exception {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/circuler-refs-SPLAT-56-2.yaml");
+        System.setProperty("resolveCircularRefsAsObjectRefs", "true");
+        ResolverUtil resolverUtil = new ResolverUtil();
+        resolverUtil.resolveFully(swagger);
+        String yaml = Yaml.pretty().writeValueAsString(swagger);
+        Response response = swagger.getPaths().get("/candidates").getOperationMap().get(HttpMethod.GET).getResponses().get("200");
+        Example example = ExampleBuilder.fromModel("", response.getResponseSchema(), swagger.getDefinitions(), new HashMap<String, Example>());
+        assertNotNull(example);
+        assertEqualsIgnoreLineEnding(Json.pretty(example), "{\n" +
+                "  \"cid\" : 0,\n" +
+                "  \"cfirstName\" : \"Jean\",\n" +
+                "  \"clastName\" : \"Dupont\",\n" +
+                "  \"source\" : {\n" +
+                "    \"sid\" : 0,\n" +
+                "    \"sname\" : \"CDR\",\n" +
+                "    \"candidates\" : {\n" +
+                "      \"cid\" : 0,\n" +
+                "      \"cfirstName\" : \"Jean\",\n" +
+                "      \"clastName\" : \"Dupont\",\n" +
+                "      \"source\" : {\n" +
+                "        \"sid\" : 0,\n" +
+                "        \"sname\" : \"CDR\",\n" +
+                "        \"candidates\" : { }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}");
+
+        response = swagger.getPaths().get("/self").getOperationMap().get(HttpMethod.GET).getResponses().get("200");
+        example = ExampleBuilder.fromModel("", response.getResponseSchema(), swagger.getDefinitions(), new HashMap<String, Example>());
+        assertNotNull(example);
+        assertEqualsIgnoreLineEnding(Json.pretty(example), "{\n" +
+                "  \"selfname\" : \"CDR\",\n" +
+                "  \"selfObj\" : {\n" +
+                "    \"selfname\" : \"CDR\",\n" +
+                "    \"selfObj\" : { }\n" +
+                "  }\n" +
+                "}");
+
+        System.setProperty("resolveCircularRefsAsObjectRefs", "false");
+
+        swagger = new SwaggerParser().read("./src/test/swagger/circuler-refs-SPLAT-56-2.yaml");
+        resolverUtil = new ResolverUtil();
+        resolverUtil.resolveFully(swagger);
+        String yaml2 = Yaml.pretty().writeValueAsString(swagger);
+        assertEquals(yaml, yaml2);
+    }
+
+    @Test
+    public void testAdditionalProperties() throws Exception {
+        Swagger swagger = new SwaggerParser().read("./src/test/swagger/additionalProperties-swagger2.yaml");
+        ResolverUtil resolverUtil = new ResolverUtil();
+        resolverUtil.resolveFully(swagger);
+        String example = getExampleForPath(swagger, "/dictionaryOfInt");
+        assertEqualsIgnoreLineEnding(example, "{\n" +
+                "  \"additionalProp1\" : 0,\n" +
+                "  \"additionalProp2\" : 0,\n" +
+                "  \"additionalProp3\" : 0\n" +
+                "}");
+
+        example = getExampleForPath(swagger, "/objWithAdditionalProps");
+        assertEqualsIgnoreLineEnding(example, "{\n" +
+                "  \"name\" : \"string\",\n" +
+                "  \"additionalProp1\" : {\n" +
+                "    \"myProp\" : \"string\"\n" +
+                "  },\n" +
+                "  \"additionalProp2\" : {\n" +
+                "    \"myProp\" : \"string\"\n" +
+                "  },\n" +
+                "  \"additionalProp3\" : {\n" +
+                "    \"myProp\" : \"string\"\n" +
+                "  }\n" +
+                "}");
+    }
+
+    @Test
+    public void testArrayExamplesWithouResolveFully() throws Exception {
+
+        String location = "src/test/swagger/swos-9-no-example.yaml";
+        Swagger swagger = new SwaggerParser().read(location);
+
+        Operation operation = swagger.getPath("/testExamples").getOperations().get(0);
+        Response response = operation.getResponses().get("200");
+        Example example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+        String sampleValue = serializeExample("application/json", example);
+        assertEqualsIgnoreLineEnding(sampleValue, "{\n" +
+                "  \"data\" : [ \"AUDIO\" ]\n" +
+                "}");
+
+        operation = swagger.getPath("/testExamples2").getOperations().get(0);
+        response = operation.getResponses().get("200");
+        example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+
+        sampleValue = serializeExample("application/json", example);
+        assertEqualsIgnoreLineEnding(sampleValue, "{\n" +
+                "  \"data\" : [ {\n" +
+                "    \"foo\" : \"test\"\n" +
+                "  } ]\n" +
+                "}");
+
+        operation = swagger.getPath("/testExamples2Int").getOperations().get(0);
+        response = operation.getResponses().get("200");
+        example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+
+        sampleValue = serializeExample("application/json", example);
+        assertEqualsIgnoreLineEnding(sampleValue, "{\n" +
+                "  \"data\" : [ 0 ]\n" +
+                "}");
+
+
+        location = "src/test/swagger/swos-9.yaml";
+        swagger = new SwaggerParser().read(location);
+
+        operation = swagger.getPath("/testExamples").getOperations().get(0);
+        response = operation.getResponses().get("200");
+        example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+        sampleValue = serializeExample("application/json", example);
+        assertEqualsIgnoreLineEnding(sampleValue, "{\n" +
+                "  \"data\" : [ \"AUDIO\" ]\n" +
+                "}");
+        operation = swagger.getPath("/testExamples2").getOperations().get(0);
+        response = operation.getResponses().get("200");
+        example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+
+        sampleValue = serializeExample("application/json", example);
+        assertEqualsIgnoreLineEnding(sampleValue, "{\n" +
+                "  \"data\" : [ {\n" +
+                "    \"foo\" : \"extest\"\n" +
+                "  } ]\n" +
+                "}");
+
+        operation = swagger.getPath("/testExamples2Int").getOperations().get(0);
+        response = operation.getResponses().get("200");
+        example = ExampleBuilder.fromProperty(response.getSchema(), swagger.getDefinitions());
+
+        sampleValue = serializeExample("application/json", example);
+        assertEqualsIgnoreLineEnding(sampleValue, "{\n" +
+                "  \"data\" : [ 2 ]\n" +
+                "}");
+
+    }
+
+    private String serializeExample(String mediaType, Example output) throws JsonProcessingException {
+        String sampleValue = null;
+        ObjectMapper mapper = null;
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addSerializer(new JsonNodeExampleSerializer());
+
+        if (mediaType.equalsIgnoreCase("application/yaml")) {
+            mapper = Yaml.mapper();
+        } else if (mediaType.equalsIgnoreCase("application/json")) {
+            mapper = Json.mapper();
+        }
+
+        if (mapper != null) {
+            mapper.registerModule(simpleModule);
+            sampleValue = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(output);
+        }
+        return sampleValue;
+    }
+
+
+    private String getExampleForPath(Swagger swagger, String s) {
+        Response response = swagger.getPath(s).getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromModel("test", response.getResponseSchema(), swagger.getDefinitions(), new HashMap<String, Example>());
+        return Json.pretty(example);
     }
 }
