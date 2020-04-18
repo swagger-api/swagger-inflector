@@ -460,8 +460,8 @@
     </dependencies>
     <properties>
         <maven-javadoc-version>3.0.1</maven-javadoc-version>
-        <swagger-core-version>2.1.0</swagger-core-version>
-        <swagger-parser-version>2.0.16</swagger-parser-version>
+        <swagger-core-version>2.1.2</swagger-core-version>
+        <swagger-parser-version>2.0.19</swagger-parser-version>
         <jackson.version>2.10.1</jackson.version>
         <jetty-version>9.4.11.v20180605</jetty-version>
         <jersey2-version>2.26</jersey2-version>
