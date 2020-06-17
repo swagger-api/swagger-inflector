@@ -944,4 +944,18 @@ public class ExampleBuilderTest {
         assertTrue(jsonExample.contains("\"date\" : \"2019-08-05\""));
         assertTrue(jsonExample.contains("\"dateTime\" : \"2019-08-05T12:34:56Z\""));
     }
+
+    @Test
+    public void testAllOfAndRefResolveFully(){
+        ParseOptions options = new ParseOptions();
+        options.setResolveFully(true);
+
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/allOfAndRefResolveFully.yaml", null, options);
+
+        ApiResponse response = openAPI.getPaths().get("/inventory").getGet().getResponses().get( "200" );
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/xml").getSchema(), openAPI.getComponents().getSchemas());
+
+        String output = new XmlExampleSerializer().serialize(example);
+        assertEquals(output, "<?xml version='1.1' encoding='UTF-8'?><inventoryItem><suppliersArray><AnonymousModel><name>ACME Corporation</name><supplierRef>REF123</supplierRef></AnonymousModel></suppliersArray></inventoryItem>");
+    }
 }
