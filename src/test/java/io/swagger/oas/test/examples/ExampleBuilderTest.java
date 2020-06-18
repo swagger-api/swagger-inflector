@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 public class ExampleBuilderTest {
@@ -943,5 +944,58 @@ public class ExampleBuilderTest {
         String jsonExample = Json.pretty(example);
         assertTrue(jsonExample.contains("\"date\" : \"2019-08-05\""));
         assertTrue(jsonExample.contains("\"dateTime\" : \"2019-08-05T12:34:56Z\""));
+    }
+
+    @Test
+    public void testNullExampleSupportOAS3(){
+
+        ParseOptions options = new ParseOptions();
+        options.setResolve(true);
+        options.setResolveFully(true);
+
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/null-examples-oas3.yaml", null, options);
+
+        ApiResponse response = openAPI.getPaths().get("/object-with-null-example").getGet().getResponses().get("200");
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        String output = Json.pretty(example);
+        assertNull(output);
+
+        response = openAPI.getPaths().get("/object-with-null-in-schema-example").getGet().getResponses().get("200");
+        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        output = Json.pretty(example);
+        assertEquals(output, "{\n" +
+                "  \"a\" : 5,\n" +
+                "  \"b\" : \"test\",\n" +
+                "  \"c\" : true,\n" +
+                "  \"d\" : " + null + "\n" +
+                "}");
+
+        response = openAPI.getPaths().get("/object-with-null-property-example").getGet().getResponses().get("200");
+        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        output = Json.pretty(example);
+        assertEquals(output, "{\n" +
+                "  \"a\" : 5,\n" +
+                "  \"b\" : " + null + "\n" +
+                "}");
+
+        response = openAPI.getPaths().get("/string-with-null-example").getGet().getResponses().get("200");
+        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        output = Json.pretty(example);
+        assertNull(output);
+
+        response = openAPI.getPaths().get("/array-with-null-array-example").getGet().getResponses().get("200");
+        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        output = Json.pretty(example);
+        assertNull(output);
+
+        response = openAPI.getPaths().get("/array-with-null-item-example").getGet().getResponses().get("200");
+        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        output = Json.pretty(example);
+        assertEquals(output, "[" + null + "]");
+
+        response = openAPI.getPaths().get("/array-with-null-in-array-example").getGet().getResponses().get("200");
+        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        output = Json.pretty(example);
+        assertEquals(output, "[\"foo\", " + null + "]");
     }
 }
