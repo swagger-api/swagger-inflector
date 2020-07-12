@@ -11,6 +11,8 @@ environment: development
 
 validatePayloads: true
 
+allowNullExamples: true
+
 # loads all by default, or pick and choose
 entityProcessors:
   - json

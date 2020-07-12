@@ -531,7 +531,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                         for(String key: response.getHeaders().keySet()) {
                             Header headerProperty = response.getHeaders().get(key);
                             if(headerProperty.getSchema()!= null){
-                                output = ExampleBuilder.fromSchema(headerProperty.getSchema(), definitions);
+                                output = ExampleBuilder.fromSchema(headerProperty.getSchema(), definitions, config.isAllowNullExamples());
 
                                 if(output instanceof ArrayExample) {
                                     output = ((ArrayExample)output).asString();
@@ -587,10 +587,10 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                             }
                                         }
                                     }
-                                    output = ExampleBuilder.fromSchema(response.getContent().get(acceptable).getSchema(), definitions);
+                                    output = ExampleBuilder.fromSchema(response.getContent().get(acceptable).getSchema(), definitions, config.isAllowNullExamples());
                                 }else{
                                     for (String media: response.getContent().keySet()) {
-                                        output = ExampleBuilder.fromSchema(response.getContent().get(media).getSchema(), definitions);
+                                        output = ExampleBuilder.fromSchema(response.getContent().get(media).getSchema(), definitions, config.isAllowNullExamples());
                                         break;
                                     }
                                 }
@@ -627,7 +627,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                         }
                                     }
                                 }
-                                output = ExampleBuilder.fromSchema(response.getContent().get(key).getSchema(), definitions);
+                                output = ExampleBuilder.fromSchema(response.getContent().get(key).getSchema(), definitions, config.isAllowNullExamples());
                             }
                         }
                     }

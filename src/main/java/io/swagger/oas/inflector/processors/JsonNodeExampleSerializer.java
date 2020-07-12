@@ -154,8 +154,19 @@ public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
             }
         } else if (o instanceof StringExample) {
             StringExample obj = (StringExample) o;
+                if (field != null) {
+                    jgen.writeStringField(field, obj.getValue());
+                } else {
+                    jgen.writeString(obj.getValue());
+                }
+        } else if (o == null ) {
+            StringExample obj = (StringExample) o;
             if (field != null) {
-                jgen.writeStringField(field, obj.getValue());
+                if (obj != null) {
+                    jgen.writeStringField(field, obj.getValue());
+                } else {
+                    jgen.writeStringField(field, null);
+                }
             } else {
                 jgen.writeString(obj.getValue());
             }

@@ -31,7 +31,6 @@ import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import mockit.Injectable;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 

@@ -70,6 +70,7 @@ public class ExampleBuilder {
     public static final String SAMPLE_EMAIL_PROPERTY_VALUE = "apiteam@swagger.io";
     public static final String SAMPLE_UUID_PROPERTY_VALUE = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
     public static final String SAMPLE_STRING_PROPERTY_VALUE = "string";
+    public static final String SAMPLE_STRING_PROPERTY_NULL_VALUE = null;
     public static final int SAMPLE_INT_PROPERTY_VALUE = 0;
     public static final int SAMPLE_LONG_PROPERTY_VALUE = 0;
     public static final int SAMPLE_BASE_INTEGER_PROPERTY_VALUE = 0;
@@ -80,23 +81,23 @@ public class ExampleBuilder {
     public static final String SAMPLE_DATETIME_PROPERTY_VALUE = "2015-07-20T15:49:04-07:00";
     public static final double SAMPLE_DECIMAL_PROPERTY_VALUE = 1.5;
 
-    public static Example fromSchema(Schema property, Map<String, Schema> definitions) {
-        return fromProperty(null, property, definitions, new HashMap<>(), null);
+    public static Example fromSchema(Schema property, Map<String, Schema> definitions, boolean allowNullExamples) {
+        return fromProperty(null, property, definitions, new HashMap<>(), null, allowNullExamples);
     }
 
-    public static Example fromSchema(Schema property, Map<String, Schema> definitions, RequestType requestType) {
-        return fromProperty(null,property, definitions, new HashMap<>(), requestType);
+    public static Example fromSchema(Schema property, Map<String, Schema> definitions, RequestType requestType, boolean allowNullExamples) {
+        return fromProperty(null,property, definitions, new HashMap<>(), requestType, allowNullExamples);
     }
 
-    public static Example fromProperty(String name, Schema property, Map<String, Schema> definitions, Set<String> processedModels, RequestType requestType) {
+    public static Example fromProperty(String name, Schema property, Map<String, Schema> definitions, Set<String> processedModels, RequestType requestType, boolean allowNullExamples) {
         Map<String, Example> map = new HashMap<>();
         for (String key : processedModels) {
             map.put(key, null);
         }
-        return fromProperty(name, property, definitions, map, requestType);
+        return fromProperty(name, property, definitions, map, requestType, allowNullExamples);
     }
 
-    public static Example fromProperty(String name, Schema property, Map<String, Schema> definitions, Map<String, Example> processedModels, RequestType requestType) {
+    public static Example fromProperty(String name, Schema property, Map<String, Schema> definitions, Map<String, Example> processedModels, RequestType requestType, boolean allowNullExamples) {
         if (property == null) {
             return null;
         }
@@ -137,7 +138,7 @@ public class ExampleBuilder {
             if( definitions != null ) {
                 Schema model = definitions.get(ref);
                 if (model != null) {
-                    output = fromProperty(ref, model, definitions, processedModels, requestType);
+                    output = fromProperty(ref, model, definitions, processedModels, requestType, allowNullExamples);
                     processedModels.put(ref, output);
                     return output;
                 }
@@ -186,8 +187,11 @@ public class ExampleBuilder {
                         defaultValue = enums.get(0);
                     }
                 }
-
-                output = new StringExample( defaultValue == null ? SAMPLE_STRING_PROPERTY_VALUE : defaultValue );
+                if (!allowNullExamples) {
+                    output = new StringExample(defaultValue == null ? SAMPLE_STRING_PROPERTY_VALUE : defaultValue);
+                }else{
+                    output = new StringExample(defaultValue == null ? SAMPLE_STRING_PROPERTY_NULL_VALUE : defaultValue);
+                }
             }
         } else if (property instanceof PasswordSchema) {
             if (example != null) {
@@ -318,7 +322,8 @@ public class ExampleBuilder {
         } else if (property instanceof ObjectSchema) {
             if (example != null) {
                 try {
-                    output = Json.mapper().readValue(example.toString(), ObjectExample.class);
+                    String stringExample = example.toString();
+                    output = Json.mapper().readValue(stringExample, ObjectExample.class);
                 } catch (IOException e) {
                     LOGGER.error("unable to convert `" + example + "` to JsonNode");
                     output = new ObjectExample();
@@ -331,7 +336,7 @@ public class ExampleBuilder {
                 if(op.getProperties() != null) {
                     for(String propertyname : op.getProperties().keySet()) {
                         Schema inner = op.getProperties().get(propertyname);
-                        Example innerExample = fromProperty(null, inner, definitions,processedModels, requestType);
+                        Example innerExample = fromProperty(null, inner, definitions,processedModels, requestType, allowNullExamples);
                         outputExample.put(propertyname, innerExample);
                     }
                     output = outputExample;
@@ -351,7 +356,7 @@ public class ExampleBuilder {
                 ArraySchema ap = (ArraySchema) property;
                 Schema inner = ap.getItems();
                 if (inner != null) {
-                    Object innerExample = fromProperty(null,inner, definitions, processedModels,requestType);
+                    Object innerExample = fromProperty(null,inner, definitions, processedModels,requestType,allowNullExamples);
                     if (innerExample != null) {
                         if (innerExample instanceof Example) {
                             ArrayExample an = new ArrayExample();
@@ -373,7 +378,7 @@ public class ExampleBuilder {
                 List<Example> innerExamples = new ArrayList<>();
                 if (models != null) {
                     for (Schema im : models) {
-                        Example innerExample = fromProperty(null, im, definitions, processedModels, requestType);
+                        Example innerExample = fromProperty(null, im, definitions, processedModels, requestType, allowNullExamples);
                         if (innerExample != null) {
                             innerExamples.add(innerExample);
                         }
@@ -386,7 +391,7 @@ public class ExampleBuilder {
                 List<Schema> models = composedSchema.getAnyOf();
                 if (models != null) {
                     for (Schema im : models) {
-                        Example innerExample = fromProperty(null, im, definitions, processedModels, requestType);
+                        Example innerExample = fromProperty(null, im, definitions, processedModels, requestType, allowNullExamples);
                         if (innerExample != null) {
                             output = innerExample;
                             break;
@@ -399,7 +404,7 @@ public class ExampleBuilder {
 
                 if (models != null) {
                     for (Schema im : models) {
-                        Example innerExample = fromProperty(null, im, definitions, processedModels, requestType);
+                        Example innerExample = fromProperty(null, im, definitions, processedModels, requestType, allowNullExamples);
                         if (innerExample != null) {
                             output = innerExample;
                             break;
@@ -423,7 +428,7 @@ public class ExampleBuilder {
                     Map<String,Schema> properties = property.getProperties();
                     for(String propertyKey : properties.keySet()) {
                         Schema inner = properties.get(propertyKey);
-                        Example propExample = fromProperty(null, inner, definitions, processedModels,requestType);
+                        Example propExample = fromProperty(null, inner, definitions, processedModels,requestType, allowNullExamples);
                         ex.put(propertyKey, propExample);
                     }
                 }
@@ -436,7 +441,7 @@ public class ExampleBuilder {
             Schema inner = (Schema) property.getAdditionalProperties();
             if (inner != null) {
                 for (int i = 1; i <= 3; i++) {
-                    Example innerExample = fromProperty(null, inner, definitions, processedModels, requestType);
+                    Example innerExample = fromProperty(null, inner, definitions, processedModels, requestType, allowNullExamples);
                     if (innerExample != null) {
                         if (output == null) {
                             output = new ObjectExample();

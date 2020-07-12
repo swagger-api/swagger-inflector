@@ -59,6 +59,7 @@ public class Configuration {
     private String swaggerBase = "/";
     private Set<Direction> validatePayloads = Collections.emptySet();
     private boolean prettyPrint;
+    private boolean allowNullExamples;
 
     public String getSwaggerBase() {
         if("".equals(swaggerBase) || "/".equals(swaggerBase)) {
@@ -71,6 +72,14 @@ public class Configuration {
             }
         }
         return swaggerBase;
+    }
+
+    public void setAllowNullExamples(boolean allowNullExamples) {
+        this.allowNullExamples = allowNullExamples;
+    }
+
+    public boolean isAllowNullExamples() {
+        return allowNullExamples;
     }
 
     public static enum Environment {
@@ -155,7 +164,8 @@ public class Configuration {
                 .exceptionMapper("io.swagger.oas.inflector.utils.DefaultExceptionMapper")
                 .defaultValidators()
                 .defaultConverters()
-                .defaultProcessors();
+                .defaultProcessors()
+                .allowNullExamples(false);
     }
 
     public Configuration defaultValidators() {
@@ -175,6 +185,11 @@ public class Configuration {
 
     public Configuration modelPackage(String modelPackage) {
         this.modelPackage = modelPackage;
+        return this;
+    }
+
+    public Configuration allowNullExamples(boolean allowNullExamples) {
+        this.allowNullExamples = allowNullExamples;
         return this;
     }
 
@@ -208,9 +223,6 @@ public class Configuration {
             LOGGER.error("unable to add exception mapper for `" + className + "`, " + e.getMessage());
         }
         return this;
-    }
-
-    public Configuration() {
     }
 
     public ControllerFactory getControllerFactory() {

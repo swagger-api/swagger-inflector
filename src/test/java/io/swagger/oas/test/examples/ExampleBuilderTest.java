@@ -70,7 +70,7 @@ public class ExampleBuilderTest {
     @Test
     public void testReadModel() throws Exception {
         Map<String, Schema> definitions = ModelConverters.getInstance().readAll(User.class);
-        Object o = ExampleBuilder.fromSchema(new Schema().$ref("User"), definitions);
+        Object o = ExampleBuilder.fromSchema(new Schema().$ref("User"), definitions, false);
 
         String str = new XmlExampleSerializer().serialize((Example) o);
         assertEqualsIgnoreLineEnding(str, "<?xml version='1.1' encoding='UTF-8'?><user><id>0</id><user>string</user><children><child>string</child></children></user>");
@@ -135,7 +135,7 @@ public class ExampleBuilderTest {
 
         definitions.put("Address", address);
 
-        Example rep = ExampleBuilder.fromSchema(new Schema().$ref("User"), definitions);
+        Example rep = ExampleBuilder.fromSchema(new Schema().$ref("User"), definitions, false);
 
         String xmlString = new XmlExampleSerializer().serialize(rep);
         assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><user><userName>fehguy</userName><addressess><address><street>12345 El Monte Blvd</street><city>Los Altos Hills</city><state>CA</state><zip>94022</zip></address></addressess><managers><additionalProp1>SVP Engineering</additionalProp1><additionalProp2>SVP Engineering</additionalProp2><additionalProp3>SVP Engineering</additionalProp3></managers><kidsAges>9</kidsAges></user>");
@@ -174,7 +174,7 @@ public class ExampleBuilderTest {
 
         definitions.put("Address", address);
 
-        Example rep = (Example) ExampleBuilder.fromSchema(new ArraySchema().$ref("Address"), definitions);
+        Example rep = (Example) ExampleBuilder.fromSchema(new ArraySchema().$ref("Address"), definitions, false);
 
         String json = Json.pretty(rep);
 
@@ -222,7 +222,7 @@ public class ExampleBuilderTest {
         simpleModule.addDeserializer(Example.class, new JsonExampleDeserializer());
         Json.mapper().registerModule(simpleModule);
 
-        Example rep = (Example) ExampleBuilder.fromSchema(new StringSchema().addEnumItem("hello").example("fun"), definitions);
+        Example rep = (Example) ExampleBuilder.fromSchema(new StringSchema().addEnumItem("hello").example("fun"), definitions, false);
         assertEqualsIgnoreLineEnding(Json.pretty(rep), "\"fun\"");
     }
 
@@ -237,13 +237,13 @@ public class ExampleBuilderTest {
 
         Map<String, Schema> definitions = new HashMap<>();
         definitions.put("User", model);
-        assertEqualsIgnoreLineEnding(Json.pretty(ExampleBuilder.fromSchema(new Schema().$ref("User"), definitions)), "{\n  \"id\" : \"string\"\n}");
+        assertEqualsIgnoreLineEnding(Json.pretty(ExampleBuilder.fromSchema(new Schema().$ref("User"), definitions, false)), "{\n  \"id\" : \"string\"\n}");
     }
 
     @Test
     public void testXmlBoolean() throws Exception {
         BooleanSchema sp = new BooleanSchema();
-        Example ex = ExampleBuilder.fromSchema(sp, null);
+        Example ex = ExampleBuilder.fromSchema(sp, null, false);
         String xmlString = new XmlExampleSerializer().serialize(ex);
         assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><boolean>true</boolean>");
     }
@@ -251,7 +251,7 @@ public class ExampleBuilderTest {
     @Test
     public void testXmlDecimal() throws Exception {
         NumberSchema sp = new NumberSchema();
-        Example ex = ExampleBuilder.fromSchema(sp, null);
+        Example ex = ExampleBuilder.fromSchema(sp, null, false);
         String xmlString = new XmlExampleSerializer().serialize(ex);
         assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><decimal>1.5</decimal>");
     }
@@ -259,7 +259,7 @@ public class ExampleBuilderTest {
     @Test
     public void testXmlFloat() throws Exception {
         NumberSchema sp = new NumberSchema();
-        Example ex = ExampleBuilder.fromSchema(sp.format("float"), null);
+        Example ex = ExampleBuilder.fromSchema(sp.format("float"), null,false);
         String xmlString = new XmlExampleSerializer().serialize(ex);
         assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><float>1.1</float>");
     }
@@ -267,7 +267,7 @@ public class ExampleBuilderTest {
     @Test
     public void testXmlInteger() throws Exception {
         IntegerSchema sp = new IntegerSchema();
-        Example ex = ExampleBuilder.fromSchema(sp, null);
+        Example ex = ExampleBuilder.fromSchema(sp, null,false);
         String xmlString = new XmlExampleSerializer().serialize(ex);
         assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><integer>0</integer>");
     }
@@ -275,7 +275,7 @@ public class ExampleBuilderTest {
     @Test
     public void testXmlLong() throws Exception {
         IntegerSchema sp = new IntegerSchema();
-        Example ex = ExampleBuilder.fromSchema(sp.format("int64"), null);
+        Example ex = ExampleBuilder.fromSchema(sp.format("int64"), null, false);
         String xmlString = new XmlExampleSerializer().serialize(ex);
         assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><long>0</long>");
     }
@@ -283,7 +283,7 @@ public class ExampleBuilderTest {
     @Test
     public void testXmlString() throws Exception {
         StringSchema sp = new StringSchema();
-        Example ex = ExampleBuilder.fromSchema(sp, null);
+        Example ex = ExampleBuilder.fromSchema(sp, null, false);
         String xmlString = new XmlExampleSerializer().serialize(ex);
         assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><string>string</string>");
     }
@@ -300,7 +300,7 @@ public class ExampleBuilderTest {
         Map<String, Schema> definitions = new HashMap<>();
         definitions.put("Person", person);
 
-        Example rep = (Example) ExampleBuilder.fromSchema(new Schema().$ref("Person"), definitions);
+        Example rep = (Example) ExampleBuilder.fromSchema(new Schema().$ref("Person"), definitions, false);
         assertEqualsIgnoreLineEnding(Json.pretty(rep), "{\n  \"age\" : 42\n}");
         String xmlString = new XmlExampleSerializer().serialize(rep);
         assertEqualsIgnoreLineEnding(xmlString, "<?xml version='1.1' encoding='UTF-8'?><Person><age>42</age></Person>");
@@ -354,7 +354,7 @@ public class ExampleBuilderTest {
         Map<String, Schema> definitions = new HashMap<>();
         definitions.put("SimpleModel", model);
 
-        Example rep = ExampleBuilder.fromSchema(new Schema().$ref("SimpleModel"), definitions);
+        Example rep = ExampleBuilder.fromSchema(new Schema().$ref("SimpleModel"), definitions, false);
 
         assertEqualsIgnoreLineEnding(Json.pretty(rep),
             "{\n" +
@@ -392,7 +392,7 @@ public class ExampleBuilderTest {
         Map<String, Schema> definitions = new HashMap<>();
         definitions.put("ComposedModel", model);
 
-        Example rep = ExampleBuilder.fromSchema(new Schema().$ref("ComposedModel").name("ComposedModel"), definitions);
+        Example rep = ExampleBuilder.fromSchema(new Schema().$ref("ComposedModel").name("ComposedModel"), definitions, false);
 
         assertEqualsIgnoreLineEnding(Json.pretty(rep),
             "{\n" +
@@ -422,7 +422,7 @@ public class ExampleBuilderTest {
         Map<String, Schema> definitions = new HashMap<>();
         definitions.put("Circular", model);
 
-        Example rep = ExampleBuilder.fromSchema(new Schema().$ref("Circular"), definitions);
+        Example rep = ExampleBuilder.fromSchema(new Schema().$ref("Circular"), definitions, false);
 
         assertEqualsIgnoreLineEnding(Json.pretty(rep), "{\n" +
             "  \"id\" : \"string\",\n" +
@@ -460,7 +460,7 @@ public class ExampleBuilderTest {
         Map<String, Schema> definitions = new HashMap<>();
         definitions.put("InlineModel", model);
 
-        Example rep = ExampleBuilder.fromSchema(new Schema().$ref("InlineModel"), definitions);
+        Example rep = ExampleBuilder.fromSchema(new Schema().$ref("InlineModel"), definitions, false);
 
         assertEqualsIgnoreLineEnding(Json.pretty(rep), "{\n" +
             "  \"id\" : 999,\n" +
@@ -481,7 +481,7 @@ public class ExampleBuilderTest {
         Map<String, Schema> definitions = new HashMap<>();
         definitions.put("Address", model);
 
-        Example rep = ExampleBuilder.fromSchema(new Schema().$ref("Address"), definitions);
+        Example rep = ExampleBuilder.fromSchema(new Schema().$ref("Address"), definitions, false);
         assertEqualsIgnoreLineEnding(Json.pretty(rep),
                 "{\n" +
                 "  \"int64\" : 4321\n" +
@@ -500,7 +500,7 @@ public class ExampleBuilderTest {
         Map<String, Schema> definitions = new HashMap<>();
         definitions.put("Address", model);
 
-        Example rep = ExampleBuilder.fromSchema(new Schema().$ref("Address"), definitions);
+        Example rep = ExampleBuilder.fromSchema(new Schema().$ref("Address"), definitions, false);
 
         Json.prettyPrint(rep);
         assertEqualsIgnoreLineEnding(Json.pretty(rep),
@@ -546,7 +546,7 @@ public class ExampleBuilderTest {
         definitions.put("Test", model);
 
         // validate that the internal default value is returned if an invalid value is set
-        ObjectExample rep = (ObjectExample) ExampleBuilder.fromSchema(new Schema().$ref("Test"), definitions);
+        ObjectExample rep = (ObjectExample) ExampleBuilder.fromSchema(new Schema().$ref("Test"), definitions, false);
         AbstractExample example = (AbstractExample) rep.get( "test" );
         System.out.println(example);
         assertEquals( example.asString(), String.valueOf(defaultValue) );
@@ -554,7 +554,7 @@ public class ExampleBuilderTest {
         // validate that a specified default value is returned if an invalid value is set
         if( sampleValue != null ) {
             property.setDefault(String.valueOf(sampleValue));
-            rep = (ObjectExample) ExampleBuilder.fromSchema(new Schema().$ref("Test"), definitions);
+            rep = (ObjectExample) ExampleBuilder.fromSchema(new Schema().$ref("Test"), definitions, false);
             example = (AbstractExample) rep.get("test");
             assertEquals(String.valueOf(sampleValue), example.asString());
         }
@@ -570,7 +570,7 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/issue-171.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/test").getGet().getResponses().get( "200" );
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas());
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas(), false);
 
         String output = Json.pretty(example);
 
@@ -584,7 +584,7 @@ public class ExampleBuilderTest {
 
 
         response = openAPI.getPaths().get("/anothertest").getGet().getResponses().get( "200" );
-        example = ExampleBuilder.fromSchema(response.getContent().get("*/*").getSchema(), openAPI.getComponents().getSchemas());
+        example = ExampleBuilder.fromSchema(response.getContent().get("*/*").getSchema(), openAPI.getComponents().getSchemas(), false);
 
         output = new XmlExampleSerializer().serialize(example);
         assertEquals( output, "<?xml version='1.1' encoding='UTF-8'?><string>string</string>");
@@ -595,7 +595,7 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/issue-171.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/color").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas());
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas(), false);
 
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
@@ -608,7 +608,7 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/issue-1261.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/user").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null);
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, false);
 
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
@@ -622,7 +622,7 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/issue-1177.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/array").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas());
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas(), false);
 
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "[ \"string\" ]");
@@ -633,7 +633,7 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/array-example.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas());
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas(), false);
 
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "[ {\n" +
@@ -650,7 +650,7 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/nested-array-example.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas());
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas(), false);
 
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "[ [ {\n" +
@@ -667,7 +667,7 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/issue-1263.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/nested_object").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas());
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas(), false);
 
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
@@ -682,7 +682,7 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/example-types.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/user").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null);
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, false);
 
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
@@ -705,7 +705,7 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/write-only.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/user").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ, false);
 
         String output = Json.pretty(example);
         // Password shouldn't be included
@@ -720,7 +720,7 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oneOf-anyOf.yaml");
 
         ApiResponse response = openAPI.getPaths().get("/mixed-array").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ, false);
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "[ \"string\" ]");
 
@@ -731,7 +731,7 @@ public class ExampleBuilderTest {
 
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3.yaml");
         ApiResponse response = openAPI.getPaths().get("/mockResponses/additionalPropertiesTest").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ, false);
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"foo\" : 0,\n" +
@@ -747,7 +747,7 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3_array.yaml");
         ApiResponse response = openAPI.getPaths().get("/dictionaryOfArray").getGet().getResponses().get("200");
 
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas(), ExampleBuilder.RequestType.READ);
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), openAPI.getComponents().getSchemas(), ExampleBuilder.RequestType.READ, false);
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"additionalProp1\" : [ {\n" +
@@ -770,7 +770,7 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3_password.yaml");
         ApiResponse response = openAPI.getPaths().get("/dictionaryOfPassword").getGet().getResponses().get("200");
 
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ, false);
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"additionalProp1\" : \"string\",\n" +
@@ -784,7 +784,7 @@ public class ExampleBuilderTest {
 
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3.yaml");
         ApiResponse response = openAPI.getPaths().get("/mockResponses/primitiveMapResponse").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ, false);
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"additionalProp1\" : \"string\",\n" +
@@ -798,7 +798,7 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3.yaml");
         ApiResponse response = openAPI.getPaths().get("/mockResponses/booleanAdditionalProperties").getGet().getResponses().get("200");
 
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ, false);
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"firstProperty\" : \"string\"\n" +
@@ -810,7 +810,7 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3.yaml");
         ApiResponse response = openAPI.getPaths().get("/mockResponses/booleanAdditionalPropertiesTrue").getGet().getResponses().get("200");
 
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ, false);
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{ }");
     }
@@ -820,7 +820,7 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oas3.yaml");
         ApiResponse response = openAPI.getPaths().get("/mockResponses/booleanAdditionalPropertiesFalse").getGet().getResponses().get("200");
 
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ, false);
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{ }");
     }
@@ -835,7 +835,7 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oneOf-anyOf.yaml", auth, options);
 
         ApiResponse response = openAPI.getPaths().get("/oneOf").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ, false);
         String output = Json.pretty(example);
         assertEqualsIgnoreLineEnding(output, "{\n" +
                 "  \"title\" : \"The Hitchhiker's Guide to the Galaxy\",\n" +
@@ -844,7 +844,7 @@ public class ExampleBuilderTest {
                 "}");
 
         ApiResponse responseAnyOf = openAPI.getPaths().get("/anyOf").getGet().getResponses().get("200");
-        Example exampleAnyOf = ExampleBuilder.fromSchema(responseAnyOf.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
+        Example exampleAnyOf = ExampleBuilder.fromSchema(responseAnyOf.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ, false);
         String outputAnyOf = Json.pretty(exampleAnyOf);
         assertEqualsIgnoreLineEnding(outputAnyOf, "{\n" +
                 "  \"title\" : \"Blade Runner\",\n" +
@@ -865,7 +865,7 @@ public class ExampleBuilderTest {
 
 
         ApiResponse responseAdjacent = openAPI.getPaths().get("/adjacent").getGet().getResponses().get("200");
-        Example exampleAdjacent = ExampleBuilder.fromSchema(responseAdjacent.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
+        Example exampleAdjacent = ExampleBuilder.fromSchema(responseAdjacent.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ, false);
         String outputAdjacent = Json.pretty(exampleAdjacent);
         assertEqualsIgnoreLineEnding(outputAdjacent, "[ {\n" +
                 "  \"title\" : \"The Hitchhiker's Guide to the Galaxy\",\n" +
@@ -897,7 +897,7 @@ public class ExampleBuilderTest {
     public void testIssue300() throws Exception {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/issue-300.yaml");
         Schema schema = openAPI.getComponents().getSchemas().get("Pet");
-        Example example = ExampleBuilder.fromSchema(schema, openAPI.getComponents().getSchemas());
+        Example example = ExampleBuilder.fromSchema(schema, openAPI.getComponents().getSchemas(),false);
         String jsonExample = Json.pretty(example);
         assertEqualsIgnoreLineEnding(jsonExample, "{\n  \"name\" : \"doggie\",\n  \"shots\" : [ \"rabies\" ]\n}");
         
@@ -934,7 +934,7 @@ public class ExampleBuilderTest {
         // Create an Example object for the MyModel model
         Map<String, Schema> allSchemas = openapi.getComponents().getSchemas();
         Schema schema = allSchemas.get(schemaName);
-        Example example = ExampleBuilder.fromSchema(schema, allSchemas, ExampleBuilder.RequestType.READ);
+        Example example = ExampleBuilder.fromSchema(schema, allSchemas, ExampleBuilder.RequestType.READ, false);
 
         // Configure JSON example serializer
         SimpleModule simpleModule = new SimpleModule().addSerializer(new JsonNodeExampleSerializer());
@@ -956,12 +956,14 @@ public class ExampleBuilderTest {
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/null-examples-oas3.yaml", null, options);
 
         ApiResponse response = openAPI.getPaths().get("/object-with-null-example").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ, true);
         String output = Json.pretty(example);
-        assertNull(output);
+        assertEquals(output, "{\n" +
+                "  \"foo\" : null\n" +
+                "}");
 
         response = openAPI.getPaths().get("/object-with-null-in-schema-example").getGet().getResponses().get("200");
-        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ, true);
         output = Json.pretty(example);
         assertEquals(output, "{\n" +
                 "  \"a\" : 5,\n" +
@@ -971,7 +973,7 @@ public class ExampleBuilderTest {
                 "}");
 
         response = openAPI.getPaths().get("/object-with-null-property-example").getGet().getResponses().get("200");
-        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ, true);
         output = Json.pretty(example);
         assertEquals(output, "{\n" +
                 "  \"a\" : 5,\n" +
@@ -979,22 +981,22 @@ public class ExampleBuilderTest {
                 "}");
 
         response = openAPI.getPaths().get("/string-with-null-example").getGet().getResponses().get("200");
-        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ, true);
         output = Json.pretty(example);
         assertNull(output);
 
         response = openAPI.getPaths().get("/array-with-null-array-example").getGet().getResponses().get("200");
-        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ, true);
         output = Json.pretty(example);
         assertNull(output);
 
         response = openAPI.getPaths().get("/array-with-null-item-example").getGet().getResponses().get("200");
-        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ, true);
         output = Json.pretty(example);
         assertEquals(output, "[" + null + "]");
 
         response = openAPI.getPaths().get("/array-with-null-in-array-example").getGet().getResponses().get("200");
-        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ, true);
         output = Json.pretty(example);
         assertEquals(output, "[\"foo\", " + null + "]");
     }
