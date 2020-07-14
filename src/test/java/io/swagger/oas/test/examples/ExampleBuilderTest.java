@@ -955,7 +955,7 @@ public class ExampleBuilderTest {
 
         OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/null-examples-oas3.yaml", null, options);
 
-        /*ApiResponse response = openAPI.getPaths().get("/object-with-null-example").getGet().getResponses().get("200");
+        ApiResponse response = openAPI.getPaths().get("/object-with-null-example").getGet().getResponses().get("200");
         Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ, true);
         String output = Json.pretty(example);
         assertEquals(output, "{\n" +
@@ -979,10 +979,10 @@ public class ExampleBuilderTest {
                 "  \"a\" : 5,\n" +
                 "  \"b\" : " + null + "\n" +
                 "}");
-*/
-        ApiResponse response = openAPI.getPaths().get("/string-with-null-example").getGet().getResponses().get("200");
-        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ, true);
-        String output = Json.pretty(example);
+
+        response = openAPI.getPaths().get("/string-with-null-example").getGet().getResponses().get("200");
+        example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ, true);
+        output = Json.pretty(example);
         Yaml.prettyPrint(output);
         assertNull(output);
 
