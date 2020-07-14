@@ -4,28 +4,6 @@ info:
   version: 1.0.0
 paths:
 
-  /object-with-null-example:
-    get:
-      description: Response should be `null`
-      responses:
-        '200':
-          description: Should be `null`
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectWithNullExample'
-
-  /object-with-null-in-schema-example:
-    get:
-      description: 'Response should be `{..., "d": null}`'
-      responses:
-        '200':
-          description: 'Should be `{..., "d": null}`'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectWithNullInSchemaExample'
-
   /object-with-null-property-example:
     get:
       description: 'Response should be `{"a": 5, "b": null}`'

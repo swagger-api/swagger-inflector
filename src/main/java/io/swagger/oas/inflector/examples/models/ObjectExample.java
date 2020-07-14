@@ -28,6 +28,7 @@ import java.util.Set;
 public class ObjectExample extends AbstractExample {
     private Map<String, Example> values;
 
+
     public ObjectExample() {
         super.setTypeName("object");
     }
@@ -73,4 +74,5 @@ public class ObjectExample extends AbstractExample {
     public void setValues(Map<String, Example> values) {
         this.values = values;
     }
+
 }

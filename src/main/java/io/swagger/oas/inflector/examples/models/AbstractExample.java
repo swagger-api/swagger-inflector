@@ -24,6 +24,7 @@ public abstract class AbstractExample implements Example {
     private Boolean wrapped = false;
     private String wrappedName = null;
     private String typeName;
+    private boolean allowNullValues = false;
     
     public String getTypeName() {
       return typeName;
@@ -78,5 +79,15 @@ public abstract class AbstractExample implements Example {
 
     public void setWrappedName(String wrappedName) {
         this.wrappedName = wrappedName;
+    }
+
+    @Override
+    public Boolean isAllowNullValues() {
+        return allowNullValues;
+    }
+
+    @Override
+    public void setAllowNullValues(boolean allowNullValues) {
+        this.allowNullValues = allowNullValues;
     }
 }

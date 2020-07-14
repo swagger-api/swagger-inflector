@@ -190,7 +190,10 @@ public class ExampleBuilder {
                 if (!allowNullExamples) {
                     output = new StringExample(defaultValue == null ? SAMPLE_STRING_PROPERTY_VALUE : defaultValue);
                 }else{
-                    output = new StringExample(defaultValue == null ? SAMPLE_STRING_PROPERTY_NULL_VALUE : defaultValue);
+                    StringExample stringOutput = new StringExample();
+                    stringOutput.setAllowNullValues(true);
+                    stringOutput.setValue(defaultValue == null ? SAMPLE_STRING_PROPERTY_NULL_VALUE : defaultValue);
+                    output = stringOutput;
                 }
             }
         } else if (property instanceof PasswordSchema) {
@@ -322,8 +325,7 @@ public class ExampleBuilder {
         } else if (property instanceof ObjectSchema) {
             if (example != null) {
                 try {
-                    String stringExample = example.toString();
-                    output = Json.mapper().readValue(stringExample, ObjectExample.class);
+                    output = Json.mapper().readValue(example.toString(), ObjectExample.class);
                 } catch (IOException e) {
                     LOGGER.error("unable to convert `" + example + "` to JsonNode");
                     output = new ObjectExample();
@@ -343,6 +345,27 @@ public class ExampleBuilder {
                 }
 
             }
+            if (allowNullExamples){
+                ObjectExample outputExample = (ObjectExample) output;
+                outputExample.setAllowNullValues(true);
+                if (outputExample.getValues() != null){
+                    for(String key : outputExample.getValues().keySet()){
+
+                        if (outputExample.getValues().get(key) instanceof StringExample){
+                            StringExample stringExample = (StringExample) outputExample.getValues().get(key);
+                            if (stringExample.getValue() != null) {
+                                if (stringExample.getValue().equals("null")) {
+                                    outputExample.put(key, null);
+
+                                }
+                            }else{
+                                outputExample.put(key, null);
+                            }
+                        }
+                    }
+                }
+                output = outputExample;
+            }
         } else if (property instanceof ArraySchema) {
             if (example != null) {
                 try {
@@ -360,6 +383,7 @@ public class ExampleBuilder {
                     if (innerExample != null) {
                         if (innerExample instanceof Example) {
                             ArrayExample an = new ArrayExample();
+                            an.setAllowNullValues(allowNullExamples);
                             an.add((Example) innerExample);
                             an.setName(property.getName());
                             output = an;

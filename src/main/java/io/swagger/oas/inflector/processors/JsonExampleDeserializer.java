@@ -65,15 +65,13 @@ public class JsonExampleDeserializer extends JsonDeserializer<Example> {
                 String key = i.getKey();
                 JsonNode value = i.getValue();
                 obj.put(key,createExample(value));
-                /*if (value.asText() != "null") {
-                    obj.put(key,createExample(value));
-                }else{
-                    obj.put(key,null);
-                }*/
             }
             return obj;
         } else if (node instanceof ArrayNode) {
             ArrayExample arr = new ArrayExample();
+            if (arr.isAllowNullValues()){
+
+            }
             ArrayNode an = (ArrayNode) node;
             for (JsonNode childNode : an) {
                 arr.add(createExample(childNode));

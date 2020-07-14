@@ -41,4 +41,7 @@ public interface Example {
 
     String asString();
     String getTypeName();
+
+    Boolean isAllowNullValues();
+    void setAllowNullValues(boolean allowNullValues);
 }

@@ -32,6 +32,7 @@ public class BooleanExample extends AbstractExample {
         return getValue().toString();
     }
 
+
     public Boolean getValue() {
         return value != null ? value : false;
     }
@@ -39,4 +40,5 @@ public class BooleanExample extends AbstractExample {
     public void setValue(Boolean value) {
         this.value = value;
     }
+
 }

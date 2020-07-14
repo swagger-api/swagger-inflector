@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.examples.models.ArrayExample;
 import io.swagger.oas.inflector.examples.models.BigIntegerExample;
 import io.swagger.oas.inflector.examples.models.BooleanExample;
@@ -37,14 +38,15 @@ import java.util.List;
 
 public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
 
+
     @Override
     public void serialize(Example value, JsonGenerator jgen,
                           SerializerProvider provider) throws IOException, JsonProcessingException {
-
+        boolean allowNullValues = value.isAllowNullValues();
         if (value instanceof ObjectExample) {
             ObjectExample obj = (ObjectExample) value;
             jgen.writeStartObject();
-            writeTo(jgen, obj);
+            writeTo(jgen, obj, allowNullValues);
             jgen.writeEndObject();
         } else if (value instanceof ArrayExample) {
             ArrayExample obj = (ArrayExample) value;
@@ -53,23 +55,23 @@ public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
                 if(item instanceof ObjectExample) {
                     jgen.writeStartObject();
                 }
-                writeTo(jgen, item);
-                if(item instanceof ObjectExample) {
+                writeTo(jgen, item, allowNullValues);
+                if (item instanceof ObjectExample) {
                     jgen.writeEndObject();
                 }
             }
             jgen.writeEndArray();
         } else {
-            writeTo(jgen, value);
+            writeTo(jgen, value, allowNullValues);
         }
     }
 
-    public void writeTo(JsonGenerator jgen, Example o) throws IOException {
+    public void writeTo(JsonGenerator jgen, Example o, boolean allowNullExamples) throws IOException {
         if (o instanceof ObjectExample) {
             ObjectExample obj = (ObjectExample) o;
             for (String key : obj.keySet()) {
                 Example value = (Example) obj.get(key);
-                writeValue(jgen, key, value);
+                writeValue(jgen, key, value, allowNullExamples);
             }
         } else if (o instanceof ArrayExample) {
             jgen.writeStartArray();
@@ -79,21 +81,32 @@ public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
             }
             jgen.writeEndArray();
         } else {
-            writeValue(jgen, null, o);
+            writeValue(jgen, null, o, allowNullExamples);
         }
     }
 
-    public void writeValue(JsonGenerator jgen, String field, Example o) throws IOException {
-        if (o instanceof ArrayExample) {
+    public void writeValue(JsonGenerator jgen, String field, Example o, boolean allowNullExamples) throws IOException {
+        if (o instanceof StringExample) {
+            StringExample obj = (StringExample) o;
+            if (field != null) {
+                jgen.writeStringField(field, obj.getValue());
+            } else {
+                if (obj.isAllowNullValues()) {
+                    jgen.writeNull();
+                }else {
+                    jgen.writeString(obj.getValue());
+                }
+            }
+        }else if (o instanceof ArrayExample) {
             ArrayExample obj = (ArrayExample) o;
             jgen.writeArrayFieldStart(field);
             for (Example item : obj.getItems()) {
                 if (item instanceof ObjectExample) {    
                     jgen.writeStartObject();
-                    writeTo(jgen, item);
+                    writeTo(jgen, item, allowNullExamples);
                     jgen.writeEndObject();
                 } else {
-                    writeTo(jgen, item);
+                    writeTo(jgen, item, allowNullExamples);
                 }
             }
             jgen.writeEndArray();
@@ -152,14 +165,7 @@ public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
             if (field != null) {
                 jgen.writeObjectField(field, obj);
             }
-        } else if (o instanceof StringExample) {
-            StringExample obj = (StringExample) o;
-                if (field != null) {
-                    jgen.writeStringField(field, obj.getValue());
-                } else {
-                    jgen.writeString(obj.getValue());
-                }
-        } else if (o == null ) {
+        } else if (o == null && allowNullExamples) {
             StringExample obj = (StringExample) o;
             if (field != null) {
                 if (obj != null) {
@@ -171,6 +177,7 @@ public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
                 jgen.writeString(obj.getValue());
             }
         }
+
     }
 
     @Override
