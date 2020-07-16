@@ -149,14 +149,15 @@ public class ExampleBuilder {
 
         Object example = property.getExample();
 
-        if (example == null) {
+        if (example == null && property.get$ref() == null) {
             if (nullExample) {
                 return new NullExample();
-            }
-            if (processNullExampleExtension) {
+            } else if (processNullExampleExtension) {
                 if (property.getExtensions() != null && property.getExtensions().get(Constants.X_INFLECTOR_NULL_EXAMPLE) != null) {
                     return new NullExample();
                 }
+            } else if (property.getExampleSetFlag()) {
+                return new NullExample();
             }
         }
 
