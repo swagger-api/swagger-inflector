@@ -91,6 +91,7 @@ components:
           type: string
       nullable: true
       example: null
+      x-inflector-null-example: true
 
     ObjectWithNullInSchemaExample:
       type: object
@@ -110,11 +111,13 @@ components:
           type: string
           nullable: true
           example: null
+          x-inflector-null-example: true
 
     StringWithNullExample:
       type: string
       nullable: true
       example: null
+      x-inflector-null-example: true
 
     ArrayWithNullArrayExample:
       type: array
@@ -122,6 +125,7 @@ components:
         type: string
       nullable: true
       example: null
+      x-inflector-null-example: true
 
     ArrayWithNullItemExample:
       type: array
@@ -129,6 +133,7 @@ components:
         type: string
         nullable: true
         example: null
+        x-inflector-null-example: true
 
     ArrayWithNullInArrayExample:
       type: array

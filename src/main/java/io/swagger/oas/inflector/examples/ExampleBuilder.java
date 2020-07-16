@@ -16,6 +16,7 @@
 
 package io.swagger.oas.inflector.examples;
 
+import io.swagger.oas.inflector.Constants;
 import io.swagger.oas.inflector.examples.models.ArrayExample;
 import io.swagger.oas.inflector.examples.models.BooleanExample;
 import io.swagger.oas.inflector.examples.models.DecimalExample;
@@ -24,6 +25,7 @@ import io.swagger.oas.inflector.examples.models.Example;
 import io.swagger.oas.inflector.examples.models.FloatExample;
 import io.swagger.oas.inflector.examples.models.IntegerExample;
 import io.swagger.oas.inflector.examples.models.LongExample;
+import io.swagger.oas.inflector.examples.models.NullExample;
 import io.swagger.oas.inflector.examples.models.ObjectExample;
 import io.swagger.oas.inflector.examples.models.StringExample;
 
@@ -84,9 +86,18 @@ public class ExampleBuilder {
         return fromProperty(null, property, definitions, new HashMap<>(), null);
     }
 
+    public static Example fromSchema(Schema property, Map<String, Schema> definitions, boolean nullExample, boolean processNullExampleExtension) {
+        return fromProperty(null, property, definitions, new HashMap<>(), null, nullExample, processNullExampleExtension);
+    }
+
     public static Example fromSchema(Schema property, Map<String, Schema> definitions, RequestType requestType) {
         return fromProperty(null,property, definitions, new HashMap<>(), requestType);
     }
+
+    public static Example fromSchema(Schema property, Map<String, Schema> definitions, RequestType requestType, boolean nullExample, boolean processNullExampleExtension) {
+        return fromProperty(null,property, definitions, new HashMap<>(), requestType, nullExample, processNullExampleExtension);
+    }
+
 
     public static Example fromProperty(String name, Schema property, Map<String, Schema> definitions, Set<String> processedModels, RequestType requestType) {
         Map<String, Example> map = new HashMap<>();
@@ -97,6 +108,18 @@ public class ExampleBuilder {
     }
 
     public static Example fromProperty(String name, Schema property, Map<String, Schema> definitions, Map<String, Example> processedModels, RequestType requestType) {
+        return fromProperty(name, property, definitions, processedModels, requestType, false, false);
+    }
+
+    public static Example fromProperty(
+            String name,
+            Schema property,
+            Map<String, Schema> definitions,
+            Map<String, Example> processedModels,
+            RequestType requestType,
+            boolean nullExample,
+            boolean processNullExampleExtension) {
+
         if (property == null) {
             return null;
         }
@@ -126,6 +149,17 @@ public class ExampleBuilder {
 
         Object example = property.getExample();
 
+        if (example == null) {
+            if (nullExample) {
+                return new NullExample();
+            }
+            if (processNullExampleExtension) {
+                if (property.getExtensions() != null && property.getExtensions().get(Constants.X_INFLECTOR_NULL_EXAMPLE) != null) {
+                    return new NullExample();
+                }
+            }
+        }
+
         if (property.get$ref() != null) {
             String ref = property.get$ref();
             ref = ref.substring(ref.lastIndexOf("/") + 1);
@@ -137,7 +171,7 @@ public class ExampleBuilder {
             if( definitions != null ) {
                 Schema model = definitions.get(ref);
                 if (model != null) {
-                    output = fromProperty(ref, model, definitions, processedModels, requestType);
+                    output = fromProperty(ref, model, definitions, processedModels, requestType, nullExample, processNullExampleExtension);
                     processedModels.put(ref, output);
                     return output;
                 }
@@ -331,7 +365,7 @@ public class ExampleBuilder {
                 if(op.getProperties() != null) {
                     for(String propertyname : op.getProperties().keySet()) {
                         Schema inner = op.getProperties().get(propertyname);
-                        Example innerExample = fromProperty(null, inner, definitions,processedModels, requestType);
+                        Example innerExample = fromProperty(null, inner, definitions,processedModels, requestType, nullExample, processNullExampleExtension);
                         outputExample.put(propertyname, innerExample);
                     }
                     output = outputExample;
@@ -351,7 +385,7 @@ public class ExampleBuilder {
                 ArraySchema ap = (ArraySchema) property;
                 Schema inner = ap.getItems();
                 if (inner != null) {
-                    Object innerExample = fromProperty(null,inner, definitions, processedModels,requestType);
+                    Object innerExample = fromProperty(null,inner, definitions, processedModels,requestType, nullExample, processNullExampleExtension);
                     if (innerExample != null) {
                         if (innerExample instanceof Example) {
                             ArrayExample an = new ArrayExample();
@@ -373,7 +407,7 @@ public class ExampleBuilder {
                 List<Example> innerExamples = new ArrayList<>();
                 if (models != null) {
                     for (Schema im : models) {
-                        Example innerExample = fromProperty(null, im, definitions, processedModels, requestType);
+                        Example innerExample = fromProperty(null, im, definitions, processedModels, requestType, nullExample, processNullExampleExtension);
                         if (innerExample != null) {
                             innerExamples.add(innerExample);
                         }
@@ -386,7 +420,7 @@ public class ExampleBuilder {
                 List<Schema> models = composedSchema.getAnyOf();
                 if (models != null) {
                     for (Schema im : models) {
-                        Example innerExample = fromProperty(null, im, definitions, processedModels, requestType);
+                        Example innerExample = fromProperty(null, im, definitions, processedModels, requestType, nullExample, processNullExampleExtension);
                         if (innerExample != null) {
                             output = innerExample;
                             break;
@@ -399,7 +433,7 @@ public class ExampleBuilder {
 
                 if (models != null) {
                     for (Schema im : models) {
-                        Example innerExample = fromProperty(null, im, definitions, processedModels, requestType);
+                        Example innerExample = fromProperty(null, im, definitions, processedModels, requestType, nullExample, processNullExampleExtension);
                         if (innerExample != null) {
                             output = innerExample;
                             break;
@@ -423,7 +457,7 @@ public class ExampleBuilder {
                     Map<String,Schema> properties = property.getProperties();
                     for(String propertyKey : properties.keySet()) {
                         Schema inner = properties.get(propertyKey);
-                        Example propExample = fromProperty(null, inner, definitions, processedModels,requestType);
+                        Example propExample = fromProperty(null, inner, definitions, processedModels,requestType, nullExample, processNullExampleExtension);
                         ex.put(propertyKey, propExample);
                     }
                 }
@@ -436,7 +470,7 @@ public class ExampleBuilder {
             Schema inner = (Schema) property.getAdditionalProperties();
             if (inner != null) {
                 for (int i = 1; i <= 3; i++) {
-                    Example innerExample = fromProperty(null, inner, definitions, processedModels, requestType);
+                    Example innerExample = fromProperty(null, inner, definitions, processedModels, requestType, nullExample, processNullExampleExtension);
                     if (innerExample != null) {
                         if (output == null) {
                             output = new ObjectExample();

@@ -29,6 +29,7 @@ import io.swagger.oas.inflector.examples.models.Example;
 import io.swagger.oas.inflector.examples.models.FloatExample;
 import io.swagger.oas.inflector.examples.models.IntegerExample;
 import io.swagger.oas.inflector.examples.models.LongExample;
+import io.swagger.oas.inflector.examples.models.NullExample;
 import io.swagger.oas.inflector.examples.models.ObjectExample;
 import io.swagger.oas.inflector.examples.models.StringExample;
 
@@ -88,7 +89,7 @@ public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
             ArrayExample obj = (ArrayExample) o;
             jgen.writeArrayFieldStart(field);
             for (Example item : obj.getItems()) {
-                if (item instanceof ObjectExample) {    
+                if (item instanceof ObjectExample) {
                     jgen.writeStartObject();
                     writeTo(jgen, item);
                     jgen.writeEndObject();
@@ -158,6 +159,12 @@ public class JsonNodeExampleSerializer extends JsonSerializer<Example> {
                 jgen.writeStringField(field, obj.getValue());
             } else {
                 jgen.writeString(obj.getValue());
+            }
+        } else if (o instanceof NullExample) {
+            if (field != null) {
+                jgen.writeNullField(field);
+            } else {
+                jgen.writeNull();
             }
         }
     }
