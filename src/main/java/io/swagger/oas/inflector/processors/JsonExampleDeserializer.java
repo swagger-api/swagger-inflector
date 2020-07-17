@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.fasterxml.jackson.databind.node.FloatNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.LongNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ShortNode;
 import io.swagger.oas.inflector.examples.models.ArrayExample;
@@ -40,6 +41,7 @@ import io.swagger.oas.inflector.examples.models.Example;
 import io.swagger.oas.inflector.examples.models.FloatExample;
 import io.swagger.oas.inflector.examples.models.IntegerExample;
 import io.swagger.oas.inflector.examples.models.LongExample;
+import io.swagger.oas.inflector.examples.models.NullExample;
 import io.swagger.oas.inflector.examples.models.ObjectExample;
 import io.swagger.oas.inflector.examples.models.StringExample;
 
@@ -88,6 +90,8 @@ public class JsonExampleDeserializer extends JsonDeserializer<Example> {
             return new LongExample(node.longValue());
         } else if (node instanceof BooleanNode) {
             return new BooleanExample(node.booleanValue());
+        } else if (node instanceof NullNode) {
+            return new NullExample();
         } else {
             return new StringExample(node.asText());
         }
