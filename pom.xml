@@ -461,7 +461,7 @@
         <json-schema-validator-version>2.2.8</json-schema-validator-version>
 
         <logback-version>1.0.1</logback-version>
-        <junit-version>4.8.2</junit-version>
+        <junit-version>4.13.1</junit-version>
         <slf4j-version>1.7.22</slf4j-version>
     </properties>
 </project>
