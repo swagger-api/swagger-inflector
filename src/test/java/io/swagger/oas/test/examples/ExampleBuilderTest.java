@@ -1065,24 +1065,26 @@ public class ExampleBuilderTest {
     @Test
     public void testAllOfMergeSchemas() throws Exception {
         String expected = "{\n" +
-                "  \"data\" : [ {\n" +
-                "    \"topApiId\" : \"8ab9b11d-bf43-469e-a276-f601801d043c\",\n" +
-                "    \"name\" : \"docman\",\n" +
-                "    \"pathwaysVersion\" : \"0.1\",\n" +
-                "    \"active\" : false,\n" +
-                "    \"created\" : \"2018-07-21T17:32:28Z\"\n" +
-                "  }, {\n" +
-                "    \"topApiId\" : \"baa0dc91-9711-4b61-9c90-ce8ac0b109a9\",\n" +
-                "    \"name\" : \"careweb\",\n" +
-                "    \"pathwaysVersion\" : \"0.1\",\n" +
-                "    \"active\" : true,\n" +
-                "    \"created\" : \"2019-07-21T17:32:28Z\"\n" +
-                "  } ]\n" +
-                "}, {\n" +
-                "  \"pagination\" : {\n" +
-                "    \"offset\" : 0,\n" +
-                "    \"limit\" : 10,\n" +
-                "    \"totalResultCount\" : 100\n" +
+                "  \"data\": [\n" +
+                "    {\n" +
+                "      \"topApiId\": \"8ab9b11d-bf43-469e-a276-f601801d043c\",\n" +
+                "      \"name\": \"docman\",\n" +
+                "      \"pathwaysVersion\": \"0.1\",\n" +
+                "      \"active\": false,\n" +
+                "      \"created\": \"2018-07-21T17:32:28Z\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"topApiId\": \"baa0dc91-9711-4b61-9c90-ce8ac0b109a9\",\n" +
+                "      \"name\": \"careweb\",\n" +
+                "      \"pathwaysVersion\": \"0.1\",\n" +
+                "      \"active\": true,\n" +
+                "      \"created\": \"2019-07-21T17:32:28Z\"\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"pagination\": {\n" +
+                "    \"offset\": 0,\n" +
+                "    \"limit\": 10,\n" +
+                "    \"totalResultCount\": 100\n" +
                 "  }\n" +
                 "}";
         ParseOptions options = new ParseOptions();
