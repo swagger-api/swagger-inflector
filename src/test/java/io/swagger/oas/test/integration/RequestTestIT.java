@@ -51,7 +51,7 @@ public class RequestTestIT {
     public void verifyUpdatePet() throws Exception {
         String path = "/pets";
         String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
-        assertEquals(str, "{\"street\":\"3 street\"}");
+        assertEquals(str, "OK!");
     }
 
     @Test
