@@ -56,6 +56,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -438,6 +439,10 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                             } else {
                                 builder.header(key, v);
                             }
+                        }
+
+                        for (NewCookie cookie : wrapper.getCookies()) {
+                            builder.cookie(cookie);
                         }
 
                         // entity
