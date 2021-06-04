@@ -29,6 +29,7 @@ import io.swagger.oas.test.models.ExtendedAddress;
 import io.swagger.oas.test.models.User;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.io.File;
@@ -73,7 +74,9 @@ public class TestController {
     }
 
     public ResponseContext updatePet(RequestContext request, com.fasterxml.jackson.databind.JsonNode petType) {
+        NewCookie cookie = new NewCookie("type", "chocolate");
         return new ResponseContext()
+                .cookie(cookie)
                 .status(200)
                 .entity("OK!");
     }
