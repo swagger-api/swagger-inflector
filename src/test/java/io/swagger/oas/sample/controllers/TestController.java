@@ -73,6 +73,12 @@ public class TestController {
     }
 
     public ResponseContext updatePet(RequestContext request, com.fasterxml.jackson.databind.JsonNode petType) {
+        if(request.getOperation() != null && request.getExtensions().containsKey("x-sample-extension")) {
+            String message = request.getExtensions().get("x-sample-extension").toString();
+            return new ResponseContext()
+                    .status(200)
+                    .entity(message);
+        }
         return new ResponseContext()
                 .status(200)
                 .entity("OK!");
