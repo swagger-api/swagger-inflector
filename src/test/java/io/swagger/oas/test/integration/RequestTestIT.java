@@ -27,9 +27,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.*;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -46,6 +44,19 @@ import static org.testng.AssertJUnit.assertTrue;
 
 public class RequestTestIT {
     ApiClient client = new ApiClient();
+    
+    @Test
+    public void verifyUpdatePet() throws Exception {
+        String path = "/pets";
+        Map<String,String> body = new HashMap<>();
+        body.put("pet_type","Cat");
+        Response response = client.getResponse(path, "POST", new HashMap<String, String>(), body, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertNotNull(response.getCookies());
+        assertEquals(1, response.getCookies().size());
+        NewCookie cookie = response.getCookies().get("type");
+        assertEquals("type", cookie.getName());
+        assertEquals("chocolate", cookie.getValue());
+    }
 
     @Test
     public void verifyValidDateTimeInput() throws Exception {
