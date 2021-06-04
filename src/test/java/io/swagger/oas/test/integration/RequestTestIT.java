@@ -44,9 +44,28 @@ import static org.testng.AssertJUnit.assertTrue;
 
 public class RequestTestIT {
     ApiClient client = new ApiClient();
-    
+
     @Test
-    public void verifyUpdatePet() throws Exception {
+    public void verifyOperationWithDisabledInputValidation() throws Exception {
+        String path = "/operationWithDisabledValidation";
+
+        Map<String,String> body = new HashMap<>();
+        body.put("username","Bob");
+        // missing the required `id` property
+        Response response = client.getResponse(path, "POST", new HashMap<String, String>(), body, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertEquals(response.getStatus(), 200);
+    }
+
+
+    @Test
+    public void verifyOperationWithDisabledOutputValidation() throws Exception {
+        String path = "/operationWithDisabledValidation";
+        Response response = client.getResponse(path, "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertEquals(response.getStatus(), 200);
+    }
+
+    @Test
+    public void verifyUpdatePetWithCookies() throws Exception {
         String path = "/pets";
         Map<String,String> body = new HashMap<>();
         body.put("pet_type","Cat");
