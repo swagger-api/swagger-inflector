@@ -19,16 +19,25 @@ package io.swagger.oas.inflector.models;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response.Status;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ResponseContext {
     private MultivaluedMap<String, String> headers = new MultivaluedHashMap<String, String>();
+    private List<NewCookie> cookies = new ArrayList<>();
     private MediaType contentType;
     private int status = Status.OK.getStatusCode();
     private Object entity;
 
     public ResponseContext header(String key, String value) {
         this.headers.add(key, value);
+        return this;
+    }
+
+    public ResponseContext cookie(NewCookie cookie) {
+        this.cookies.add(cookie);
         return this;
     }
 
@@ -63,6 +72,14 @@ public class ResponseContext {
 
     public void setHeaders(MultivaluedMap<String, String> headers) {
         this.headers = headers;
+    }
+
+    public List<NewCookie> getCookies() {
+        return cookies;
+    }
+
+    public void setCookies(List<NewCookie> cookies) {
+        this.cookies = cookies;
     }
 
     public MediaType getContentType() {

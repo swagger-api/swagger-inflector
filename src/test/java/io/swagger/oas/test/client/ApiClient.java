@@ -458,6 +458,73 @@ public class ApiClient {
         }
     }
 
+    public Response getResponse(String path, String method, Map<String, String> queryParams, Object body, Map<String, String> headerParams, Entity<?> formParams, String accept, String contentType, String[] authNames) throws ApiException {
+        updateParamsForAuth(authNames, queryParams, headerParams);
+
+        final ClientConfig clientConfig = new ClientConfig();
+        clientConfig.register(MultiPartFeature.class);
+        if (debugging) {
+            clientConfig.register(LoggingFeature.class);
+        }
+        Client client = ClientBuilder.newClient(clientConfig);
+
+        WebTarget target = client.target(this.basePath).path(path);
+
+        for (String key : queryParams.keySet()) {
+            String value = queryParams.get(key);
+            if (value != null) {
+                target = target.queryParam(key, value);
+            }
+        }
+
+        Invocation.Builder invocationBuilder = target.request(contentType);
+
+        for (String key : headerParams.keySet()) {
+            String value = headerParams.get(key);
+            if (value != null) {
+                invocationBuilder = invocationBuilder.header(key, value);
+            }
+        }
+
+        for (String key : defaultHeaderMap.keySet()) {
+            if (!headerParams.containsKey(key)) {
+                String value = defaultHeaderMap.get(key);
+                if (value != null) {
+                    invocationBuilder = invocationBuilder.header(key, value);
+                }
+            }
+        }
+        Response response = null;
+
+        invocationBuilder = invocationBuilder.accept(accept);
+
+        if ("GET".equals(method)) {
+            response = invocationBuilder.get();
+        } else if ("POST".equals(method)) {
+            if (formParams != null) {
+                response = invocationBuilder.post(formParams);
+            } else if (body == null) {
+                response = invocationBuilder.post(null);
+            } else {
+                response = invocationBuilder.post(serialize(body, contentType));
+            }
+        } else if ("PUT".equals(method)) {
+            if (formParams != null) {
+                response = invocationBuilder.put(formParams);
+            } else if (body == null) {
+                response = invocationBuilder.put(null);
+            } else {
+                response = invocationBuilder.put(serialize(body, contentType));
+            }
+        } else if ("DELETE".equals(method)) {
+            response = invocationBuilder.delete();
+        } else {
+            throw new ApiException(500, "unknown method type " + method);
+        }
+
+        return response;
+    }
+
     /**
      * Update query and header parameters based on authentication settings.
      *
