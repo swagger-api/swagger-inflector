@@ -427,6 +427,7 @@ paths:
     put:
       tags:
       - pet
+      x-sample-extension: "it works!"
       summary: Update an existing pet
       description: ''
       operationId: updatePet
