@@ -59,6 +59,13 @@ public class RequestTestIT {
     }
 
     @Test
+    public void verifyUpdatePet() throws Exception {
+        String path = "/pets";
+        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertEquals(str, "OK!");
+    }
+
+    @Test
     public void verifyValidDateTimeInput() throws Exception {
         String path = "/withDate/" + new DateTime().toString();
         String str = client.invokeAPI(path, "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);

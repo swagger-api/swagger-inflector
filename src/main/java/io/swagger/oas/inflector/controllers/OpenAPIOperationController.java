@@ -380,7 +380,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     missingParams.add(e.getError());
                 }
 
-            } else if (operation.getRequestBody().getRequired()) {
+            } else if (Boolean.TRUE.equals(operation.getRequestBody().getRequired())) {
                 ValidationException e = new ValidationException();
                 e.message(new ValidationMessage()
                         .message("The input body `" + operation.getRequestBody() + "` is required"));
