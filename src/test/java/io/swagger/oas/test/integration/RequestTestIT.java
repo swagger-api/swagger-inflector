@@ -66,19 +66,21 @@ public class RequestTestIT {
 
     @Test
     public void verifyUpdatePetWithCookies() throws Exception {
-        String path = "/pets";
+        String path = "/pet";
+
         Map<String,String> body = new HashMap<>();
-        body.put("pet_type","Cat");
-        Response response = client.getResponse(path, "POST", new HashMap<String, String>(), body, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        body.put("id", "10");
+        body.put("name","Cat");
+        Response response = client.getResponse(path, "PUT", new HashMap<String, String>(), body, new HashMap<String, String>(), null, "application/json", null, new String[0]);
         assertNotNull(response.getCookies());
-        assertEquals(1, response.getCookies().size());
+        assertEquals(response.getCookies().size(), 1);
         NewCookie cookie = response.getCookies().get("type");
-        assertEquals("type", cookie.getName());
-        assertEquals("chocolate", cookie.getValue());
+        assertEquals(cookie.getName(), "type");
+        assertEquals(cookie.getValue(), "chocolate");
     }
 
     @Test
-    public void verifyUpdatePet() throws Exception {
+    public void verifyUpdatePetWithNullBody() throws Exception {
         String path = "/pets";
         String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
         assertEquals(str, "OK!");

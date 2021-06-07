@@ -307,7 +307,7 @@ paths:
   /pets:
     post:
       x-swagger-router-controller: TestController
-      operationId: updatePet
+      operationId: updatePetByType
       requestBody:
         content:
           application/json:
@@ -447,6 +447,8 @@ paths:
     put:
       tags:
       - pet
+      x-sample-extension: "it works!"
+      x-swagger-router-controller: TestController
       summary: Update an existing pet
       description: ''
       operationId: updatePet

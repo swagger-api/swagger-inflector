@@ -16,18 +16,23 @@
 
 package io.swagger.oas.inflector.models;
 
+import io.swagger.v3.oas.models.Operation;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RequestContext {
     ContainerRequestContext context;
     MultivaluedMap<String, String> headers;
     MediaType mediaType;
     List<MediaType> acceptableMediaTypes;
+    private Operation operation;
     private String remoteAddr;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
@@ -52,6 +57,26 @@ public class RequestContext {
             this.remoteAddr = request.getRemoteAddr();
         }
         this.response = response;
+    }
+
+    public RequestContext operation(Operation operation) {
+        this.operation = operation;
+        return this;
+    }
+
+    public Operation getOperation() {
+        return this.operation;
+    }
+
+    public void setOperation(Operation operation) {
+        this.operation = operation;
+    }
+
+    public Map<String, Object> getExtensions() {
+        if(operation != null && operation.getExtensions() != null) {
+            return operation.getExtensions();
+        }
+        return new HashMap<>();
     }
 
     public RequestContext headers(MultivaluedMap<String, String> headers) {
