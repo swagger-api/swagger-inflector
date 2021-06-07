@@ -256,6 +256,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         List<Parameter> parameters = operation.getParameters();
 
         final RequestContext requestContext = createContext(ctx);
+        requestContext.setOperation(operation);
         Map<String, File> inputStreams = new HashMap<>();
 
         Object[] args = new Object[parameterClasses.length];
