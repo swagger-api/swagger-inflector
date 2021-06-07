@@ -93,6 +93,12 @@ public class TestController {
                 .entity("OK!");
     }
 
+    public ResponseContext disabledOuputValidation(RequestContext ctx) {
+        return new ResponseContext()
+                .status(200)
+                .entity(new Dog());
+    }
+
     public ResponseContext formDataTest(RequestContext request, String name, String phone, String mail, String size ,List<String>  topping, String delivery, String comments) {
         return new ResponseContext()
             .status(Status.OK)

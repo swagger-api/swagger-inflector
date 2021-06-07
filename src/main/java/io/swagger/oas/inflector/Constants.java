@@ -21,6 +21,8 @@ public class Constants {
     public static final String X_SWAGGER_ROUTER_MODEL = VendorExtension.X_SWAGGER_ROUTER_MODEL.getValue();
     public static final String X_INFLECTOR_HIDDEN = "x-inflector-hidden";
     public static final String X_INFLECTOR_NULL_EXAMPLE = "x-inflector-null-example";
+    public static final String X_INFLECTOR_SKIP_INPUT_VALIDATION = "x-skip-input-validation";
+    public static final String X_INFLECTOR_SKIP_OUPUT_VALIDATION = "x-skip-output-validation";
 
     public enum VendorExtension {
         X_SWAGGER_ROUTER_CONTROLLER("x-swagger-router-controller"),

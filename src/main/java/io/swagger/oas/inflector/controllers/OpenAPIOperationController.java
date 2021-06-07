@@ -17,6 +17,7 @@
 package io.swagger.oas.inflector.controllers;
 
 import com.fasterxml.jackson.databind.JavaType;
+import io.swagger.oas.inflector.Constants;
 import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.config.ControllerFactory;
 import io.swagger.oas.inflector.converters.ConversionException;
@@ -357,7 +358,13 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
                                 if (media != null) {
                                     if (media.getSchema() != null) {
-                                        validate(argument, media.getSchema(), SchemaValidator.Direction.INPUT);
+                                        boolean processValidation = true;
+                                        if(media.getSchema().getExtensions() != null && media.getSchema().getExtensions().containsKey(Constants.X_INFLECTOR_SKIP_INPUT_VALIDATION)) {
+                                            processValidation = false;
+                                        }
+                                        if(processValidation) {
+                                            validate(argument, media.getSchema(), SchemaValidator.Direction.INPUT);
+                                        }
                                     }
                                 }
 
@@ -473,7 +480,14 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                     if(responseSchema.getContent() != null) {
                                         for(String name: responseSchema.getContent().keySet()) {
                                             if(responseSchema.getContent().get(name).getSchema() != null) {
-                                                validate(wrapper.getEntity(), responseSchema.getContent().get(name).getSchema(), SchemaValidator.Direction.OUTPUT);
+                                                Schema media = responseSchema.getContent().get(name).getSchema();
+                                                boolean processValidation = true;
+                                                if(media.getExtensions() != null && media.getExtensions().containsKey(Constants.X_INFLECTOR_SKIP_OUPUT_VALIDATION)) {
+                                                    processValidation = false;
+                                                }
+                                                if(processValidation) {
+                                                    validate(wrapper.getEntity(), media, SchemaValidator.Direction.OUTPUT);
+                                                }
                                             }
                                         }
                                     }
@@ -849,8 +863,4 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
     	}
     	return controllerFactoryCache;
     }
-
-
-
-
 }
