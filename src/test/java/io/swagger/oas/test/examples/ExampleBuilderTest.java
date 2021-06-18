@@ -67,6 +67,20 @@ public class ExampleBuilderTest {
     }
 
     @Test
+    public void testAnonymousModel(){
+        ParseOptions options = new ParseOptions();
+        options.setResolveFully(true);
+
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/issue252.yaml", null, options);
+
+        ApiResponse response = openAPI.getPaths().get("/products.xml").getGet().getResponses().get( "200" );
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/xml").getSchema(), openAPI.getComponents().getSchemas());
+
+        String output = new XmlExampleSerializer().serialize(example);
+        assertEquals(output, "<?xml version='1.1' encoding='UTF-8'?><products><product><id>1</id><product>Lump Sum</product></product></products>");
+    }
+
+    @Test
     public void testReadModel() throws Exception {
         Map<String, Schema> definitions = ModelConverters.getInstance().readAll(User.class);
         Object o = ExampleBuilder.fromSchema(new Schema().$ref("User"), definitions);

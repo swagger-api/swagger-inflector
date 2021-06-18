@@ -500,7 +500,8 @@ public class ExampleBuilder {
                 if (name != null) {
                     output.setWrappedName(name);
                 }
-            } else if (name != null) {
+            }
+            if (name != null) {
                 output.setName(name);
             }
             output.setNamespace(namespace);
