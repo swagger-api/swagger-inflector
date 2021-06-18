@@ -17,6 +17,7 @@
 package io.swagger.oas.inflector.controllers;
 
 import com.fasterxml.jackson.databind.JavaType;
+import io.swagger.oas.inflector.Constants;
 import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.config.ControllerFactory;
 import io.swagger.oas.inflector.converters.ConversionException;
@@ -56,6 +57,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -255,6 +257,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         List<Parameter> parameters = operation.getParameters();
 
         final RequestContext requestContext = createContext(ctx);
+        requestContext.setOperation(operation);
         Map<String, File> inputStreams = new HashMap<>();
 
         Object[] args = new Object[parameterClasses.length];
@@ -355,7 +358,13 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
 
                                 if (media != null) {
                                     if (media.getSchema() != null) {
-                                        validate(argument, media.getSchema(), SchemaValidator.Direction.INPUT);
+                                        boolean processValidation = true;
+                                        if(media.getSchema().getExtensions() != null && media.getSchema().getExtensions().containsKey(Constants.X_INFLECTOR_SKIP_INPUT_VALIDATION)) {
+                                            processValidation = false;
+                                        }
+                                        if(processValidation) {
+                                            validate(argument, media.getSchema(), SchemaValidator.Direction.INPUT);
+                                        }
                                     }
                                 }
 
@@ -379,7 +388,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                     missingParams.add(e.getError());
                 }
 
-            } else if (operation.getRequestBody().getRequired()) {
+            } else if (Boolean.TRUE.equals(operation.getRequestBody().getRequired())) {
                 ValidationException e = new ValidationException();
                 e.message(new ValidationMessage()
                         .message("The input body `" + operation.getRequestBody() + "` is required"));
@@ -440,6 +449,10 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                             }
                         }
 
+                        for (NewCookie cookie : wrapper.getCookies()) {
+                            builder.cookie(cookie);
+                        }
+
                         // entity
                         if (wrapper.getEntity() != null) {
                             builder.entity(wrapper.getEntity());
@@ -467,7 +480,14 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                                     if(responseSchema.getContent() != null) {
                                         for(String name: responseSchema.getContent().keySet()) {
                                             if(responseSchema.getContent().get(name).getSchema() != null) {
-                                                validate(wrapper.getEntity(), responseSchema.getContent().get(name).getSchema(), SchemaValidator.Direction.OUTPUT);
+                                                Schema media = responseSchema.getContent().get(name).getSchema();
+                                                boolean processValidation = true;
+                                                if(media.getExtensions() != null && media.getExtensions().containsKey(Constants.X_INFLECTOR_SKIP_OUPUT_VALIDATION)) {
+                                                    processValidation = false;
+                                                }
+                                                if(processValidation) {
+                                                    validate(wrapper.getEntity(), media, SchemaValidator.Direction.OUTPUT);
+                                                }
                                             }
                                         }
                                     }
@@ -843,8 +863,4 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
     	}
     	return controllerFactoryCache;
     }
-
-
-
-
 }

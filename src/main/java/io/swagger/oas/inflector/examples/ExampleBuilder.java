@@ -322,6 +322,7 @@ public class ExampleBuilder {
             }
         } else if (property instanceof DateSchema) {
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            format.setTimeZone(TimeZone.getTimeZone("UTC"));
             if (example != null) {
                 String exampleAsString = format.format(example);
                 output = new StringExample(exampleAsString);
@@ -499,7 +500,8 @@ public class ExampleBuilder {
                 if (name != null) {
                     output.setWrappedName(name);
                 }
-            } else if (name != null) {
+            }
+            if (name != null) {
                 output.setName(name);
             }
             output.setNamespace(namespace);

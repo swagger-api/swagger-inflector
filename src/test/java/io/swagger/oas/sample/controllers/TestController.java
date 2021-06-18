@@ -29,6 +29,7 @@ import io.swagger.oas.test.models.ExtendedAddress;
 import io.swagger.oas.test.models.User;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.io.File;
@@ -72,10 +73,30 @@ public class TestController {
             .entity("success!");
     }
 
-    public ResponseContext updatePet(RequestContext request, com.fasterxml.jackson.databind.JsonNode petType) {
+    public ResponseContext updatePet(RequestContext request, Pet petType) {
+        if(request.getOperation() != null && request.getExtensions().containsKey("x-sample-extension")) {
+            NewCookie cookie = new NewCookie("type", "chocolate");
+            String message = request.getExtensions().get("x-sample-extension").toString();
+            return new ResponseContext()
+                    .status(200)
+                    .cookie(cookie)
+                    .entity(message);
+        }
+        return new ResponseContext()
+                .status(200)
+                .entity("oops");
+    }
+
+    public ResponseContext updatePetByType(RequestContext request, com.fasterxml.jackson.databind.JsonNode petType) {
         return new ResponseContext()
                 .status(200)
                 .entity("OK!");
+    }
+
+    public ResponseContext disabledOuputValidation(RequestContext ctx) {
+        return new ResponseContext()
+                .status(200)
+                .entity(new Dog());
     }
 
     public ResponseContext formDataTest(RequestContext request, String name, String phone, String mail, String size ,List<String>  topping, String delivery, String comments) {

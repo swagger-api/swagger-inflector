@@ -1,0 +1,42 @@
+openapi: 3.0.0
+info:
+  version: v0.1
+  title: KFI quote engine and product listings API
+  description: ""
+paths:
+  /products.xml:
+    get:
+      summary: Get a list of public products in XML format
+      operationId: getProductsXML
+      tags:
+        - Product List Service
+      responses:
+        "200":
+          description: OK
+          content:
+            application/xml:
+              schema:
+                xml:
+                  wrapped: true
+                  name: products
+                type: array
+                items:
+                  $ref: "#/components/schemas/product"
+tags:
+  - name: Product List Service
+servers:
+  - url: https://virtserver.swaggerhub.com/ThirdOne/xml_issue/v0.1
+components:
+  schemas:
+    product:
+      type: object
+      xml:
+        name: product
+        wrapped: true
+      properties:
+        id:
+          type: integer
+          example: 1
+        product:
+          type: string
+          example: Lump Sum

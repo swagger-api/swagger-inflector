@@ -307,7 +307,7 @@ paths:
   /pets:
     post:
       x-swagger-router-controller: TestController
-      operationId: updatePet
+      operationId: updatePetByType
       requestBody:
         content:
           application/json:
@@ -316,6 +316,26 @@ paths:
       responses:
         '200':
           description: Updated
+  /operationWithDisabledValidation:
+    post:
+      operationId: disabledInputValidation
+      x-swagger-router-controller: TestController
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HardToValidateModel'
+    get:
+      operationId: disabledOuputValidation
+      x-swagger-router-controller: TestController
+      responses:
+        '200':
+          description: response without validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HardToValidateModel'
   /mockResponses/objectMultipleExamples:
     get:
       responses:
@@ -427,6 +447,8 @@ paths:
     put:
       tags:
       - pet
+      x-sample-extension: "it works!"
+      x-swagger-router-controller: TestController
       summary: Update an existing pet
       description: ''
       operationId: updatePet
@@ -1328,6 +1350,14 @@ externalDocs:
   url: http://swagger.io
 components:
   schemas:
+    HardToValidateModel:
+      x-skip-input-validation: true
+      x-skip-output-validation: true
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
     PizzaOrder:
       type: object
       properties:

@@ -85,11 +85,11 @@ public class SwaggerListingIT {
                 null,
                 new String[0]);
 
-        String [] substr = response.split("\"public ResponseContext updatePet");
+        String [] substr = response.split("\"public ResponseContext addPet");
         assertTrue(substr.length > 1);
 
         String signature = substr[1];
-        String paramName = signature.split("io.swagger.oas.sample.models.Pet", 2)[1].trim();
+        String paramName = signature.split("io.swagger.oas.sample.models.Dog", 2)[1].trim();
         assertTrue(paramName.startsWith("p1"));
     }
 

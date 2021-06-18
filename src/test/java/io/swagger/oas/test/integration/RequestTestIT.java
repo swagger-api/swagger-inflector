@@ -27,9 +27,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.*;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -46,6 +44,47 @@ import static org.testng.AssertJUnit.assertTrue;
 
 public class RequestTestIT {
     ApiClient client = new ApiClient();
+
+    @Test
+    public void verifyOperationWithDisabledInputValidation() throws Exception {
+        String path = "/operationWithDisabledValidation";
+
+        Map<String,String> body = new HashMap<>();
+        body.put("username","Bob");
+        // missing the required `id` property
+        Response response = client.getResponse(path, "POST", new HashMap<String, String>(), body, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertEquals(response.getStatus(), 200);
+    }
+
+
+    @Test
+    public void verifyOperationWithDisabledOutputValidation() throws Exception {
+        String path = "/operationWithDisabledValidation";
+        Response response = client.getResponse(path, "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertEquals(response.getStatus(), 200);
+    }
+
+    @Test
+    public void verifyUpdatePetWithCookies() throws Exception {
+        String path = "/pet";
+
+        Map<String,String> body = new HashMap<>();
+        body.put("id", "10");
+        body.put("name","Cat");
+        Response response = client.getResponse(path, "PUT", new HashMap<String, String>(), body, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertNotNull(response.getCookies());
+        assertEquals(response.getCookies().size(), 1);
+        NewCookie cookie = response.getCookies().get("type");
+        assertEquals(cookie.getName(), "type");
+        assertEquals(cookie.getValue(), "chocolate");
+    }
+
+    @Test
+    public void verifyUpdatePetWithNullBody() throws Exception {
+        String path = "/pets";
+        String str = client.invokeAPI(path, "POST", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        assertEquals(str, "OK!");
+    }
 
     @Test
     public void verifyValidDateTimeInput() throws Exception {
