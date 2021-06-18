@@ -56,6 +56,7 @@ import java.util.Map;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertFalse;
 
 public class ExampleBuilderTest {
     static {
@@ -77,7 +78,23 @@ public class ExampleBuilderTest {
         Example example = ExampleBuilder.fromSchema(response.getContent().get("application/xml").getSchema(), openAPI.getComponents().getSchemas());
 
         String output = new XmlExampleSerializer().serialize(example);
+        assertFalse(output.contains("<AnonymousModel>"));
         assertEquals(output, "<?xml version='1.1' encoding='UTF-8'?><products><product><id>1</id><product>Lump Sum</product></product></products>");
+    }
+
+    @Test
+    public void testAllOfAndRefResolveFully(){
+        ParseOptions options = new ParseOptions();
+        options.setResolveFully(true);
+
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/allOfAndRefResolveFully.yaml", null, options);
+
+        ApiResponse response = openAPI.getPaths().get("/inventory").getGet().getResponses().get( "200" );
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/xml").getSchema(), openAPI.getComponents().getSchemas());
+
+        String output = new XmlExampleSerializer().serialize(example);
+        assertFalse(output.contains("<AnonymousModel>"));
+        assertEquals(output,"<?xml version='1.1' encoding='UTF-8'?><inventoryItem><supplierObject><name>ACME Corporation</name><supplierRef>REF123</supplierRef></supplierObject></inventoryItem>");
     }
 
     @Test
@@ -958,7 +975,7 @@ public class ExampleBuilderTest {
         assertTrue(jsonExample.contains("\"date\" : \"2019-08-05\""));
         assertTrue(jsonExample.contains("\"dateTime\" : \"2019-08-05T12:34:56Z\""));
     }
-
+   
     @Test
     public void testNullExampleSupportOAS3() throws Exception{
 
