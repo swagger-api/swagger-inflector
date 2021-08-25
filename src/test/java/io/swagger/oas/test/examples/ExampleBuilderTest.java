@@ -68,6 +68,22 @@ public class ExampleBuilderTest {
     }
 
     @Test
+    public void testIssue404_NullExample(){
+        ParseOptions options = new ParseOptions();
+        options.setResolveFully(true);
+
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/sampleNull.json", null, options);
+        Example example = ExampleBuilder.fromSchema(openAPI.getComponents().getSchemas().get("Bundle"), openAPI.getComponents().getSchemas());
+        String json = Json.pretty(example);
+        assertEquals(json,"{\n" +
+                        "  \"_id\" : \"string\",\n" +
+                        "  \"project_id\" : \"string\",\n" +
+                        "  \"href\" : \"string\",\n" +
+                        "  \"name\" : \"string\"\n" +
+                        "}");
+    }
+
+    @Test
     public void testAnonymousModel(){
         ParseOptions options = new ParseOptions();
         options.setResolveFully(true);

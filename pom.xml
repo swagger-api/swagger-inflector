@@ -461,7 +461,7 @@
     <properties>
         <maven-javadoc-version>3.0.1</maven-javadoc-version>
         <swagger-core-version>2.1.10</swagger-core-version>
-        <swagger-parser-version>2.0.27</swagger-parser-version>
+        <swagger-parser-version>2.0.28-SNAPSHOT</swagger-parser-version>
         <jackson.version>2.12.1</jackson.version>
         <jetty-version>9.4.39.v20210325</jetty-version>
         <jersey2-version>2.32</jersey2-version>
