@@ -38,18 +38,7 @@ import io.swagger.models.Operation;
 import io.swagger.models.Response;
 import io.swagger.models.Swagger;
 import io.swagger.models.Xml;
-import io.swagger.models.properties.AbstractProperty;
-import io.swagger.models.properties.ArrayProperty;
-import io.swagger.models.properties.BaseIntegerProperty;
-import io.swagger.models.properties.BooleanProperty;
-import io.swagger.models.properties.DecimalProperty;
-import io.swagger.models.properties.DoubleProperty;
-import io.swagger.models.properties.FloatProperty;
-import io.swagger.models.properties.IntegerProperty;
-import io.swagger.models.properties.LongProperty;
-import io.swagger.models.properties.MapProperty;
-import io.swagger.models.properties.RefProperty;
-import io.swagger.models.properties.StringProperty;
+import io.swagger.models.properties.*;
 import io.swagger.parser.SwaggerParser;
 import io.swagger.test.models.User;
 import io.swagger.util.Json;
@@ -71,6 +60,17 @@ public class ExampleBuilderTest {
         simpleModule.addSerializer(new JsonNodeExampleSerializer());
         Json.mapper().registerModule(simpleModule);
         Yaml.mapper().registerModule(simpleModule);
+    }
+
+    @Test
+    public void testAnonymousModel() throws Exception{
+        Swagger swagger = new SwaggerParser().read("src/test/swagger/AnonymousTagExpected.yaml");
+
+        Property property = swagger.getPaths().get("/products.xml").getGet().getResponses().get("200").getSchema();
+        Example example = ExampleBuilder.fromProperty(property, swagger.getDefinitions());
+
+        String output = new XmlExampleSerializer().serialize(example);
+        assertEquals(output, "<?xml version='1.1' encoding='UTF-8'?><products><product><id>1</id><product>Lump Sum</product></product></products>");
     }
 
     @Test
