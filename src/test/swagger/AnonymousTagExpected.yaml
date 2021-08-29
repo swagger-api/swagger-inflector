@@ -1,0 +1,41 @@
+swagger: "2.0"
+info:
+  version: v0.1
+  title: KFI quote engine and product listings API
+  description: ""
+schemes:
+  - https
+paths:
+  /products.xml:
+    get:
+      summary: Get a list of public products in XML format
+      operationId: getProductsXML
+      tags:
+        - Product List Service
+      produces:
+        - application/xml
+      responses:
+        200:
+          description: OK
+          schema:
+            xml:
+              wrapped: true
+              name: products
+            type: array
+            items:
+              $ref: "#/definitions/product"
+tags:
+  - name: Product List Service
+definitions:
+  product:
+    type: object
+    xml:
+      name: product
+      wrapped: true
+    properties:
+      id:
+        type: integer
+        example: 1
+      product:
+        type: string
+        example: Lump Sum
