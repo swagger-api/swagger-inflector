@@ -30,6 +30,7 @@ import junit.framework.Assert;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -42,13 +43,21 @@ import static org.testng.AssertJUnit.assertTrue;
 public class SwaggerListingIT {
 
     @Test
+    public void verifyHiddenPathExtension() throws Exception {
+        OpenAPI openAPI = getJsonSwagger();
+        assertNotNull(openAPI);
+        assertNull(openAPI.getPaths().get("/hidden"));
+        verifySwaggerExtensions(openAPI);
+    }
+
+    @Test
     public void verifySwaggerJson() throws Exception {
         OpenAPI openAPI = getJsonSwagger();
         assertNotNull(openAPI);
         assertEquals(openAPI.getInfo().getDescription(), "processed");
         verifySwaggerExtensions(openAPI);
-
     }
+
 
     @Test
     public void verifySwaggerYaml() throws Exception {
