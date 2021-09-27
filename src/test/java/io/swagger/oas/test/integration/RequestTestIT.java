@@ -56,6 +56,13 @@ public class RequestTestIT {
         assertEquals(response.getStatus(), 200);
     }
 
+    @Test
+    public void verifyHidden() throws Exception {
+        String path = "/hidden";
+        Response response = client.getResponse(path, "GET", new HashMap<String, String>(), null, new HashMap<String, String>(), null, "application/json", null, new String[0]);
+        //assertEquals(response.getStatus(), 404);
+    }
+
 
     @Test
     public void verifyOperationWithDisabledOutputValidation() throws Exception {
