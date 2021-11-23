@@ -46,8 +46,10 @@ import io.swagger.util.Yaml;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
@@ -68,6 +70,19 @@ public class ExampleBuilderTest {
 
         Property property = swagger.getPaths().get("/products.xml").getGet().getResponses().get("200").getSchema();
         Example example = ExampleBuilder.fromProperty(property, swagger.getDefinitions());
+
+        String output = new XmlExampleSerializer().serialize(example);
+        assertEquals(output, "<?xml version='1.1' encoding='UTF-8'?><products><product><id>1</id><product>Lump Sum</product></product></products>");
+    }
+
+    @Test
+    public void testAnonymousModelFromModel() throws Exception{
+        String swaggerString = new String(Files.readAllBytes(Paths.get("src/test/swagger/AnonymousTagExpected.yaml")), StandardCharsets.UTF_8);
+        Swagger swagger = new SwaggerParser().readWithInfo(swaggerString, false).getSwagger();
+        new ResolverUtil().resolveFully(swagger);
+
+        Model model = swagger.getPaths().get("/products.xml").getGet().getResponses().get("200").getResponseSchema();
+        Example example = ExampleBuilder.fromModel(null, model, swagger.getDefinitions(), new HashMap<>());
 
         String output = new XmlExampleSerializer().serialize(example);
         assertEquals(output, "<?xml version='1.1' encoding='UTF-8'?><products><product><id>1</id><product>Lump Sum</product></product></products>");
