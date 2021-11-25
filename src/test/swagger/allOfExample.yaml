@@ -1,0 +1,39 @@
+openapi: 3.0.0
+info:
+  version: 0.1.0
+  title: Example of Nested SubSchemas using allOf
+paths:
+  /foo:
+    get:
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      data1:           # <---- IGNORED
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 5
+                          attributes:
+                            type: object
+                            properties:
+                              foo:
+                                type: string
+                  - type: object
+                    properties:
+                      data2:           # <---- The mock uses this one instead
+                        type: object
+                        properties:
+                          attributes:
+                            type: object
+                            properties:
+                              bar:
+                                type: string
+components:
+  schemas: { }

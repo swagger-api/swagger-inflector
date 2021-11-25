@@ -79,7 +79,6 @@ public class ExampleBuilderTest {
     public void testAnonymousModelFromModel() throws Exception{
         String swaggerString = new String(Files.readAllBytes(Paths.get("src/test/swagger/AnonymousTagExpected.yaml")), StandardCharsets.UTF_8);
         Swagger swagger = new SwaggerParser().readWithInfo(swaggerString, false).getSwagger();
-        new ResolverUtil().resolveFully(swagger);
 
         Model model = swagger.getPaths().get("/products.xml").getGet().getResponses().get("200").getResponseSchema();
         Example example = ExampleBuilder.fromModel(null, model, swagger.getDefinitions(), new HashMap<>());
