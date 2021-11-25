@@ -699,7 +699,14 @@ public class ExampleBuilder {
                 }
             } else {
                 ArrayModel am = (ArrayModel) model;
-
+                if (am.getXml() != null) {
+                    Xml xml = am.getXml();
+                    name = xml.getName();
+                    namespace = xml.getNamespace();
+                    prefix = xml.getPrefix();
+                    attribute = xml.getAttribute();
+                    wrapped = xml.getWrapped() != null ? xml.getWrapped() : false;
+                }
                 Property inner = am.getItems();
                 if (inner != null) {
                     Example innerExample = fromProperty(inner, definitions, processedModels);
