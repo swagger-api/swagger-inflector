@@ -484,7 +484,7 @@
         <commons-csv-version>1.1</commons-csv-version>
         <json-schema-validator-version>2.2.14</json-schema-validator-version>
 
-        <logback-version>1.2.3</logback-version>
+        <logback-version>1.2.10</logback-version>
         <junit-version>4.13.1</junit-version>
         <slf4j-version>1.7.22</slf4j-version>
         <jmockit-version>1.19</jmockit-version>
