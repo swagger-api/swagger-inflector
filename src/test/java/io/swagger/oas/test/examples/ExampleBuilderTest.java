@@ -991,7 +991,7 @@ public class ExampleBuilderTest {
         assertTrue(jsonExample.contains("\"date\" : \"2019-08-05\""));
         assertTrue(jsonExample.contains("\"dateTime\" : \"2019-08-05T12:34:56Z\""));
     }
-   
+
     @Test
     public void testNullExampleSupportOAS3() throws Exception{
 
@@ -1104,5 +1104,33 @@ public class ExampleBuilderTest {
         example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
         output = Json.pretty(example);
         assertEquals(output, "[ \"foo\", " + null + " ]");
+    }
+
+    @Test
+    public void testSWG_5418() throws Exception {
+
+        String schemaName = "AccountList";
+
+        OpenAPI openapi = new OpenAPIV3Parser().readLocation("http://localhost:1337/SWG-5418.json", null, new ParseOptions()).getOpenAPI();
+
+        Map<String, Schema> allSchemas = openapi.getComponents().getSchemas();
+        Schema schema = allSchemas.get(schemaName);
+        Example example = ExampleBuilder.fromSchema(schema, allSchemas, ExampleBuilder.RequestType.READ);
+        Json.prettyPrint(example);
+
+        schemaName = "Credit";
+        schema = allSchemas.get(schemaName);
+        example = ExampleBuilder.fromSchema(schema, allSchemas, ExampleBuilder.RequestType.READ);
+        Json.prettyPrint(example);
+
+        schemaName = "Error";
+        schema = allSchemas.get(schemaName);
+        example = ExampleBuilder.fromSchema(schema, allSchemas, ExampleBuilder.RequestType.READ);
+        Json.prettyPrint(example);
+
+        schema = openapi.getPaths().get("/accounts/{ID}/children").getGet().getResponses().get("200").getContent().get("application/json").getSchema();
+        example = ExampleBuilder.fromSchema(schema, allSchemas, ExampleBuilder.RequestType.READ);
+        Json.prettyPrint(example);
+
     }
 }
