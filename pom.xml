@@ -251,6 +251,11 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.7.2.201409121644</version>
             </plugin>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>6.5.3</version>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -470,22 +475,22 @@
         </dependency>
     </dependencies>
     <properties>
-        <swagger-core-version>1.6.3</swagger-core-version>
-        <swagger-parser-version>1.0.48</swagger-parser-version>
-        <jackson.version>2.10.1</jackson.version>
+        <swagger-core-version>1.6.8</swagger-core-version>
+        <swagger-parser-version>1.0.63</swagger-parser-version>
+        <jackson.version>2.13.4</jackson.version>
         <joda-time-version>2.9.1</joda-time-version>
         <joda-version>1.8.1</joda-version>
         <jetty-version>9.3.27.v20190418</jetty-version>
         <jersey2-version>2.29.1</jersey2-version>
         <servlet-api-version>2.5</servlet-api-version>
-        <commons-io-version>2.5</commons-io-version>
-        <commons-string-utils-version>3.4</commons-string-utils-version>
-        <commons-lang-version>2.4</commons-lang-version>
-        <commons-csv-version>1.1</commons-csv-version>
-        <json-schema-validator-version>2.2.8</json-schema-validator-version>
+        <commons-io-version>2.11.0</commons-io-version>
+        <commons-string-utils-version>3.12.0</commons-string-utils-version>
+        <commons-lang-version>2.6</commons-lang-version>
+        <commons-csv-version>1.9.0</commons-csv-version>
+        <json-schema-validator-version>2.2.14</json-schema-validator-version>
 
         <logback-version>1.2.10</logback-version>
-        <junit-version>4.13.1</junit-version>
+        <junit-version>4.13.2</junit-version>
         <slf4j-version>1.7.36</slf4j-version>
     </properties>
 </project>
