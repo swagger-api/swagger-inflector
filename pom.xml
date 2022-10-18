@@ -484,20 +484,20 @@
     </dependencies>
     <properties>
         <maven-javadoc-version>3.0.1</maven-javadoc-version>
-        <swagger-core-version>2.1.11</swagger-core-version>
-        <swagger-parser-version>2.0.28</swagger-parser-version>
-        <jackson.version>2.12.1</jackson.version>
+        <swagger-core-version>2.2.4</swagger-core-version>
+        <swagger-parser-version>2.1.5</swagger-parser-version>
+        <jackson.version>2.13.4</jackson.version>
         <jetty-version>9.4.39.v20210325</jetty-version>
         <jersey2-version>2.32</jersey2-version>
         <servlet-api-version>3.1.0</servlet-api-version>
-        <commons-io-version>2.9.0</commons-io-version>
-        <commons-string-utils-version>3.4</commons-string-utils-version>
-        <commons-lang-version>2.4</commons-lang-version>
-        <commons-csv-version>1.1</commons-csv-version>
+        <commons-io-version>2.11.0</commons-io-version>
+        <commons-string-utils-version>3.12.0</commons-string-utils-version>
+        <commons-lang-version>2.6</commons-lang-version>
+        <commons-csv-version>1.9.0</commons-csv-version>
         <json-schema-validator-version>2.2.14</json-schema-validator-version>
 
         <logback-version>1.2.10</logback-version>
-        <junit-version>4.13.1</junit-version>
+        <junit-version>4.13.2</junit-version>
         <slf4j-version>1.7.36</slf4j-version>
         <jmockit-version>1.19</jmockit-version>
     </properties>
