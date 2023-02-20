@@ -382,6 +382,13 @@ The samples are a being refactor to support the new inflector.
 
 You will soon find samples for the inflector project in the [Swagger-Samples](https://github.com/swagger-api/swagger-samples) repository.  The inflector projects start with `inflector-`
 
+#### Running tests
+
+If running Java 8, you will need to run a variant that has backported fix 8157236. Azul Zulu is confirmed to work (https://github.com/jmockit/jmockit1/issues/710).
+
+If running with Java 9 or later, you will need to either:
+- Pass `-Djdk.attach.allowAttachSelf=true` to the VM.
+- Configure the test execution JVM to start with the "-javaagent:<proper path>/jmockit.1.x.jar" initialization parameter. It can be specified in the build script file for tools such as Maven or Gradle, or in a "Run/Debug Configuration" for IntelliJ IDEA or Eclipse.
 
 ## Security contact
 
