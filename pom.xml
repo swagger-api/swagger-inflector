@@ -387,12 +387,6 @@
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j-version}</version>
         </dependency>
-        <!-- Utils -->
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>${commons-lang-version}</version>
-        </dependency>
 
         <!-- Test -->
         <dependency>
@@ -461,12 +455,12 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.4</version>
+            <version>${commons-fileupload-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${commons-string-utils-version}</version>
+            <version>${commons-lang-version}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.woodstox</groupId>
@@ -475,22 +469,23 @@
         </dependency>
     </dependencies>
     <properties>
-        <swagger-core-version>1.6.8</swagger-core-version>
-        <swagger-parser-version>1.0.63</swagger-parser-version>
-        <jackson.version>2.13.4</jackson.version>
-        <joda-time-version>2.9.1</joda-time-version>
-        <joda-version>1.8.1</joda-version>
-        <jetty-version>9.3.27.v20190418</jetty-version>
-        <jersey2-version>2.29.1</jersey2-version>
+        <swagger-core-version>1.6.9</swagger-core-version>
+        <swagger-parser-version>1.0.64</swagger-parser-version>
+        <jackson.version>2.14.2</jackson.version>
+        <joda-time-version>2.12.2</joda-time-version>
+        <joda-version>1.9.2</joda-version>
+        <jetty-version>9.4.49.v20220914</jetty-version>
+        <jersey2-version>2.39</jersey2-version>
         <servlet-api-version>2.5</servlet-api-version>
         <commons-io-version>2.11.0</commons-io-version>
-        <commons-string-utils-version>3.12.0</commons-string-utils-version>
-        <commons-lang-version>2.6</commons-lang-version>
-        <commons-csv-version>1.9.0</commons-csv-version>
-        <json-schema-validator-version>2.2.14</json-schema-validator-version>
+        <commons-fileupload-version>1.5</commons-fileupload-version>
+        <commons-lang-version>3.12.0</commons-lang-version>
 
-        <logback-version>1.2.10</logback-version>
+        <commons-csv-version>1.10.0</commons-csv-version>
+        <json-schema-validator-version>2.2.14</json-schema-validator-version>
         <junit-version>4.13.2</junit-version>
+
+        <logback-version>1.4.5</logback-version>
         <slf4j-version>1.7.36</slf4j-version>
     </properties>
 </project>
