@@ -28,7 +28,7 @@ import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.SerializableParameter;
 import io.swagger.models.properties.*;
 import io.swagger.util.Json;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
@@ -84,7 +84,7 @@ public class ReflectionUtils {
       if (parameter instanceof SerializableParameter) {
           SerializableParameter sp = (SerializableParameter) parameter;
           Property inner = sp.getItems();
-          
+
           JavaType tp = getTypeFromProperty(sp.getType(), sp.getFormat(), inner, definitions);
           if(tp != null) {
               return tp;
@@ -96,7 +96,7 @@ public class ReflectionUtils {
 
           return getTypeFromModel("", model, definitions);
       }
-      
+
       return null;
     }
 
@@ -194,7 +194,7 @@ public class ReflectionUtils {
         }
         return null;
     }
-    
+
     public JavaType getTypeFromModel(String name, Model model, Map<String, Model> definitions) {
         TypeFactory tf = Json.mapper().getTypeFactory();
 
@@ -276,7 +276,7 @@ public class ReflectionUtils {
 
         return PropertyBuilder.build(model.getType(), model.getFormat(), map);
     }
-    
+
     public Class<?> loadClass(String className) {
         try {
             return Class.forName(className);
