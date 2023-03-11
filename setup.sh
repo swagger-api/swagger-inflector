@@ -29,7 +29,7 @@ echo "...fetching editor scripts"
 curl -sL "https://raw.githubusercontent.com/$FORK/scripts/editor.sh" -o ./editor.sh
 
 echo "...fetching sample swagger description"
-wget --quiet --no-check-certificate "https://raw.githubusercontent.com/$FORK/scripts/swagger.yaml" -O src/main/swagger/openapi.yaml
+wget --quiet --no-check-certificate "https://raw.githubusercontent.com/$FORK/scripts/openapi.yaml" -O src/main/swagger/openapi.yaml
 
 
 echo "...fetching inflector configuration"

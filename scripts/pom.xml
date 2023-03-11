@@ -117,7 +117,6 @@
                         <scanTarget>src/main/swagger/openapi.yaml</scanTarget>
                     </scanTargets>
                     <scanIntervalSeconds>1</scanIntervalSeconds>
-                    <supportedPackagings>jar</supportedPackagings>
                     <webApp>
                         <contextPath>/</contextPath>
                     </webApp>
