@@ -29,7 +29,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,7 +120,7 @@ public class BinaryProcessor implements EntityProcessor {
                         argument = file;
 
                     }else if (parameters[i].getRawClass().equals(byte[].class)){
-                        
+
                         argument = IOUtils.toByteArray(entityStream);
 
                     }
