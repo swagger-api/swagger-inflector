@@ -33,6 +33,16 @@
         <developerConnection>scm:git:git@github.com:swagger-api/swagger-inflector.git</developerConnection>
         <url>https://github.com/swagger-api/swagger-inflector</url>
     </scm>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
     <prerequisites>
         <maven>2.2.0</maven>
     </prerequisites>
@@ -117,7 +127,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <id>integration-test</id>
@@ -198,8 +208,25 @@
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>1.6</version>
                 <configuration>
-                    <releaseProfiles>release</releaseProfiles>
-                    <goals>sign</goals>
+                    <gpgArguments>
+                        <arg>--pinentry-mode</arg>
+                        <arg>loopback</arg>
+                    </gpgArguments>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.13</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <stagingProgressTimeoutMinutes>30</stagingProgressTimeoutMinutes>
+                    <!--                    <skipStaging>true</skipStaging>
+                                        <skipRemoteStaging>true</skipRemoteStaging>
+                                        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>-->
                 </configuration>
             </plugin>
             <plugin>
@@ -274,6 +301,34 @@
                             <execution>
                                 <goals>
                                     <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <configuration>
+                            <!-- Prevent `gpg` from using pinentry programs -->
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -468,9 +523,31 @@
             <version>3.1.4</version>
         </dependency>
     </dependencies>
+    <repositories>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>sonatype-releases</id>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
     <properties>
-        <swagger-core-version>1.6.9</swagger-core-version>
-        <swagger-parser-version>1.0.64</swagger-parser-version>
+        <swagger-core-version>1.6.10</swagger-core-version>
+        <swagger-parser-version>1.0.65</swagger-parser-version>
         <jackson.version>2.14.2</jackson.version>
         <joda-time-version>2.12.2</joda-time-version>
         <joda-version>1.9.2</joda-version>
@@ -487,5 +564,7 @@
 
         <logback-version>1.4.5</logback-version>
         <slf4j-version>1.7.36</slf4j-version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <sonatypeOssDistMgmtSnapshotsUrl>https://oss.sonatype.org/content/repositories/snapshots/</sonatypeOssDistMgmtSnapshotsUrl>
     </properties>
 </project>
