@@ -10,7 +10,9 @@ import io.swagger.models.parameters.Parameter;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.ObjectProperty;
 import io.swagger.models.properties.Property;
+import io.swagger.models.properties.StringProperty;
 import io.swagger.parser.SwaggerParser;
+import io.swagger.parser.util.SwaggerDeserializationResult;
 import io.swagger.sample.models.Dog;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
@@ -302,4 +304,13 @@ public class ResolverUtilTest {
         Swagger swagger = new SwaggerParser().parse(yaml);
         new ResolverUtil().resolveFully(swagger);
     }
+
+    @Test
+    public void testStringPropertyResolving() throws Exception {
+        SwaggerDeserializationResult swaggerParseResult = new SwaggerParser().readWithInfo("./src/test/swagger/string-property-resolving.yaml", null, true);
+        Swagger swagger = swaggerParseResult.getSwagger();
+        new ResolverUtil().resolveFully(swagger);
+        assertTrue(((BodyParameter)swagger.getPath("/orgs/{orgId}/resources").getPost().getParameters().get(1)).getSchema().getProperties().get("type") instanceof StringProperty);
+    }
+
 }

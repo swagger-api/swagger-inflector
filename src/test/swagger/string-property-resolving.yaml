@@ -1,0 +1,60 @@
+swagger: '2.0'
+info:
+  version: 1.0.8
+schemes:
+  - http
+basePath: /access
+paths:
+  '/orgs/{orgId}/resources':
+    post:
+      summary: Create a resource
+      description: >-
+        Requires system token. Creates a resource for api, domain, organization or team
+      operationId: addResource
+      parameters:
+        - $ref: '#/parameters/orgId'
+        - in: body
+          name: resource
+          required: true
+          schema:
+            $ref: '#/definitions/Resource'
+      responses:
+        201:
+          description: Successfully added resource.
+parameters:
+  orgId:
+    description: Name of the organization.
+    name: orgId
+    in: path
+    type: string
+    required: true
+definitions:
+  Resource:
+    type: object
+    required:
+      - organization
+      - name
+      - type
+    properties:
+      organization:
+        type: string
+        description: Organization name.
+        example: MyOrg
+      name:
+        type: string
+        description: Resource name.
+        example: Accounts API
+      type:
+        $ref: '#/definitions/ResourceType'
+  ResourceType:
+    description: Type of the resource assigned
+    example: api
+    type: string
+    enum:
+      - organization
+      - api
+      - domain
+      - template
+      - team
+      - project
+      - portal-product
