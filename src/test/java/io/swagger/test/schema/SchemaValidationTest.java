@@ -1,10 +1,12 @@
 package io.swagger.test.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import io.swagger.inflector.schema.SchemaValidator;
 import io.swagger.util.Json;
+import io.swagger.util.Yaml;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertFalse;
@@ -94,6 +96,33 @@ public class SchemaValidationTest {
 
         ProcessingReport report = schema.validate(content);
         assertTrue(report.isSuccess());
+    }
+
+    @Test
+    public void testStringPropertyEnumValidation() throws Exception {
+        String schemaAsString =
+                "description: Type of the resource assigned\n" +
+                        "example: api\n" +
+                        "type: string\n" +
+                        "enum:\n" +
+                        "  - organization\n" +
+                        "  - api\n" +
+                        "  - domain\n" +
+                        "  - template\n" +
+                        "  - team\n" +
+                        "  - project\n" +
+                        "  - portal-product";
+        JsonNode schemaObject = Yaml.mapper().readTree(schemaAsString);
+        JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
+        com.github.fge.jsonschema.main.JsonSchema schema = factory.getJsonSchema(schemaObject);
+
+
+        JsonNode content = TextNode.valueOf("domain");
+        ProcessingReport report = schema.validate(content);
+        assertTrue(report.isSuccess());
+        content = TextNode.valueOf("domainbad");
+        report = schema.validate(content);
+        assertTrue(!report.isSuccess());
     }
 
     static class User {

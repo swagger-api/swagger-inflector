@@ -164,6 +164,8 @@ public class ResolverUtil {
                             LOGGER.debug("not adding recursive properties, using generic object");
                             model.addProperty(key, new ObjectProperty());
                         }
+                    } else if (System.getenv("resolveFullySchemaObjectOnly") == null && System.getProperty("resolveFullySchemaObjectOnly") == null){
+                        model.addProperty(key, property);
                     }
                 }
                 return model;
