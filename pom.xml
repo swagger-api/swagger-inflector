@@ -512,7 +512,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
-            <version>1.9.5</version>
+            <version>1.10.19</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -523,7 +523,7 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.4</version>
+            <version>1.5</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -555,18 +555,18 @@
     </repositories>
     <properties>
         <maven-javadoc-version>3.0.1</maven-javadoc-version>
-        <swagger-core-version>2.2.9</swagger-core-version>
-        <swagger-parser-version>2.1.13</swagger-parser-version>
-        <jackson.version>2.14.2</jackson.version>
-        <jetty-version>9.4.51.v20230217</jetty-version>
-        <jersey2-version>2.39</jersey2-version>
+        <swagger-core-version>2.2.17</swagger-core-version>
+        <swagger-parser-version>2.1.18</swagger-parser-version>
+        <jackson.version>2.15.3</jackson.version>
+        <jetty-version>9.4.53.v20231009</jetty-version>
+        <jersey2-version>2.40</jersey2-version>
         <servlet-api-version>3.1.0</servlet-api-version>
-        <commons-io-version>2.11.0</commons-io-version>
-        <commons-lang-version>3.12.0</commons-lang-version>
+        <commons-io-version>2.14.0</commons-io-version>
+        <commons-lang-version>3.13.0</commons-lang-version>
         <commons-csv-version>1.10.0</commons-csv-version>
         <json-schema-validator-version>2.2.14</json-schema-validator-version>
 
-        <logback-version>1.4.5</logback-version>
+        <logback-version>1.4.11</logback-version>
         <junit-version>4.13.2</junit-version>
         <slf4j-version>1.7.36</slf4j-version>
         <jmockit-version>1.19</jmockit-version>
