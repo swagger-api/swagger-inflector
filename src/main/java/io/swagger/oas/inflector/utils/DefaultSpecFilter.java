@@ -33,7 +33,7 @@ public class DefaultSpecFilter extends AbstractSpecFilter {
     }
 
     @Override
-    public Optional<Schema> filterSchemaProperty(Schema model, Schema property, String propertyName, Map<String, List<String>> params, Map<String, String> cookies, Map<String, List<String>> headers) {
+    public Optional<Schema> filterSchemaProperty(Schema property, Schema model, String propertyName, Map<String, List<String>> params, Map<String, String> cookies, Map<String, List<String>> headers) {
         if(property.getExtensions() != null && property.getExtensions().containsKey(Constants.X_INFLECTOR_HIDDEN)) {
             return Optional.empty();
         }
