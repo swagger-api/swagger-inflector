@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 import java.io.IOException;
 import java.util.EnumSet;
@@ -49,6 +50,6 @@ public class DirectionDeserializer extends JsonDeserializer<Set<Configuration.Di
                 }
             }
         }
-        throw ctxt.mappingException(Configuration.Direction.class);
+        throw InvalidDefinitionException.from(jp, String.format("Failed to deserialize %s", jp.getText()), ctxt.constructType(Configuration.Direction.class));
     }
 }

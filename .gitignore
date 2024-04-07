@@ -7,3 +7,9 @@ dependency-reduced-pom.xml
 .settings
 .project
 .classpath
+*.pyc
+/bin/
+*.ipr
+*.iws
+.DS_Store
+**/test-output/*

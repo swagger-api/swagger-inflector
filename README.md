@@ -1,7 +1,5 @@
 # Swagger Inflector
 
-[![Build Status](https://img.shields.io/jenkins/build.svg?jobUrl=https://jenkins.swagger.io/job/oss-swagger-inflector-master)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-inflector-master)
-
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/io.swagger/swagger-inflector)
 
 ----
