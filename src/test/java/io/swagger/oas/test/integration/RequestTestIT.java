@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -254,7 +255,7 @@ public class RequestTestIT {
         String path = "/primitiveBody/binary";
 
 
-        File file = File.createTempFile("inflector-test2-", ".tmp");
+        File file = Files.createTempFile("inflector-test2-", ".tmp").toFile();
         PrintWriter writer = new PrintWriter(file);
         writer.println("The first line");
         writer.println("The second line");
