@@ -27,6 +27,23 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    <developers>
+        <developer>
+            <id>frantuma</id>
+            <name>Francesco Tumanischvili</name>
+            <email>frantuma@yahoo.com</email>
+        </developer>
+        <developer>
+            <id>fehguy</id>
+            <name>Tony Tam</name>
+            <email>fehguy@gmail.com</email>
+        </developer>
+        <developer>
+            <id>webron</id>
+            <name>Ron Ratovsky</name>
+            <email>webron@gmail.com</email>
+        </developer>
+    </developers>         
     <build>
         <defaultGoal>install</defaultGoal>
         <directory>target</directory>
