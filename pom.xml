@@ -478,13 +478,13 @@
         </dependency>
     </dependencies>
     <properties>
-        <swagger-core-version>1.6.14</swagger-core-version>
-        <swagger-parser-version>1.0.70</swagger-parser-version>
-        <jackson.version>2.17.0</jackson.version>
+        <swagger-core-version>1.6.16</swagger-core-version>
+        <swagger-parser-version>1.0.75</swagger-parser-version>
+        <jackson.version>2.19.0</jackson.version>
         <joda-time-version>2.12.2</joda-time-version>
         <joda-version>1.9.2</joda-version>
-        <jetty-version>9.4.53.v20231009</jetty-version>
-        <jersey2-version>2.42</jersey2-version>
+        <jetty-version>9.4.56.v20240826</jetty-version>
+        <jersey2-version>2.46</jersey2-version>
         <servlet-api-version>2.5</servlet-api-version>
         <commons-io-version>2.16.0</commons-io-version>
         <commons-fileupload-version>1.5</commons-fileupload-version>
@@ -494,7 +494,7 @@
         <json-schema-validator-version>2.2.14</json-schema-validator-version>
         <junit-version>4.13.2</junit-version>
 
-        <logback-version>1.5.3</logback-version>
+        <logback-version>1.5.18</logback-version>
         <slf4j-version>1.7.36</slf4j-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
