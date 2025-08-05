@@ -521,7 +521,7 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.5</version>
+            <version>1.6.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -531,21 +531,21 @@
     </dependencies>
     <properties>
         <maven-javadoc-version>3.6.2</maven-javadoc-version>
-        <swagger-core-version>2.2.32</swagger-core-version>
-        <swagger-parser-version>2.1.28</swagger-parser-version>
+        <swagger-core-version>2.2.35</swagger-core-version>
+        <swagger-parser-version>2.1.31</swagger-parser-version>
         <jackson.version>2.19.0</jackson.version>
         <jetty-version>9.4.56.v20240826</jetty-version>
         <jersey2-version>2.46</jersey2-version>
         <servlet-api-version>3.1.0</servlet-api-version>
-        <commons-io-version>2.16.0</commons-io-version>
-        <commons-lang-version>3.14.0</commons-lang-version>
+        <commons-io-version>2.20.0</commons-io-version>
+        <commons-lang-version>3.18.0</commons-lang-version>
         <commons-csv-version>1.10.0</commons-csv-version>
         <json-schema-validator-version>2.2.14</json-schema-validator-version>
 
         <logback-version>1.5.18</logback-version>
         <junit-version>4.13.2</junit-version>
         <slf4j-version>1.7.36</slf4j-version>
-        <jmockit-version>1.19</jmockit-version>
+        <jmockit-version>1.49</jmockit-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 </project>

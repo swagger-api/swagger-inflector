@@ -23,24 +23,16 @@ import io.swagger.oas.inflector.processors.BinaryProcessor;
 import io.swagger.oas.inflector.processors.EntityProcessor;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.Content;
-
 import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
-
 import mockit.Mocked;
-
-import mockit.StrictExpectations;
-import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
-import java.util.HashMap;
 import java.util.Map;
-
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
