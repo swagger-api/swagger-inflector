@@ -10,6 +10,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public class FileUploadTestIT {
         File file = null;
         try {
             String path = "/fileUpload";
-            file = File.createTempFile("inflector-test-", ".tmp");
+            file = Files.createTempFile("inflector-test-", ".tmp").toFile();
 
             PrintWriter writer = new PrintWriter(file);
             writer.println("The first line");
@@ -84,7 +85,7 @@ public class FileUploadTestIT {
         File file = null;
         try {
             String path = "/fileUploadPathParam/TESTID/content";
-            file = File.createTempFile("inflector-test-", ".tmp");
+            file = Files.createTempFile("inflector-test-", ".tmp").toFile();
 
             PrintWriter writer = new PrintWriter(file);
             writer.println("The first line");
@@ -124,7 +125,7 @@ public class FileUploadTestIT {
         File file = null;
         try {
             String path = "/fileUploadPathParamQueryParam/TESTID/content/TESTID2/content";
-            file = File.createTempFile("inflector-test-", ".tmp");
+            file = Files.createTempFile("inflector-test-", ".tmp").toFile();
 
             PrintWriter writer = new PrintWriter(file);
             writer.println("The first line");
@@ -168,7 +169,7 @@ public class FileUploadTestIT {
         File file = null;
         try {
             String path = "/multipleMediaType";
-            file = File.createTempFile("inflector-test2-", ".tmp");
+            file = Files.createTempFile("inflector-test2-", ".tmp").toFile();
 
             PrintWriter writer = new PrintWriter(file);
             writer.println("The first line");
