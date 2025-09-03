@@ -45,10 +45,13 @@ import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.AuthorizationValue;
 import io.swagger.v3.parser.core.models.ParseOptions;
+import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import mockit.Injectable;
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1104,5 +1107,40 @@ public class ExampleBuilderTest {
         example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
         output = Json.pretty(example);
         assertEquals(output, "[ \"foo\", " + null + " ]");
+    }
+
+    @Test
+    public void testAllOfMergeSchemas() throws Exception {
+        String expected = "{\n" +
+                "  \"data\" : [ {\n" +
+                "    \"topApiId\" : \"8ab9b11d-bf43-469e-a276-f601801d043c\",\n" +
+                "    \"name\" : \"docman\",\n" +
+                "    \"pathwaysVersion\" : \"0.1\",\n" +
+                "    \"active\" : false,\n" +
+                "    \"created\" : \"2018-07-21T17:32:28Z\"\n" +
+                "  }, {\n" +
+                "    \"topApiId\" : \"baa0dc91-9711-4b61-9c90-ce8ac0b109a9\",\n" +
+                "    \"name\" : \"careweb\",\n" +
+                "    \"pathwaysVersion\" : \"0.1\",\n" +
+                "    \"active\" : true,\n" +
+                "    \"created\" : \"2019-07-21T17:32:28Z\"\n" +
+                "  } ],\n" +
+                "  \"pagination\" : {\n" +
+                "    \"offset\" : 0,\n" +
+                "    \"limit\" : 10,\n" +
+                "    \"totalResultCount\" : 100\n" +
+                "  }\n" +
+                "}";
+        ParseOptions options = new ParseOptions();
+        options.setResolve(true);
+        options.setResolveFully(true);
+        options.setResolveCombinators(false);
+        String pathFile = FileUtils.readFileToString(new File("./src/test/swagger/issue-22849.yaml"), "UTF-8");
+        SwaggerParseResult swaggerParseResult = new OpenAPIV3Parser().readContents(pathFile, null, options);
+        OpenAPI openAPI = swaggerParseResult.getOpenAPI();
+        ApiResponse response = openAPI.getPaths().get("/topApis").getGet().getResponses().get("200");
+
+        Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(), null, ExampleBuilder.RequestType.READ);
+        assertEquals(Json.pretty(example),expected);
     }
 }

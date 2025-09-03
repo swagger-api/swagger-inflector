@@ -1,0 +1,127 @@
+openapi: 3.0.0
+info:
+  version: "minimal-repro"
+  title: TopApis API
+paths:
+  "/topApis":
+    get:
+      tags:
+        - TopApi
+      summary: List TopApis
+      operationId: listTopApis
+      parameters:
+        - in: query
+          name: includeInactive
+          schema:
+            type: boolean
+          required: false
+          example: false
+        - in: query
+          name: filterByName
+          schema:
+            type: string
+          required: false
+          example: 'ada'
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          required: false
+          example: 5
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+          required: false
+          example: 10
+      responses:
+        '200':
+          description: a description
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ListOfTopApis'
+                  - $ref: '#/components/schemas/Pagination'
+components:
+  schemas:
+    TopApi:
+      type: object
+      required:
+        - name
+        - pathwaysVersion
+      additionalProperties: false
+      properties:
+        topApiId:
+          type: string
+          format: uuid
+          readOnly: true
+          example: '884c0363-bbbe-4a5e-8d4f-1d34910803fc'
+        name:
+          type: string
+          example: 'adastra'
+        pathwaysVersion:
+          type: string
+          example: '0.1'
+        active:
+          type: boolean
+          readOnly: true
+          example: true
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+          example: '2017-07-21T17:32:28Z'
+    ListOfTopApis:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TopApi'
+      example:
+        data:
+          - topApiId: '8ab9b11d-bf43-469e-a276-f601801d043c'
+            name: 'docman'
+            pathwaysVersion: '0.1'
+            active: false
+            created: '2018-07-21T17:32:28Z'
+          - topApiId: 'baa0dc91-9711-4b61-9c90-ce8ac0b109a9'
+            name: 'careweb'
+            pathwaysVersion: '0.1'
+            active: true
+            created: '2019-07-21T17:32:28Z'
+    Pagination:
+      type: object
+      properties:
+        pagination:
+          type: object
+          properties:
+            offset:
+              type: integer
+              minimum: 0
+              default: 0
+              example: 5
+            limit:
+              type: integer
+              example: 20
+            totalResultCount:
+              type: integer
+              example: 521
+      example:
+        pagination:
+          offset: 0
+          limit: 10
+          totalResultCount: 100
+  requestBodies:
+    TopApi:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TopApi'
