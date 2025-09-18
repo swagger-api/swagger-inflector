@@ -497,15 +497,15 @@
     <properties>
         <swagger-core-version>1.6.16</swagger-core-version>
         <swagger-parser-version>1.0.75</swagger-parser-version>
-        <jackson.version>2.19.0</jackson.version>
+        <jackson.version>2.20.0</jackson.version>
         <joda-time-version>2.12.2</joda-time-version>
         <joda-version>1.9.2</joda-version>
         <jetty-version>9.4.56.v20240826</jetty-version>
         <jersey2-version>2.46</jersey2-version>
         <servlet-api-version>2.5</servlet-api-version>
-        <commons-io-version>2.16.0</commons-io-version>
-        <commons-fileupload-version>1.5</commons-fileupload-version>
-        <commons-lang-version>3.14.0</commons-lang-version>
+        <commons-io-version>2.20.0</commons-io-version>
+        <commons-fileupload-version>1.6.0</commons-fileupload-version>
+        <commons-lang-version>3.18.0</commons-lang-version>
 
         <commons-csv-version>1.10.0</commons-csv-version>
         <json-schema-validator-version>2.2.14</json-schema-validator-version>
