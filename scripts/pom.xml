@@ -174,7 +174,7 @@
     </dependencies>
     <properties>
         <jetty-version>9.4.53.v20231009</jetty-version>
-        <logback-version>1.4.11</logback-version>
+        <logback-version>1.5.22</logback-version>
         <junit-version>4.13.2</junit-version>
         <slf4j-version>1.7.36</slf4j-version>
         <codegen-version>2.1.4</codegen-version>

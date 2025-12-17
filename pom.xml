@@ -542,7 +542,7 @@
         <commons-csv-version>1.10.0</commons-csv-version>
         <json-schema-validator-version>2.2.14</json-schema-validator-version>
 
-        <logback-version>1.5.18</logback-version>
+        <logback-version>1.5.22</logback-version>
         <junit-version>4.13.2</junit-version>
         <slf4j-version>1.7.36</slf4j-version>
         <jmockit-version>1.49</jmockit-version>
