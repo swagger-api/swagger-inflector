@@ -159,7 +159,6 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-version}</version>
                 <configuration>
-                    <aggregate>true</aggregate>
                     <source>1.8</source>
                     <encoding>UTF-8</encoding>
                     <maxmemory>1g</maxmemory>
@@ -334,7 +333,6 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-version}</version>
                 <configuration>
-                    <aggregate>true</aggregate>
                     <debug>true</debug>
                     <links>
                         <link>http://java.sun.com/javaee/5/docs/api</link>
