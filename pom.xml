@@ -531,12 +531,12 @@
         <maven-javadoc-version>3.6.2</maven-javadoc-version>
         <swagger-core-version>2.2.35</swagger-core-version>
         <swagger-parser-version>2.1.31</swagger-parser-version>
-        <jackson.version>2.19.0</jackson.version>
+        <jackson.version>2.21.1</jackson.version>
         <jetty-version>9.4.56.v20240826</jetty-version>
         <jersey2-version>2.46</jersey2-version>
         <servlet-api-version>3.1.0</servlet-api-version>
-        <commons-io-version>2.20.0</commons-io-version>
-        <commons-lang-version>3.18.0</commons-lang-version>
+        <commons-io-version>2.21.0</commons-io-version>
+        <commons-lang-version>3.20.0</commons-lang-version>
         <commons-csv-version>1.10.0</commons-csv-version>
         <json-schema-validator-version>2.2.14</json-schema-validator-version>
 
