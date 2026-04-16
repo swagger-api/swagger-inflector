@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.v3.core.util.Json;
 
-import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.Provider;
+import jakarta.ws.rs.ext.ContextResolver;
+import jakarta.ws.rs.ext.Provider;
 
 @Provider
 public class JsonProvider implements ContextResolver<ObjectMapper> {

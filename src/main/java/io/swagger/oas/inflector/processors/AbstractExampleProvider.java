@@ -22,13 +22,10 @@ import io.swagger.v3.core.util.Json;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.ext.MessageBodyWriter;
-import javax.ws.rs.ext.Provider;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.ext.MessageBodyWriter;
+import jakarta.ws.rs.ext.Provider;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -36,7 +33,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/yaml"})
 public abstract class AbstractExampleProvider implements MessageBodyWriter<Example> {
     static boolean prettyPrint = false;
-    Logger LOGGER = LoggerFactory.getLogger(AbstractExampleProvider.class);
 
     static {
         SimpleModule simpleModule = new SimpleModule();

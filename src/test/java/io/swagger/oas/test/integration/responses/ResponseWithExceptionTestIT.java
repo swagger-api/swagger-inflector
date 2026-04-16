@@ -25,9 +25,9 @@ import io.swagger.v3.core.util.Json;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;

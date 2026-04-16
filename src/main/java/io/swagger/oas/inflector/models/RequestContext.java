@@ -18,11 +18,11 @@ package io.swagger.oas.inflector.models;
 
 import io.swagger.v3.oas.models.Operation;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

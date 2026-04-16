@@ -3,9 +3,9 @@ package io.swagger.oas.inflector;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider;
-import com.fasterxml.jackson.jaxrs.yaml.JacksonYAMLProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.xml.JacksonXMLProvider;
+import com.fasterxml.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 import io.swagger.oas.inflector.config.ExposedSpecOptions;
 import io.swagger.oas.inflector.config.FilterFactory;
 
@@ -56,11 +56,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLHandshakeException;
-import javax.servlet.ServletContext;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.ext.ContextResolver;
+import jakarta.servlet.ServletContext;
+import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.ext.ContextResolver;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -267,7 +267,7 @@ public class OpenAPIInflector extends ResourceConfig {
                             ContextResolver.class);
                 }
                 enableProcessor(JacksonProcessor.class, MediaType.APPLICATION_XML_TYPE);
-                register(JacksonJaxbXMLProvider.class);
+                register(JacksonXMLProvider.class);
                 register(XMLExampleProvider.class);
             } else if ("yaml".equalsIgnoreCase(item)) {
                 // YAML
