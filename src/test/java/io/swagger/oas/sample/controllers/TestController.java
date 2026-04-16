@@ -28,10 +28,10 @@ import io.swagger.oas.test.models.Address;
 import io.swagger.oas.test.models.ExtendedAddress;
 import io.swagger.oas.test.models.User;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NewCookie;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.NewCookie;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import java.io.File;
 import java.util.List;
 

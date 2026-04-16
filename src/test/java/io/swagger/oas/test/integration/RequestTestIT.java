@@ -26,8 +26,8 @@ import org.joda.time.DateTime;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.*;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.*;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;

@@ -22,7 +22,7 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;

@@ -23,10 +23,10 @@ import io.swagger.oas.inflector.processors.BinaryProcessor;
 import io.swagger.v3.oas.models.Operation;
 import org.testng.annotations.Test;
 
-import javax.inject.Provider;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.container.ContainerRequestContext;
+import jakarta.inject.Provider;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.container.ContainerRequestContext;
 import java.util.Collections;
 import java.util.Map;
 

@@ -1,58 +1,51 @@
 package io.swagger.oas.test.utils;
 
 import com.fasterxml.jackson.databind.JavaType;
-import io.swagger.v3.oas.models.media.ObjectSchema;
-import io.swagger.oas.sample.models.Dog;
 import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.utils.ExtensionsUtil;
-
 import io.swagger.oas.inflector.utils.ReflectionUtils;
+import io.swagger.oas.sample.models.Dog;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
-
-
 import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
-
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.AuthorizationValue;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import io.swagger.v3.parser.util.ResolverFully;
-import mockit.Injectable;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import static org.mockito.Mockito.mock;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertEquals;
 
 public class ExtensionsUtilTest {
+    private List<AuthorizationValue> auths = mock(List.class);
 
     @Test
-    public void allowBooleanAdditionalProperties(@Injectable final List<AuthorizationValue> auths) {
+    public void allowBooleanAdditionalProperties() {
 
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
         options.setResolveFully(true);
 
-        SwaggerParseResult result = new OpenAPIV3Parser().readLocation("./src/test/swagger/additionalProperties.yaml", auths, options);
+        SwaggerParseResult result = new OpenAPIV3Parser().readLocation("./src/test/swagger/additionalProperties.yaml", this.auths, options);
 
         assertNotNull(result);
         assertNotNull(result.getOpenAPI());
         OpenAPI openAPI = result.getOpenAPI();
         Assert.assertEquals(result.getOpenAPI().getOpenapi(), "3.0.0");
-        List<String> messages = result.getMessages();
 
         Assert.assertTrue(openAPI.getComponents().getSchemas().get("someObject").getAdditionalProperties() instanceof Schema);
         Assert.assertTrue(((Schema)(openAPI.getComponents().getSchemas().get("someObject").getProperties().get("innerObject"))).getAdditionalProperties() instanceof Boolean);
@@ -60,7 +53,7 @@ public class ExtensionsUtilTest {
     }
 
     @Test
-    public void resolveComposedAllOfReferenceSchema(@Injectable final List<AuthorizationValue> auths){
+    public void resolveComposedAllOfReferenceSchema(){
 
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
@@ -77,7 +70,7 @@ public class ExtensionsUtilTest {
     }
 
     @Test
-    public void testArrayParam(@Injectable final List<AuthorizationValue> auths) throws IOException{
+    public void testArrayParam() throws IOException{
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
         options.setResolveFully(true);
@@ -97,7 +90,7 @@ public class ExtensionsUtilTest {
     }
 
     @Test
-    public void testResolveRequestBody(@Injectable final List<AuthorizationValue> auths) throws Exception {
+    public void testResolveRequestBody() throws Exception {
         ReflectionUtils utils = new ReflectionUtils();
         utils.setConfiguration( Configuration.read("src/test/config/config1.yaml"));
 
@@ -125,7 +118,7 @@ public class ExtensionsUtilTest {
 
 
     @Test
-    public void selfReferenceTest(@Injectable final List<AuthorizationValue> auths) {
+    public void selfReferenceTest() {
         String yaml = "" +
                 "openapi: '3.0'\n" +
                 "paths:\n" +
@@ -192,7 +185,7 @@ public class ExtensionsUtilTest {
         options.setResolve(true);
         options.setResolveFully(true);
 
-        OpenAPI openAPI = new OpenAPIV3Parser().readContents(yaml,auths,options).getOpenAPI();
+        OpenAPI openAPI = new OpenAPIV3Parser().readContents(yaml,this.auths,options).getOpenAPI();
         new ExtensionsUtil().addExtensions(openAPI); // TODO write test for these extensions in schema paths an components as well
 
         Schema schemaB = openAPI.getPaths().get("/selfRefB").getGet().getParameters().get(0).getSchema();
@@ -210,7 +203,7 @@ public class ExtensionsUtilTest {
 
 
     @Test
-    public void testSelfReferenceResolution(@Injectable final List<AuthorizationValue> auths)throws Exception {
+    public void testSelfReferenceResolution() {
 
         String yaml = "" +
                 "openapi: 3.0.0\n" +
@@ -246,7 +239,7 @@ public class ExtensionsUtilTest {
         options.setResolve(true);
         options.setResolveFully(true);
 
-        OpenAPI openAPI = new OpenAPIV3Parser().readContents(yaml,auths,options).getOpenAPI();
+        OpenAPI openAPI = new OpenAPIV3Parser().readContents(yaml,this.auths,options).getOpenAPI();
         ExtensionsUtil extensionsUtil = new ExtensionsUtil();
         extensionsUtil.addExtensions(openAPI);
         Map<String, Schema> schemas = openAPI.getComponents().getSchemas();
