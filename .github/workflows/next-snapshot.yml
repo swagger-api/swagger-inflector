@@ -2,7 +2,6 @@ name: Next Snapshot
 
 on:
   workflow_dispatch:
-    branches: ["master"]
 
 jobs:
   build:
@@ -23,7 +22,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
-          java-version: 8
+          java-version: 17
           distribution: temurin
           server-id: central
           server-username: MAVEN_USERNAME
