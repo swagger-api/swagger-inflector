@@ -16,7 +16,7 @@
 
 package io.swagger.oas.test.client.auth;
 
-import javax.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.DatatypeConverter;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 

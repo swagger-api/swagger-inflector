@@ -22,7 +22,7 @@ import io.swagger.oas.inflector.processors.EntityProcessorFactory;
 import io.swagger.oas.inflector.processors.JacksonProcessor;
 import org.testng.annotations.Test;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;

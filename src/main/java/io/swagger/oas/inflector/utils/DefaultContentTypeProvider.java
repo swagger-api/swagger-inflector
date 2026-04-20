@@ -16,8 +16,8 @@
 
 package io.swagger.oas.inflector.utils;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.ext.ContextResolver;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.ext.ContextResolver;
 
 public class DefaultContentTypeProvider implements ContextResolver<ContentTypeSelector> {
     private final ContentTypeSelector selector;

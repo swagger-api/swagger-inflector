@@ -16,7 +16,7 @@
 
 package io.swagger.oas.inflector;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 
 public class CustomMediaTypes {
 

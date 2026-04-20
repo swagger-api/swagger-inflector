@@ -107,16 +107,20 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
+                <groupId>org.eclipse.jetty.ee10</groupId>
+                <artifactId>jetty-ee10-maven-plugin</artifactId>
                 <version>${jetty-version}</version>
                 <configuration>
-                    <monitoredDirName>.</monitoredDirName>
-                    <scanTargets>
-                        <scanTarget>inflector.yaml</scanTarget>
-                        <scanTarget>src/main/swagger/openapi.yaml</scanTarget>
-                    </scanTargets>
-                    <scanIntervalSeconds>1</scanIntervalSeconds>
+                    <scan>1</scan>
+                    <scanTargetPatterns>
+                        <scanTargetPattern>
+                            <directory>${project.basedir}</directory>
+                            <includes>
+                                <include>inflector.yaml</include>
+                                <include>src/main/swagger/openapi.yaml</include>
+                            </includes>
+                        </scanTargetPattern>
+                    </scanTargetPatterns>
                     <webApp>
                         <contextPath>/</contextPath>
                     </webApp>
@@ -169,11 +173,11 @@
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-inflector</artifactId>
-            <version>2.0.18-SNAPSHOT</version>
+            <version>3.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <properties>
-        <jetty-version>9.4.53.v20231009</jetty-version>
+        <jetty-version>12.0.14</jetty-version>
         <logback-version>1.5.22</logback-version>
         <junit-version>4.13.2</junit-version>
         <slf4j-version>1.7.36</slf4j-version>

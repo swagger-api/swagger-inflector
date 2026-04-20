@@ -19,8 +19,8 @@ package io.swagger.oas.inflector.controllers;
 import io.swagger.oas.inflector.models.InflectResult;
 import org.glassfish.jersey.process.Inflector;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.Response;
 
 public class InflectResultController implements Inflector<ContainerRequestContext, Response> {
     private InflectResult result;

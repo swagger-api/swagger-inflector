@@ -45,7 +45,6 @@ import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.AuthorizationValue;
 import io.swagger.v3.parser.core.models.ParseOptions;
-import mockit.Injectable;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -53,12 +52,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.mockito.Mockito.mock;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.assertFalse;
 
 public class ExampleBuilderTest {
+
+    private List<AuthorizationValue> auths = mock(List.class);
+
     static {
         // register the JSON serializer
         SimpleModule simpleModule = new SimpleModule();
@@ -88,7 +91,7 @@ public class ExampleBuilderTest {
         ParseOptions options = new ParseOptions();
         options.setResolveFully(true);
 
-        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/issue252.yaml", null, options);
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/issue252.yaml", auths, options);
 
         ApiResponse response = openAPI.getPaths().get("/products.xml").getGet().getResponses().get( "200" );
         Example example = ExampleBuilder.fromSchema(response.getContent().get("application/xml").getSchema(), openAPI.getComponents().getSchemas());
@@ -103,7 +106,7 @@ public class ExampleBuilderTest {
         ParseOptions options = new ParseOptions();
         options.setResolveFully(true);
 
-        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/allOfAndRefResolveFully.yaml", null, options);
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/allOfAndRefResolveFully.yaml", auths, options);
 
         ApiResponse response = openAPI.getPaths().get("/inventory").getGet().getResponses().get( "200" );
         Example example = ExampleBuilder.fromSchema(response.getContent().get("application/xml").getSchema(), openAPI.getComponents().getSchemas());
@@ -114,7 +117,7 @@ public class ExampleBuilderTest {
     }
 
     @Test
-    public void testReadModel() throws Exception {
+    public void testReadModel() {
         Map<String, Schema> definitions = ModelConverters.getInstance().readAll(User.class);
         Object o = ExampleBuilder.fromSchema(new Schema().$ref("User"), definitions);
 
@@ -872,13 +875,13 @@ public class ExampleBuilderTest {
     }
 
     @Test
-    public void resolveComposedOneOfRefSchema(@Injectable List<AuthorizationValue> auth){
+    public void resolveComposedOneOfRefSchema(){
 
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
         options.setResolveFully(true);
 
-        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oneOf-anyOf.yaml", auth, options);
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oneOf-anyOf.yaml", auths, options);
 
         ApiResponse response = openAPI.getPaths().get("/oneOf").getGet().getResponses().get("200");
         Example example = ExampleBuilder.fromSchema(response.getContent().get("application/json").getSchema(),null,ExampleBuilder.RequestType.READ);
@@ -901,13 +904,13 @@ public class ExampleBuilderTest {
     }
 
     @Test
-    public void testAdjacentComposedSchema(@Injectable List<AuthorizationValue> auth){
+    public void testAdjacentComposedSchema(){
 
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
         options.setResolveFully(true);
 
-        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oneOf-anyOf.yaml", auth, options);
+        OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/swagger/oneOf-anyOf.yaml", auths, options);
 
 
         ApiResponse responseAdjacent = openAPI.getPaths().get("/adjacent").getGet().getResponses().get("200");
@@ -926,7 +929,7 @@ public class ExampleBuilderTest {
     }
 
     @Test
-    public void testRefAndInlineAllOf(@Injectable final List<AuthorizationValue> auths) throws Exception {
+    public void testRefAndInlineAllOf() throws Exception {
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
         options.setResolveFully(true);

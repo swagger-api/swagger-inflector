@@ -16,7 +16,7 @@
 
 package io.swagger.oas.inflector.examples.models;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
 public interface Example {
     String getName();
