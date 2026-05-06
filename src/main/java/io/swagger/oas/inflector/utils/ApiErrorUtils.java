@@ -18,10 +18,14 @@ package io.swagger.oas.inflector.utils;
 
 import io.swagger.oas.inflector.models.ApiError;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ApiErrorUtils {
+
+    private ApiErrorUtils() {
+        throw new UnsupportedOperationException("ApiErrorUtils class - cannot be instantiated");
+    }
 
     public static ApiError createInternalError() {
         final String message = String.format("There was an error processing your request."

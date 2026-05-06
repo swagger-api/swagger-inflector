@@ -21,7 +21,7 @@ import io.swagger.oas.inflector.controllers.OpenAPIOperationController;
 import io.swagger.oas.inflector.converters.ConversionException;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.io.InputStream;
 import java.util.List;
 
