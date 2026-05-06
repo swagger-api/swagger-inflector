@@ -12,12 +12,12 @@ import io.swagger.v3.core.util.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SchemaValidator {
-    static Map<String, Schema> SCHEMA_CACHE = new HashMap<>();
+    static Map<String, Schema> SCHEMA_CACHE = new ConcurrentHashMap<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemaValidator.class);
 
     // OAS 3.0 uses JSON Schema Draft-4 (with boolean exclusiveMin/Max)
@@ -35,7 +35,7 @@ public class SchemaValidator {
         V3_1   // OpenAPI 3.1.x - uses Draft 2020-12 natively
     }
 
-    private static OpenApiVersion openApiVersion = OpenApiVersion.V3_0;
+    private static volatile OpenApiVersion openApiVersion = OpenApiVersion.V3_0;
 
     public static void setOpenApiVersion(String version) {
         if (version != null && version.startsWith("3.1")) {
