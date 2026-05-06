@@ -144,7 +144,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-version}</version>
                 <configuration>
-                    <source>1.8</source>
+                    <source>17</source>
                     <encoding>UTF-8</encoding>
                     <maxmemory>1g</maxmemory>
                     <links>
@@ -162,17 +162,12 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--
-                Java 8 compatibility is required for downstream consumers still on older JVMs.
-                This prevents upgrading to newer library versions that require Java 11/17+.
-                Dropping Java 8 support would be a breaking change requiring a major version bump.
-            -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
             </plugin>
             <plugin>
