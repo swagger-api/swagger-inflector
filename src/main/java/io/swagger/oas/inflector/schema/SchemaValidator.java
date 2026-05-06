@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class SchemaValidator {
+public final class SchemaValidator {
     static Map<String, Schema> SCHEMA_CACHE = new ConcurrentHashMap<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemaValidator.class);
 
@@ -35,36 +35,30 @@ public class SchemaValidator {
         V3_1   // OpenAPI 3.1.x - uses Draft 2020-12 natively
     }
 
-    private static volatile OpenApiVersion openApiVersion = OpenApiVersion.V3_0;
-
-    public static void setOpenApiVersion(String version) {
-        if (version != null && version.startsWith("3.1")) {
-            openApiVersion = OpenApiVersion.V3_1;
-            LOGGER.info("OpenAPI 3.1 detected - using JSON Schema Draft 2020-12");
-        } else {
-            openApiVersion = OpenApiVersion.V3_0;
-            LOGGER.info("OpenAPI 3.0 detected - using JSON Schema Draft-04");
-        }
-        SCHEMA_CACHE.clear();
+    private SchemaValidator() {
     }
 
-    public static OpenApiVersion getOpenApiVersion() {
-        return openApiVersion;
+    public static OpenApiVersion parseOpenApiVersion(String version) {
+        if (version != null && version.startsWith("3.1")) {
+            return OpenApiVersion.V3_1;
+        }
+        return OpenApiVersion.V3_0;
     }
 
     public static boolean validate(Object argument, String schema, Direction direction) {
+        return validate(argument, schema, direction, OpenApiVersion.V3_0);
+    }
+
+    public static boolean validate(Object argument, String schema, Direction direction, OpenApiVersion openApiVersion) {
         try {
             JsonNode content = Json.mapper().convertValue(argument, JsonNode.class);
-            SchemaRegistry registry = getRegistry();
+            OpenApiVersion normalizedOpenApiVersion = normalizeOpenApiVersion(openApiVersion);
+            Schema jsonSchema = getValidationSchema(schema, normalizedOpenApiVersion);
+            if (jsonSchema == null) {
+                return true;
+            }
 
-            // For OAS 3.0, handle nullable (not in any JSON Schema draft)
-            String processedSchema = openApiVersion == OpenApiVersion.V3_0
-                    ? convertNullableForDraft04(schema)
-                    : schema;
-
-            Schema jsonSchema = registry.getSchema(processedSchema, InputFormat.JSON);
-
-            List<Error> errors = jsonSchema.validate(content.toString(), InputFormat.JSON);
+            List<Error> errors = validateSchema(jsonSchema, content, normalizedOpenApiVersion);
             if (!errors.isEmpty()) {
                 if (direction.equals(Direction.INPUT)) {
                     LOGGER.warn("input: {}\ndoes not match schema: \n{}", content, schema);
@@ -84,19 +78,23 @@ public class SchemaValidator {
     }
 
     public static Schema getValidationSchema(String schema) {
-        schema = schema.trim();
+        return getValidationSchema(schema, OpenApiVersion.V3_0);
+    }
 
-        Schema output = SCHEMA_CACHE.get(schema);
+    public static Schema getValidationSchema(String schema, OpenApiVersion openApiVersion) {
+        schema = schema.trim();
+        OpenApiVersion normalizedOpenApiVersion = normalizeOpenApiVersion(openApiVersion);
+        String cacheKey = createCacheKey(schema, normalizedOpenApiVersion);
+
+        Schema output = SCHEMA_CACHE.get(cacheKey);
 
         if (output == null) {
             try {
-                SchemaRegistry registry = getRegistry();
-                String processedSchema = openApiVersion == OpenApiVersion.V3_0
-                        ? convertNullableForDraft04(schema)
-                        : schema;
+                SchemaRegistry registry = getRegistry(normalizedOpenApiVersion);
+                String processedSchema = preprocessSchema(schema, normalizedOpenApiVersion);
 
                 Schema jsonSchema = registry.getSchema(processedSchema, InputFormat.JSON);
-                SCHEMA_CACHE.put(schema, jsonSchema);
+                SCHEMA_CACHE.put(cacheKey, jsonSchema);
                 output = jsonSchema;
             } catch (Exception e) {
                 LOGGER.error("can't parse schema: {}", schema, e);
@@ -105,8 +103,37 @@ public class SchemaValidator {
         return output;
     }
 
-    private static SchemaRegistry getRegistry() {
-        return openApiVersion == OpenApiVersion.V3_0 ? REGISTRY_DRAFT_4 : REGISTRY_DRAFT_2020_12;
+    private static String createCacheKey(String schema, OpenApiVersion openApiVersion) {
+        return openApiVersion.name() + ":" + schema;
+    }
+
+    private static OpenApiVersion normalizeOpenApiVersion(OpenApiVersion openApiVersion) {
+        if (openApiVersion == null) {
+            return OpenApiVersion.V3_0;
+        }
+        return openApiVersion;
+    }
+
+    private static SchemaRegistry getRegistry(OpenApiVersion openApiVersion) {
+        if (openApiVersion == OpenApiVersion.V3_1) {
+            return REGISTRY_DRAFT_2020_12;
+        }
+        return REGISTRY_DRAFT_4;
+    }
+
+    private static String preprocessSchema(String schema, OpenApiVersion openApiVersion) {
+        if (openApiVersion == OpenApiVersion.V3_0) {
+            return convertNullableForDraft04(schema);
+        }
+        return schema;
+    }
+
+    private static List<Error> validateSchema(Schema jsonSchema, JsonNode content, OpenApiVersion openApiVersion) {
+        if (openApiVersion == OpenApiVersion.V3_1) {
+            return jsonSchema.validate(content.toString(), InputFormat.JSON, executionContext ->
+                    executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
+        }
+        return jsonSchema.validate(content.toString(), InputFormat.JSON);
     }
 
     /**

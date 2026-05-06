@@ -105,6 +105,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
     private String controllerName;
     private String methodName;
     private String operationSignature;
+    private SchemaValidator.OpenApiVersion openApiVersion;
 
     @Inject
     private Provider<Providers> providersProvider;
@@ -115,11 +116,16 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
     private ControllerFactory controllerFactoryCache = null;
 
     public OpenAPIOperationController(Configuration config, String path, String httpMethod, Operation operation, String mediaType, Map<String, Schema> definitions) {
+        this(config, path, httpMethod, operation, mediaType, definitions, SchemaValidator.OpenApiVersion.V3_0);
+    }
+
+    public OpenAPIOperationController(Configuration config, String path, String httpMethod, Operation operation, String mediaType, Map<String, Schema> definitions, SchemaValidator.OpenApiVersion openApiVersion) {
         this.setConfiguration(config);
         this.path = path;
         this.httpMethod = httpMethod;
         this.operation = operation;
         this.definitions = definitions;
+        this.openApiVersion = openApiVersion;
         this.validator = InputConverter.getInstance();
         this.method = detectMethod(operation, mediaType);
         if (method == null) {
@@ -130,9 +136,10 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
     // Used for unit testing only
     OpenAPIOperationController(Configuration config, String path, String httpMethod, Operation operation,
                                              String mediaType, Map<String, Schema> definitions,
+                                             SchemaValidator.OpenApiVersion openApiVersion,
                                              Provider<HttpServletRequest> requestProvider,
                                              Provider<HttpServletResponse> responseProvider) {
-        this(config, path, httpMethod, operation, mediaType, definitions);
+        this(config, path, httpMethod, operation, mediaType, definitions, openApiVersion);
         this.requestProvider = requestProvider;
         this.responseProvider = responseProvider;
     }
@@ -840,7 +847,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         switch (direction) {
             case INPUT:
                 if (config.getValidatePayloads().contains(Configuration.Direction.IN)
-                        && !SchemaValidator.validate(value, Json.pretty(schema), direction)) {
+                        && !SchemaValidator.validate(value, Json.pretty(schema), direction, openApiVersion)) {
                     throw new ApiException(new ApiError()
                             .code(config.getInvalidRequestStatusCode())
                             .message("Input does not match the expected structure"));
@@ -848,7 +855,7 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                 break;
             case OUTPUT:
                 if (config.getValidatePayloads().contains(Configuration.Direction.OUT)
-                        && !SchemaValidator.validate(value, Json.pretty(schema), direction)) {
+                        && !SchemaValidator.validate(value, Json.pretty(schema), direction, openApiVersion)) {
                     throw new ApiException(new ApiError()
                             .code(config.getInvalidRequestStatusCode())
                             .message("The server generated an invalid response"));
