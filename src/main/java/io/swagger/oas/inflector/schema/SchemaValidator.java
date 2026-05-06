@@ -55,14 +55,10 @@ public class SchemaValidator {
     public static boolean validate(Object argument, String schema, Direction direction) {
         try {
             JsonNode content = Json.mapper().convertValue(argument, JsonNode.class);
-            SchemaRegistry registry = getRegistry();
-
-            // For OAS 3.0, handle nullable (not in any JSON Schema draft)
-            String processedSchema = openApiVersion == OpenApiVersion.V3_0
-                    ? convertNullableForDraft04(schema)
-                    : schema;
-
-            Schema jsonSchema = registry.getSchema(processedSchema, InputFormat.JSON);
+            Schema jsonSchema = getValidationSchema(schema);
+            if (jsonSchema == null) {
+                return true;
+            }
 
             List<Error> errors = jsonSchema.validate(content.toString(), InputFormat.JSON);
             if (!errors.isEmpty()) {
