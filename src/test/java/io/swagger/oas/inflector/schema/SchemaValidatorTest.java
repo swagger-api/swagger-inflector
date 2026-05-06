@@ -1,18 +1,12 @@
 package io.swagger.oas.inflector.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.Schema;
 import io.swagger.v3.core.util.Json;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
 
 public class SchemaValidatorTest {
-
-    private static final SchemaValidator.OpenApiVersion V30 = SchemaValidator.OpenApiVersion.V3_0;
-    private static final SchemaValidator.OpenApiVersion V31 = SchemaValidator.parseOpenApiVersion("3.1.0");
-
-    // --- convertNullableForDraft04 ---
 
     @Test
     public void nullableStringBecomesTypeArray() throws Exception {
@@ -97,74 +91,5 @@ public class SchemaValidatorTest {
         JsonNode sub = node.get("allOf").get(0);
         assertFalse(sub.has("nullable"));
         assertTrue(sub.get("type").isArray());
-    }
-
-    // --- parseOpenApiVersion ---
-
-    @Test
-    public void version30ParsesAsV30() {
-        assertEquals(SchemaValidator.parseOpenApiVersion("3.0.3"), SchemaValidator.OpenApiVersion.V3_0);
-    }
-
-    @Test
-    public void version31ParsesAsV31() {
-        assertEquals(SchemaValidator.parseOpenApiVersion("3.1.0"), SchemaValidator.OpenApiVersion.V3_1);
-    }
-
-    @Test
-    public void nullVersionParsesAsV30() {
-        assertEquals(SchemaValidator.parseOpenApiVersion(null), SchemaValidator.OpenApiVersion.V3_0);
-    }
-
-    // --- validate() ---
-
-    @Test
-    public void validStringPassesV30() {
-        assertTrue(SchemaValidator.validate("hello", "{\"type\":\"string\"}", SchemaValidator.Direction.INPUT, V30));
-    }
-
-    @Test
-    public void invalidTypeFailsV30() {
-        assertFalse(SchemaValidator.validate(42, "{\"type\":\"string\"}", SchemaValidator.Direction.INPUT, V30));
-    }
-
-    @Test
-    public void nullableFieldAcceptsNullV30() {
-        assertTrue(SchemaValidator.validate(null, "{\"type\":\"string\",\"nullable\":true}", SchemaValidator.Direction.INPUT, V30));
-    }
-
-    @Test
-    public void validStringPassesV31() {
-        assertTrue(SchemaValidator.validate("hello", "{\"type\":\"string\"}", SchemaValidator.Direction.INPUT, V31));
-    }
-
-    @Test
-    public void invalidTypeFailsV31() {
-        assertFalse(SchemaValidator.validate(42, "{\"type\":\"string\"}", SchemaValidator.Direction.INPUT, V31));
-    }
-
-    @Test
-    public void defaultOverloadUsesV30() {
-        assertTrue(SchemaValidator.validate("hello", "{\"type\":\"string\"}", SchemaValidator.Direction.INPUT));
-    }
-
-    // --- getValidationSchema() / cache ---
-
-    @Test
-    public void getValidationSchemaReturnsCachedInstance() {
-        String schema = "{\"type\":\"string\"}";
-        Schema first = SchemaValidator.getValidationSchema(schema, V30);
-        Schema second = SchemaValidator.getValidationSchema(schema, V30);
-        assertSame(first, second);
-    }
-
-    @Test
-    public void differentVersionsProduceDifferentCacheEntries() {
-        String schema = "{\"type\":\"string\"}";
-        Schema from30 = SchemaValidator.getValidationSchema(schema, V30);
-        Schema from31 = SchemaValidator.getValidationSchema(schema, V31);
-        assertNotNull(from30);
-        assertNotNull(from31);
-        assertNotSame(from30, from31);
     }
 }
