@@ -24,18 +24,12 @@ jobs:
       uses: actions/setup-java@v5
       with:
         java-version: 8
-        distribution: temurin
+        distribution: zulu
+        cache: maven
         server-id: central
         server-username: MAVEN_USERNAME
         server-password: MAVEN_PASSWORD
         gpg-private-key: ${{ secrets.OSSRH_GPG_PRIVATE_KEY }}
-    - name: Cache local Maven repository
-      uses: actions/cache@v5
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
     - name: Run pre release script
       id: preRelease
       run: |

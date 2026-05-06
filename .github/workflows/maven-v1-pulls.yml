@@ -18,13 +18,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
-          distribution: temurin
-      - name: Cache local Maven repository
-        uses: actions/cache@v5
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          distribution: zulu
+          cache: maven
       - name: Build with Maven
         run: mvn -B verify --file pom.xml
