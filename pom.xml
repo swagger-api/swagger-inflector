@@ -147,9 +147,6 @@
                     <source>17</source>
                     <encoding>UTF-8</encoding>
                     <maxmemory>1g</maxmemory>
-                    <links>
-                        <link>http://java.sun.com/javase/6/docs/api/</link>
-                    </links>
                     <excludePackageNames>${javadoc.package.exclude}</excludePackageNames>
                 </configuration>
                 <executions>
@@ -319,10 +316,6 @@
                 <version>${maven-javadoc-version}</version>
                 <configuration>
                     <debug>true</debug>
-                    <links>
-                        <link>http://java.sun.com/javaee/5/docs/api</link>
-                        <link>http://java.sun.com/j2se/1.5.0/docs/api</link>
-                    </links>
                     <excludePackageNames/>
                 </configuration>
             </plugin>
@@ -473,6 +466,12 @@
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
             <version>${jackson.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
