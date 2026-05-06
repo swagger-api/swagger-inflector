@@ -26,6 +26,16 @@ import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Set;
 
+/**
+ * Jackson deserializer for {@link Configuration.Direction} sets.
+ *
+ * <p>Accepts three YAML/JSON forms for the {@code validatePayloads} field:
+ * <ul>
+ *   <li>{@code false} — no validation (empty set)</li>
+ *   <li>{@code true} — validate both directions (all values)</li>
+ *   <li>{@code [IN, OUT]} — explicit list of directions to validate</li>
+ * </ul>
+ */
 public class DirectionDeserializer extends JsonDeserializer<Set<Configuration.Direction>> {
 
     @Override

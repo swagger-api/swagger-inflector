@@ -85,7 +85,7 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <version>1.8</version>
+                                    <version>[17,)</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
@@ -531,7 +531,7 @@
 
         <logback-version>1.5.25</logback-version>
         <junit-version>4.13.2</junit-version>
-        <slf4j-version>1.7.36</slf4j-version>
+        <slf4j-version>2.0.16</slf4j-version>
         <jmockit-version>1.49</jmockit-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

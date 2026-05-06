@@ -19,8 +19,21 @@ package io.swagger.oas.inflector.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 
+/**
+ * Post-processing hook applied to the parsed {@link io.swagger.v3.oas.models.OpenAPI} model
+ * before it is used by the inflector.
+ *
+ * <p>Register implementations via {@link Configuration#setSwaggerProcessors}. Each processor
+ * receives the fully resolved model and may mutate it in place — for example to inject
+ * server-side extensions, strip sensitive fields, or validate custom constraints.
+ */
 public interface OpenAPIProcessor {
 
+    /**
+     * Called once per application startup with the resolved OpenAPI model.
+     *
+     * @param openAPI the mutable, fully-resolved OpenAPI model; never {@code null}
+     */
     void process(OpenAPI openAPI);
 
 }

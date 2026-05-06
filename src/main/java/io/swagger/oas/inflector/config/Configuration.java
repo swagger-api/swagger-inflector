@@ -35,6 +35,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Central configuration for the Swagger Inflector.
+ *
+ * <p>Loaded from {@code inflector.yaml} on the classpath or at the path specified by the
+ * {@code config} system property. Callers that need programmatic configuration should use
+ * the fluent builder methods (e.g. {@link #controllerPackage}, {@link #swaggerUrl}) and
+ * then pass the instance to {@code OpenAPIInflector}.
+ *
+ * <p>Payload validation is controlled by {@link #setValidatePayloads}: supply
+ * {@link Direction#IN} to validate requests, {@link Direction#OUT} to validate responses,
+ * or both.
+ */
 public class Configuration {
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
@@ -73,6 +85,7 @@ public class Configuration {
         return swaggerBase;
     }
 
+    /** Deployment environment hint used for environment-specific behaviour. */
     public static enum Environment {
         DEVELOPMENT(1, "development"), STAGING(2, "staging"), PRODUCTION(3, "production");
 
@@ -90,10 +103,18 @@ public class Configuration {
         }
     }
 
+    /** Indicates whether to validate request payloads ({@code IN}), response payloads ({@code OUT}), or both. */
     public enum Direction {
         IN, OUT;
     }
 
+    /**
+     * Loads configuration from the path in the {@code config} system property, falling back
+     * to {@code inflector.yaml} on the classpath, then {@code inflector.yaml} in the working
+     * directory, and finally returning {@link #defaultConfiguration()} if none is found.
+     *
+     * @return a non-null {@link Configuration}
+     */
     public static Configuration read() {
         String configLocation = System.getProperty("config", "inflector.yaml");
         System.out.println("loading inflector config from " + configLocation);
@@ -134,6 +155,13 @@ public class Configuration {
         return defaultConfiguration();
     }
 
+    /**
+     * Loads configuration from the given file path.
+     *
+     * @param configLocation path to the YAML configuration file
+     * @return the parsed {@link Configuration}
+     * @throws Exception if the file cannot be read or parsed
+     */
     public static Configuration read(String configLocation) throws Exception {
         Configuration config = Yaml.mapper().readValue(new File(configLocation), Configuration.class);
         if(config != null && config.getExceptionMappers().size() == 0) {
@@ -147,6 +175,12 @@ public class Configuration {
         return config;
     }
 
+    /**
+     * Returns a minimal working configuration targeting the {@code io.swagger.oas.sample}
+     * package with default validators, converters, and the standard exception mapper.
+     *
+     * @return a new default {@link Configuration}
+     */
     public static Configuration defaultConfiguration() {
         return new Configuration()
                 .controllerPackage("io.swagger.oas.sample.controllers")
