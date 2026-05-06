@@ -13,9 +13,6 @@
         <developerConnection>scm:git:git@github.com:swagger-api/swagger-inflector.git</developerConnection>
         <url>https://github.com/swagger-api/swagger-inflector</url>
     </scm>
-    <prerequisites>
-        <maven>2.2.0</maven>
-    </prerequisites>
     <issueManagement>
         <system>github</system>
         <url>https://github.com/swagger-api/swagger-inflector/issues</url>
@@ -459,6 +456,10 @@
                 <exclusion>
                     <artifactId>bsh</artifactId>
                     <groupId>org.beanshell</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.inject</groupId>
+                    <artifactId>javax.inject</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
