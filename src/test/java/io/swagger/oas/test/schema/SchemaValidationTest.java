@@ -6,7 +6,6 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SpecificationVersion;
 import io.swagger.oas.inflector.schema.SchemaValidator;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -14,17 +13,14 @@ import java.util.List;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
 public class SchemaValidationTest {
-
-    @BeforeMethod
-    public void setUp() {
-        // Default to OAS 3.0 for tests (enables schema conversion)
-        SchemaValidator.setOpenApiVersion("3.0");
-    }
+    private static final SchemaValidator.OpenApiVersion OPEN_API_30 = SchemaValidator.OpenApiVersion.V3_0;
+    private static final SchemaValidator.OpenApiVersion OPEN_API_31 = SchemaValidator.parseOpenApiVersion("3.1.0");
 
     @Test
     public void testValidPayload() {
@@ -164,6 +160,18 @@ public class SchemaValidationTest {
     }
 
     @Test
+    public void testGetValidationSchemaCachesByVersion() {
+        String schema = "{\"type\": \"string\", \"nullable\": true}";
+
+        Schema from30 = SchemaValidator.getValidationSchema(schema, OPEN_API_30);
+        Schema from31 = SchemaValidator.getValidationSchema(schema, OPEN_API_31);
+
+        assertNotNull(from30);
+        assertNotNull(from31);
+        assertNotSame(from30, from31);
+    }
+
+    @Test
     public void testGetValidationSchemaInvalidJson() {
         String invalidSchema = "not valid json";
 
@@ -211,32 +219,29 @@ public class SchemaValidationTest {
 
     @Test
     public void testOpenApi31TypeArray() {
-        SchemaValidator.setOpenApiVersion("3.1.0");
         // OpenAPI 3.1 allows type to be an array (replaces nullable)
         String schema = "{\"type\": [\"string\", \"null\"]}";
 
-        assertTrue(SchemaValidator.validate("hello", schema, SchemaValidator.Direction.INPUT));
-        assertTrue(SchemaValidator.validate(null, schema, SchemaValidator.Direction.INPUT));
+        assertTrue(SchemaValidator.validate("hello", schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
+        assertTrue(SchemaValidator.validate(null, schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
     }
 
     @Test
     public void testOpenApi31Const() {
-        SchemaValidator.setOpenApiVersion("3.1.0");
         String schema = "{\"const\": \"fixed\"}";
 
-        assertTrue(SchemaValidator.validate("fixed", schema, SchemaValidator.Direction.INPUT));
-        assertFalse(SchemaValidator.validate("other", schema, SchemaValidator.Direction.INPUT));
+        assertTrue(SchemaValidator.validate("fixed", schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
+        assertFalse(SchemaValidator.validate("other", schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
     }
 
     @Test
     public void testOpenApi31ExclusiveMinMax() {
-        SchemaValidator.setOpenApiVersion("3.1.0");
         // In 2020-12, exclusiveMinimum/Maximum are numeric values
         String schema = "{\"type\": \"integer\", \"exclusiveMinimum\": 0, \"exclusiveMaximum\": 10}";
 
-        assertTrue(SchemaValidator.validate(5, schema, SchemaValidator.Direction.INPUT));
-        assertFalse(SchemaValidator.validate(0, schema, SchemaValidator.Direction.INPUT));
-        assertFalse(SchemaValidator.validate(10, schema, SchemaValidator.Direction.INPUT));
+        assertTrue(SchemaValidator.validate(5, schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
+        assertFalse(SchemaValidator.validate(0, schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
+        assertFalse(SchemaValidator.validate(10, schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
     }
 
     @Test
@@ -416,60 +421,66 @@ public class SchemaValidationTest {
         assertFalse(SchemaValidator.validate(4, schema, SchemaValidator.Direction.INPUT));
     }
 
-    // Version switching tests
-
     @Test
-    public void testVersionSwitchingTo31() {
-        SchemaValidator.setOpenApiVersion("3.1.0");
-        assertEquals(SchemaValidator.getOpenApiVersion(), SchemaValidator.OpenApiVersion.V3_1);
+    public void testParseOpenApiVersion() {
+        assertEquals(SchemaValidator.parseOpenApiVersion("3.1.0"), OPEN_API_31);
+        assertEquals(SchemaValidator.parseOpenApiVersion("3.0.3"), OPEN_API_30);
+        assertEquals(SchemaValidator.parseOpenApiVersion(null), OPEN_API_30);
     }
 
     @Test
-    public void testVersionSwitchingTo30() {
-        SchemaValidator.setOpenApiVersion("3.0.3");
-        assertEquals(SchemaValidator.getOpenApiVersion(), SchemaValidator.OpenApiVersion.V3_0);
+    public void testVersionSpecificValidationDoesNotLeakAcrossCalls() {
+        String schema = "{\"type\": \"string\", \"nullable\": true}";
+
+        assertTrue(SchemaValidator.validate(null, schema, SchemaValidator.Direction.INPUT, OPEN_API_30));
+        assertFalse(SchemaValidator.validate(null, schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
+        assertTrue(SchemaValidator.validate(null, schema, SchemaValidator.Direction.INPUT, OPEN_API_30));
     }
 
     @Test
     public void testOas31NullableNotConverted() {
         // In OAS 3.1 mode, nullable keyword is not converted (it's ignored by 2020-12 validator)
-        SchemaValidator.setOpenApiVersion("3.1.0");
         String schema = "{\"type\": \"string\", \"nullable\": true}";
 
-        assertTrue(SchemaValidator.validate("hello", schema, SchemaValidator.Direction.INPUT));
+        assertTrue(SchemaValidator.validate("hello", schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
         // Fails because nullable is not recognized by 2020-12 and no conversion happens
-        assertFalse(SchemaValidator.validate(null, schema, SchemaValidator.Direction.INPUT));
+        assertFalse(SchemaValidator.validate(null, schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
     }
 
     @Test
     public void testOas31TypeArrayWorks() {
         // In OAS 3.1 mode, type arrays work natively
-        SchemaValidator.setOpenApiVersion("3.1.0");
         String schema = "{\"type\": [\"string\", \"null\"]}";
 
-        assertTrue(SchemaValidator.validate("hello", schema, SchemaValidator.Direction.INPUT));
-        assertTrue(SchemaValidator.validate(null, schema, SchemaValidator.Direction.INPUT));
+        assertTrue(SchemaValidator.validate("hello", schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
+        assertTrue(SchemaValidator.validate(null, schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
     }
 
     @Test
     public void testOas31ExclusiveMinNumeric() {
         // In OAS 3.1 mode, numeric exclusiveMinimum works natively
-        SchemaValidator.setOpenApiVersion("3.1.0");
         String schema = "{\"type\": \"integer\", \"exclusiveMinimum\": 5}";
 
-        assertTrue(SchemaValidator.validate(6, schema, SchemaValidator.Direction.INPUT));
-        assertFalse(SchemaValidator.validate(5, schema, SchemaValidator.Direction.INPUT));
+        assertTrue(SchemaValidator.validate(6, schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
+        assertFalse(SchemaValidator.validate(5, schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
     }
 
     @Test
     public void testOas31BooleanExclusiveMinIgnored() {
         // In OAS 3.1 mode, boolean exclusiveMinimum is ignored (no conversion)
-        SchemaValidator.setOpenApiVersion("3.1.0");
         String schema = "{\"type\": \"integer\", \"minimum\": 5, \"exclusiveMinimum\": true}";
 
         // 5 passes because boolean exclusiveMinimum is ignored, minimum is still enforced
-        assertTrue(SchemaValidator.validate(5, schema, SchemaValidator.Direction.INPUT));
-        assertTrue(SchemaValidator.validate(6, schema, SchemaValidator.Direction.INPUT));
+        assertTrue(SchemaValidator.validate(5, schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
+        assertTrue(SchemaValidator.validate(6, schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
+    }
+
+    @Test
+    public void testOas31FormatAssertionsEnabled() {
+        String schema = "{\"type\": \"string\", \"format\": \"date-time\"}";
+
+        assertTrue(SchemaValidator.validate("2026-05-06T12:34:56Z", schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
+        assertFalse(SchemaValidator.validate("not-a-date-time", schema, SchemaValidator.Direction.INPUT, OPEN_API_31));
     }
 
     static class User {

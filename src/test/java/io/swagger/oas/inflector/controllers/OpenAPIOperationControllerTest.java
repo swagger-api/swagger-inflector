@@ -20,6 +20,7 @@ import com.google.common.collect.Maps;
 import io.swagger.oas.inflector.config.Configuration;
 import io.swagger.oas.inflector.models.RequestContext;
 import io.swagger.oas.inflector.processors.BinaryProcessor;
+import io.swagger.oas.inflector.schema.SchemaValidator;
 import io.swagger.v3.oas.models.Operation;
 import org.testng.annotations.Test;
 
@@ -76,7 +77,7 @@ public class OpenAPIOperationControllerTest {
         Provider<HttpServletRequest> requestProvider = () -> request;
         Provider<HttpServletResponse> responseProvider = () -> response;
         OpenAPIOperationController controller = new OpenAPIOperationController(mock(Configuration.class), "/any_path",
-                "GET", mock(Operation.class), "application/json", Collections.emptyMap(),
+                "GET", mock(Operation.class), "application/json", Collections.emptyMap(), SchemaValidator.OpenApiVersion.V3_0,
                 requestProvider, responseProvider
                 );
         ContainerRequestContext context = mock(ContainerRequestContext.class);

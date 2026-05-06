@@ -3,17 +3,14 @@ package io.swagger.oas.inflector.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Schema;
 import io.swagger.v3.core.util.Json;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
 
 public class SchemaValidatorTest {
 
-    @BeforeMethod
-    public void resetState() {
-        SchemaValidator.setOpenApiVersion("3.0.0");
-    }
+    private static final SchemaValidator.OpenApiVersion V30 = SchemaValidator.OpenApiVersion.V3_0;
+    private static final SchemaValidator.OpenApiVersion V31 = SchemaValidator.parseOpenApiVersion("3.1.0");
 
     // --- convertNullableForDraft04 ---
 
@@ -65,6 +62,14 @@ public class SchemaValidatorTest {
     }
 
     @Test
+    public void nullableWithoutTypeRemovesKeywordOnly() throws Exception {
+        String result = SchemaValidator.convertNullableForDraft04("{\"nullable\":true,\"$ref\":\"#/components/schemas/Foo\"}");
+        JsonNode node = Json.mapper().readTree(result);
+        assertFalse(node.has("nullable"));
+        assertFalse(node.has("type"));
+    }
+
+    @Test
     public void nestedPropertiesNullableConverted() throws Exception {
         String schema = "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\",\"nullable\":true}}}";
         String result = SchemaValidator.convertNullableForDraft04(schema);
@@ -85,14 +90,6 @@ public class SchemaValidatorTest {
     }
 
     @Test
-    public void nullableWithoutTypeRemovesKeywordOnly() throws Exception {
-        String result = SchemaValidator.convertNullableForDraft04("{\"nullable\":true,\"$ref\":\"#/components/schemas/Foo\"}");
-        JsonNode node = Json.mapper().readTree(result);
-        assertFalse(node.has("nullable"));
-        assertFalse(node.has("type"));
-    }
-
-    @Test
     public void allOfSubschemasNullableConverted() throws Exception {
         String schema = "{\"allOf\":[{\"type\":\"string\",\"nullable\":true}]}";
         String result = SchemaValidator.convertNullableForDraft04(schema);
@@ -102,77 +99,72 @@ public class SchemaValidatorTest {
         assertTrue(sub.get("type").isArray());
     }
 
-    // --- setOpenApiVersion / getOpenApiVersion ---
+    // --- parseOpenApiVersion ---
 
     @Test
-    public void version30SetsV30() {
-        SchemaValidator.setOpenApiVersion("3.0.3");
-        assertEquals(SchemaValidator.getOpenApiVersion(), SchemaValidator.OpenApiVersion.V3_0);
+    public void version30ParsesAsV30() {
+        assertEquals(SchemaValidator.parseOpenApiVersion("3.0.3"), SchemaValidator.OpenApiVersion.V3_0);
     }
 
     @Test
-    public void version31SetsV31() {
-        SchemaValidator.setOpenApiVersion("3.1.0");
-        assertEquals(SchemaValidator.getOpenApiVersion(), SchemaValidator.OpenApiVersion.V3_1);
+    public void version31ParsesAsV31() {
+        assertEquals(SchemaValidator.parseOpenApiVersion("3.1.0"), SchemaValidator.OpenApiVersion.V3_1);
     }
 
     @Test
-    public void nullVersionDefaultsToV30() {
-        SchemaValidator.setOpenApiVersion(null);
-        assertEquals(SchemaValidator.getOpenApiVersion(), SchemaValidator.OpenApiVersion.V3_0);
+    public void nullVersionParsesAsV30() {
+        assertEquals(SchemaValidator.parseOpenApiVersion(null), SchemaValidator.OpenApiVersion.V3_0);
     }
 
     // --- validate() ---
 
     @Test
     public void validStringPassesV30() {
-        SchemaValidator.setOpenApiVersion("3.0.3");
-        assertTrue(SchemaValidator.validate("hello", "{\"type\":\"string\"}", SchemaValidator.Direction.INPUT));
+        assertTrue(SchemaValidator.validate("hello", "{\"type\":\"string\"}", SchemaValidator.Direction.INPUT, V30));
     }
 
     @Test
-    public void invalidTypeFails() {
-        SchemaValidator.setOpenApiVersion("3.0.3");
-        assertFalse(SchemaValidator.validate(42, "{\"type\":\"string\"}", SchemaValidator.Direction.INPUT));
+    public void invalidTypeFailsV30() {
+        assertFalse(SchemaValidator.validate(42, "{\"type\":\"string\"}", SchemaValidator.Direction.INPUT, V30));
     }
 
     @Test
     public void nullableFieldAcceptsNullV30() {
-        SchemaValidator.setOpenApiVersion("3.0.3");
-        assertTrue(SchemaValidator.validate(null, "{\"type\":\"string\",\"nullable\":true}", SchemaValidator.Direction.INPUT));
+        assertTrue(SchemaValidator.validate(null, "{\"type\":\"string\",\"nullable\":true}", SchemaValidator.Direction.INPUT, V30));
     }
 
     @Test
     public void validStringPassesV31() {
-        SchemaValidator.setOpenApiVersion("3.1.0");
-        assertTrue(SchemaValidator.validate("hello", "{\"type\":\"string\"}", SchemaValidator.Direction.INPUT));
+        assertTrue(SchemaValidator.validate("hello", "{\"type\":\"string\"}", SchemaValidator.Direction.INPUT, V31));
     }
 
     @Test
     public void invalidTypeFailsV31() {
-        SchemaValidator.setOpenApiVersion("3.1.0");
-        assertFalse(SchemaValidator.validate(42, "{\"type\":\"string\"}", SchemaValidator.Direction.INPUT));
+        assertFalse(SchemaValidator.validate(42, "{\"type\":\"string\"}", SchemaValidator.Direction.INPUT, V31));
+    }
+
+    @Test
+    public void defaultOverloadUsesV30() {
+        assertTrue(SchemaValidator.validate("hello", "{\"type\":\"string\"}", SchemaValidator.Direction.INPUT));
     }
 
     // --- getValidationSchema() / cache ---
 
     @Test
     public void getValidationSchemaReturnsCachedInstance() {
-        SchemaValidator.setOpenApiVersion("3.0.3");
         String schema = "{\"type\":\"string\"}";
-        Schema first = SchemaValidator.getValidationSchema(schema);
-        Schema second = SchemaValidator.getValidationSchema(schema);
+        Schema first = SchemaValidator.getValidationSchema(schema, V30);
+        Schema second = SchemaValidator.getValidationSchema(schema, V30);
         assertSame(first, second);
     }
 
     @Test
-    public void versionChangeClearsCache() {
-        SchemaValidator.setOpenApiVersion("3.0.3");
+    public void differentVersionsProduceDifferentCacheEntries() {
         String schema = "{\"type\":\"string\"}";
-        SchemaValidator.SCHEMA_CACHE.put(schema, SchemaValidator.getValidationSchema(schema));
-        assertFalse(SchemaValidator.SCHEMA_CACHE.isEmpty());
-
-        SchemaValidator.setOpenApiVersion("3.1.0");
-        assertTrue(SchemaValidator.SCHEMA_CACHE.isEmpty());
+        Schema from30 = SchemaValidator.getValidationSchema(schema, V30);
+        Schema from31 = SchemaValidator.getValidationSchema(schema, V31);
+        assertNotNull(from30);
+        assertNotNull(from31);
+        assertNotSame(from30, from31);
     }
 }
