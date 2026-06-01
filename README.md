@@ -6,6 +6,10 @@
 
 **NOTE:** If you're looking for `swagger-inflector` 1.X and Swagger/OpenApi 2.0, please refer to [v1 branch](https://github.com/swagger-api/swagger-inflector/tree/v1)
 
+**NOTE:** If you're looking for `swagger-inflector` 2.X (javax namespace), please refer to [v2 branch](https://github.com/swagger-api/swagger-inflector/tree/v2)
+
+**Version 3.0.0+ requires Java 17+ and Jakarta EE 9+ (jakarta.* namespace)**
+
 ----
 
 This project uses the Swagger Specification to drive an API implementation.  Rather than a typical top-down or bottom-up swagger integration, the Inflector uses the swagger specification as a DSL for the REST API.  The spec drives the creation of routes and controllers automatically, matching methods and method signatures from the implementation.  This brings a similar integration approach to the JVM as [swagger-node](https://github.com/swagger-api/swagger-node) brings to the javascript world.
@@ -29,8 +33,8 @@ Inflector uses the following libraries:
 
  - swagger models for the swagger definition
  - Jackson for JSON processing
- - Jersey 2.x for REST
- - Minimum Java 8
+ - Jersey 3.x for REST (Jakarta EE 9+)
+ - **Minimum Java 17** (for version 3.0.0+)
 
 ### Integration
 
@@ -43,7 +47,7 @@ To add inflector via `web.xml`:
   <servlet-name>swagger-inflector</servlet-name>
   <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
   <init-param>
-    <param-name>javax.ws.rs.Application</param-name>
+    <param-name>jakarta.ws.rs.Application</param-name>
     <param-value>io.swagger.oas.inflector.OpenAPIInflector</param-value>
   </init-param>
   <load-on-startup>1</load-on-startup>
@@ -381,6 +385,8 @@ The samples are a being refactor to support the new inflector.
 You will soon find samples for the inflector project in the [Swagger-Samples](https://github.com/swagger-api/swagger-samples) repository.  The inflector projects start with `inflector-`
 
 #### Running tests
+
+**Note:** Version 3.0.0+ requires Java 17 or later to build and run.
 
 If running Java 8, you will need to run a variant that has backported fix 8157236. Azul Zulu is confirmed to work (https://github.com/jmockit/jmockit1/issues/710).
 
