@@ -27,6 +27,15 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
+    - name: Verify Java version
+      run: |
+        java -version
+        export MY_JAVA_VERSION=`java -version 2>&1 | head -1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1`
+        echo "Detected Java version: ${MY_JAVA_VERSION}"
+        if [[ ${MY_JAVA_VERSION} -lt 17 ]]; then
+          echo "Error: Java 17 or higher is required"
+          exit 1
+        fi
     - name: Build with Maven
       run: |
         mvn --no-transfer-progress -B verify --file pom.xml
