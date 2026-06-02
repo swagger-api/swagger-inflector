@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <name>swagger-inflector</name>
     <description>swagger-inflector</description>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0</version>
     <url>https://github.com/swagger-api/swagger-inflector</url>
     <scm>
         <connection>scm:git:git@github.com:swagger-api/swagger-inflector.git</connection>
