@@ -2,7 +2,6 @@ package io.swagger.oas.inflector.utils;
 
 import io.swagger.oas.inflector.Constants;
 
-import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -11,8 +10,6 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
-import org.slf4j.LoggerFactory;
-
 
 import java.util.HashMap;
 import java.util.Map;
@@ -92,8 +89,9 @@ public class ExtensionsUtil {
                             for (String name : schemas.keySet()) {
                                 Schema schema = schemas.get(name);
                                 if (resolved.equals(schema)){
-                                    final String constant = (String) schema.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
-                                    if (constant != null) {
+                                    final Map constants = schema.getExtensions();
+                                    if (constants != null) {
+                                        final String constant = (String) constants.get(Constants.X_SWAGGER_ROUTER_MODEL);
                                         if (addExtensions) {
                                             resolved.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, constant);
                                         }else {
@@ -114,8 +112,9 @@ public class ExtensionsUtil {
                                     for (String name : schemas.keySet()) {
                                         Schema schema = schemas.get(name);
                                         if (resolved.equals(schema)){
-                                            final String constant = (String) schema.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
-                                            if (constant != null) {
+                                            final Map constants = schema.getExtensions();
+                                            if (constants != null) {
+                                                final String constant = (String) constants.get(Constants.X_SWAGGER_ROUTER_MODEL);
                                                 if (addExtensions) {
                                                     resolved.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, constant);
                                                 }else {
@@ -158,8 +157,9 @@ public class ExtensionsUtil {
                                 Schema schema = schemas.get(name);
                                 if (resolved.equals(schema)){
                                     if (schema.getExtensions() != null){
-                                        final String constant = (String) schema.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
-                                        if (constant != null) {
+                                        final Map constants = schema.getExtensions();
+                                        if (constants != null) {
+                                            final String constant = (String) constants.get(Constants.X_SWAGGER_ROUTER_MODEL);
                                             if (addExtensions) {
                                                 resolved.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, constant);
                                             } else {
@@ -188,8 +188,9 @@ public class ExtensionsUtil {
                                         Schema schema = schemas.get(name);
                                         if (resolved.equals(schema)){
                                             if (schema.getExtensions() != null) {
-                                                final String constant = (String) schema.getExtensions().get(Constants.X_SWAGGER_ROUTER_MODEL);
-                                                if (constant != null) {
+                                                final Map constants = schema.getExtensions();
+                                                if (constants != null) {
+                                                    final String constant = (String) constants.get(Constants.X_SWAGGER_ROUTER_MODEL);
                                                     if (addExtensions) {
                                                         resolved.addExtension(Constants.X_SWAGGER_ROUTER_MODEL, constant);
                                                     } else {

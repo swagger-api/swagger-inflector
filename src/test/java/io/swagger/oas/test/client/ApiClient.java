@@ -27,14 +27,14 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -310,8 +310,7 @@ public class ApiClient {
         try {
             if ("list".equals(containerType) || "array".equals(containerType)) {
                 JavaType typeInfo = Json.mapper().getTypeFactory().constructCollectionType(List.class, cls);
-                List response = (List<?>) Json.mapper().readValue(json, typeInfo);
-                return response;
+                return Json.mapper().readValue(json, typeInfo);
             } else if (String.class.equals(cls)) {
                 if (json != null && json.startsWith("\"") && json.endsWith("\"") && json.length() > 1) {
                     return json.substring(1, json.length() - 2);
@@ -447,7 +446,6 @@ public class ApiClient {
                 try {
                     message = String.valueOf(response.readEntity(String.class));
                 } catch (RuntimeException e) {
-                    // e.printStackTrace();
                 }
             }
             throw new ApiException(

@@ -1,32 +1,12 @@
-<!--
-  ~  Copyright 2017 SmartBear Software
-  ~
-  ~  Licensed under the Apache License, Version 2.0 (the "License");
-  ~  you may not use this file except in compliance with the License.
-  ~  You may obtain a copy of the License at
-  ~
-  ~  http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~  Unless required by applicable law or agreed to in writing, software
-  ~  distributed under the License is distributed on an "AS IS" BASIS,
-  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~  See the License for the specific language governing permissions and
-  ~  limitations under the License.
-  -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>5</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.swagger</groupId>
     <artifactId>swagger-inflector</artifactId>
     <packaging>jar</packaging>
     <name>swagger-inflector</name>
-    <version>2.0.9-SNAPSHOT</version>
+    <description>swagger-inflector</description>
+    <version>3.0.1-SNAPSHOT</version>
     <url>https://github.com/swagger-api/swagger-inflector</url>
     <scm>
         <connection>scm:git:git@github.com:swagger-api/swagger-inflector.git</connection>
@@ -36,23 +16,10 @@
     <prerequisites>
         <maven>2.2.0</maven>
     </prerequisites>
-    <developers>
-        <developer>
-            <id>fehguy</id>
-            <name>Tony Tam</name>
-            <email>fehguy@gmail.com</email>
-        </developer>
-    </developers>
     <issueManagement>
         <system>github</system>
         <url>https://github.com/swagger-api/swagger-inflector/issues</url>
     </issueManagement>
-    <mailingLists>
-        <mailingList>
-            <name>swagger-swaggersocket</name>
-            <archive>https://groups.google.com/forum/#!forum/swagger-swaggersocket</archive>
-        </mailingList>
-    </mailingLists>
     <licenses>
         <license>
             <name>Apache License 2.0</name>
@@ -60,15 +27,58 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    <developers>
+        <developer>
+            <id>frantuma</id>
+            <name>Francesco Tumanischvili</name>
+            <email>frantuma@yahoo.com</email>
+        </developer>
+        <developer>
+            <id>fehguy</id>
+            <name>Tony Tam</name>
+            <email>fehguy@gmail.com</email>
+        </developer>
+        <developer>
+            <id>webron</id>
+            <name>Ron Ratovsky</name>
+            <email>webron@gmail.com</email>
+        </developer>
+    </developers>
     <build>
         <defaultGoal>install</defaultGoal>
         <directory>target</directory>
         <finalName>${project.artifactId}-${project.version}</finalName>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>1.6</version>
+                    <configuration>
+                        <!-- Prevent `gpg` from using pinentry programs -->
+                        <gpgArguments>
+                            <arg>--pinentry-mode</arg>
+                            <arg>loopback</arg>
+                        </gpgArguments>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>${enforcer-plugin-version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.6</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0-M2</version>
+                <version>3.4.1</version>
                 <executions>
                     <execution>
                         <id>enforce-versions</id>
@@ -78,7 +88,7 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <version>1.8</version>
+                                    <version>17</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
@@ -102,7 +112,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.1.2</version>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -116,7 +126,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <id>integration-test</id>
@@ -137,14 +147,11 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-version}</version>
                 <configuration>
-                    <aggregate>true</aggregate>
-                    <source>1.8</source>
+                    <source>17</source>
                     <encoding>UTF-8</encoding>
                     <maxmemory>1g</maxmemory>
-                    <links>
-                        <link>http://java.sun.com/javase/6/docs/api/</link>
-                    </links>
-                    <excludePackageNames>${javadoc.package.exclude}</excludePackageNames>
+                    <detectOfflineLinks>false</detectOfflineLinks>
+                    <detectJavaApiLink>false</detectJavaApiLink>
                 </configuration>
                 <executions>
                     <execution>
@@ -158,16 +165,15 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.11.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <release>17</release>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.6</version>
+                <version>3.3.0</version>
                 <configuration>
                     <excludes>
                         <exclude>**/logback.xml</exclude>
@@ -185,33 +191,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>2.1</version>
+                <version>3.12.1</version>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
-                <configuration>
-                    <releaseProfiles>release</releaseProfiles>
-                    <goals>sign</goals>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
+                <groupId>org.eclipse.jetty.ee10</groupId>
+                <artifactId>jetty-ee10-maven-plugin</artifactId>
                 <version>${jetty-version}</version>
                 <configuration>
                     <useTestScope>true</useTestScope>
                     <systemProperties>
-                        <systemProperty>
-                            <name>config</name>
-                            <value>src/test/config/config1.yaml</value>
-                        </systemProperty>
+                        <config>src/test/config/config1.yaml</config>
                     </systemProperties>
                     <webApp>
                         <contextPath>/</contextPath>
@@ -233,10 +222,6 @@
                         <goals>
                             <goal>start</goal>
                         </goals>
-                        <configuration>
-                            <scanIntervalSeconds>0</scanIntervalSeconds>
-                            <daemon>true</daemon>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>stop-jetty</id>
@@ -251,6 +236,18 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.7.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
+                    <waitUntil>published</waitUntil>
+                    <waitMaxTime>3600</waitMaxTime>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -277,6 +274,34 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <configuration>
+                            <!-- Prevent `gpg` from using pinentry programs -->
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
     <reporting>
         <outputDirectory>target/site</outputDirectory>
@@ -286,7 +311,6 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-version}</version>
                 <configuration>
-                    <aggregate>true</aggregate>
                     <debug>true</debug>
                     <links>
                         <link>http://java.sun.com/javaee/5/docs/api</link>
@@ -298,15 +322,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
-                <version>2.3</version>
-                <configuration>
-                    <aggregate>true</aggregate>
-                </configuration>
+                <version>3.6.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.6</version>
+                <version>3.9.0</version>
                 <reportSets>
                     <reportSet>
                         <reports>
@@ -321,7 +342,7 @@
         <!-- Swagger -->
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-jaxrs2</artifactId>
+            <artifactId>swagger-jaxrs2-jakarta</artifactId>
             <version>${swagger-core-version}</version>
         </dependency>
         <dependency>
@@ -363,10 +384,26 @@
             <version>${jersey2-version}</version>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
             <version>${servlet-api-version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>${jaxb-api-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>${jaxb-impl-version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
+            <version>2.0.1</version>
         </dependency>
         <!-- Logging -->
         <dependency>
@@ -389,12 +426,6 @@
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j-version}</version>
         </dependency>
-        <!-- Utils -->
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>${commons-lang-version}</version>
-        </dependency>
 
         <!-- Test -->
         <dependency>
@@ -412,7 +443,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.8.8</version>
+            <version>7.12.0</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -441,13 +472,18 @@
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+            <artifactId>jackson-jakarta-rs-json-provider</artifactId>
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-yaml-provider</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+            <artifactId>jackson-jakarta-rs-yaml-provider</artifactId>
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
@@ -456,14 +492,14 @@
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-xml-provider</artifactId>
+            <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+            <artifactId>jackson-jakarta-rs-xml-provider</artifactId>
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.5</version>
+            <artifactId>mockito-core</artifactId>
+            <version>4.11.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -474,31 +510,33 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.4</version>
+            <version>1.6.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${commons-string-utils-version}</version>
+            <version>${commons-lang-version}</version>
         </dependency>
     </dependencies>
     <properties>
-        <maven-javadoc-version>3.0.1</maven-javadoc-version>
-        <swagger-core-version>2.2.4</swagger-core-version>
-        <swagger-parser-version>2.1.5</swagger-parser-version>
-        <jackson.version>2.13.4</jackson.version>
-        <jetty-version>9.4.39.v20210325</jetty-version>
-        <jersey2-version>2.32</jersey2-version>
-        <servlet-api-version>3.1.0</servlet-api-version>
-        <commons-io-version>2.11.0</commons-io-version>
-        <commons-string-utils-version>3.12.0</commons-string-utils-version>
-        <commons-lang-version>2.6</commons-lang-version>
-        <commons-csv-version>1.9.0</commons-csv-version>
+        <maven-javadoc-version>3.6.2</maven-javadoc-version>
+        <swagger-core-version>2.2.35</swagger-core-version>
+        <swagger-parser-version>2.1.40</swagger-parser-version>
+        <jackson.version>2.21.1</jackson.version>
+        <jetty-version>12.0.14</jetty-version>
+        <jersey2-version>3.1.10</jersey2-version>
+        <jaxb-api-version>4.0.2</jaxb-api-version>
+        <jaxb-impl-version>4.0.5</jaxb-impl-version>
+        <servlet-api-version>6.0.0</servlet-api-version>
+        <commons-io-version>2.21.0</commons-io-version>
+        <commons-lang-version>3.20.0</commons-lang-version>
+        <commons-csv-version>1.10.0</commons-csv-version>
         <json-schema-validator-version>2.2.14</json-schema-validator-version>
 
-        <logback-version>1.2.10</logback-version>
+        <logback-version>1.5.25</logback-version>
         <junit-version>4.13.2</junit-version>
         <slf4j-version>1.7.36</slf4j-version>
-        <jmockit-version>1.19</jmockit-version>
+        <jmockit-version>1.49</jmockit-version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 </project>

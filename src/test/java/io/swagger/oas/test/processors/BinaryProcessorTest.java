@@ -23,25 +23,17 @@ import io.swagger.oas.inflector.processors.BinaryProcessor;
 import io.swagger.oas.inflector.processors.EntityProcessor;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.Content;
-
 import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
-
-import mockit.Mocked;
-
-import mockit.StrictExpectations;
-import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
-import java.util.HashMap;
 import java.util.Map;
 
-
+import static org.mockito.Mockito.mock;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -73,7 +65,9 @@ public class BinaryProcessorTest {
     }
 
     @Test
-    public void processTest(@Mocked Configuration config, @Mocked Map<String,Schema> definitions){
+    public void processTest(){
+        Configuration config = mock(Configuration.class);
+        Map<String, Schema> definitions = mock(Map.class);
 
         Operation operation = new Operation().requestBody(new RequestBody().content(new Content().
                 addMediaType( "application/octec-stream",

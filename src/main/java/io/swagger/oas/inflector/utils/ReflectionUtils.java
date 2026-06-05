@@ -43,18 +43,14 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.core.util.Json;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
-import java.io.File;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.nio.ByteBuffer;
 import java.util.*;
 
 public class ReflectionUtils {
