@@ -112,7 +112,7 @@ public class BinaryProcessor implements EntityProcessor {
 
                     }else if (parameters[i].getRawClass().equals(File.class)) {
 
-                        File file = File.createTempFile("inflector", ".tmp");
+                        File file = java.nio.file.Files.createTempFile("inflector", ".tmp").toFile();
                         file.deleteOnExit();
 
                         FileUtils.copyInputStreamToFile(entityStream, file);
@@ -193,7 +193,7 @@ public class BinaryProcessor implements EntityProcessor {
                             String filename = extractFilenameFromHeaders(headers);
                             if (filename != null) {
                                 try {
-                                    File file = new File(Files.createTempDir(), filename);
+                                    File file = new File(java.nio.file.Files.createTempDirectory("inflector").toFile(), filename);
                                     file.deleteOnExit();
                                     file.getParentFile().deleteOnExit();
                                     FileOutputStream fo = new FileOutputStream(file);
