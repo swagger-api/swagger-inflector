@@ -193,7 +193,7 @@ public class BinaryProcessor implements EntityProcessor {
                             String filename = extractFilenameFromHeaders(headers);
                             if (filename != null) {
                                 try {
-                                    File file = new File(java.nio.file.Files.createTempDir(), filename);
+                                    File file = new File(java.nio.file.Files.createTempDirectory("inflector").toFile(), filename);
                                     file.deleteOnExit();
                                     file.getParentFile().deleteOnExit();
                                     FileOutputStream fo = new FileOutputStream(file);
