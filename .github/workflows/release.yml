@@ -2,6 +2,12 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      skip_maven_release:
+        description: Skip Maven Central deployment (use when the version is already published)
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -57,8 +63,8 @@ jobs:
         git config --global user.name "GitHub Action"
         git config --global hub.protocol https
         git remote set-url origin https://\${{ secrets.GITHUB_TOKEN }}:x-oauth-basic@github.com/swagger-api/swagger-inflector.git
-    - name:  Run maven deploy/release
-      if: env.RELEASE_OK == 'yes'
+    - name: Run maven deploy/release
+      if: env.RELEASE_OK == 'yes' && inputs.skip_maven_release == false
       run: |
         mvn --no-transfer-progress -B -Prelease deploy
     - name: Run post release script
