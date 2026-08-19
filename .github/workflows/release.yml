@@ -73,7 +73,7 @@ jobs:
       run: |
         . ./CI/post-release.sh
     - name: Create Next Snapshot Pull Request
-      uses: peter-evans/create-pull-request@v8
+      uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
       if: env.RELEASE_OK == 'yes'
       with:
         token: ${{ steps.generate-token.outputs.token }}
@@ -82,11 +82,10 @@ jobs:
         branch: bump-snap-${{ env.SC_NEXT_VERSION }}-SNAPSHOT
 
     env:
-      ACTIONS_ALLOW_UNSECURE_COMMANDS:  true
       MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
       MAVEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      SC_VERSION:
-      SC_NEXT_VERSION:
+      SC_VERSION: ""
+      SC_NEXT_VERSION: ""
       GPG_PRIVATE_KEY: ${{ secrets.OSSRH_GPG_PRIVATE_KEY }}
       GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_PRIVATE_PASSPHRASE }}

@@ -49,7 +49,7 @@ jobs:
         echo "SC_VERSION=$SC_VERSION" >> $GITHUB_ENV
         echo "SC_NEXT_VERSION=$SC_NEXT_VERSION" >> $GITHUB_ENV
     - name: Create Prepare Release Pull Request
-      uses: peter-evans/create-pull-request@v8
+      uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
       if: env.PREPARE_RELEASE_OK == 'yes'
       with:
         token: ${{ steps.generate-token.outputs.token }}
@@ -57,9 +57,8 @@ jobs:
         title: 'prepare release ${{ env.SC_VERSION }}'
         branch: prepare-release-${{ env.SC_VERSION }}
     env:
-      ACTIONS_ALLOW_UNSECURE_COMMANDS:  true
       MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
       MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      SC_VERSION:
-      SC_NEXT_VERSION:
+      SC_VERSION: ""
+      SC_NEXT_VERSION: ""
