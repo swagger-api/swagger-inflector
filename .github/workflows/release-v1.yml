@@ -57,7 +57,7 @@ jobs:
         git config --global hub.protocol https
         git remote set-url origin https://\${{ secrets.GITHUB_TOKEN }}:x-oauth-basic@github.com/swagger-api/swagger-inflector.git
     - name: Run maven deploy/release (action-maven-publish)
-      uses: samuelmeuli/action-maven-publish@v1
+      uses: samuelmeuli/action-maven-publish@201a45a3f311b2ee888f252ba9f4194257545709 # v1
       if: env.RELEASE_OK == 'yes'
       with:
         gpg_private_key: ${{ secrets.OSSRH_GPG_PRIVATE_KEY }}
@@ -71,7 +71,7 @@ jobs:
       run: |
         . ./CI/post-release-v1.sh
     - name: Create Next Snapshot Pull Request
-      uses: peter-evans/create-pull-request@v8
+      uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
       if: env.RELEASE_OK == 'yes'
       with:
         token: ${{ steps.generate-token.outputs.token }}
@@ -80,11 +80,10 @@ jobs:
         branch: bump-snap-${{ env.SC_NEXT_VERSION }}-SNAPSHOT
 
     env:
-      ACTIONS_ALLOW_UNSECURE_COMMANDS:  true
       MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
       MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      SC_VERSION:
-      SC_NEXT_VERSION:
+      SC_VERSION: ""
+      SC_NEXT_VERSION: ""
       GPG_PRIVATE_KEY: ${{ secrets.OSSRH_GPG_PRIVATE_KEY }}
       GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_PRIVATE_PASSPHRASE }}
