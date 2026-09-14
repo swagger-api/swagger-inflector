@@ -350,11 +350,8 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
                         } else {
                             if (body.getContent() != null) {
                                 Content content = body.getContent();
-                                io.swagger.v3.oas.models.media.MediaType media = content.get(mediaType.toString());
-
-                                if (media == null) {
-                                    media = content.get(MediaType.WILDCARD);
-                                }
+                                io.swagger.v3.oas.models.media.MediaType media =
+                                        getRequestBodyMediaType(content, mediaType);
 
                                 if (media != null) {
                                     if (media.getSchema() != null) {
@@ -715,7 +712,19 @@ public class OpenAPIOperationController extends ReflectionUtils implements Infle
         }
     }
 
+    static io.swagger.v3.oas.models.media.MediaType getRequestBodyMediaType(
+            Content content, MediaType requestMediaType) {
+        io.swagger.v3.oas.models.media.MediaType media = content.get(requestMediaType.toString());
 
+        if (media == null && !requestMediaType.getParameters().isEmpty()) {
+            media = content.get(requestMediaType.getType() + "/" + requestMediaType.getSubtype());
+        }
+
+        if (media == null) {
+            media = content.get(MediaType.WILDCARD);
+        }
+        return media;
+    }
 
     public void validate(Object o, Schema property, SchemaValidator.Direction direction) throws ApiException {
         doValidation(o, property, direction);
