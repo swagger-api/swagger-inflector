@@ -141,6 +141,21 @@ public class RequestTestIT {
     }
 
     @Test
+    public void verifyInvalidPayloadWithJsonCharset() {
+        // given
+        String body = "{\"pet_type\":31}";
+
+        // when
+        ApiException exception = Assert.expectThrows(ApiException.class, () ->
+            client.invokeAPI("/pets", "POST", new HashMap<String, String>(), body,
+                    new HashMap<String, String>(), null, MediaType.APPLICATION_JSON,
+                    "application/json; charset=utf-8", new String[0]));
+
+        // then
+        assertEquals(exception.getCode(), HttpURLConnection.HTTP_BAD_REQUEST);
+    }
+
+    @Test
     public void verifyArrayModelMapping() throws Exception {
         final Address first = new Address();
         first.setStreet("first");
