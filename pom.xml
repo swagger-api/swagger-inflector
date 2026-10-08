@@ -519,7 +519,7 @@
         </dependency>
     </dependencies>
     <properties>
-        <maven-javadoc-version>3.6.2</maven-javadoc-version>
+        <maven-javadoc-version>3.12.0</maven-javadoc-version>
         <swagger-core-version>2.2.35</swagger-core-version>
         <swagger-parser-version>2.1.40</swagger-parser-version>
         <jackson.version>2.21.5</jackson.version>
