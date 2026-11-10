@@ -78,7 +78,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.4.1</version>
+                <version>3.6.3</version>
                 <executions>
                     <execution>
                         <id>enforce-versions</id>
@@ -112,7 +112,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.4.0</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -126,7 +126,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.6.1</version>
                 <executions>
                     <execution>
                         <id>integration-test</id>
@@ -165,7 +165,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.16.0</version>
                 <configuration>
                     <release>17</release>
                 </configuration>
@@ -173,7 +173,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.5.1</version>
                 <configuration>
                     <excludes>
                         <exclude>**/logback.xml</exclude>
@@ -191,7 +191,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.12.1</version>
+                <version>3.22.0</version>
             </plugin>
             <plugin>
                 <groupId>org.eclipse.jetty.ee10</groupId>
@@ -240,7 +240,7 @@
             <plugin>
                 <groupId>org.sonatype.central</groupId>
                 <artifactId>central-publishing-maven-plugin</artifactId>
-                <version>0.11.0</version>
+                <version>0.12.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <publishingServerId>central</publishingServerId>
@@ -519,24 +519,24 @@
         </dependency>
     </dependencies>
     <properties>
-        <maven-javadoc-version>3.6.2</maven-javadoc-version>
-        <swagger-core-version>2.2.35</swagger-core-version>
-        <swagger-parser-version>2.1.40</swagger-parser-version>
-        <jackson.version>2.21.5</jackson.version>
-        <jetty-version>12.0.14</jetty-version>
-        <jersey2-version>3.1.10</jersey2-version>
-        <jaxb-api-version>4.0.2</jaxb-api-version>
-        <jaxb-impl-version>4.0.5</jaxb-impl-version>
+        <maven-javadoc-version>3.12.0</maven-javadoc-version>
+        <swagger-core-version>2.2.55</swagger-core-version>
+        <swagger-parser-version>2.1.48</swagger-parser-version>
+        <jackson.version>2.23.0</jackson.version>
+        <jetty-version>12.0.41</jetty-version>
+        <jersey2-version>3.1.12</jersey2-version>
+        <jaxb-api-version>4.0.5</jaxb-api-version>
+        <jaxb-impl-version>4.0.9</jaxb-impl-version>
         <servlet-api-version>6.0.0</servlet-api-version>
-        <commons-io-version>2.21.0</commons-io-version>
-        <commons-lang-version>3.20.0</commons-lang-version>
-        <commons-csv-version>1.10.0</commons-csv-version>
+        <commons-io-version>2.22.0</commons-io-version>
+        <commons-lang-version>3.21.0</commons-lang-version>
+        <commons-csv-version>1.14.1</commons-csv-version>
         <json-schema-validator-version>2.2.14</json-schema-validator-version>
 
-        <logback-version>1.5.34</logback-version>
+        <logback-version>1.5.38</logback-version>
         <junit-version>4.13.2</junit-version>
-        <slf4j-version>2.0.19</slf4j-version>
-        <jmockit-version>1.49</jmockit-version>
+        <slf4j-version>2.0.20</slf4j-version>
+        <jmockit-version>1.50</jmockit-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 </project>
