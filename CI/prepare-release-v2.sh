@@ -17,7 +17,7 @@ SC_RELEASE_TAG="v$SC_VERSION"
 #####################
 ### draft release Notes with next release after last release, with tag
 #####################
-python $CUR/CI/releaseNotes.py "$SC_LAST_RELEASE" "$SC_RELEASE_TITLE" "$SC_RELEASE_TAG"
+python $CUR/CI/releaseNotesV2.py "$SC_LAST_RELEASE" "$SC_RELEASE_TITLE" "$SC_RELEASE_TAG"
 
 #####################
 ### update the version to release in maven project with set version

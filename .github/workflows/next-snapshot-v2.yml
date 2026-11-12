@@ -1,8 +1,7 @@
-name: Next Snapshot
+name: Next Snapshot V2
 
 on:
   workflow_dispatch:
-    branches: ["master"]
 
 jobs:
   build:
@@ -19,9 +18,9 @@ jobs:
       - name: Set up Python 3.10
         uses: actions/setup-python@v7
         with:
-          python-version: '3.14'
+          python-version: '3.15'
       - name: Set up Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           java-version: 8
           distribution: temurin
@@ -57,10 +56,10 @@ jobs:
           git config --global user.name "GitHub Action"
           git config --global hub.protocol https
           git remote set-url origin https://\${{ secrets.GITHUB_TOKEN }}:x-oauth-basic@github.com/swagger-api/swagger-inflector.git
-      - name: Checkout master
+      - name: Checkout v2
         uses: actions/checkout@v7
         with:
-          ref: "master"
+          ref: "v2"
           fetch-depth: 0
       - name: Run next snapshot script
         id: postRelease
@@ -68,7 +67,7 @@ jobs:
         run: |
           . ./CI/post-nextsnap.sh
       - name: Create Next Snapshot Pull Request
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         if: env.RELEASE_OK == 'yes'
         with:
           token: ${{ steps.generate-token.outputs.token }}
@@ -77,11 +76,10 @@ jobs:
           branch: bump-snap-${{ env.SC_NEXT_VERSION }}-SNAPSHOT
 
     env:
-      ACTIONS_ALLOW_UNSECURE_COMMANDS:  true
       MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
       MAVEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      SC_VERSION:
-      SC_NEXT_VERSION:
+      SC_VERSION: ""
+      SC_NEXT_VERSION: ""
       GPG_PRIVATE_KEY: ${{ secrets.OSSRH_GPG_PRIVATE_KEY }}
       GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_PRIVATE_PASSPHRASE }}
