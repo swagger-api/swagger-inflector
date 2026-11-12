@@ -5,10 +5,8 @@ Swagger Inflector uses Github actions to run jobs/checks building, testing and d
 
 These github actions are configured in `.github/workflows`:
 
-* maven.yml : Build Test Deploy master
-* maven-pulls.yml Build Test PR
-* maven-v1.yml : Build Test Deploy v1 (must exist in in `v1` branch)
-* maven-v1-pulls.yml Build Test PR v1 (must exist in in `v1` branch)
+* maven-v2.yml : Build Test Deploy v2 (must exist in in `v2` branch)
+* maven-v2-pulls.yml Build Test PR v2 (must exist in in `v2` branch)
 
 
 These actions use available actions in combination with short bash scripts.
@@ -21,18 +19,17 @@ be more maintainable e.g. implementing a custom JavaScript or Docker Container G
 
 #### Workflow summary
 
-1. execute `prepare-release.yml` / `Prepare Release` for `master` branch
+1. execute `prepare-release-v2.yml` / `Prepare Release V2` for `v2` branch
 1. check and merge the Prepare Release PR pushed by previous step. Delete the branch
-1. execute `release.yml` / `Release` for `master` branch
+1. execute `release-v2.yml` / `Release V2` for `v2` branch
 1. check and merge the next snaphot PR pushed by previous step. Delete the branch
 
 #### Prepare Release
 
-The first action to execute is `prepare-release.yml` / `Prepare Release` for master, and
-`prepare-release-v1.yml` / `Prepare Release V1` for `v1` branch.
+The first action to execute is `prepare-release-v2.yml` / `Prepare Release V2` for `v2` branch.
 
-This is triggered by manually executing the action, selecting `Actions` in project GitHub UI, then `Prepare Release` workflow
-and clicking `Run Workflow` (or `Prepare Release V1` and selecting `v1` in the dropdown)
+This is triggered by manually executing the action, selecting `Actions` in project GitHub UI, then `Prepare Release V2` workflow
+and clicking `Run Workflow` (selecting `v2` in the branch dropdown)
 
 `Prepare Release` takes care of:
 
@@ -46,11 +43,10 @@ After the PR checks complete, the PR can me merged, and the second phase `Releas
 
 #### Release
 
-Once prepare release PR has been merged, the second phase is provided by `release.yml` / `Release` actions for master, and
-`release-v1.yml` / `Release V1` for `v1` branch.
+Once prepare release PR has been merged, the second phase is provided by `release-v2.yml` / `Release V2` action for `v2` branch.
 
-This is triggered by manually executing the action, selecting `Actions` in project GitHub UI, then `Release` workflow
-and clicking `Run Workflow` (or `Release V1` and selecting `v1` in the dropdown)
+This is triggered by manually executing the action, selecting `Actions` in project GitHub UI, then `Release V2` workflow
+and clicking `Run Workflow` (selecting `v2` in the branch dropdown)
 
 `Release` takes care of:
 
