@@ -72,18 +72,6 @@
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.8.16</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-gpg-plugin</artifactId>
-                    <version>3.2.8</version>
-                    <configuration>
-                        <!-- Prevent `gpg` from using pinentry programs -->
-                        <gpgArguments>
-                            <arg>--pinentry-mode</arg>
-                            <arg>loopback</arg>
-                        </gpgArguments>
-                    </configuration>
-                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
